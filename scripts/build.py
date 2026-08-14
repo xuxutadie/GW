@@ -315,7 +315,7 @@ def generate_page(page_config, site_config, header, footer, floating):
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0f766e">
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="/assets/css/style.css?v=home-path-stairs-20260814">
+  <link rel="stylesheet" href="/assets/css/style.css?v=brand-logo-20260814">
   {jsonld}
 </head>
 <body class="{body_class}">
@@ -325,7 +325,7 @@ def generate_page(page_config, site_config, header, footer, floating):
   </main>
   {footer}
   {floating}
-  <script src="/assets/js/main.js?v=home-path-stairs-20260814"></script>
+  <script src="/assets/js/main.js?v=brand-logo-20260814"></script>
 </body>
 </html>'''
 
