@@ -493,6 +493,7 @@ def generate_page(page_config, site_config, header, footer, floating):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="baidu-site-verification" content="codeva-CfU9zWFNSj">
   <title>{escape(title, quote=True)}</title>
   <meta name="description" content="{escape(desc, quote=True)}">
   <link rel="canonical" href="{full_url}">
