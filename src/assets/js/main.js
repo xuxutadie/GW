@@ -262,6 +262,13 @@
       return el;
     }
 
+    function formatRecordDate(value) {
+      if (!value) return '未公开';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '未公开';
+      return date.toISOString().slice(0, 10);
+    }
+
     function renderCard(item, index) {
       const title = item.title || '荣誉证书';
       const studentName = item.studentName || '学生作品';
@@ -269,6 +276,9 @@
       const category = item.category || 'award';
       const image = item.image || item.thumb || '';
       const thumb = item.thumb || item.image || '';
+      const recordDate = formatRecordDate(item.createdAt);
+      const issuer = item.issuer || '以证书原图为准';
+      const projectName = item.projectName || item.workTitle || (studentName === '学生作品' ? '学生作品' : studentName);
 
       const article = document.createElement('article');
       article.className = 'certificate-card';
@@ -300,7 +310,22 @@
       info.className = 'certificate-info';
       info.appendChild(createText('span', 'certificate-tag', tag));
       info.appendChild(createText('h3', '', title));
-      info.appendChild(createText('p', '', studentName + ' · 证书展示'));
+      info.appendChild(createText('p', 'certificate-summary', projectName + ' · 证书展示'));
+
+      const meta = document.createElement('dl');
+      meta.className = 'certificate-meta-list';
+      [
+        ['证书名称', title],
+        ['对应学生或项目', projectName],
+        ['公开整理时间', recordDate],
+        ['颁发单位', issuer]
+      ].forEach(function(row) {
+        const wrap = document.createElement('div');
+        wrap.appendChild(createText('dt', '', row[0]));
+        wrap.appendChild(createText('dd', '', row[1]));
+        meta.appendChild(wrap);
+      });
+      info.appendChild(meta);
 
       link.appendChild(frame);
       link.appendChild(info);

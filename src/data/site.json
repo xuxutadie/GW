@@ -104,22 +104,22 @@
   ],
   "cases": [
     {
-      "title": "AI创意表达项目",
-      "category": "AI应用",
-      "summary": "孩子围绕原创故事、绘本分镜和AI视觉生成完成创作，重点训练想法表达、提示词描述、画面筛选和作品讲解能力。",
-      "url": "/cases/"
+      "title": "人群中平凡而不平凡的人",
+      "category": "学生网页作品",
+      "summary": "吴简熙完成的个人网站作品，公开完成时间为2026-07-21。作品通过视频开场、板块切换和个人内容展示训练网页表达能力；学生年龄、学习周期和比赛结果未公开。",
+      "url": "/assets/student-works/public-20260814/work-003-site/portfolio-gallery.html"
     },
     {
-      "title": "AI智能体与Vibe Coding项目",
+      "title": "徐徐少彦的数字展馆",
       "category": "Vibe Coding",
-      "summary": "学生尝试用自然语言和AI协作，把个人想法变成网页、问答工具或互动应用，在调试和修改中理解应用构建流程。",
-      "url": "/works/"
+      "summary": "徐徐少彦完成的3D数字展馆网页，公开完成时间为2026-07-21。作品用于展示空间化表达、页面组织与交互体验；学生年龄、学习周期和比赛结果未公开。",
+      "url": "/assets/student-works/public-20260814/work-006-site/%E5%BE%90%E5%BE%90%E5%B0%91%E5%BD%A6%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99/3D%E8%99%9A%E6%8B%9F%E5%8D%9A%E7%89%A9%E9%A6%86_%E5%88%A0%E9%99%A4%E9%97%A8%E5%8F%A3%E9%BB%84%E8%89%B2%E7%BA%BF%E7%89%88.html"
     },
     {
-      "title": "AI赛事项目训练",
-      "category": "赛事训练",
-      "summary": "围绕赛事规则理解、选题、作品制作、迭代优化和表达训练开展指导，强调孩子亲手完成和清楚讲解项目。",
-      "url": "/competitions/"
+      "title": "多灾害应急科普系统",
+      "category": "科技项目作品",
+      "summary": "蒋羽博完成的HTML科普工具应用，公开完成时间为2026-07-12。作品整合灾害知识、答题练习与应急清单模块；学生年龄、学习周期和比赛结果未公开。",
+      "url": "/assets/student-works/public-20260814/work-016.html"
     }
   ],
   "works": [],
