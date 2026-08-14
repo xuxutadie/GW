@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>水果连连看</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes popIn {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.5); }
+    }
+    @keyframes hintPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.7); }
+      50% { box-shadow: 0 0 0 8px rgba(34, 211, 238, 0); }
+    }
+    @keyframes awesomeText {
+      0% { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.5) rotate(-10deg); 
+      }
+      20% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1.2) rotate(5deg); 
+      }
+      40% { 
+        transform: translate(-50%, -50%) scale(1) rotate(-2deg); 
+      }
+      60% { 
+        transform: translate(-50%, -70%) scale(1.1) rotate(0deg); 
+      }
+      100% { 
+        opacity: 0; 
+        transform: translate(-50%, -120%) scale(0.8) rotate(-5deg); 
+      }
+    }
+    .animate-pop { animation: popIn 0.3s ease-in-out; }
+    .animate-fade-out { animation: fadeOut 0.4s ease-in-out forwards; }
+    .animate-hint { animation: hintPulse 0.8s ease-in-out infinite; }
+    .animate-awesome { animation: awesomeText 1s ease-out forwards; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex flex-col items-center justify-center p-4 select-none">
+  <div id="app"></div>
+
+  <script>
+    // 16种水果emoji
+    const FRUITS = ['🍎', '🍊', '🍋', '🍇', '🍓', '🍒', '🍑', '🍌', '🍍', '🥝', '🍈', '🍐', '🥭', '🍉', '🫐', '🍏'];
+    const ROWS = 8;
+    const COLS = 8;
+    const TOTAL_CELLS = ROWS * COLS;
+    const BASE_TIME = 150;  // 第1关时间
+    const MIN_TIME = 60;    // 最少时间
+    const MAX_LEVEL = 20;   // 总关卡数
+
+    let grid = [];
+    let selected = null;
+    let score = 0;
+    let currentLevel = 1;
+    let timeLeft = BASE_TIME;
+    let gameOver = false;
+    let gameWon = false;
+    let gameStarted = false;
+    let disappearing = new Set();
+    let hintCells = new Set();
+    let timerInterval = null;
+    let awesomeTexts = [];
+    let currentPath = null;
+
+    // 生成随机网格
+    function generateGrid() {
+      const items = [];
+      // 每种水果出现 TOTAL_CELLS / FRUITS.length = 4 次
+      for (const fruit of FRUITS) {
+        for (let i = 0; i < TOTAL_CELLS / FRUITS.length; i++) {
+          items.push(fruit);
+        }
+      }
+      // Fisher-Yates 洗牌
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+      const newGrid = [];
+      for (let r = 0; r < ROWS; r++) {
+        newGrid.push(items.slice(r * COLS, (r + 1) * COLS));
+      }
+      return newGrid;
+    }
+
+    // 检查棋盘是否有至少一对可消除的水果
+    function hasAnySolvablePair(currentGrid) {
+      const cells = [];
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (currentGrid[r][c] !== '') {
+            cells.push({ row: r, col: c, fruit: currentGrid[r][c] });
+          }
+        }
+      }
+      for (let i = 0; i < cells.length; i++) {
+        for (let j = i + 1; j < cells.length; j++) {
+          if (cells[i].fruit === cells[j].fruit) {
+            const p1 = { row: cells[i].row, col: cells[i].col };
+            const p2 = { row: cells[j].row, col: cells[j].col };
+            if (findPathInGrid(currentGrid, p1, p2)) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    // 在指定网格中寻找路径
+    function findPathInGrid(currentGrid, p1, p2) {
+      const [r1, c1] = [p1.row, p1.col];
+      const [r2, c2] = [p2.row, p2.col];
+
+      // 0个拐点
+      if (r1 === r2 || c1 === c2) {
+        let clear = true;
+        if (r1 === r2) {
+          const minC = Math.min(c1, c2);
+          const maxC = Math.max(c1, c2);
+          for (let c = minC + 1; c < maxC; c++) {
+            if (currentGrid[r1][c] !== '') clear = false;
+          }
+        } else {
+          const minR = Math.min(r1, r2);
+          const maxR = Math.max(r1, r2);
+          for (let r = minR + 1; r < maxR; r++) {
+            if (currentGrid[r][c1] !== '') clear = false;
+          }
+        }
+        if (clear) return true;
+      }
+
+      // 1个拐点
+      const corner1 = { row: r1, col: c2 };
+      if (currentGrid[r1][c2] === '') {
+        let clear1 = true, clear2 = true;
+        if (r1 === r2) clear1 = true;
+        else {
+          const minR = Math.min(r1, r2);
+          const maxR = Math.max(r1, r2);
+          for (let r = minR + 1; r < maxR; r++) {
+            if (currentGrid[r][c1] !== '') clear1 = false;
+          }
+        }
+        if (c1 === c2) clear2 = true;
+        else {
+          const minC = Math.min(c1, c2);
+          const maxC = Math.max(c1, c2);
+          for (let c = minC + 1; c < maxC; c++) {
+            if (currentGrid[r2][c] !== '') clear2 = false;
+          }
+        }
+        if (clear1 && clear2) return true;
+      }
+      const corner2 = { row: r2, col: c1 };
+      if (currentGrid[r2][c1] === '') {
+        let clear1 = true, clear2 = true;
+        if (r1 === r2) clear1 = true;
+        else {
+          const minR = Math.min(r1, r2);
+          const maxR = Math.max(r1, r2);
+          for (let r = minR + 1; r < maxR; r++) {
+            if (currentGrid[r][c2] !== '') clear1 = false;
+          }
+        }
+        if (c1 === c2) clear2 = true;
+        else {
+          const minC = Math.min(c1, c2);
+          const maxC = Math.max(c1, c2);
+          for (let c = minC + 1; c < maxC; c++) {
+            if (currentGrid[r1][c] !== '') clear2 = false;
+          }
+        }
+        if (clear1 && clear2) return true;
+      }
+
+      // 2个拐点 - 寻找垂直中间线
+      for (let c = 0; c < COLS; c++) {
+        if (c !== c1 && c !== c2 && currentGrid[r1][c] === '' && currentGrid[r2][c] === '') {
+          let clear1 = true, clear2 = true, clear3 = true;
+          const minC1 = Math.min(c1, c), maxC1 = Math.max(c1, c);
+          const minC2 = Math.min(c, c2), maxC2 = Math.max(c, c2);
+          const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
+          for (let cc = minC1 + 1; cc < maxC1; cc++) {
+            if (currentGrid[r1][cc] !== '') clear1 = false;
+          }
+          for (let rr = minR + 1; rr < maxR; rr++) {
+            if (currentGrid[rr][c] !== '') clear2 = false;
+          }
+          for (let cc = minC2 + 1; cc < maxC2; cc++) {
+            if (currentGrid[r2][cc] !== '') clear3 = false;
+          }
+          if (clear1 && clear2 && clear3) return true;
+        }
+      }
+      // 寻找水平中间线
+      for (let r = 0; r < ROWS; r++) {
+        if (r !== r1 && r !== r2 && currentGrid[r][c1] === '' && currentGrid[r][c2] === '') {
+          let clear1 = true, clear2 = true, clear3 = true;
+          const minR1 = Math.min(r1, r), maxR1 = Math.max(r1, r);
+          const minR2 = Math.min(r, r2), maxR2 = Math.max(r, r2);
+          const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+          for (let rr = minR1 + 1; rr < maxR1; rr++) {
+            if (currentGrid[rr][c1] !== '') clear1 = false;
+          }
+          for (let cc = minC + 1; cc < maxC; cc++) {
+            if (currentGrid[r][cc] !== '') clear2 = false;
+          }
+          for (let rr = minR2 + 1; rr < maxR2; rr++) {
+            if (currentGrid[rr][c2] !== '') clear3 = false;
+          }
+          if (clear1 && clear2 && clear3) return true;
+        }
+      }
+      return false;
+    }
+
+    // 生成可解的网格（循环直到生成可解的）
+    function generateSolvableGrid() {
+      for (let attempt = 0; attempt < 100; attempt++) {
+        const testGrid = generateGrid();
+        if (hasAnySolvablePair(testGrid)) {
+          return testGrid;
+        }
+      }
+      // 如果实在找不到，返回最后一次生成
+      return generateGrid();
+    }
+
+    // 洗牌：将剩余水果重新排列位置（保证至少有一对可消除）
+    function shuffleRemaining() {
+      const remaining = [];
+      const positions = [];
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (grid[r][c] !== '') {
+            remaining.push(grid[r][c]);
+            positions.push({ row: r, col: c });
+          }
+        }
+      }
+      if (remaining.length <= 2) return false;
+
+      // 尝试多次洗牌，直到找到可解的
+      for (let attempt = 0; attempt < 50; attempt++) {
+        // Fisher-Yates 洗牌
+        const shuffled = [...remaining];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        // 创建新网格
+        const testGrid = Array.from({ length: ROWS }, () => Array(COLS).fill(''));
+        for (let i = 0; i < positions.length; i++) {
+          testGrid[positions[i].row][positions[i].col] = shuffled[i];
+        }
+        if (hasAnySolvablePair(testGrid)) {
+          grid = testGrid;
+          return true;
+        }
+      }
+      // 如果多次尝试都找不到可解的，至少可以任意洗牌
+      const shuffled = [...remaining];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      const testGrid = Array.from({ length: ROWS }, () => Array(COLS).fill(''));
+      for (let i = 0; i < positions.length; i++) {
+        testGrid[positions[i].row][positions[i].col] = shuffled[i];
+      }
+      grid = testGrid;
+      return true;
+    }
+
+    // 检查两点之间的直线路径是否畅通
+    function isLineClear(p1, p2) {
+      const [r1, c1] = [p1.row, p1.col];
+      const [r2, c2] = [p2.row, p2.col];
+      
+      if (r1 === r2) {
+        // 同一行
+        const minC = Math.min(c1, c2);
+        const maxC = Math.max(c1, c2);
+        for (let c = minC + 1; c < maxC; c++) {
+          if (grid[r1][c] !== '') return false;
+        }
+        return true;
+      } else if (c1 === c2) {
+        // 同一列
+        const minR = Math.min(r1, r2);
+        const maxR = Math.max(r1, r2);
+        for (let r = minR + 1; r < maxR; r++) {
+          if (grid[r][c1] !== '') return false;
+        }
+        return true;
+      }
+      return false;
+    }
+
+    // 寻找最多2个拐点的路径（返回路径点数组）
+    function findPath(p1, p2) {
+      const [r1, c1] = [p1.row, p1.col];
+      const [r2, c2] = [p2.row, p2.col];
+      
+      // 1. 直接相连（0个拐点）
+      if (isLineClear(p1, p2)) {
+        return [p1, p2];
+      }
+      
+      // 2. 一个拐点
+      // 拐点1：(r1, c2)
+      const corner1 = { row: r1, col: c2 };
+      if (grid[r1][c2] === '' && isLineClear(p1, corner1) && isLineClear(corner1, p2)) {
+        return [p1, corner1, p2];
+      }
+      // 拐点2：(r2, c1)
+      const corner2 = { row: r2, col: c1 };
+      if (grid[r2][c1] === '' && isLineClear(p1, corner2) && isLineClear(corner2, p2)) {
+        return [p1, corner2, p2];
+      }
+      
+      // 3. 两个拐点
+      // 寻找水平中间线
+      for (let c = 0; c < COLS; c++) {
+        if (c !== c1 && c !== c2 && grid[r1][c] === '' && grid[r2][c] === '') {
+          const temp1 = { row: r1, col: c };
+          const temp2 = { row: r2, col: c };
+          if (isLineClear(p1, temp1) && isLineClear(temp1, temp2) && isLineClear(temp2, p2)) {
+            return [p1, temp1, temp2, p2];
+          }
+        }
+      }
+      // 寻找垂直中间线
+      for (let r = 0; r < ROWS; r++) {
+        if (r !== r1 && r !== r2 && grid[r][c1] === '' && grid[r][c2] === '') {
+          const temp1 = { row: r, col: c1 };
+          const temp2 = { row: r, col: c2 };
+          if (isLineClear(p1, temp1) && isLineClear(temp1, temp2) && isLineClear(temp2, p2)) {
+            return [p1, temp1, temp2, p2];
+          }
+        }
+      }
+      
+      // 没有找到路径
+      return null;
+    }
+
+    // 检查是否全部消除
+    function checkWin() {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (grid[r][c] !== '') return false;
+        }
+      }
+      return true;
+    }
+
+    // 点击水果
+    function handleClick(row, col) {
+      if (gameOver || gameWon) return;
+      if (grid[row][col] === '') return;
+      
+      hintCells.clear();
+      currentPath = null;
+
+      if (!selected) {
+        selected = { row, col };
+        render();
+        return;
+      }
+
+      // 点击同一位置取消选择
+      if (selected.row === row && selected.col === col) {
+        selected = null;
+        render();
+        return;
+      }
+
+      // 水果相同并且有连通路径
+      if (grid[selected.row][selected.col] === grid[row][col]) {
+        const path = findPath(selected, { row, col });
+        if (path) {
+          // 有路径，可以消除
+          currentPath = path;
+          const toDisappear = [selected, { row, col }];
+          disappearing.add(`${selected.row},${selected.col}`);
+          disappearing.add(`${row},${col}`);
+          
+          // 添加"真棒"文字
+          const centerRow = (selected.row + row) / 2;
+          const centerCol = (selected.col + col) / 2;
+          const textId = Date.now();
+          awesomeTexts.push({
+            id: textId,
+            row: centerRow,
+            col: centerCol
+          });
+          
+          // 1秒后移除文字
+          setTimeout(() => {
+            awesomeTexts = awesomeTexts.filter(t => t.id !== textId);
+            currentPath = null;
+            if (!gameWon) render();
+          }, 1000);
+          
+          render();
+
+          setTimeout(() => {
+            for (const p of toDisappear) {
+              grid[p.row][p.col] = '';
+            }
+            disappearing.clear();
+            currentPath = null;
+            
+            if (checkWin()) {
+              gameWon = true;
+              clearInterval(timerInterval);
+              score += 50;
+            } else if (!hasAnySolvablePair(grid)) {
+              shuffleRemaining();
+            }
+            render();
+          }, 400);
+
+          score += 10;
+          selected = null;
+        } else {
+          // 水果相同但没有路径，切换选择
+          selected = { row, col };
+        }
+      } else {
+        // 水果不同，切换到新选择
+        selected = { row, col };
+      }
+      render();
+    }
+
+    // 提示功能
+    function handleHint() {
+      if (gameOver || gameWon) return;
+      const cells = [];
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (grid[r][c] !== '') {
+            cells.push({ pos: { row: r, col: c }, fruit: grid[r][c] });
+          }
+        }
+      }
+      for (let i = 0; i < cells.length; i++) {
+        for (let j = i + 1; j < cells.length; j++) {
+          if (cells[i].fruit === cells[j].fruit) {
+            const path = findPath(cells[i].pos, cells[j].pos);
+            if (path) {
+              hintCells.add(`${cells[i].pos.row},${cells[i].pos.col}`);
+              hintCells.add(`${cells[j].pos.row},${cells[j].pos.col}`);
+              render();
+              setTimeout(() => {
+                hintCells.clear();
+                render();
+              }, 2500);
+              return;
+            }
+          }
+        }
+      }
+      // 没有可消除的对 → 自动洗牌
+      handleShuffle(true);
+    }
+
+    // 手动洗牌功能
+    function handleShuffle(fromHint = false) {
+      if (gameOver || gameWon) return;
+      const result = shuffleRemaining();
+      if (result) {
+        selected = null;
+        hintCells.clear();
+        render();
+      }
+    }
+
+    // 获取当前关卡时间（关卡越高时间越少）
+    function getLevelTime() {
+      const time = BASE_TIME - (currentLevel - 1) * 5;
+      return Math.max(time, MIN_TIME);
+    }
+
+    // 初始化游戏（指定关卡）
+    function initGame(level = 1) {
+      currentLevel = level;
+      grid = generateSolvableGrid();
+      selected = null;
+      if (level === 1) score = 0;
+      timeLeft = getLevelTime();
+      gameOver = false;
+      gameWon = false;
+      gameStarted = true;
+      disappearing.clear();
+      hintCells.clear();
+      awesomeTexts = [];
+      currentPath = null;
+      
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          gameOver = true;
+          clearInterval(timerInterval);
+        }
+        render();
+      }, 1000);
+
+      render();
+    }
+
+    // 进入下一关
+    function nextLevel() {
+      if (currentLevel >= MAX_LEVEL) {
+        // 已经完成所有关卡，重置到第1关
+        currentLevel = 1;
+        score = 0;
+        initGame(1);
+      } else {
+        currentLevel++;
+        initGame(currentLevel);
+      }
+    }
+
+    // 重新开始游戏（从第1关开始）
+    function restartGame() {
+      initGame(1);
+    }
+
+    // 渲染函数
+    function render() {
+      const app = document.getElementById('app');
+      
+      if (!gameStarted) {
+        app.innerHTML = `
+          <div class="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-6 md:p-10 max-w-lg w-full">
+            <div class="text-center mb-6">
+              <h1 class="text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-4">
+                水果连连看
+              </h1>
+              <div class="text-4xl md:text-5xl mb-2">🍎🍊🍓🍌</div>
+              <div class="text-lg font-semibold text-blue-600">
+                🏆 挑战 ${MAX_LEVEL} 关模式
+              </div>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+              <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-3 md:p-4">
+                <h3 class="font-bold text-base md:text-lg text-purple-800 mb-1 flex items-center gap-2">
+                  <span class="text-xl md:text-2xl">🎯</span> 游戏目标
+                </h3>
+                <p class="text-gray-600 text-sm md:text-base">
+                  完成全部 ${MAX_LEVEL} 关！每关时间越来越短，你能完成全部挑战吗？
+                </p>
+              </div>
+              
+              <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-3 md:p-4">
+                <h3 class="font-bold text-base md:text-lg text-blue-800 mb-1 flex items-center gap-2">
+                  <span class="text-xl md:text-2xl">🎮</span> 玩法说明
+                </h3>
+                <div class="space-y-1 text-gray-600 text-sm md:text-base">
+                  <div class="flex items-start gap-2">
+                    <span>1️⃣</span>
+                    <span>点击任意一个水果选中它</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span>2️⃣</span>
+                    <span>再点击另一个相同的水果</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span>3️⃣</span>
+                    <span>它们之间有不超过2个拐点的路径时可以消除</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span>✨</span>
+                    <span>配对成功 +10分，通关 +50分</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 md:p-4">
+                <h3 class="font-bold text-base md:text-lg text-amber-800 mb-1 flex items-center gap-2">
+                  <span class="text-xl md:text-2xl">💡</span> 游戏功能
+                </h3>
+                <div class="grid grid-cols-2 gap-2 text-gray-600 text-sm md:text-base">
+                  <div class="flex items-center gap-2">
+                    <span>🔄</span><span>从第1关重新开始</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span>💡</span><span>提示功能</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <button
+              onclick="initGame(1)"
+              class="w-full px-6 py-3 md:py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-base md:text-lg"
+            >
+              🏆 开始挑战（1/${MAX_LEVEL}关）
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      app.innerHTML = `
+        <!-- 顶部信息栏 -->
+        <div class="bg-white/95 backdrop-blur rounded-2xl shadow-xl p-4 md:p-6 mb-4 w-full max-w-[520px]">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-2">
+              <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl px-3 py-2 font-bold shadow-md text-sm md:text-base">
+                ⏱ ${timeLeft}s
+              </div>
+              <div class="bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-xl px-3 py-2 font-bold shadow-md text-sm md:text-base">
+                ⭐ ${score}分
+              </div>
+              <div class="bg-gradient-to-r from-blue-400 to-cyan-500 text-white rounded-xl px-3 py-2 font-bold shadow-md text-sm md:text-base">
+                🏆 第${currentLevel}关
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button
+                onclick="handleHint()"
+                class="px-3 py-2 bg-cyan-500 text-white rounded-xl font-semibold shadow-md hover:bg-cyan-600 hover:scale-105 transition-all duration-200 text-sm md:text-base"
+              >
+                💡 提示
+              </button>
+              <button
+                onclick="handleShuffle()"
+                class="px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm md:text-base"
+              >
+                🔀 洗牌
+              </button>
+              <button
+                onclick="restartGame()"
+                class="px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm md:text-base"
+              >
+                🔄 重新开始
+              </button>
+            </div>
+          </div>
+          <div class="mt-3 text-center text-sm font-semibold text-gray-600">
+            关卡进度：${currentLevel} / ${MAX_LEVEL}
+          </div>
+          <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-400 h-2.5 rounded-full transition-all duration-500" style="width: ${(currentLevel / MAX_LEVEL) * 100}%"></div>
+          </div>
+        </div>
+
+        <!-- 游戏网格 -->
+        <div class="relative bg-white/90 backdrop-blur rounded-2xl shadow-2xl p-3 md:p-4" id="game-grid-container">
+          ${(gameWon || gameOver) ? `
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
+              <div class="bg-white rounded-2xl shadow-2xl p-8 text-center mx-4 animate-pop max-w-sm">
+                ${gameWon ? (
+                  currentLevel >= MAX_LEVEL 
+                    ? `<div class="text-6xl mb-4">🏆</div>
+                       <h2 class="text-2xl font-bold text-gray-800 mb-2">🎉 恭喜！全部通关！</h2>
+                       <p class="text-gray-500 mb-4">你已完成全部${MAX_LEVEL}关！<br>最终得分：${score}分</p>
+                       <button onclick="restartGame()" class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 mb-2">🔄 从头再打一遍</button>`
+                    : `<div class="text-6xl mb-4">🎉</div>
+                       <h2 class="text-2xl font-bold text-gray-800 mb-2">恭喜通过第${currentLevel}关！</h2>
+                       <p class="text-gray-500 mb-4">当前得分：${score}分<br>进度：${currentLevel} / ${MAX_LEVEL}</p>
+                       <button onclick="nextLevel()" class="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 mb-2">➡️ 下一关 (第${currentLevel + 1}关)</button>
+                       <button onclick="restartGame()" class="w-full px-4 py-2 bg-gray-500 text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm">🔄 重新开始</button>`
+                ) : (
+                  `<div class="text-6xl mb-4">😢</div>
+                   <h2 class="text-2xl font-bold text-gray-800 mb-2">游戏结束</h2>
+                   <p class="text-gray-500 mb-4">第${currentLevel}关失败<br>当前得分：${score}分</p>
+                   <button onclick="initGame(${currentLevel})" class="w-full px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 mb-2">🔁 重玩本关</button>
+                   <button onclick="restartGame()" class="w-full px-4 py-2 bg-gray-500 text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm">🔄 从第1关开始</button>`
+                )}
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="grid grid-cols-8 gap-1 md:gap-1.5">
+            ${grid.map((row, r) => row.map((fruit, c) => {
+              const isSelected = selected && selected.row === r && selected.col === c;
+              const isDisappearing = disappearing.has(`${r},${c}`);
+              const isHinted = hintCells.has(`${r},${c}`);
+              const cellClass = `
+                w-10 h-10 md:w-14 md:h-14 flex items-center justify-center
+                rounded-lg text-xl md:text-2xl cursor-pointer
+                transition-all duration-200 select-none
+                ${fruit === '' ? 'invisible' : 'bg-gray-50 hover:bg-gray-100'}
+                ${isSelected ? 'bg-purple-200 ring-2 ring-purple-500 scale-110 animate-pop shadow-md' : ''}
+                ${isDisappearing ? 'animate-fade-out' : ''}
+                ${isHinted ? 'animate-hint' : ''}
+                ${fruit !== '' ? 'shadow-sm hover:shadow-md' : ''}
+              `;
+              return `
+                <div
+                  class="${cellClass}"
+                  onclick="handleClick(${r}, ${c})"
+                >
+                  ${fruit !== '' ? `<span class="${isDisappearing ? 'animate-fade-out' : ''}">${fruit}</span>` : ''}
+                </div>
+              `;
+            }).join('')).join('')}
+          </div>
+          
+          <!-- 连接线 -->
+          ${currentPath ? `
+            <svg class="absolute inset-0 pointer-events-none z-10" style="margin: -0.75rem; left: 0; top: 0;" viewBox="0 0 ${COLS * 64} ${ROWS * 64}">
+              <path 
+                d="M ${currentPath.map((p, i) => {
+                  const x = p.col * 64 + 32;
+                  const y = p.row * 64 + 32;
+                  return (i === 0 ? '' : ' L ') + x + ' ' + y;
+                }).join('')}"
+                stroke="#f59e0b"
+                stroke-width="6"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.8"
+              />
+              <!-- 端点圆点 -->
+              ${currentPath.map((p, i) => (i === 0 || i === currentPath.length - 1) ? `
+                <circle 
+                  cx="${p.col * 64 + 32}" 
+                  cy="${p.row * 64 + 32}" 
+                  r="10" 
+                  fill="#f59e0b" 
+                />
+              ` : '').join('')}
+            </svg>
+          ` : ''}
+          
+          <!-- 真棒文字 -->
+          <div class="absolute inset-0 pointer-events-none overflow-hidden" style="margin: -0.75rem;">
+            ${awesomeTexts.map(t => {
+              // 计算位置
+              const cellWidth = 48; // md尺寸，w-14
+              const cellHeight = 48;
+              const gap = 6;
+              const padding = 16;
+              const x = padding + t.col * (cellWidth + gap) + cellWidth / 2;
+              const y = padding + t.row * (cellHeight + gap) + cellHeight / 2;
+              
+              return `
+                <div
+                  id="awesome-${t.id}"
+                  class="absolute animate-awesome text-2xl md:text-3xl font-bold"
+                  style="
+                    left: ${x}px; 
+                    top: ${y}px; 
+                    color: #fbbf24; 
+                    text-shadow: 0 0 10px #fbbf24, 0 0 20px #f59e0b, 2px 2px 4px rgba(0,0,0,0.3);
+                    z-index: 100;
+                  "
+                >
+                  真棒！
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur rounded-xl p-3 mt-4 max-w-[520px] w-full">
+          <h4 class="font-semibold text-purple-700 mb-2 flex items-center gap-2">
+            <span>📝</span> 快速玩法提示
+          </h4>
+          <div class="flex justify-between text-sm text-gray-600 flex-wrap gap-2">
+            <div class="flex items-center gap-1">
+              <span>1️⃣</span> 选水果
+            </div>
+            <div class="flex items-center gap-1">
+              <span>2️⃣</span> 找相同
+            </div>
+            <div class="flex items-center gap-1">
+              <span>3️⃣</span> 路径通
+            </div>
+            <div class="flex items-center gap-1">
+              <span>4️⃣</span> 消除得分
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 初始渲染
+    render();
+  </script>
+</body>
+</html>

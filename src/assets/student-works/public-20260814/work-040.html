@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超级无敌游戏大厅</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            background: linear-gradient(135deg, #f0e6d3 0%, #e8d4b8 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #8b4513;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .game-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #5d4037;
+            font-weight: bold;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .level-info {
+            background: linear-gradient(145deg, #deb887, #cd9966);
+            padding: 10px 30px;
+            border-radius: 10px;
+            border: 3px solid #8b4513;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .level-info span {
+            font-size: 1.3rem;
+            color: #3d2817;
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border: 3px solid #8b4513;
+            background: #fff8dc;
+            color: #8b4513;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            background: #8b4513;
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(1px) scale(1.02);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* ============ 游戏大厅 ============ */
+        .game-hall {
+            text-align: center;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .hall-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #8b4513;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+        }
+        
+        .hall-subtitle {
+            font-size: 1.3rem;
+            color: #5d4037;
+            margin-bottom: 40px;
+        }
+        
+        .game-cards {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .game-card {
+            background: linear-gradient(145deg, #fff8dc, #f5e6c8);
+            border: 4px solid #8b4513;
+            border-radius: 20px;
+            padding: 30px;
+            width: 350px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .game-card-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+        
+        .game-card-title {
+            font-size: 1.8rem;
+            color: #8b4513;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .game-card-desc {
+            font-size: 1.1rem;
+            color: #5d4037;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .game-card-btn {
+            background: linear-gradient(145deg, #deb887, #cd9966);
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            color: #3d2817;
+            font-weight: bold;
+        }
+        
+        .hall-footer {
+            color: #5d4037;
+            font-size: 1.1rem;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(139, 69, 19, 0.1);
+            border-radius: 10px;
+        }
+        
+        /* ============ 游戏界面 ============ */
+        .game-container {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .game-container.active {
+            display: block;
+        }
+        
+        .back-btn {
+            margin-bottom: 20px;
+            background: linear-gradient(145deg, #deb887, #cd9966);
+        }
+        
+        /* ============ 连连看游戏 ============ */
+        .llk-board {
+            position: relative;
+            background: #fff8dc;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            border: 4px solid #8b4513;
+            margin: 0 auto;
+            display: inline-block;
+        }
+        
+        .llk-grid {
+            display: grid;
+            gap: 8px;
+        }
+        
+        .llk-card {
+            background: linear-gradient(145deg, #deb887, #cd9966);
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            text-align: center;
+            padding: 6px;
+            color: #3d2817;
+            font-weight: bold;
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .llk-card:hover:not(.matched):not(.empty) {
+            transform: scale(1.08);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        }
+        
+        .llk-card.selected {
+            background: linear-gradient(145deg, #ffd700, #ffb700);
+            border-color: #ff8c00;
+            transform: scale(1.12);
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+            animation: selectedPulse 0.8s ease-in-out infinite alternate;
+        }
+        
+        @keyframes selectedPulse {
+            from { box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+            to { box-shadow: 0 0 25px rgba(255,215,0,0.6); }
+        }
+        
+        .llk-card.hint {
+            animation: hintPulse 0.6s infinite;
+            background: linear-gradient(145deg, #90ee90, #7cd37c);
+            border-color: #228b22;
+        }
+        
+        @keyframes hintPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .llk-card.matched {
+            animation: matchSuccess 0.6s ease-out forwards;
+        }
+        
+        @keyframes matchSuccess {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .llk-card.empty {
+            background: transparent;
+            border: none;
+            cursor: default;
+            box-shadow: none;
+        }
+        
+        .llk-card.color-1 { background: linear-gradient(145deg, #deb887, #cd9966); }
+        .llk-card.color-2 { background: linear-gradient(145deg, #e8d4b8, #d4b896); }
+        .llk-card.color-3 { background: linear-gradient(145deg, #f5e6c8, #dcc8a0); }
+        .llk-card.color-4 { background: linear-gradient(145deg, #d8c29f, #c4a87a); }
+        .llk-card.color-5 { background: linear-gradient(145deg, #e6c9a8, #c9a879); }
+        
+        #line-canvas {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        /* ============ 人生模拟器 ============ */
+        .life-sim-container {
+            background: linear-gradient(145deg, #fff8dc, #f5e6c8);
+            border: 4px solid #8b4513;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 0 auto;
+            max-width: 800px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .life-title {
+            text-align: center;
+            color: #8b4513;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .life-progress {
+            background: linear-gradient(145deg, #deb887, #cd9966);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .life-progress-bar {
+            background: #e0d4b8;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .life-progress-fill {
+            background: linear-gradient(90deg, #ff7f7f, #ffb366, #ffd966, #a3d977);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .life-age {
+            font-size: 1.5rem;
+            color: #3d2817;
+            font-weight: bold;
+        }
+        
+        .life-stage {
+            font-size: 1.2rem;
+            color: #5d4037;
+            margin-top: 5px;
+        }
+        
+        .life-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-item {
+            background: linear-gradient(145deg, #deb887, #cd9966);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #8b4513;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-name {
+            font-size: 1rem;
+            color: #3d2817;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            color: #8b4513;
+            font-weight: bold;
+        }
+        
+        .life-event {
+            background: #f5e6c8;
+            border: 3px solid #deb887;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .event-description {
+            font-size: 1.2rem;
+            color: #5d4037;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .life-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .choice-btn {
+            background: linear-gradient(145deg, #deb887, #cd9966);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            color: #3d2817;
+            text-align: left;
+            border: 2px solid #8b4513;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .choice-btn:hover {
+            background: #8b4513;
+            color: #fff;
+            transform: translateX(10px);
+        }
+        
+        /* ============ 人生开始界面 ============ */
+        .life-start {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .gender-selection {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .gender-card {
+            background: linear-gradient(145deg, #fff8dc, #f5e6c8);
+            border: 4px solid #8b4513;
+            border-radius: 20px;
+            padding: 40px;
+            width: 250px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .gender-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .gender-card.male {
+            background: linear-gradient(145deg, #cce5ff, #99c2ff);
+            border-color: #4a90e2;
+        }
+        
+        .gender-card.female {
+            background: linear-gradient(145deg, #ffe4ec, #ffb6c1);
+            border-color: #e91e63;
+        }
+        
+        .gender-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+        
+        .gender-name {
+            font-size: 1.8rem;
+            color: #8b4513;
+            font-weight: bold;
+        }
+        
+        /* ============ 人生结束界面 ============ */
+        .life-end {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .end-title {
+            font-size: 2.5rem;
+            color: #8b4513;
+            margin-bottom: 20px;
+        }
+        
+        .end-summary {
+            background: #f5e6c8;
+            border: 3px solid #deb887;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .summary-item {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #5d4037;
+            line-height: 1.6;
+        }
+        
+        .end-emoji {
+            font-size: 6rem;
+            margin: 20px 0;
+        }
+        
+        /* ============ 弹窗 ============ */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #fff8dc, #f5e6c8);
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            border: 4px solid #8b4513;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 500px;
+        }
+        
+        .modal-content h2 {
+            color: #8b4513;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        
+        .modal-content p {
+            color: #5d4037;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        /* 历史介绍弹窗 */
+        .history-modal .history-content {
+            max-width: 600px;
+        }
+        
+        .history-content h2 {
+            color: #8b4513;
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+        
+        .history-content .period {
+            color: #5d4037;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            padding: 8px 20px;
+            background: linear-gradient(145deg, #deb887, #cd9966);
+            border-radius: 10px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .history-content .description {
+            color: #5d4037;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            text-align: left;
+            background: #f5e6c8;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #deb887;
+        }
+        
+        /* 决战胜利画面 */
+        .victory-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f0e6d3 0%, #e8d4b8 100%);
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        
+        .victory-modal.show {
+            display: flex;
+        }
+        
+        .victory-content {
+            text-align: center;
+            background: linear-gradient(145deg, #fff8dc, #f5e6c8);
+            padding: 60px;
+            border-radius: 25px;
+            border: 5px solid #8b4513;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            max-width: 550px;
+        }
+        
+        .victory-content h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #8b4513;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .victory-content .victory-emoji {
+            font-size: 5rem;
+            margin: 20px 0;
+        }
+        
+        .victory-content p {
+            font-size: 1.4rem;
+            color: #5d4037;
+            margin-bottom: 15px;
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 199;
+        }
+        
+        .particle {
+            position: absolute;
+            font-size: 2rem;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ============ 游戏大厅 ============ -->
+    <div class="game-hall" id="gameHall">
+        <h1 class="hall-title">🎮 超级无敌游戏大厅</h1>
+        <p class="hall-subtitle">欢迎来到游戏世界！选择您想玩的游戏开始冒险</p>
+        
+        <div class="game-cards">
+            <div class="game-card" onclick="openLifeSimulator()">
+                <div class="game-card-icon">👤</div>
+                <div class="game-card-title">人生模拟器</div>
+                <div class="game-card-desc">
+                    体验一段完整的人生旅程<br>
+                    每个选择都会影响您的命运<br>
+                    看看您能活到多少岁！
+                </div>
+                <button class="game-card-btn">开始人生</button>
+            </div>
+            
+            <div class="game-card" onclick="openLinkLink()">
+                <div class="game-card-icon">🏮</div>
+                <div class="game-card-title">历史事件连连看</div>
+                <div class="game-card-desc">
+                    经典连连看玩法<br>
+                    配对历史事件与所属时期<br>
+                    5个关卡等您挑战！
+                </div>
+                <button class="game-card-btn">开始游戏</button>
+            </div>
+            
+            <div class="game-card" onclick="openGomoku()">
+                <div class="game-card-icon">⚫</div>
+                <div class="game-card-title">高难度五子棋</div>
+                <div class="game-card-desc">
+                    挑战AI对手<br>
+                    4个难度等级可选<br>
+                    看看您能否战胜AI！
+                </div>
+                <button class="game-card-btn">开始对局</button>
+            </div>
+        </div>
+        
+        <div class="hall-footer">
+            <p>✨ 温馨提示：每个游戏都有独特的玩法和挑战，尽情享受吧！</p>
+        </div>
+    </div>
+    
+    <!-- ============ 连连看游戏 ============ -->
+    <div class="game-container" id="llkGame">
+        <button class="back-btn" onclick="backToHall()">← 返回超级无敌游戏大厅</button>
+        
+        <h1>🏮 历史事件连连看</h1>
+        
+        <div class="level-info">
+            <span>第 <span id="llkCurrentLevel">1</span> 关 - <span id="llkLevelName">入门级</span></span>
+        </div>
+        
+        <div class="game-info">
+            <span>分数: <span id="llkScore">0</span></span>
+            <span>提示: <span id="llkHints">3</span></span>
+        </div>
+        
+        <div class="controls">
+            <button onclick="llkHint()">💡 提示</button>
+            <button onclick="llkRestart()">🔄 重新开始</button>
+            <button onclick="llkNextLevel()" id="llkNextBtn" style="display:none;">➡️ 下一关</button>
+        </div>
+        
+        <div class="llk-board">
+            <canvas id="line-canvas"></canvas>
+            <div class="llk-grid" id="llkGrid"></div>
+        </div>
+    </div>
+    
+    <!-- ============ 人生模拟器 ============ -->
+    <div class="game-container" id="lifeGame">
+        <button class="back-btn" onclick="backToHall()">← 返回超级无敌游戏大厅</button>
+        
+        <div class="life-sim-container">
+            <h1 class="life-title">🎭 人生重开模拟器</h1>
+            
+            <!-- 天赋选择界面 -->
+            <div id="talentScreen" style="display:block;">
+                <h2 style="color:#8b4513; text-align:center; margin-bottom:15px;">第一步：选择3个天赋</h2>
+                <p style="text-align:center; color:#5d4037; margin-bottom:20px;">从下面10个天赋中选择3个，它们将影响你的一生</p>
+                <div id="talentList" style="display:flex; flex-wrap:wrap; gap:15px; justify-content:center; margin-bottom:20px;"></div>
+                <div style="text-align:center;">
+                    <p style="color:#8b4513; font-size:1.1rem; margin-bottom:15px;">已选择: <span id="talentCount">0</span>/3</p>
+                    <button onclick="goToAllocate()" style="padding:15px 40px; font-size:1.2rem; border:3px solid #8b4513; background:#deb887; color:#3d2817; border-radius:10px; cursor:pointer; font-weight:bold;">下一步：分配属性 →</button>
+                </div>
+            </div>
+            
+            <!-- 属性分配界面 -->
+            <div id="allocateScreen" style="display:none;">
+                <h2 style="color:#8b4513; text-align:center; margin-bottom:15px;">第二步：分配属性点</h2>
+                <p style="text-align:center; color:#5d4037; margin-bottom:20px;">您有20点属性点，请分配到以下5个属性（每项1-10）</p>
+                <div id="allocateList" style="margin: 20px auto; max-width:500px; background:#f5e6c8; padding:25px; border-radius:15px; border:3px solid #deb887;"></div>
+                <div style="text-align:center;">
+                    <p style="color:#8b4513; font-size:1.1rem; margin-bottom:15px;">剩余属性点: <span id="remainPoints">20</span></p>
+                    <div style="display:flex; gap:15px; justify-content:center;">
+                        <button onclick="goToTalents()" style="padding:12px 30px; font-size:1.1rem; border:3px solid #8b4513; background:#fff8dc; color:#5d4037; border-radius:10px; cursor:pointer; font-weight:bold;">← 返回</button>
+                        <button onclick="startLifeSim()" style="padding:12px 30px; font-size:1.1rem; border:3px solid #8b4513; background:#deb887; color:#3d2817; border-radius:10px; cursor:pointer; font-weight:bold;">🎬 开始人生 →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 游戏界面（逐年展示） -->
+            <div id="lifePlayScreen" style="display:none;">
+                <div class="life-progress">
+                    <div class="life-age">📅 年龄: <span id="simAge">0</span> 岁</div>
+                    <div class="life-progress-bar">
+                        <div class="life-progress-fill" id="simProgressFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <div class="life-stats" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin:15px 0;">
+                    <div class="stat-item" style="padding:12px;">
+                        <div class="stat-icon">👤</div>
+                        <div class="stat-name" style="font-size:0.95rem;">颜值</div>
+                        <div class="stat-value" id="statLooks">5</div>
+                    </div>
+                    <div class="stat-item" style="padding:12px;">
+                        <div class="stat-icon">🧠</div>
+                        <div class="stat-name" style="font-size:0.95rem;">智力</div>
+                        <div class="stat-value" id="statIQ">5</div>
+                    </div>
+                    <div class="stat-item" style="padding:12px;">
+                        <div class="stat-icon">💪</div>
+                        <div class="stat-name" style="font-size:0.95rem;">体质</div>
+                        <div class="stat-value" id="statConstitution">5</div>
+                    </div>
+                    <div class="stat-item" style="padding:12px;">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-name" style="font-size:0.95rem;">家境</div>
+                        <div class="stat-value" id="statFamily">5</div>
+                    </div>
+                    <div class="stat-item" style="padding:12px;">
+                        <div class="stat-icon">🍀</div>
+                        <div class="stat-name" style="font-size:0.95rem;">幸运</div>
+                        <div class="stat-value" id="statLuck">5</div>
+                    </div>
+                </div>
+                
+                <div id="lifeEvents" style="background:#f5e6c8; border:3px solid #deb887; border-radius:15px; padding:20px; margin:15px 0; max-height:350px; overflow-y:auto; text-align:left; line-height:1.8;"></div>
+                
+                <div style="text-align:center; margin:15px 0;">
+                    <button onclick="nextYear()" style="padding:15px 50px; font-size:1.2rem; border:3px solid #8b4513; background:linear-gradient(145deg, #deb887, #cd9966); color:#3d2817; border-radius:10px; cursor:pointer; font-weight:bold;">⏭️ 下一年</button>
+                    <button onclick="fastForward()" style="padding:12px 30px; font-size:1rem; border:3px solid #8b4513; background:#fff8dc; color:#5d4037; border-radius:10px; cursor:pointer; font-weight:bold; margin-left:10px;">⏩ 快进10年</button>
+                </div>
+            </div>
+            
+            <!-- 结束界面 -->
+            <div id="lifeEndScreen" style="display:none;">
+                <div class="end-emoji" id="simEndEmoji">🎂</div>
+                <h1 class="end-title" id="simEndTitle">人生总结</h1>
+                
+                <div style="background:linear-gradient(145deg, #fff8dc, #f5e6c8); border:3px solid #8b4513; border-radius:15px; padding:25px; margin:20px auto; max-width:600px; text-align:center;">
+                    <h3 style="color:#8b4513; font-size:1.5rem; margin-bottom:15px;">📜 墓志铭</h3>
+                    <p id="simEpitaph" style="color:#5d4037; font-size:1.2rem; line-height:1.8; font-style:italic; margin-bottom:20px;">一个普通人的一生</p>
+                </div>
+                
+                <div style="background:#f5e6c8; border:3px solid #deb887; border-radius:15px; padding:25px; margin:15px 0; max-width:600px; margin-left:auto; margin-right:auto;">
+                    <h3 style="color:#8b4513; margin-bottom:15px; text-align:center;">📊 人生档案</h3>
+                    <p id="simLifeSummary" style="color:#5d4037; line-height:1.9; font-size:1.05rem;"></p>
+                </div>
+                
+                <div class="controls">
+                    <button onclick="restartLife()">🔄 重开人生</button>
+                    <button onclick="backToHall()">🏠 返回大厅</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ============ 五子棋游戏 ============ -->
+    <div class="game-container" id="gomokuGame">
+        <button class="back-btn" onclick="backToHall()">← 返回超级无敌游戏大厅</button>
+        
+        <div class="life-sim-container" style="padding: 30px; margin: 0 auto; max-width: 700px;">
+            <h1 class="life-title">🧠 高难度五子棋</h1>
+            
+            <div class="level-info" style="background: linear-gradient(145deg, #deb887, #cd9966); padding: 15px 30px; border-radius: 10px; border: 3px solid #8b4513; margin-bottom: 20px;">
+                <span style="font-size: 1.3rem; color: #3d2817; font-weight: bold;">
+                    <span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #555, #000); margin: 0 5px; vertical-align: middle;"></span>
+                    您 (黑棋)
+                    <span style="margin: 0 20px;">VS</span>
+                    <span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, #ccc); margin: 0 5px; vertical-align: middle; border: 1px solid #666;"></span>
+                    AI (白棋)
+                </span>
+            </div>
+            
+            <div class="life-event" style="background: #f5e6c8; border: 3px solid #deb887; border-radius: 15px; padding: 25px; margin-bottom: 20px;">
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <span id="gomokuTurn" style="font-size: 1.2rem; color: #5d4037; font-weight: bold;">轮到您下棋</span>
+                </div>
+                <canvas id="gomokuBoard" width="570" height="570" style="background: #deb887; border-radius: 10px; display: block; margin: 0 auto; cursor: pointer; box-shadow: inset 0 0 20px rgba(0,0,0,0.3);"></canvas>
+                <div id="gomokuThinking" style="text-align: center; margin-top: 15px; color: #8b4513; font-size: 1.1rem; font-weight: bold;"></div>
+            </div>
+            
+            <div class="controls" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;">
+                <select id="gomokuDifficulty" style="padding: 12px 25px; font-size: 1.1rem; border: 3px solid #8b4513; border-radius: 10px; background: #fff8dc; color: #5d4037; cursor: pointer; font-weight: bold;">
+                    <option value="1">初级 (3层)</option>
+                    <option value="2" selected>中级 (4层)</option>
+                    <option value="3">高级 (5层)</option>
+                    <option value="4">专家 (6层)</option>
+                </select>
+                <button onclick="undoGomoku()">↶ 悔棋</button>
+                <button onclick="restartGomoku()">🔄 重新开始</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ============ 通用弹窗 ============ -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">提示</h2>
+            <p id="modalContent"></p>
+            <div class="modal-buttons">
+                <button onclick="closeModal()">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 历史介绍弹窗 -->
+    <div class="modal history-modal" id="historyModal">
+        <div class="modal-content history-content">
+            <h2 id="historyTitle">历史事件</h2>
+            <div class="period" id="historyPeriod">时期</div>
+            <div class="description" id="historyDescription">详细介绍</div>
+            <button onclick="closeHistoryModal()">📖 继续游戏</button>
+        </div>
+    </div>
+    
+    <!-- 决战胜利画面 -->
+    <div class="victory-modal" id="victoryModal">
+        <div class="particles" id="particles"></div>
+        <div class="victory-content">
+            <h1>⚔️ 通关胜利！</h1>
+            <div class="victory-emoji">🏆</div>
+            <p id="victoryMessage">恭喜您完成了挑战！</p>
+            <p id="victoryScore">总得分: 0</p>
+            <div class="modal-buttons">
+                <button onclick="closeVictory()">🎮 继续</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 全局变量 ====================
+        let currentGame = 'hall';
+        
+        // ==================== 游戏大厅导航 ====================
+        function openLifeSimulator() {
+            document.getElementById('gameHall').style.display = 'none';
+            document.getElementById('lifeGame').classList.add('active');
+            document.getElementById('llkGame').classList.remove('active');
+            currentGame = 'life';
+            resetLifeSimulator();
+        }
+        
+        function openGomoku() {
+            document.getElementById('gameHall').style.display = 'none';
+            document.getElementById('lifeGame').classList.remove('active');
+            document.getElementById('llkGame').classList.remove('active');
+            document.getElementById('gomokuGame').classList.add('active');
+            currentGame = 'gomoku';
+            initGomokuBoard();
+        }
+        
+        function openLinkLink() {
+            document.getElementById('gameHall').style.display = 'none';
+            document.getElementById('lifeGame').classList.remove('active');
+            document.getElementById('llkGame').classList.add('active');
+            currentGame = 'llk';
+            initLLKGame();
+        }
+        
+        function backToHall() {
+            document.getElementById('gameHall').style.display = 'block';
+            document.getElementById('lifeGame').classList.remove('active');
+            document.getElementById('llkGame').classList.remove('active');
+            document.getElementById('gomokuGame').classList.remove('active');
+            currentGame = 'hall';
+            // 清理连连看
+            clearInterval(llkLineInterval);
+        }
+        
+        // ==================== 通用弹窗 ====================
+        function showModal(title, content) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').textContent = content;
+            document.getElementById('modal').classList.add('show');
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+        
+        function showVictory(title, score) {
+            document.getElementById('victoryMessage').textContent = title;
+            document.getElementById('victoryScore').textContent = '总得分: ' + score;
+            document.getElementById('victoryModal').classList.add('show');
+            createParticles();
+        }
+        
+        function closeVictory() {
+            document.getElementById('victoryModal').classList.remove('show');
+        }
+        
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            particlesContainer.innerHTML = '';
+            
+            const emojis = ['🎉', '🏆', '⭐', '🎊', '🎈', '💫', '✨', '🌟', '🎇', '🔥'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
+                particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // ==================== 连连看游戏 ====================
+        const allHistoryPairs = [
+            { event: "大禹治水", period: "上古时期", desc: "大禹继承父业，采用疏导的方法，历时13年平定水患。他三过家门而不入，成为中华民族公而忘私的象征。" },
+            { event: "涿鹿之战", period: "上古时期", desc: "黄帝与蚩尤之间的史诗决战。传说蚩尤有八十一兄弟，铜头铁额，黄帝最终战胜蚩尤，奠定了华夏文明的基础。" },
+            { event: "盘古开天", period: "上古时期", desc: "中国创世神话。盘古生于混沌之中，用斧头劈开天地，死后身体化为世间万物，创造了世界。" },
+            { event: "女娲补天", period: "上古时期", desc: "中国上古神话。水神共工怒触不周山，天塌地陷，女娲炼五色石补天，救万民于水火之中。" },
+            { event: "武王伐纣", period: "商末", desc: "周灭商的决定性战役。商纣王暴虐无道，周武王率领诸侯联军，在牧野与商军决战，商朝灭亡。" },
+            { event: "姜子牙钓鱼", period: "商末", desc: "姜子牙在渭水边用直钩钓鱼，等待明主。周文王访贤，拜姜子牙为相，为周朝的建立奠定基础。" },
+            { event: "商鞅变法", period: "战国", desc: "秦国富强的关键。商鞅在秦孝公支持下，实行一系列改革，废井田、开阡陌，奖励耕战，使秦国迅速崛起。" },
+            { event: "长平之战", period: "战国", desc: "秦赵之间的战略决战。秦国用反间计，使赵国用赵括代廉颇，赵括纸上谈兵，被白起大败，四十万赵军被坑杀。" },
+            { event: "围魏救赵", period: "战国", desc: "孙膑的经典战例。魏国围攻赵国都城邯郸，齐国派田忌、孙膑救赵，孙膑率军直攻魏国都城，迫使魏军回救。" },
+            { event: "负荆请罪", period: "战国", desc: "将相和的故事。蔺相如完璧归赵，位在廉颇之上，廉颇不服。后来廉颇深受感动，负荆请罪，两人成为刎颈之交。" },
+            { event: "陈胜吴广起义", period: "秦朝", desc: "中国历史上第一次大规模农民起义。秦末暴政，陈胜吴广在大泽乡揭竿而起，喊出'王侯将相宁有种乎'的口号。" },
+            { event: "楚汉相争", period: "秦末", desc: "项羽与刘邦争夺天下的战争。经过四年战争，刘邦在垓下之战中战胜项羽，项羽乌江自刎，刘邦建立汉朝。" },
+            { event: "破釜沉舟", period: "秦末", desc: "项羽的经典战例。巨鹿之战中，项羽下令破釜沉舟，烧毁营帐，以示必死决心，楚军以一当十，大破秦军。" },
+            { event: "张骞出使西域", period: "西汉", desc: "丝绸之路的开端。汉武帝派张骞出使西域，历时十三年，打通了通往西域的道路，促进了东西方文化的交流。" },
+            { event: "卫青破匈奴", period: "西汉", desc: "卫青是西汉名将，他七次出击匈奴，收复河套地区，深入漠北，重创匈奴，为汉朝边境的安宁作出了巨大贡献。" },
+            { event: "赤壁之战", period: "三国", desc: "三国时期最重要的战役。孙刘联军在赤壁以少胜多，大败曹军，奠定了三国鼎立的基础。" },
+            { event: "草船借箭", period: "三国", desc: "诸葛亮的经典谋略。周瑜命诸葛亮三天造十万支箭，诸葛亮用二十条草船，在大雾中逼近曹营，满载而归。" },
+            { event: "三顾茅庐", period: "三国", desc: "刘备求贤的故事。刘备三次拜访诸葛亮，诸葛亮被刘备诚意感动，出山辅佐刘备，三分天下。" },
+            { event: "淝水之战", period: "东晋", desc: "东晋以少胜多的经典战例。前秦苻坚率百万大军南下，东晋谢玄率八万军队迎敌，在淝水大败秦军。" },
+            { event: "风声鹤唳", period: "东晋", desc: "淝水之战的典故。前秦军队溃败后，听到风声和鹤鸣声，都以为是东晋追兵，形容极度惊慌。" },
+            { event: "玄武门之变", period: "唐朝", desc: "李世民夺取帝位的关键事件。李世民在玄武门发动政变，杀死李建成、李元吉，李渊退位，李世民即位。" },
+            { event: "安史之乱", period: "唐朝", desc: "唐朝由盛转衰的转折点。安禄山、史思明发动叛乱，历时八年，唐朝从此走向衰落。" },
+            { event: "贞观之治", period: "唐朝", desc: "唐太宗李世民在位期间的盛世。李世民虚心纳谏，任用贤能，政治清明，经济繁荣，史称'贞观之治'。" },
+            { event: "李白写诗", period: "唐朝", desc: "李白是中国最伟大的诗人之一，被称为'诗仙'。他的诗豪放飘逸，想象丰富，脍炙人口，是中国文化的瑰宝。" },
+            { event: "郑和下西洋", period: "明朝", desc: "世界航海史上的壮举。郑和七次率船队远航，远达非洲东海岸，宣扬国威，促进了中外交流。" },
+            { event: "靖难之役", period: "明朝", desc: "朱棣夺取帝位的战争。建文帝削藩，朱棣以'清君侧'为名起兵，最终攻破南京，朱棣即位，是为明成祖。" },
+            { event: "虎门销烟", period: "清朝", desc: "中国禁烟运动的高潮。林则徐在虎门海滩销毁鸦片，向世界表明中国人民禁烟的决心。" },
+            { event: "鸦片战争", period: "晚清", desc: "中国近代史的开端。英国以禁烟为借口，发动侵华战争，中国战败，签订《南京条约》。" },
+            { event: "甲午战争", period: "晚清", desc: "中日之间的战争。清朝北洋舰队全军覆没，签订《马关条约》，割让台湾，赔款白银两亿两。" },
+            { event: "洋务运动", period: "晚清", desc: "清朝的自救运动。洋务派主张'师夷长技以制夷'，创办近代企业，建立新式军队，开启了中国近代化进程。" },
+            { event: "辛亥革命", period: "清末", desc: "推翻清朝统治。孙中山领导的革命党人发动武昌起义，各省响应，清朝灭亡，结束了君主专制制度。" },
+            { event: "五四运动", period: "民国", desc: "中国新民主主义革命的开端。巴黎和会外交失败，北京学生游行示威，工人罢工，商人罢市。" },
+            { event: "南昌起义", period: "民国", desc: "打响了武装反抗国民党反动派的第一枪。1927年8月1日，周恩来、贺龙、叶挺、朱德等领导起义。" },
+            { event: "万里长征", period: "民国", desc: "中国革命的重大转折。红军从江西出发，爬雪山，过草地，行程二万五千里，胜利到达陕北。" }
+        ];
+        
+        const levels = [
+            { name: "入门级", gridSize: 4, pairs: 8 },
+            { name: "初级", gridSize: 5, pairs: 12 },
+            { name: "中级", gridSize: 6, pairs: 18 },
+            { name: "高级", gridSize: 7, pairs: 24 },
+            { name: "专家级", gridSize: 8, pairs: 32 }
+        ];
+        
+        let llkGrid = [];
+        let llkSelected = null;
+        let llkScore = 0;
+        let llkHints = 3;
+        let llkCurrentLevelIndex = 0;
+        let llkGridSize = 4;
+        let llkLineInterval = null;
+        let llkLineTimer = null;
+        
+        function initLLKGame() {
+            llkCurrentLevelIndex = 0;
+            llkScore = 0;
+            llkHints = 3;
+            startLLKLevel();
+        }
+        
+        function startLLKLevel() {
+            const level = levels[llkCurrentLevelIndex];
+            llkGridSize = level.gridSize;
+            
+            document.getElementById('llkCurrentLevel').textContent = llkCurrentLevelIndex + 1;
+            document.getElementById('llkLevelName').textContent = level.name;
+            document.getElementById('llkScore').textContent = llkScore;
+            document.getElementById('llkHints').textContent = llkHints;
+            document.getElementById('llkNextBtn').style.display = 'none';
+            
+            llkSelected = null;
+            
+            let selectedPairs = shuffle([...allHistoryPairs]).slice(0, level.pairs);
+            let cards = [];
+            
+            selectedPairs.forEach((pair, index) => {
+                cards.push({ pairId: index, type: 'event', content: pair.event, desc: pair.desc, matched: false });
+                cards.push({ pairId: index, type: 'period', content: pair.period, event: pair.event, desc: pair.desc, matched: false });
+            });
+            
+            cards = shuffle(cards);
+            
+            llkGrid = [];
+            for (let r = 0; r <= llkGridSize + 1; r++) {
+                llkGrid[r] = [];
+                for (let c = 0; c <= llkGridSize + 1; c++) {
+                    llkGrid[r][c] = null;
+                }
+            }
+            
+            let cardIndex = 0;
+            for (let r = 1; r <= llkGridSize; r++) {
+                for (let c = 1; c <= llkGridSize; c++) {
+                    if (cardIndex < cards.length) {
+                        llkGrid[r][c] = cards[cardIndex];
+                        cardIndex++;
+                    }
+                }
+            }
+            
+            renderLLKGrid();
+        }
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function renderLLKGrid() {
+            const gridEl = document.getElementById('llkGrid');
+            const cardSize = Math.max(60, Math.floor(600 / llkGridSize));
+            gridEl.innerHTML = '';
+            gridEl.style.gridTemplateColumns = `repeat(${llkGridSize}, ${cardSize}px)`;
+            gridEl.style.gridTemplateRows = `repeat(${llkGridSize}, ${cardSize}px)`;
+            
+            for (let r = 1; r <= llkGridSize; r++) {
+                for (let c = 1; c <= llkGridSize; c++) {
+                    const card = llkGrid[r][c];
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'llk-card';
+                    const colorIndex = ((r + c + llkCurrentLevelIndex) % 5) + 1;
+                    cardEl.classList.add(`color-${colorIndex}`);
+                    cardEl.style.width = `${cardSize}px`;
+                    cardEl.style.height = `${cardSize}px`;
+                    cardEl.style.fontSize = `${Math.max(9, cardSize / 7)}px`;
+                    cardEl.dataset.row = r;
+                    cardEl.dataset.col = c;
+                    
+                    if (card && !card.matched) {
+                        cardEl.textContent = card.content;
+                        cardEl.addEventListener('click', () => handleLLKCardClick(r, c));
+                    } else {
+                        cardEl.classList.add('empty');
+                    }
+                    
+                    gridEl.appendChild(cardEl);
+                }
+            }
+            
+            const canvas = document.getElementById('line-canvas');
+            canvas.width = cardSize * llkGridSize + (llkGridSize - 1) * 8;
+            canvas.height = cardSize * llkGridSize + (llkGridSize - 1) * 8;
+        }
+        
+        function handleLLKCardClick(row, col) {
+            const card = llkGrid[row][col];
+            if (!card || card.matched) return;
+            
+            const cardEl = getLLKCardElement(row, col);
+            
+            if (!llkSelected) {
+                llkSelected = { row, col, card, element: cardEl };
+                cardEl.classList.add('selected');
+            } else {
+                if (llkSelected.row === row && llkSelected.col === col) {
+                    cardEl.classList.remove('selected');
+                    llkSelected = null;
+                    return;
+                }
+                
+                if (isValidPair(llkSelected.card, card)) {
+                    const path = findPath(llkSelected.row, llkSelected.col, row, col);
+                    if (path) {
+                        handleLLKMatchSuccess(llkSelected, { row, col, card, element: cardEl }, path);
+                    } else {
+                        cardEl.classList.add('selected');
+                        setTimeout(() => {
+                            llkSelected.element.classList.remove('selected');
+                            cardEl.classList.remove('selected');
+                            llkSelected = null;
+                        }, 300);
+                    }
+                } else {
+                    cardEl.classList.add('selected');
+                    setTimeout(() => {
+                        llkSelected.element.classList.remove('selected');
+                        cardEl.classList.remove('selected');
+                        llkSelected = null;
+                    }, 300);
+                }
+            }
+        }
+        
+        function isValidPair(card1, card2) {
+            if (card1.type === card2.type) return false;
+            return card1.pairId === card2.pairId;
+        }
+        
+        function getLLKCardElement(row, col) {
+            return document.querySelector(`.llk-card[data-row="${row}"][data-col="${col}"]`);
+        }
+        
+        function isLLKEmpty(r, c) {
+            if (r < 1 || r > llkGridSize || c < 1 || c > llkGridSize) return true;
+            return !llkGrid[r][c] || llkGrid[r][c].matched;
+        }
+        
+        function canLLKConnectStraight(r1, c1, r2, c2) {
+            if (r1 === r2) {
+                const minC = Math.min(c1, c2);
+                const maxC = Math.max(c1, c2);
+                for (let c = minC + 1; c < maxC; c++) {
+                    if (!isLLKEmpty(r1, c)) return false;
+                }
+                return true;
+            }
+            
+            if (c1 === c2) {
+                const minR = Math.min(r1, r2);
+                const maxR = Math.max(r1, r2);
+                for (let r = minR + 1; r < maxR; r++) {
+                    if (!isLLKEmpty(r, c1)) return false;
+                }
+                return true;
+            }
+            
+            return false;
+        }
+        
+        function findPath(r1, c1, r2, c2) {
+            if (canLLKConnectStraight(r1, c1, r2, c2)) {
+                return [{ r: r1, c: c1 }, { r: r2, c: c2 }];
+            }
+            
+            if (isLLKEmpty(r1, c2) && canLLKConnectStraight(r1, c1, r1, c2) && canLLKConnectStraight(r1, c2, r2, c2)) {
+                return [{ r: r1, c: c1 }, { r: r1, c: c2 }, { r: r2, c: c2 }];
+            }
+            if (isLLKEmpty(r2, c1) && canLLKConnectStraight(r1, c1, r2, c1) && canLLKConnectStraight(r2, c1, r2, c2)) {
+                return [{ r: r1, c: c1 }, { r: r2, c: c1 }, { r: r2, c: c2 }];
+            }
+            
+            for (let r = 0; r <= llkGridSize + 1; r++) {
+                if ((r !== r1 && r !== r2) && isLLKEmpty(r, c1) && isLLKEmpty(r, c2) &&
+                    canLLKConnectStraight(r1, c1, r, c1) && canLLKConnectStraight(r, c1, r, c2) && canLLKConnectStraight(r, c2, r2, c2)) {
+                    return [{ r: r1, c: c1 }, { r: r, c: c1 }, { r: r, c: c2 }, { r: r2, c: c2 }];
+                }
+            }
+            
+            for (let c = 0; c <= llkGridSize + 1; c++) {
+                if ((c !== c1 && c !== c2) && isLLKEmpty(r1, c) && isLLKEmpty(r2, c) &&
+                    canLLKConnectStraight(r1, c1, r1, c) && canLLKConnectStraight(r1, c, r2, c) && canLLKConnectStraight(r2, c, r2, c2)) {
+                    return [{ r: r1, c: c1 }, { r: r1, c: c }, { r: r2, c: c }, { r: r2, c: c2 }];
+                }
+            }
+            
+            return null;
+        }
+        
+        function handleLLKMatchSuccess(first, second, path) {
+            drawLLKLine(path);
+            
+            first.card.matched = true;
+            second.card.matched = true;
+            
+            llkScore += 10 + llkCurrentLevelIndex * 5;
+            document.getElementById('llkScore').textContent = llkScore;
+            
+            setTimeout(() => {
+                first.element.classList.add('matched');
+                second.element.classList.add('matched');
+                
+                setTimeout(() => {
+                    clearLLKLine();
+                    llkSelected = null;
+                    renderLLKGrid();
+                    showHistoryInfo(first.card);
+                }, 500);
+            }, 300);
+        }
+        
+        function showHistoryInfo(card) {
+            const eventName = card.type === 'event' ? card.content : card.event;
+            const periodName = card.type === 'period' ? card.content : (card.period || allHistoryPairs[card.pairId]?.period || '');
+            
+            document.getElementById('historyTitle').textContent = eventName;
+            document.getElementById('historyPeriod').textContent = periodName;
+            document.getElementById('historyDescription').textContent = card.desc || '';
+            
+            document.getElementById('historyModal').classList.add('show');
+        }
+        
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('show');
+            checkLLKWin();
+        }
+        
+        function drawLLKLine(path) {
+            const canvas = document.getElementById('line-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const cardSize = Math.max(60, Math.floor(600 / llkGridSize));
+            const gap = 8;
+            
+            ctx.strokeStyle = '#ff6600';
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = '#ff6600';
+            ctx.shadowBlur = 10;
+            
+            ctx.beginPath();
+            for (let i = 0; i < path.length; i++) {
+                const x = (path[i].c - 1) * (cardSize + gap) + cardSize / 2;
+                const y = (path[i].r - 1) * (cardSize + gap) + cardSize / 2;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+            
+            if (llkLineTimer) clearTimeout(llkLineTimer);
+            llkLineTimer = setTimeout(() => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }, 400);
+        }
+        
+        function clearLLKLine() {
+            const canvas = document.getElementById('line-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function checkLLKWin() {
+            for (let r = 1; r <= llkGridSize; r++) {
+                for (let c = 1; c <= llkGridSize; c++) {
+                    if (llkGrid[r][c] && !llkGrid[r][c].matched) {
+                        return;
+                    }
+                }
+            }
+            
+            if (llkCurrentLevelIndex >= levels.length - 1) {
+                showVictory('恭喜您完成了所有关卡的历史事件连连看！', llkScore);
+            } else {
+                document.getElementById('llkNextBtn').style.display = 'inline-block';
+                showModal('关卡通过！', `恭喜您完成第${llkCurrentLevelIndex + 1}关，获得${llkScore}分！准备进入下一关。`);
+            }
+        }
+        
+        function llkNextLevel() {
+            llkCurrentLevelIndex++;
+            llkHints = 3;
+            startLLKLevel();
+        }
+        
+        function llkHint() {
+            if (llkHints <= 0) {
+                showModal('提示', '您的提示次数已用完！');
+                return;
+            }
+            
+            for (let r1 = 1; r1 <= llkGridSize; r1++) {
+                for (let c1 = 1; c1 <= llkGridSize; c1++) {
+                    if (!llkGrid[r1][c1] || llkGrid[r1][c1].matched) continue;
+                    for (let r2 = 1; r2 <= llkGridSize; r2++) {
+                        for (let c2 = 1; c2 <= llkGridSize; c2++) {
+                            if (r1 === r2 && c1 === c2) continue;
+                            if (!llkGrid[r2][c2] || llkGrid[r2][c2].matched) continue;
+                            if (isValidPair(llkGrid[r1][c1], llkGrid[r2][c2]) && findPath(r1, c1, r2, c2)) {
+                                const el1 = getLLKCardElement(r1, c1);
+                                const el2 = getLLKCardElement(r2, c2);
+                                if (el1) el1.classList.add('hint');
+                                if (el2) el2.classList.add('hint');
+                                
+                                llkHints--;
+                                document.getElementById('llkHints').textContent = llkHints;
+                                
+                                setTimeout(() => {
+                                    if (el1) el1.classList.remove('hint');
+                                    if (el2) el2.classList.remove('hint');
+                                }, 2000);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            showModal('提示', '没有找到可消除的配对！');
+        }
+        
+        function llkRestart() {
+            initLLKGame();
+        }
+        
+        // ==================== 人生模拟器 ====================
+        let lifeState = {
+            age: 0,
+            gender: 'male',
+            health: 80,
+            wealth: 50,
+            intelligence: 50,
+            happiness: 70,
+            lifespan: 80,
+            story: []
+        };
+        
+        const lifeEvents = {
+            0: {
+                stage: "婴儿期",
+                description: "你来到了这个世界，家人们非常高兴地迎接你的到来。",
+                choices: [
+                    { text: "👶 健健康康地成长", effects: { health: 5, happiness: 5 }, result: "你身体强壮，很少生病。" },
+                    { text: "🍼 有点挑食", effects: { health: -3, happiness: -2 }, result: "你经常挑食，身体有些瘦弱。" },
+                    { text: "🎨 对声音和色彩很敏感", effects: { intelligence: 5, happiness: 3 }, result: "你展现出对艺术的早期天赋。" }
+                ]
+            },
+            5: {
+                stage: "童年期",
+                description: "你开始上幼儿园了，这里有很多小朋友和你一起玩耍。",
+                choices: [
+                    { text: "🎮 和大家一起玩游戏", effects: { happiness: 8, health: 5 }, result: "你交到了很多好朋友。" },
+                    { text: "📚 喜欢读书识字", effects: { intelligence: 8, happiness: 3 }, result: "你很早就学会了认字。" },
+                    { text: "😢 经常哭闹想家", effects: { happiness: -5, health: -3 }, result: "适应新环境对你来说有些困难。" }
+                ]
+            },
+            10: {
+                stage: "少年期",
+                description: "你成为了一名小学生，开始学习更多的知识，也有了更多的自由。",
+                choices: [
+                    { text: "📖 努力学习，成绩优异", effects: { intelligence: 10, happiness: 3, health: -2 }, result: "你是班上的学霸，老师和家长都很骄傲。" },
+                    { text: "⚽ 热爱运动，活泼好动", effects: { health: 10, happiness: 8, intelligence: -2 }, result: "你是运动场上的明星！" },
+                    { text: "🎮 沉迷游戏，不爱学习", effects: { happiness: 5, intelligence: -5, health: -3 }, result: "你的成绩开始下降，父母很担心。" }
+                ]
+            },
+            15: {
+                stage: "青春期",
+                description: "你进入了中学，身体开始发生变化，也有了更多的烦恼和思考。",
+                choices: [
+                    { text: "📚 认真学习，准备中考", effects: { intelligence: 8, health: -3, happiness: -3 }, result: "你考上了理想的高中！" },
+                    { text: "💕 暗恋同班同学", effects: { happiness: 5, intelligence: -3, health: -2 }, result: "青春的心事让你既甜蜜又烦恼。" },
+                    { text: "🏃 参加社团活动", effects: { health: 5, happiness: 8, intelligence: 2 }, result: "你在社团中找到了自己的兴趣。" },
+                    { text: "😔 叛逆期，和父母吵架", effects: { happiness: -5, health: -3, wealth: -2 }, result: "家庭关系有些紧张。" }
+                ]
+            },
+            20: {
+                stage: "青年期",
+                description: "你进入了大学或开始工作，人生的新篇章开始了！",
+                choices: [
+                    { text: "🎓 考上名牌大学", effects: { intelligence: 10, wealth: -5, happiness: 5, lifespan: 2 }, result: "你在顶尖学府深造，前途光明。" },
+                    { text: "💼 开始工作赚钱", effects: { wealth: 15, health: -5, happiness: 3 }, result: "你有了第一份工作，开始独立生活。" },
+                    { text: "💕 谈了一场恋爱", effects: { happiness: 12, health: 3, wealth: -3 }, result: "爱情让你感受到人生的美好。" },
+                    { text: "🎨 追求自己的艺术梦想", effects: { happiness: 10, intelligence: 5, wealth: -5 }, result: "你选择了一条不同寻常的道路。" }
+                ]
+            },
+            30: {
+                stage: "壮年期",
+                description: "你已经步入社会，事业和家庭成为了生活的重心。",
+                choices: [
+                    { text: "👔 事业有成，升职加薪", effects: { wealth: 20, health: -8, happiness: 5, lifespan: -3 }, result: "你成为公司的骨干，但压力也很大。" },
+                    { text: "👨‍👩‍👧 结婚生子，组建家庭", effects: { happiness: 15, health: -3, wealth: -10, lifespan: 2 }, result: "你拥有了温馨的家庭。" },
+                    { text: "🎯 创业打拼", effects: { wealth: 10, health: -10, happiness: -3, intelligence: 5, lifespan: -5 }, result: "创业之路艰辛，但也充满机遇。" },
+                    { text: "🌍 环游世界，享受生活", effects: { happiness: 15, wealth: -15, health: 5, lifespan: 3 }, result: "你选择了不同的人生方式。" }
+                ]
+            },
+            40: {
+                stage: "中年期",
+                description: "不惑之年，你对人生有了更深刻的理解，也承担着更多责任。",
+                choices: [
+                    { text: "💪 事业巅峰，努力工作", effects: { wealth: 25, health: -10, happiness: -5, lifespan: -3 }, result: "你在事业上取得巨大成功。" },
+                    { text: "👨‍👩‍👧‍👦 注重家庭，陪伴家人", effects: { happiness: 15, health: 5, wealth: -5, lifespan: 5 }, result: "家庭的温暖让你感到幸福。" },
+                    { text: "🏃 注重健康，开始锻炼", effects: { health: 15, happiness: 8, wealth: -5, lifespan: 8 }, result: "你的身体状态越来越好。" },
+                    { text: "📚 继续学习，提升自我", effects: { intelligence: 10, happiness: 5, lifespan: 3 }, result: "你始终保持学习的热情。" }
+                ]
+            },
+            50: {
+                stage: "中年后期",
+                description: "人生过半，你开始思考生活的意义和未来的方向。",
+                choices: [
+                    { text: "🏆 事业稳定，功成名就", effects: { wealth: 15, happiness: 8, health: -5, lifespan: -2 }, result: "你在业界享有盛誉。" },
+                    { text: "🌱 养生保健，调养身体", effects: { health: 12, happiness: 5, lifespan: 5, wealth: -5 }, result: "你开始注重健康生活方式。" },
+                    { text: "👶 含饴弄孙，享受天伦", effects: { happiness: 18, health: 3, lifespan: 5 }, result: "孙辈给你带来了无尽的欢乐。" },
+                    { text: "✈️ 退休旅行，游山玩水", effects: { happiness: 15, health: 5, wealth: -15, lifespan: 3 }, result: "你在旅途中找到了人生的乐趣。" }
+                ]
+            },
+            60: {
+                stage: "老年期",
+                description: "花甲之年，你步入老年，人生经验也变得更加丰富。",
+                choices: [
+                    { text: "🏡 安享晚年，含饴弄孙", effects: { happiness: 15, health: 5, lifespan: 8 }, result: "家庭的温暖让你感到满足。" },
+                    { text: "📖 著书立说，传承智慧", effects: { intelligence: 8, happiness: 10, lifespan: 5 }, result: "你将一生的经验分享给后人。" },
+                    { text: "💪 坚持锻炼，保持健康", effects: { health: 15, happiness: 5, lifespan: 10, wealth: -3 }, result: "你的身体状态比同龄人好很多。" },
+                    { text: "😔 经常生病，身体不佳", effects: { health: -15, happiness: -10, lifespan: -10, wealth: -10 }, result: "身体开始出现各种问题。" }
+                ]
+            },
+            70: {
+                stage: "古稀之年",
+                description: "人生七十古来稀，你已经经历了太多风风雨雨。",
+                choices: [
+                    { text: "😊 心态平和，乐观开朗", effects: { happiness: 15, health: 8, lifespan: 10 }, result: "乐观的心态让你保持年轻。" },
+                    { text: "👨‍👩‍👧‍👦 五世同堂，子孙满堂", effects: { happiness: 20, lifespan: 8, health: 3 }, result: "家族兴旺是你最大的骄傲。" },
+                    { text: "🏥 疾病缠身，痛苦不堪", effects: { health: -20, happiness: -15, lifespan: -15, wealth: -20 }, result: "身体的折磨让你倍感痛苦。" },
+                    { text: "📚 学习新事物，保持活力", effects: { intelligence: 5, happiness: 8, health: 5, lifespan: 5 }, result: "你始终保持着对生活的热情。" }
+                ]
+            },
+            80: {
+                stage: "耄耋之年",
+                description: "你已经步入晚年，回首往事，感慨万千。",
+                choices: [
+                    { text: "😊 乐观豁达，笑对人生", effects: { happiness: 20, health: 10, lifespan: 10 }, result: "你的乐观感染了身边所有人。" },
+                    { text: "👨‍👩‍👧‍👦 享受家庭温暖", effects: { happiness: 18, health: 8, lifespan: 8 }, result: "子孙环绕是你最大的幸福。" },
+                    { text: "😔 身体衰弱，病痛不断", effects: { health: -25, happiness: -15, lifespan: -15, wealth: -15 }, result: "身体的衰退让你感到无奈。" },
+                    { text: "📖 回顾人生，总结经验", effects: { intelligence: 5, happiness: 12, lifespan: 5 }, result: "你的一生充满了故事。" }
+                ]
+            },
+            90: {
+                stage: "期颐之年",
+                description: "你已经成为了一位长寿老人，见证了时代的变迁。",
+                choices: [
+                    { text: "⭐ 成为家族的宝贝", effects: { happiness: 25, health: 5, lifespan: 5 }, result: "你是全家人最珍贵的宝贝。" },
+                    { text: "😴 平静安详，等待终点", effects: { happiness: 10, health: 0, lifespan: 0 }, result: "你接受了生命的安排。" },
+                    { text: "📜 留下人生故事", effects: { intelligence: 5, happiness: 15, lifespan: 3 }, result: "你的故事将流传下去。" }
+                ]
+            }
+        };
+        
+        // ===== 人生重开模拟器 =====
+        const TALENTS = [
+            { id: 1, name: "🏆 天生丽质", desc: "颜值+3，获得更多社交机会", effects: { looks: 3 } },
+            { id: 2, name: "📚 过目不忘", desc: "智力+3，学习事半功倍", effects: { iq: 3 } },
+            { id: 3, name: "💪 钢筋铁骨", desc: "体质+3，从小身体健康", effects: { constitution: 3 } },
+            { id: 4, name: "💰 富甲一方", desc: "家境+3，出生在富裕家庭", effects: { family: 3 } },
+            { id: 5, name: "🍀 锦鲤附体", desc: "幸运+3，总是走好运", effects: { luck: 3 } },
+            { id: 6, name: "🎨 艺术天赋", desc: "颜值+2，智力+1", effects: { looks: 2, iq: 1 } },
+            { id: 7, name: "🏃 运动健将", desc: "体质+2，幸运+1", effects: { constitution: 2, luck: 1 } },
+            { id: 8, name: "🎭 社交达人", desc: "颜值+1，幸运+2", effects: { looks: 1, luck: 2 } },
+            { id: 9, name: "🧠 学霸附体", desc: "智力+2，家境+1", effects: { iq: 2, family: 1 } },
+            { id: 10, name: "🎯 勤奋好学", desc: "体质+1，智力+1，幸运+1", effects: { constitution: 1, iq: 1, luck: 1 } },
+            { id: 11, name: "🌟 桃花运旺", desc: "颜值+2，幸福度更高", effects: { looks: 2 } },
+            { id: 12, name: "👶 书香门第", desc: "家境+2，智力+1", effects: { family: 2, iq: 1 } },
+            { id: 13, name: "🎪 乐观开朗", desc: "幸运+2，更容易遇到好事", effects: { luck: 2 } },
+            { id: 14, name: "🍎 身体健康", desc: "体质+2，家境+1", effects: { constitution: 2, family: 1 } },
+            { id: 15, name: "🎭 多才多艺", desc: "颜值+1，智力+1，体质+1", effects: { looks: 1, iq: 1, constitution: 1 } }
+        ];
+        
+        let selectedTalents = [];
+        let attributes = { looks: 5, iq: 5, constitution: 5, family: 5, luck: 5 };
+        let remainingPoints = 20;
+        let simState = null;
+        
+        function renderTalents() {
+            const shuffled = [...TALENTS].sort(() => Math.random() - 0.5).slice(0, 10);
+            const list = document.getElementById('talentList');
+            list.innerHTML = '';
+            selectedTalents = [];
+            
+            shuffled.forEach(talent => {
+                const div = document.createElement('div');
+                div.style.cssText = 'background: linear-gradient(145deg, #fff8dc, #f5e6c8); padding: 15px; border-radius: 10px; border: 3px solid #deb887; cursor: pointer; width: 200px; text-align: center; transition: all 0.3s ease;';
+                div.innerHTML = `<div style="font-size:1.1rem; font-weight:bold; color:#8b4513; margin-bottom:8px;">${talent.name}</div><div style="font-size:0.9rem; color:#5d4037;">${talent.desc}</div>`;
+                div.onclick = function() {
+                    if (selectedTalents.find(t => t.id === talent.id)) {
+                        selectedTalents = selectedTalents.filter(t => t.id !== talent.id);
+                        this.style.background = 'linear-gradient(145deg, #fff8dc, #f5e6c8)';
+                        this.style.border = '3px solid #deb887';
+                    } else if (selectedTalents.length < 3) {
+                        selectedTalents.push(talent);
+                        this.style.background = 'linear-gradient(145deg, #deb887, #cd9966)';
+                        this.style.border = '3px solid #8b4513';
+                    }
+                    document.getElementById('talentCount').textContent = selectedTalents.length;
+                };
+                list.appendChild(div);
+            });
+        }
+        
+        function resetLifeSimulator() {
+            selectedTalents = [];
+            attributes = { looks: 5, iq: 5, constitution: 5, family: 5, luck: 5 };
+            remainingPoints = 20;
+            simState = null;
+            
+            document.getElementById('talentScreen').style.display = 'block';
+            document.getElementById('allocateScreen').style.display = 'none';
+            document.getElementById('lifePlayScreen').style.display = 'none';
+            document.getElementById('lifeEndScreen').style.display = 'none';
+            
+            renderTalents();
+        }
+        
+        function goToAllocate() {
+            if (selectedTalents.length !== 3) {
+                showModal('提示', '请先选择3个天赋！');
+                return;
+            }
+            document.getElementById('talentScreen').style.display = 'none';
+            document.getElementById('allocateScreen').style.display = 'block';
+            renderAllocate();
+        }
+        
+        function goToTalents() {
+            document.getElementById('talentScreen').style.display = 'block';
+            document.getElementById('allocateScreen').style.display = 'none';
+        }
+        
+        function renderAllocate() {
+            const list = document.getElementById('allocateList');
+            list.innerHTML = '';
+            
+            const attrs = [
+                { key: 'looks', name: '👤 颜值', color: '#e91e63' },
+                { key: 'iq', name: '🧠 智力', color: '#2196f3' },
+                { key: 'constitution', name: '💪 体质', color: '#4caf50' },
+                { key: 'family', name: '💰 家境', color: '#ff9800' },
+                { key: 'luck', name: '🍀 幸运', color: '#9c27b0' }
+            ];
+            
+            attrs.forEach(attr => {
+                const row = document.createElement('div');
+                row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;';
+                row.innerHTML = `
+                    <span style="font-size: 1.1rem; font-weight: bold; color: #5d4037; width: 100px;">${attr.name}</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button onclick="changeAttr('${attr.key}', -1)" style="padding: 8px 15px; font-size: 1.2rem; border: 2px solid #8b4513; background: #fff8dc; color: #5d4037; border-radius: 5px; cursor: pointer; font-weight: bold;">−</button>
+                        <span id="attr-${attr.key}" style="font-size: 1.3rem; font-weight: bold; color: #8b4513; min-width: 40px; text-align: center;">${attributes[attr.key]}</span>
+                        <button onclick="changeAttr('${attr.key}', 1)" style="padding: 8px 15px; font-size: 1.2rem; border: 2px solid #8b4513; background: #fff8dc; color: #5d4037; border-radius: 5px; cursor: pointer; font-weight: bold;">+</button>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+            
+            document.getElementById('remainPoints').textContent = remainingPoints;
+        }
+        
+        function changeAttr(key, delta) {
+            const newValue = attributes[key] + delta;
+            if (newValue >= 1 && newValue <= 10) {
+                if (delta > 0 && remainingPoints <= 0) return;
+                attributes[key] = newValue;
+                remainingPoints -= delta;
+                renderAllocate();
+            }
+        }
+        
+        function startLifeSim() {
+            if (remainingPoints !== 0) {
+                showModal('提示', '请分配完所有属性点！');
+                return;
+            }
+            
+            selectedTalents.forEach(talent => {
+                if (talent.effects.looks) attributes.looks += talent.effects.looks;
+                if (talent.effects.iq) attributes.iq += talent.effects.iq;
+                if (talent.effects.constitution) attributes.constitution += talent.effects.constitution;
+                if (talent.effects.family) attributes.family += talent.effects.family;
+                if (talent.effects.luck) attributes.luck += talent.effects.luck;
+            });
+            
+            simState = {
+                age: 0,
+                looks: attributes.looks,
+                iq: attributes.iq,
+                constitution: attributes.constitution,
+                family: attributes.family,
+                luck: attributes.luck,
+                alive: true,
+                events: []
+            };
+            
+            document.getElementById('allocateScreen').style.display = 'none';
+            document.getElementById('lifePlayScreen').style.display = 'block';
+            
+            updateSimStats();
+            
+            const eventsDiv = document.getElementById('lifeEvents');
+            eventsDiv.innerHTML = '';
+            
+            addSimEvent('👶 你出生了，家人们都很高兴！');
+        }
+        
+        function updateSimStats() {
+            document.getElementById('simAge').textContent = simState.age;
+            document.getElementById('statLooks').textContent = simState.looks;
+            document.getElementById('statIQ').textContent = simState.iq;
+            document.getElementById('statConstitution').textContent = simState.constitution;
+            document.getElementById('statFamily').textContent = simState.family;
+            document.getElementById('statLuck').textContent = simState.luck;
+            
+            const lifespan = 60 + simState.constitution * 3 + simState.luck * 2;
+            const progress = Math.min(100, (simState.age / lifespan) * 100);
+            document.getElementById('simProgressFill').style.width = progress + '%';
+        }
+        
+        function addSimEvent(text) {
+            const eventsDiv = document.getElementById('lifeEvents');
+            const p = document.createElement('p');
+            p.style.cssText = 'color: #5d4037; font-size: 1rem; margin-bottom: 8px; padding-left: 10px; border-left: 3px solid #deb887;';
+            p.innerHTML = `<strong style="color:#8b4513;">【${simState.age}岁】</strong> ${text}`;
+            eventsDiv.appendChild(p);
+            eventsDiv.scrollTop = eventsDiv.scrollHeight;
+        }
+        
+        function nextYear() {
+            if (!simState.alive || waitingForChoice) return;
+
+            simState.age++;
+
+            const events = getLifeEvents(simState.age);
+            if (events.length > 0) {
+                const selectedEvent = events[Math.floor(Math.random() * events.length)];
+                addSimEvent(selectedEvent.text);
+                if (selectedEvent.effects) {
+                    applyEventEffects(selectedEvent.effects);
+                }
+            }
+
+            if (choiceAges.includes(simState.age) && lifeChoiceEvents[simState.age]) {
+                triggerChoiceEvent(simState.age);
+                updateSimStats();
+                return;
+            }
+
+            checkLifeDeath();
+            updateSimStats();
+        }
+        
+        function fastForward() {
+            if (!simState.alive) return;
+            for (let i = 0; i < 10 && simState.alive; i++) {
+                nextYear();
+            }
+        }
+        
+        function applyEventEffects(effects) {
+            if (effects.looks) simState.looks = Math.max(0, simState.looks + effects.looks);
+            if (effects.iq) simState.iq = Math.max(0, simState.iq + effects.iq);
+            if (effects.constitution) simState.constitution = Math.max(0, simState.constitution + effects.constitution);
+            if (effects.family) simState.family = Math.max(0, simState.family + effects.family);
+            if (effects.luck) simState.luck = Math.max(0, simState.luck + effects.luck);
+        }
+        
+        function checkLifeDeath() {
+            const lifespan = 60 + simState.constitution * 3 + simState.luck * 2;
+            const deathChance = Math.max(0, (simState.age - lifespan * 0.7) / lifespan + Math.random() * 0.1);
+            
+            if (simState.constitution <= 0) {
+                endLifeSim('⚰️ 你因身体虚弱而离开了这个世界...');
+                return;
+            }
+            
+            if (simState.age > lifespan && Math.random() < deathChance) {
+                const causes = [
+                    '寿终正寝，无疾而终。',
+                    '在睡梦中安详地离开了。',
+                    '走完了人生的最后一程。',
+                    '带着对家人的思念告别了世界。'
+                ];
+                endLifeSim(`🎂 ${causes[Math.floor(Math.random() * causes.length)]}`);
+            }
+        }
+        
+        function endLifeSim(cause) {
+            simState.alive = false;
+            
+            const finalAge = simState.age;
+            document.getElementById('lifePlayScreen').style.display = 'none';
+            document.getElementById('lifeEndScreen').style.display = 'block';
+            
+            document.getElementById('simEndTitle').textContent = `享年 ${finalAge} 岁`;
+            
+            if (finalAge >= 90) document.getElementById('simEndEmoji').textContent = '🎂';
+            else if (finalAge >= 70) document.getElementById('simEndEmoji').textContent = '😊';
+            else if (finalAge >= 50) document.getElementById('simEndEmoji').textContent = '🙂';
+            else document.getElementById('simEndEmoji').textContent = '😢';
+            
+            const epitaphs = [
+                `一位${finalAge}岁的平凡人，度过了不算完美但也不算遗憾的一生。`,
+                `此人生于${new Date().getFullYear() - finalAge}年，见证了时代的变迁。`,
+                `一个普通人的故事，也是一个时代的缩影。`,
+                `愿你在另一个世界继续快乐。`,
+                `这里长眠着一个热爱生活的人。`
+            ];
+            
+            document.getElementById('simEpitaph').textContent = epitaphs[Math.floor(Math.random() * epitaphs.length)];
+            
+            let summary = '';
+            summary += `<strong>🎂 享年：</strong>${finalAge} 岁<br>`;
+            summary += `<strong>👤 颜值：</strong>${simState.looks} | `;
+            summary += `<strong>🧠 智力：</strong>${simState.iq} | `;
+            summary += `<strong>💪 体质：</strong>${simState.constitution} | `;
+            summary += `<strong>💰 家境：</strong>${simState.family} | `;
+            summary += `<strong>🍀 幸运：</strong>${simState.luck}<br><br>`;
+            summary += cause;
+            
+            document.getElementById('simLifeSummary').innerHTML = summary;
+        }
+        
+        function getLifeEvents(age) {
+            const events = [];
+            
+            if (age === 1) events.push({ text: '你学会了走路和说话。' });
+            if (age === 3) events.push({ text: '你上了幼儿园，开始了集体生活。' });
+            if (age === 6) events.push({ text: '你成为了一名小学生！' });
+            if (age === 10 && simState.iq >= 8) events.push({ text: '你成绩优异，获得了老师的表扬！', effects: { iq: 1 } });
+            if (age === 12) events.push({ text: '你开始上初中了。' });
+            if (age === 14) events.push({ text: '你进入了青春期，身体开始发生变化。' });
+            if (age === 15) {
+                if (simState.looks >= 8) events.push({ text: '💕 有同学偷偷给你写情书！', effects: { looks: 1 } });
+                if (simState.luck >= 7) events.push({ text: '🍀 你捡到了10块钱！', effects: { family: 1 } });
+            }
+            if (age === 18) events.push({ text: '🎓 你参加了高考！' });
+            if (age === 18 && simState.iq >= 8) events.push({ text: '🎓 你考上了名牌大学！', effects: { iq: 2 } });
+            if (age === 22) events.push({ text: '💼 你大学毕业了，开始找工作！' });
+            if (age === 25 && simState.family >= 6) events.push({ text: '💰 你找到了一份不错的工作！', effects: { family: 2 } });
+            if (age === 28 && simState.looks >= 7 && simState.luck >= 5) events.push({ text: '💒 你结婚了！', effects: { looks: 1 } });
+            if (age === 30) events.push({ text: '👶 你有了第一个孩子！' });
+            if (age === 35) events.push({ text: '💼 你在事业上取得了一定的成就。' });
+            if (age === 40) events.push({ text: '👨‍👩‍👧 你上有老下有小，生活压力很大。' });
+            if (age === 45) events.push({ text: '🏠 你买了属于自己的房子！', effects: { family: 2 } });
+            if (age === 50) events.push({ text: '👴 你渐渐感到身体不如以前了。', effects: { constitution: -1 } });
+            if (age === 55) events.push({ text: '👶 你有了孙子/孙女，含饴弄孙！' });
+            if (age === 60) events.push({ text: '🎓 你退休了，开始享受晚年生活。' });
+            if (age === 65) events.push({ text: '🏃 你参加了老年大学，学习新东西。' });
+            if (age === 70) events.push({ text: '👴 你已经是儿孙满堂了！' });
+            if (age === 75) events.push({ text: '🏥 你的身体开始出现一些小毛病。', effects: { constitution: -2 } });
+            if (age === 80) events.push({ text: '👴 你成为了家族中最长寿的老人之一。' });
+            if (age >= 50 && Math.random() < 0.15) {
+                const healthEvents = [
+                    { text: '😷 你生了一场大病...', effects: { constitution: -3 } },
+                    { text: '🏥 你住院治疗了一段时间...', effects: { constitution: -2, family: -1 } },
+                    { text: '💊 你开始需要吃各种保健品。' }
+                ];
+                events.push(healthEvents[Math.floor(Math.random() * healthEvents.length)]);
+            }
+            if (age >= 20 && Math.random() < 0.1) {
+                const randomEvents = [
+                    { text: '✈️ 你去了一次远方旅行！', effects: { luck: 1 } },
+                    { text: '💰 你买彩票中了小奖！', effects: { family: 1, luck: 1 } },
+                    { text: '📚 你读了一本好书，受益匪浅！', effects: { iq: 1 } },
+                    { text: '🎨 你学会了一项新技能！' },
+                    { text: '👥 你结交了一些新朋友！' },
+                    { text: '🎯 你在工作/学习上取得了进步！', effects: { iq: 1 } },
+                    { text: '🏆 你获得了一项荣誉！' },
+                    { text: '😊 这一年你过得很开心！' },
+                    { text: '😔 这一年你遇到了一些挫折。' }
+                ];
+                events.push(randomEvents[Math.floor(Math.random() * randomEvents.length)]);
+            }
+            
+            return events;
+        }
+        
+        function restartLife() {
+            resetLifeSimulator();
+        }
+
+        // ==================== 关键年龄选择互动 ====================
+        const choiceAges = [5, 10, 15, 20, 30, 40, 50, 60];
+        const lifeChoiceEvents = {
+            5: { title: "童年选择", desc: "幼儿园里你更喜欢做什么？", choices: [
+                { text: "🎨 画画唱歌", effects: { looks: 2, iq: 1 }, result: "你从小就展现出艺术天赋。" },
+                { text: "📖 认字读书", effects: { iq: 3 }, result: "你很早就学会了认字，被称为小神童。" },
+                { text: "🏃 跑跳玩耍", effects: { constitution: 3 }, result: "你是幼儿园里的运动小能手。" }
+            ]},
+            10: { title: "少年选择", desc: "小学里你的状态是？", choices: [
+                { text: "📚 认真学习的学霸", effects: { iq: 4, constitution: -1 }, result: "你成绩名列前茅，老师家长都夸你。" },
+                { text: "⚽ 活泼好动的孩子王", effects: { constitution: 3, luck: 1 }, result: "你在操场上挥洒汗水，身体越来越棒。" },
+                { text: "🎮 有点调皮的捣蛋鬼", effects: { luck: 2, iq: -1 }, result: "虽然成绩一般，但你很快乐。" }
+            ]},
+            15: { title: "青春选择", desc: "中学时代你如何度过？", choices: [
+                { text: "📖 埋头苦读备战高考", effects: { iq: 5, constitution: -2, luck: 1 }, result: "你考上了理想的学校！" },
+                { text: "💕 暗恋同班同学", effects: { looks: 2, luck: 1 }, result: "青春的悸动让你难以忘怀。" },
+                { text: "🎯 参加各种社团活动", effects: { looks: 2, constitution: 2, iq: 1 }, result: "你结识了很多朋友，能力也得到锻炼。" }
+            ]},
+            20: { title: "青年选择", desc: "20岁的你选择怎样的人生方向？", choices: [
+                { text: "🎓 继续深造求学", effects: { iq: 5, family: -2 }, result: "你进入了理想的学府继续深造。" },
+                { text: "💼 进入职场打拼", effects: { family: 5, constitution: -2 }, result: "你开始独立赚钱，积累社会经验。" },
+                { text: "💕 谈一场恋爱", effects: { looks: 2, luck: 3 }, result: "爱情让你尝到了人生的甜蜜。" }
+            ]},
+            30: { title: "而立之年", desc: "30岁，你的人生重心在哪里？", choices: [
+                { text: "👔 追求事业高峰", effects: { family: 8, constitution: -3, iq: 2 }, result: "你在职场上闯出了一片天地。" },
+                { text: "👨‍👩‍👧 组建温暖家庭", effects: { looks: 2, constitution: 1, luck: 3 }, result: "你拥有了温馨的港湾。" },
+                { text: "🌍 探索世界享受生活", effects: { constitution: 3, luck: 2, family: -3 }, result: "你的眼界和阅历都得到了提升。" }
+            ]},
+            40: { title: "不惑之年", desc: "40岁，你如何平衡生活？", choices: [
+                { text: "💪 继续拼搏事业", effects: { family: 6, constitution: -4 }, result: "中年的你依然充满干劲。" },
+                { text: "🏠 多陪伴家人", effects: { constitution: 2, luck: 3 }, result: "家庭的温暖是你最大的财富。" },
+                { text: "🏃 开始注重健康养生", effects: { constitution: 5, luck: 2 }, result: "你的身体状态越来越好。" }
+            ]},
+            50: { title: "知天命之年", desc: "50岁，你对人生的态度是？", choices: [
+                { text: "🌟 功成名就继续奋斗", effects: { family: 5, constitution: -3 }, result: "你依然保持着年轻时的干劲。" },
+                { text: "👶 含饴弄孙享受天伦", effects: { constitution: 2, luck: 4 }, result: "孙辈是你最大的快乐源泉。" },
+                { text: "✈️ 放慢脚步四处游玩", effects: { constitution: 3, family: -2, luck: 2 }, result: "你开始享受真正的生活。" }
+            ]},
+            60: { title: "花甲之年", desc: "步入老年，你打算如何度过？", choices: [
+                { text: "🏡 含饴弄孙安享晚年", effects: { constitution: 3, luck: 3 }, result: "儿孙环绕让你无比满足。" },
+                { text: "📚 著书立说传承智慧", effects: { iq: 4, luck: 2 }, result: "你将一生的经验留给后人。" },
+                { text: "💪 坚持锻炼保持健康", effects: { constitution: 6 }, result: "你的身体比同龄人硬朗得多。" }
+            ]}
+        };
+
+        let pendingChoice = null;
+        let waitingForChoice = false;
+
+        function triggerChoiceEvent(age) {
+            const event = lifeChoiceEvents[age];
+            if (!event) return;
+            waitingForChoice = true;
+            pendingChoice = event;
+
+            let choicesHtml = '';
+            event.choices.forEach((choice, idx) => {
+                choicesHtml += `<button onclick="makeSimChoice(${idx})" style="display:block; width:100%; padding:12px 20px; margin:8px 0; background:linear-gradient(145deg,#deb887,#cd9966); border:2px solid #8b4513; border-radius:10px; color:#3d2817; font-size:1rem; cursor:pointer; text-align:left; font-weight:bold;">${choice.text}</button>`;
+            });
+
+            const eventsDiv = document.getElementById('lifeEvents');
+            const p = document.createElement('div');
+            p.style.cssText = 'background:#deb887; border:3px solid #8b4513; border-radius:10px; padding:15px; margin:10px 0; color:#3d2817;';
+            p.innerHTML = `<p style="font-size:1.1rem; font-weight:bold; margin-bottom:10px;">【${age}岁 · ${event.title}】${event.desc}</p>${choicesHtml}`;
+            eventsDiv.appendChild(p);
+            eventsDiv.scrollTop = eventsDiv.scrollHeight;
+        }
+
+        function makeSimChoice(idx) {
+            if (!pendingChoice) return;
+            const choice = pendingChoice.choices[idx];
+            if (choice.effects.looks) simState.looks = Math.max(0, simState.looks + choice.effects.looks);
+            if (choice.effects.iq) simState.iq = Math.max(0, simState.iq + choice.effects.iq);
+            if (choice.effects.constitution) simState.constitution = Math.max(0, simState.constitution + choice.effects.constitution);
+            if (choice.effects.family) simState.family = Math.max(0, simState.family + choice.effects.family);
+            if (choice.effects.luck) simState.luck = Math.max(0, simState.luck + choice.effects.luck);
+
+            const eventsDiv = document.getElementById('lifeEvents');
+            const p = document.createElement('p');
+            p.style.cssText = 'color:#8b4513; font-size:1rem; font-weight:bold; margin:5px 0 15px 20px;';
+            p.innerHTML = `→ ${choice.result}`;
+            eventsDiv.appendChild(p);
+            eventsDiv.scrollTop = eventsDiv.scrollHeight;
+
+            pendingChoice = null;
+            waitingForChoice = false;
+            updateSimStats();
+        }
+
+        // ==================== 五子棋游戏 ====================
+        const GOMOKU_BOARD_SIZE = 15;
+        const GOMOKU_CELL_SIZE = 38;
+        const GOMOKU_PADDING = 5;
+        const GOMOKU_STONE_RADIUS = 16;
+        
+        const GOMOKU_EMPTY = 0;
+        const GOMOKU_BLACK = 1;
+        const GOMOKU_WHITE = 2;
+        
+        const GOMOKU_SCORES = {
+            FIVE: 1000000,
+            OPEN_FOUR: 100000,
+            HALF_FOUR: 10000,
+            OPEN_THREE: 1000,
+            HALF_THREE: 100,
+            OPEN_TWO: 10,
+            HALF_TWO: 1
+        };
+        
+        let gomokuBoard = [];
+        let gomokuCurrentPlayer = GOMOKU_BLACK;
+        let gomokuGameOver = false;
+        let gomokuMoveHistory = [];
+        let gomokuIsAiThinking = false;
+        let gomokuCanvas = null;
+        let gomokuCtx = null;
+        
+        function initGomokuBoard() {
+            gomokuBoard = Array(GOMOKU_BOARD_SIZE).fill(null).map(() => Array(GOMOKU_BOARD_SIZE).fill(GOMOKU_EMPTY));
+            gomokuCurrentPlayer = GOMOKU_BLACK;
+            gomokuGameOver = false;
+            gomokuMoveHistory = [];
+            gomokuIsAiThinking = false;
+            
+            gomokuCanvas = document.getElementById('gomokuBoard');
+            gomokuCtx = gomokuCanvas.getContext('2d');
+            drawGomokuBoard();
+            document.getElementById('gomokuTurn').textContent = '轮到您下棋';
+            document.getElementById('gomokuThinking').textContent = '';
+            
+            gomokuCanvas.onclick = handleGomokuClick;
+        }
+        
+        function drawGomokuBoard() {
+            gomokuCtx.fillStyle = '#deb887';
+            gomokuCtx.fillRect(0, 0, gomokuCanvas.width, gomokuCanvas.height);
+            
+            gomokuCtx.strokeStyle = '#8b7355';
+            gomokuCtx.lineWidth = 1;
+            
+            for (let i = 0; i < GOMOKU_BOARD_SIZE; i++) {
+                const pos = GOMOKU_PADDING + i * GOMOKU_CELL_SIZE;
+                
+                gomokuCtx.beginPath();
+                gomokuCtx.moveTo(pos, GOMOKU_PADDING);
+                gomokuCtx.lineTo(pos, GOMOKU_PADDING + (GOMOKU_BOARD_SIZE - 1) * GOMOKU_CELL_SIZE);
+                gomokuCtx.stroke();
+                
+                gomokuCtx.beginPath();
+                gomokuCtx.moveTo(GOMOKU_PADDING, pos);
+                gomokuCtx.lineTo(GOMOKU_PADDING + (GOMOKU_BOARD_SIZE - 1) * GOMOKU_CELL_SIZE, pos);
+                gomokuCtx.stroke();
+            }
+            
+            const starPoints = [
+                [3, 3], [3, 7], [3, 11],
+                [7, 3], [7, 7], [7, 11],
+                [11, 3], [11, 7], [11, 11]
+            ];
+            
+            gomokuCtx.fillStyle = '#8b7355';
+            starPoints.forEach(([x, y]) => {
+                gomokuCtx.beginPath();
+                gomokuCtx.arc(GOMOKU_PADDING + x * GOMOKU_CELL_SIZE, GOMOKU_PADDING + y * GOMOKU_CELL_SIZE, 4, 0, Math.PI * 2);
+                gomokuCtx.fill();
+            });
+            
+            for (let i = 0; i < GOMOKU_BOARD_SIZE; i++) {
+                for (let j = 0; j < GOMOKU_BOARD_SIZE; j++) {
+                    if (gomokuBoard[i][j] !== GOMOKU_EMPTY) {
+                        drawGomokuStone(i, j, gomokuBoard[i][j]);
+                    }
+                }
+            }
+        }
+        
+        function drawGomokuStone(x, y, color, isWinning = false) {
+            const cx = GOMOKU_PADDING + x * GOMOKU_CELL_SIZE;
+            const cy = GOMOKU_PADDING + y * GOMOKU_CELL_SIZE;
+            
+            if (color === GOMOKU_BLACK) {
+                const gradient = gomokuCtx.createRadialGradient(cx - 5, cy - 5, 2, cx, cy, GOMOKU_STONE_RADIUS);
+                gradient.addColorStop(0, '#555');
+                gradient.addColorStop(1, '#000');
+                gomokuCtx.fillStyle = gradient;
+            } else {
+                const gradient = gomokuCtx.createRadialGradient(cx - 5, cy - 5, 2, cx, cy, GOMOKU_STONE_RADIUS);
+                gradient.addColorStop(0, '#fff');
+                gradient.addColorStop(1, '#ccc');
+                gomokuCtx.fillStyle = gradient;
+            }
+            
+            gomokuCtx.beginPath();
+            gomokuCtx.arc(cx, cy, GOMOKU_STONE_RADIUS, 0, Math.PI * 2);
+            gomokuCtx.fill();
+            
+            if (isWinning) {
+                gomokuCtx.strokeStyle = '#8b4513';
+                gomokuCtx.lineWidth = 3;
+                gomokuCtx.stroke();
+            }
+        }
+        
+        function getGomokuPosition(e) {
+            const rect = gomokuCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const boardX = Math.round((x - GOMOKU_PADDING) / GOMOKU_CELL_SIZE);
+            const boardY = Math.round((y - GOMOKU_PADDING) / GOMOKU_CELL_SIZE);
+            
+            if (boardX >= 0 && boardX < GOMOKU_BOARD_SIZE && boardY >= 0 && boardY < GOMOKU_BOARD_SIZE) {
+                const dx = Math.abs(x - (GOMOKU_PADDING + boardX * GOMOKU_CELL_SIZE));
+                const dy = Math.abs(y - (GOMOKU_PADDING + boardY * GOMOKU_CELL_SIZE));
+                if (dx <= GOMOKU_STONE_RADIUS && dy <= GOMOKU_STONE_RADIUS) {
+                    return { x: boardX, y: boardY };
+                }
+            }
+            return null;
+        }
+        
+        function makeGomokuMove(x, y, player) {
+            if (gomokuBoard[x][y] !== GOMOKU_EMPTY || gomokuGameOver) return false;
+            
+            gomokuBoard[x][y] = player;
+            gomokuMoveHistory.push({ x, y, player });
+            drawGomokuBoard();
+            
+            const winningLine = checkGomokuWin(x, y, player);
+            if (winningLine) {
+                gomokuGameOver = true;
+                highlightGomokuWinningLine(winningLine);
+                if (player === GOMOKU_BLACK) {
+                    showModal('恭喜！', '🎉 您赢了！');
+                } else {
+                    showModal('遗憾', '🤖 AI 赢了！再接再厉！');
+                }
+                return true;
+            }
+            
+            if (gomokuMoveHistory.length === GOMOKU_BOARD_SIZE * GOMOKU_BOARD_SIZE) {
+                gomokuGameOver = true;
+                showModal('平局', '🤝 棋盘已满，平局！');
+                return true;
+            }
+            
+            return true;
+        }
+        
+        function checkGomokuWin(x, y, player) {
+            const directions = [
+                [[1, 0], [-1, 0]],
+                [[0, 1], [0, -1]],
+                [[1, 1], [-1, -1]],
+                [[1, -1], [-1, 1]]
+            ];
+            
+            for (const [dir1, dir2] of directions) {
+                let line = [{ x, y }];
+                
+                let cx = x + dir1[0];
+                let cy = y + dir1[1];
+                while (cx >= 0 && cx < GOMOKU_BOARD_SIZE && cy >= 0 && cy < GOMOKU_BOARD_SIZE && gomokuBoard[cx][cy] === player) {
+                    line.push({ x: cx, y: cy });
+                    cx += dir1[0];
+                    cy += dir1[1];
+                }
+                
+                cx = x + dir2[0];
+                cy = y + dir2[1];
+                while (cx >= 0 && cx < GOMOKU_BOARD_SIZE && cy >= 0 && cy < GOMOKU_BOARD_SIZE && gomokuBoard[cx][cy] === player) {
+                    line.push({ x: cx, y: cy });
+                    cx += dir2[0];
+                    cy += dir2[1];
+                }
+                
+                if (line.length >= 5) {
+                    return line;
+                }
+            }
+            return null;
+        }
+        
+        function highlightGomokuWinningLine(line) {
+            line.forEach(({ x, y }) => {
+                drawGomokuStone(x, y, gomokuBoard[x][y], true);
+            });
+        }
+        
+        function handleGomokuClick(e) {
+            if (gomokuGameOver || gomokuCurrentPlayer !== GOMOKU_BLACK || gomokuIsAiThinking) return;
+            
+            const pos = getGomokuPosition(e);
+            if (pos && makeGomokuMove(pos.x, pos.y, GOMOKU_BLACK)) {
+                if (!gomokuGameOver) {
+                    gomokuCurrentPlayer = GOMOKU_WHITE;
+                    document.getElementById('gomokuTurn').textContent = 'AI 正在思考...';
+                    document.getElementById('gomokuThinking').textContent = '🤔';
+                    gomokuIsAiThinking = true;
+                    setTimeout(() => {
+                        aiGomokuMove();
+                    }, 500);
+                }
+            }
+        }
+        
+        function aiGomokuMove() {
+            setTimeout(() => {
+                const depth = parseInt(document.getElementById('gomokuDifficulty').value) + 2;
+                const move = findBestGomokuMove(depth);
+                
+                if (move) {
+                    makeGomokuMove(move.x, move.y, GOMOKU_WHITE);
+                    if (!gomokuGameOver) {
+                        gomokuCurrentPlayer = GOMOKU_BLACK;
+                        document.getElementById('gomokuTurn').textContent = '轮到您下棋';
+                        document.getElementById('gomokuThinking').textContent = '';
+                    }
+                }
+                
+                gomokuIsAiThinking = false;
+            }, 100);
+        }
+        
+        function findBestGomokuMove(depth) {
+            let bestScore = -Infinity;
+            let bestMove = null;
+            
+            const candidates = getGomokuCandidateMoves();
+            
+            for (const [x, y] of candidates) {
+                gomokuBoard[x][y] = GOMOKU_WHITE;
+                const score = minimaxGomoku(depth - 1, -Infinity, Infinity, false);
+                gomokuBoard[x][y] = GOMOKU_EMPTY;
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = { x, y };
+                }
+            }
+            
+            return bestMove;
+        }
+        
+        function getGomokuCandidateMoves() {
+            const moves = [];
+            const checked = new Set();
+            
+            for (let i = 0; i < GOMOKU_BOARD_SIZE; i++) {
+                for (let j = 0; j < GOMOKU_BOARD_SIZE; j++) {
+                    if (gomokuBoard[i][j] !== GOMOKU_EMPTY) {
+                        for (let di = -2; di <= 2; di++) {
+                            for (let dj = -2; dj <= 2; dj++) {
+                                if (di === 0 && dj === 0) continue;
+                                const ni = i + di;
+                                const nj = j + dj;
+                                if (ni >= 0 && ni < GOMOKU_BOARD_SIZE && nj >= 0 && nj < GOMOKU_BOARD_SIZE && gomokuBoard[ni][nj] === GOMOKU_EMPTY) {
+                                    const key = `${ni},${nj}`;
+                                    if (!checked.has(key)) {
+                                        checked.add(key);
+                                        moves.push([ni, nj]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (moves.length === 0) {
+                moves.push([7, 7]);
+            }
+            
+            moves.sort((a, b) => {
+                const scoreA = getGomokuPositionScore(a[0], a[1]);
+                const scoreB = getGomokuPositionScore(b[0], b[1]);
+                return scoreB - scoreA;
+            });
+            
+            return moves.slice(0, 20);
+        }
+        
+        function getGomokuPositionScore(x, y) {
+            let score = 0;
+            gomokuBoard[x][y] = GOMOKU_WHITE;
+            score += evaluateGomokuPosition(x, y, GOMOKU_WHITE);
+            gomokuBoard[x][y] = GOMOKU_BLACK;
+            score += evaluateGomokuPosition(x, y, GOMOKU_BLACK) * 0.9;
+            gomokuBoard[x][y] = GOMOKU_EMPTY;
+            return score;
+        }
+        
+        function minimaxGomoku(depth, alpha, beta, isMaximizing) {
+            if (depth === 0) {
+                return evaluateGomokuBoard();
+            }
+            
+            const candidates = getGomokuCandidateMoves();
+            
+            if (isMaximizing) {
+                let maxScore = -Infinity;
+                for (const [x, y] of candidates) {
+                    gomokuBoard[x][y] = GOMOKU_WHITE;
+                    const whiteWin = checkGomokuWin(x, y, GOMOKU_WHITE);
+                    if (whiteWin) {
+                        gomokuBoard[x][y] = GOMOKU_EMPTY;
+                        return GOMOKU_SCORES.FIVE * (depth + 1);
+                    }
+                    const score = minimaxGomoku(depth - 1, alpha, beta, false);
+                    gomokuBoard[x][y] = GOMOKU_EMPTY;
+                    maxScore = Math.max(maxScore, score);
+                    alpha = Math.max(alpha, score);
+                    if (beta <= alpha) break;
+                }
+                return maxScore;
+            } else {
+                let minScore = Infinity;
+                for (const [x, y] of candidates) {
+                    gomokuBoard[x][y] = GOMOKU_BLACK;
+                    const blackWin = checkGomokuWin(x, y, GOMOKU_BLACK);
+                    if (blackWin) {
+                        gomokuBoard[x][y] = GOMOKU_EMPTY;
+                        return -GOMOKU_SCORES.FIVE * (depth + 1);
+                    }
+                    const score = minimaxGomoku(depth - 1, alpha, beta, true);
+                    gomokuBoard[x][y] = GOMOKU_EMPTY;
+                    minScore = Math.min(minScore, score);
+                    beta = Math.min(beta, score);
+                    if (beta <= alpha) break;
+                }
+                return minScore;
+            }
+        }
+        
+        function evaluateGomokuBoard() {
+            let score = 0;
+            
+            for (let i = 0; i < GOMOKU_BOARD_SIZE; i++) {
+                for (let j = 0; j < GOMOKU_BOARD_SIZE; j++) {
+                    if (gomokuBoard[i][j] !== GOMOKU_EMPTY) {
+                        const posScore = evaluateGomokuPosition(i, j, gomokuBoard[i][j]);
+                        if (gomokuBoard[i][j] === GOMOKU_WHITE) {
+                            score += posScore;
+                        } else {
+                            score -= posScore;
+                        }
+                    }
+                }
+            }
+            
+            return score;
+        }
+        
+        function evaluateGomokuPosition(x, y, player) {
+            const directions = [[1, 0], [0, 1], [1, 1], [1, -1]];
+            let totalScore = 0;
+            
+            for (const [dx, dy] of directions) {
+                const line = getGomokuLine(x, y, dx, dy, player);
+                totalScore += evaluateGomokuLine(line, player);
+            }
+            
+            return totalScore;
+        }
+        
+        function getGomokuLine(x, y, dx, dy, player) {
+            let line = [player];
+            
+            let cx = x - dx;
+            let cy = y - dy;
+            while (cx >= 0 && cx < GOMOKU_BOARD_SIZE && cy >= 0 && cy < GOMOKU_BOARD_SIZE) {
+                line.unshift(gomokuBoard[cx][cy]);
+                cx -= dx;
+                cy -= dy;
+            }
+            
+            cx = x + dx;
+            cy = y + dy;
+            while (cx >= 0 && cx < GOMOKU_BOARD_SIZE && cy >= 0 && cy < GOMOKU_BOARD_SIZE) {
+                line.push(gomokuBoard[cx][cy]);
+                cx += dx;
+                cy += dy;
+            }
+            
+            return line;
+        }
+        
+        function evaluateGomokuLine(line, player) {
+            const opponent = player === GOMOKU_WHITE ? GOMOKU_BLACK : GOMOKU_WHITE;
+            let score = 0;
+            
+            for (let i = 0; i < line.length; i++) {
+                if (line[i] === player) {
+                    let count = 0;
+                    let j = i;
+                    while (j < line.length && line[j] === player) {
+                        count++;
+                        j++;
+                    }
+                    
+                    const leftOpen = i > 0 && line[i - 1] === GOMOKU_EMPTY;
+                    const rightOpen = j < line.length && line[j] === GOMOKU_EMPTY;
+                    
+                    if (count >= 5) {
+                        score += GOMOKU_SCORES.FIVE;
+                    } else if (leftOpen && rightOpen) {
+                        if (count === 4) score += GOMOKU_SCORES.OPEN_FOUR;
+                        else if (count === 3) score += GOMOKU_SCORES.OPEN_THREE;
+                        else if (count === 2) score += GOMOKU_SCORES.OPEN_TWO;
+                    } else if (leftOpen || rightOpen) {
+                        if (count === 4) score += GOMOKU_SCORES.HALF_FOUR;
+                        else if (count === 3) score += GOMOKU_SCORES.HALF_THREE;
+                        else if (count === 2) score += GOMOKU_SCORES.HALF_TWO;
+                    }
+                    
+                    i = j - 1;
+                }
+            }
+            
+            return score;
+        }
+        
+        function undoGomoku() {
+            if (gomokuMoveHistory.length < 2 || gomokuGameOver || gomokuIsAiThinking) {
+                showModal('提示', '无法悔棋！');
+                return;
+            }
+            
+            for (let i = 0; i < 2; i++) {
+                const lastMove = gomokuMoveHistory.pop();
+                gomokuBoard[lastMove.x][lastMove.y] = GOMOKU_EMPTY;
+            }
+            
+            gomokuCurrentPlayer = GOMOKU_BLACK;
+            drawGomokuBoard();
+            document.getElementById('gomokuTurn').textContent = '轮到您下棋';
+            document.getElementById('gomokuThinking').textContent = '';
+        }
+        
+        function restartGomoku() {
+            initGomokuBoard();
+        }
+    </script>
+</body>
+</html>

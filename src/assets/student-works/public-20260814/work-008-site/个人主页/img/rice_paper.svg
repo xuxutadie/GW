@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">
+  <defs>
+    <filter id="paperFiber">
+      <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="3" seed="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.07"/>
+      </feComponentTransfer>
+    </filter>
+    <filter id="paperFiber2">
+      <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" seed="17" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.04"/>
+      </feComponentTransfer>
+    </filter>
+    <filter id="paperGrain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" seed="5" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.025"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="500" height="500" fill="#F0E4CE"/>
+  <rect width="500" height="500" fill="#DCC8A6" filter="url(#paperFiber)"/>
+  <rect width="500" height="500" fill="#D4BFA0" filter="url(#paperFiber2)" opacity="0.35"/>
+  <rect width="500" height="500" fill="#8B7355" filter="url(#paperGrain)"/>
+</svg>

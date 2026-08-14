@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>凶案现场 - 推理游戏</title>
+    <style>
+        /* ========== 基础样式 ========== */
+        :root {
+            --primary-dark: #0A192F;
+            --gold: #D4AF37;
+            --dark-gray: #2D3748;
+            --dark-red: #8B0000;
+            --card-front: #F5F5F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: var(--primary-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at top, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(139, 0, 0, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ========== 页面容器 ========== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ========== 头部区域 ========== */
+        .header {
+            background: linear-gradient(135deg, #3D2914 0%, #2A1D0D 100%);
+            padding: 18px 35px;
+            border-radius: 12px;
+            border: 2px solid var(--gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(212,175,55,0.15);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            top: 8px;
+            bottom: 8px;
+            border: 1px solid rgba(212,175,55,0.25);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .game-title {
+            color: var(--gold);
+            font-size: 26px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7), 0 0 15px rgba(212,175,55,0.3);
+            letter-spacing: 4px;
+            white-space: nowrap;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .draw-count {
+            color: var(--gold);
+            font-size: 18px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.4);
+            white-space: nowrap;
+        }
+
+        .draw-count span {
+            font-size: 24px;
+            text-shadow: 0 0 10px var(--gold), 0 0 20px rgba(212,175,55,0.5);
+            margin-left: 5px;
+        }
+
+        .narration-btn {
+            color: var(--gold);
+            background: rgba(0,0,0,0.35);
+            border: 2px solid var(--gold);
+            padding: 7px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .narration-btn:hover {
+            background: rgba(212,175,55,0.25);
+            box-shadow: 0 0 12px rgba(212,175,55,0.4);
+        }
+
+        /* ========== 主要内容区 ========== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--card-front);
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid var(--gold);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .info-card h3 {
+            color: var(--dark-red);
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        .info-card p {
+            color: var(--dark-gray);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* ========== 卡牌展示区 ========== */
+        .card-display-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 350px;
+        }
+
+        .card-display-stand {
+            background: linear-gradient(135deg, #3D2914 0%, #1A1208 100%);
+            padding: 30px 50px;
+            border-radius: 15px;
+            border: 3px solid var(--gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* ========== 卡牌样式 ========== */
+        .card-container {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto;
+            perspective: 1500px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 14px;
+            box-sizing: border-box;
+        }
+
+        /* 卡牌背面 */
+        .card-back {
+            background: linear-gradient(145deg, #0f2544 0%, #061020 50%, #0a192f 100%);
+            border: 3px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 70px;
+            text-shadow: 0 0 20px var(--gold);
+        }
+
+        /* 卡牌正面 */
+        .card-front {
+            background: linear-gradient(145deg, #faf8f0 0%, #f0efe8 100%);
+            border: 3px solid var(--gold);
+            transform: rotateY(180deg);
+            padding: 18px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card-front .card-type-label {
+            background: var(--gold);
+            color: #3D2914;
+            padding: 5px 18px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .card-front .card-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        .card-front .card-content {
+            text-align: center;
+            color: #2D3748;
+            font-size: 13px;
+            line-height: 1.6;
+            width: 100%;
+        }
+
+        /* 线索卡内容 */
+        .card-front .card-content p {
+            margin: 0;
+            padding: 3px;
+            color: #2D3748;
+            font-size: 13px;
+            line-height: 1.7;
+            font-weight: 500;
+        }
+
+        /* 嫌疑人卡内容 */
+        .card-front .card-content .suspect-name {
+            color: #3D2914;
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .card-front .card-content .suspect-age {
+            color: #8B0000;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .card-front .card-content .suspect-desc {
+            margin: 0;
+            padding: 8px 3px;
+            color: #2D3748;
+            font-size: 12px;
+            line-height: 1.6;
+            font-weight: 500;
+            border-top: 1px solid rgba(61, 41, 20, 0.3);
+            padding-top: 8px;
+        }
+
+        /* 空卡牌提示 */
+        .empty-card {
+            width: 200px;
+            height: 280px;
+            border: 3px dashed rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(212, 175, 55, 0.5);
+            font-size: 16px;
+        }
+
+        /* ========== 卡牌库（已收集卡牌） ========== */
+        .card-library {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .card-library h3 {
+            color: var(--gold);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .card-library-scroll {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .card-library-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .card-library-scroll::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+
+        .card-library-scroll::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 4px;
+        }
+
+        .mini-card {
+            width: 125px;
+            height: 180px;
+            background: linear-gradient(145deg, #faf8f0 0%, #f0efe8 100%);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 11px;
+            color: var(--dark-gray);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mini-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .mini-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+            border-color: #b89600;
+        }
+
+        .mini-card .mini-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+            transition: transform 0.3s;
+        }
+
+        .mini-card:hover .mini-icon {
+            transform: scale(1.15);
+        }
+
+        .mini-card .mini-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .card-library-empty {
+            color: rgba(212,175,55,0.5);
+            padding: 20px;
+        }
+
+        /* ========== 操作按钮 ========== */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .action-btn {
+            padding: 18px 40px;
+            border: 3px solid var(--gold);
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            transform: scale(1.08);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+        }
+
+        .action-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-clue {
+            background: var(--primary-dark);
+            color: var(--gold);
+        }
+
+        .btn-suspect {
+            background: var(--dark-gray);
+            color: var(--gold);
+        }
+
+        .btn-accuse {
+            background: var(--dark-red);
+            color: var(--gold);
+            padding: 18px 50px;
+        }
+
+        /* ========== 弹窗样式 ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-front);
+            border: 4px solid var(--gold);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.3);
+            animation: modalPop 0.4s ease-out;
+        }
+
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal h2 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .modal.victory h2 {
+            color: var(--gold);
+            text-shadow: 0 0 10px var(--gold);
+        }
+
+        .modal.defeat h2 {
+            color: var(--dark-red);
+        }
+
+        .modal-content {
+            color: var(--dark-gray);
+            margin-bottom: 25px;
+            line-height: 1.8;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        .modal-content .truth {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid var(--gold);
+        }
+
+        .modal-btn {
+            padding: 12px 40px;
+            background: var(--primary-dark);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            background: var(--gold);
+            color: var(--primary-dark);
+        }
+
+        .suspect-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .suspect-option {
+            padding: 15px;
+            background: rgba(10, 25, 47, 0.1);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .suspect-option:hover {
+            background: var(--gold);
+            color: var(--primary-dark);
+        }
+
+        .suspect-option .name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        /* ========== 响应式布局 ========== */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 20px;
+            }
+            .draw-count {
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+            .draw-count span {
+                font-size: 20px;
+            }
+            .card-container {
+                width: 180px;
+                height: 260px;
+            }
+            .empty-card {
+                width: 180px;
+                height: 260px;
+            }
+            .action-btn {
+                padding: 14px 25px;
+                font-size: 15px;
+            }
+            .btn-accuse {
+                padding: 14px 35px;
+            }
+            .mini-card {
+                width: 100px;
+                height: 140px;
+            }
+            .card-display-stand {
+                padding: 20px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 页面主容器 ========== -->
+    <div class="container">
+
+        <!-- ========== 头部区域 ========== -->
+        <div class="header">
+            <h1 class="game-title">🔍 凶案现场</h1>
+            <div class="header-right">
+                <div class="draw-count">剩余抽卡次数: <span id="drawCount">5</span></div>
+                <button id="narrationBtn" class="narration-btn">📖 案件解说</button>
+            </div>
+        </div>
+
+        <!-- ========== 主要游戏区 ========== -->
+        <div class="main-content">
+
+            <!-- 案件档案 -->
+            <div class="info-card">
+                <h3>📜 案件档案</h3>
+                <p>死者：庄园主爱德华，60岁，被发现死在书房里，死因是毒杀。请收集线索，找出真凶！</p>
+            </div>
+
+            <!-- 卡牌展示区 -->
+            <div class="card-display-area">
+                <div class="card-display-stand">
+                    <div id="cardDisplay"></div>
+                </div>
+            </div>
+
+            <!-- 已收集卡牌库 -->
+            <div class="card-library">
+                <h3>📖 已收集的卡牌</h3>
+                <div id="cardLibrary" class="card-library-scroll"></div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button class="action-btn btn-clue" id="drawClueBtn">🎴 抽取线索卡</button>
+                <button class="action-btn btn-suspect" id="drawSuspectBtn">👤 抽取嫌疑人卡</button>
+                <button class="action-btn btn-accuse" id="accuseBtn">⚖️ 指认凶手</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========== 弹窗组件 ========== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <h2 id="modalTitle"></h2>
+            <div class="modal-content" id="modalContent"></div>
+            <div id="modalButtons"></div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+         * 游戏数据定义
+         * ============================================================ */
+
+        // 嫌疑人数据
+        const suspects = [
+            { id: 's1', name: '妻子玛莎',   age: 55, description: '与死者感情不和，正在闹离婚，要求分一半财产',               hiddenInfo: '她偷偷买了高额保险，受益人是她，明天保单生效' },
+            { id: 's2', name: '儿子汤姆',   age: 25, description: '游手好闲，欠了一大笔赌债，死者拒绝帮他还钱',                 hiddenInfo: '他偷偷转移了公司资金，今天死者刚发现' },
+            { id: 's3', name: '女儿莉莉',   age: 22, description: '死者不同意她和男友的婚事，说男友是个骗子',                   hiddenInfo: '她已经怀孕3个月，男友要她分手' },
+            { id: 's4', name: '管家罗伯特', age: 50, description: '在庄园工作了30年，最近被死者解雇',                         hiddenInfo: '他被解雇是因为发现了死者洗钱' },
+            { id: 's5', name: '秘书苏珊',   age: 35, description: '死者的秘书，与死者有不正当关系',                           hiddenInfo: '她知道死者保险柜密码，偷偷拿过钱' }
+        ];
+
+        // 线索数据
+        const clues = [
+            { id: 'c1',  content: '死者的酒杯里检测出了毒药',                                 isTrue: true, unlocked: true  },
+            { id: 'c2',  content: '毒药是罕见的夹竹桃毒素，需要用特制容器才能提取',              isTrue: true, unlocked: true  },
+            { id: 'c3',  content: '管家罗伯特的房间有一本《有毒植物图鉴》，夹竹桃页折痕很深',    isTrue: true, unlocked: true  },
+            { id: 'c4',  content: '花园发现了夹竹桃，有刚摘的痕迹',                              isTrue: true, unlocked: true  },
+            { id: 'c5',  content: '莉莉的房间有一本园艺学教材，上面有她的名字缩写',               isTrue: true, unlocked: true  },
+            { id: 'c6',  content: '莉莉的包里发现了夹竹桃，是她花园摘的',                        isTrue: true, unlocked: true  },
+            { id: 'c7',  content: '玛莎偷偷买了高额保险，受益人是她，明天保单生效',               isTrue: true, unlocked: true  },
+            { id: 'c8',  content: '汤姆偷偷转移了公司资金，今天死者刚发现',                       isTrue: true, unlocked: true  },
+            { id: 'c9',  content: '罗伯特被解雇是因为发现了死者洗钱',                            isTrue: true, unlocked: true  },
+            { id: 'c10', content: '死者保险柜里有苏珊写的勒索信',                               isTrue: true, unlocked: false },
+            { id: 'c11', content: '案发时间晚上8点到8点30分',                                   isTrue: true, unlocked: true  },
+            { id: 'c12', content: '8点10分，有人看到玛莎在书房门口',                            isTrue: true, unlocked: true  },
+            { id: 'c13', content: '8点15分，汤姆在书房门口敲门，没人开',                        isTrue: true, unlocked: true  },
+            { id: 'c14', content: '8点20分，莉莉看到罗伯特在花园里找东西',                      isTrue: true, unlocked: false },
+            { id: 'c15', content: '8点18分，苏珊说她看到玛莎进了书房',                          isTrue: true, unlocked: true  },
+            { id: 'c16', content: '死者的酒杯上有苏珊的指纹',                                   isTrue: true, unlocked: false },
+            { id: 'c17', content: '书房门从里面锁上，钥匙在死者口袋里',                          isTrue: true, unlocked: true  },
+            { id: 'c18', content: '苏珊学过药学，知道夹竹桃有剧毒',                              isTrue: true, unlocked: false },
+            { id: 'c19', content: '玛莎房间有一个装过夹竹桃汁的特制容器',                        isTrue: true, unlocked: true  },
+            { id: 'c20', content: '汤姆房间有夹竹桃提取物的痕迹',                               isTrue: true, unlocked: true  },
+            { id: 'c21', content: '罗伯特的手套上发现了夹竹桃汁液',                              isTrue: true, unlocked: true  },
+            { id: 'c22', content: '莉莉在8点5分去过厨房拿东西',                                 isTrue: true, unlocked: false },
+            { id: 'c23', content: '死者今天刚修改遗嘱，受益人不是家人',                          isTrue: true, unlocked: true  },
+            { id: 'c24', content: '苏珊知道死者保险柜密码',                                     isTrue: true, unlocked: false },
+            { id: 'c25', content: '汤姆欠的赌债明天到期，必须还钱',                              isTrue: true, unlocked: true  },
+            { id: 'c26', content: '8点12分，厨师看到苏珊在花园里徘徊',                          isTrue: true, unlocked: false },
+            { id: 'c27', content: '苏珊抽屉里发现了同款特制容器',                               isTrue: true, unlocked: false },
+            { id: 'c28', content: '花园夹竹桃旁边发现苏珊的发夹',                               isTrue: true, unlocked: false }
+        ];
+
+        // 游戏状态
+        let gameState = {};
+
+        /* ============================================================
+         * 游戏初始化
+         * ============================================================ */
+
+        function initGame() {
+            // 所有线索一开始就解锁
+            clues.forEach(function(c) { c.unlocked = true; });
+
+            gameState = {
+                murderer: suspects[4],  // 秘书苏珊是真凶
+                drawsLeft: clues.length + suspects.length,
+                drawnCards: [],
+                currentCard: null,
+                gameOver: false,
+                victory: false,
+                availableSuspects: [...suspects],
+                availableClues: [...clues]
+            };
+
+            updateUI();
+            renderEmptyCard();
+            renderCardLibrary();
+
+            // 显示开场白解说词
+            setTimeout(showNarration, 500);
+        }
+
+        /* ============================================================
+         * 案件解说弹窗
+         * ============================================================ */
+
+        function showNarration() {
+            const html = '<div style="text-align:left;line-height:2;color:#2D3748;">' +
+                '<p style="font-size:18px;color:#8B0000;margin-bottom:15px;text-align:center;font-weight:bold;">━━━━━━━━━━━━━━━━━━</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;">深夜，豪华庄园的书房内传来一声沉闷的倒地声...</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;">庄园主<strong style="color:#8B0000;">爱德华先生</strong>，这位60岁的商业大亨，被发现倒在了自家书房的地板上。</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;">警方初步鉴定——<strong style="color:#8B0000;">他死于罕见的夹竹桃毒素中毒</strong>。</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;">而此刻，庄园内有五个人，他们每个人都有充分的杀人动机...</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;color:#D4AF37;">👤 <strong>妻子玛莎</strong>：正与死者闹离婚，觊觎着亿万财产...</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;color:#D4AF37;">👤 <strong>儿子汤姆</strong>：游手好闲的赌徒，欠下一屁股债...</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;color:#D4AF37;">👤 <strong>女儿莉莉</strong>：爱情受阻，身怀六甲...</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;color:#D4AF37;">👤 <strong>管家罗伯特</strong>：效力30年却遭无情解雇...</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;color:#D4AF37;">👤 <strong>秘书苏珊</strong>：与死者关系暧昧，深知秘密...</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;">现在，作为一名侦探，你需要<strong style="color:#8B0000;">通过抽取线索卡和嫌疑人卡</strong>来调查此案。</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;">搜集足够证据后，<strong style="color:#8B0000;">指认真正的凶手</strong>！</p>' +
+                '<p style="font-size:15px;margin-bottom:15px;text-indent:2em;color:#D4AF37;">💡 提示：仔细阅读每张卡牌的内容，真凶的线索往往藏在细节之中！</p>' +
+                '<p style="font-size:18px;color:#8B0000;margin-top:20px;text-align:center;font-weight:bold;">━━━ 准备好，开始你的推理之旅！ ━━━</p>' +
+                '</div>';
+
+            showModal('🔍 凶案现场 - 案件解说', html, [{ text: '🔎 开始调查', action: closeModal }]);
+        }
+
+        /* ============================================================
+         * UI更新
+         * ============================================================ */
+
+        function updateUI() {
+            document.getElementById('drawCount').textContent = gameState.drawsLeft;
+
+            const drawClueBtn    = document.getElementById('drawClueBtn');
+            const drawSuspectBtn = document.getElementById('drawSuspectBtn');
+            const accuseBtn      = document.getElementById('accuseBtn');
+
+            const canDraw = gameState.drawsLeft > 0 && !gameState.gameOver;
+
+            drawClueBtn.disabled    = !canDraw || gameState.availableClues.length === 0;
+            drawSuspectBtn.disabled = !canDraw || gameState.availableSuspects.length === 0;
+            accuseBtn.disabled      = gameState.gameOver;
+        }
+
+        /* ============================================================
+         * 卡牌渲染
+         * ============================================================ */
+
+        // 渲染空卡牌（提示抽卡）
+        function renderEmptyCard() {
+            document.getElementById('cardDisplay').innerHTML =
+                '<div class="empty-card">点击下方按钮抽卡</div>';
+        }
+
+        // 渲染翻牌动画
+        function renderCard(card) {
+            let icon = '';
+            let typeLabel = '';
+            let content = '';
+
+            if (card.type === 'suspect') {
+                typeLabel = '嫌疑人卡';
+                content =
+                    '<div class="suspect-name">' + card.data.name + '</div>' +
+                    '<div class="suspect-age">' + card.data.age + '岁</div>' +
+                    '<div class="suspect-desc">' + card.data.description + '</div>';
+            } else if (card.type === 'clue') {
+                icon = '🔍';
+                typeLabel = '线索卡';
+                content = '<p>' + card.data.content + '</p>';
+            }
+
+            const iconHTML = icon ? '<div class="card-icon">' + icon + '</div>' : '';
+
+            document.getElementById('cardDisplay').innerHTML =
+                '<div class="card-container">' +
+                    '<div class="card" id="currentCard">' +
+                        '<div class="card-face card-back">🎴</div>' +
+                        '<div class="card-face card-front">' +
+                            '<div class="card-type-label">' + typeLabel + '</div>' +
+                            iconHTML +
+                            '<div class="card-content">' + content + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+
+            // 延迟翻转显示正面
+            setTimeout(function() {
+                const currentCard = document.getElementById('currentCard');
+                if (currentCard) currentCard.classList.add('flipped');
+            }, 300);
+        }
+
+        // 将当前卡牌加入卡牌库
+        function addCurrentCardToLibrary() {
+            if (gameState.currentCard) {
+                gameState.drawnCards.push({ ...gameState.currentCard });
+                gameState.currentCard = null;
+                renderCardLibrary();
+
+                if (gameState.drawsLeft === 0 && !gameState.gameOver) {
+                    showModal('提示', '抽卡次数已用完！现在是时候做出最终推理了！', [
+                        { text: '好的，我要指认凶手', action: function() { closeModal(); accuseMurderer(); } }
+                    ]);
+                }
+            }
+        }
+
+        // 渲染卡牌库
+        function renderCardLibrary() {
+            const library = document.getElementById('cardLibrary');
+
+            if (gameState.drawnCards.length === 0) {
+                library.innerHTML = '<div class="card-library-empty">暂无卡牌</div>';
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < gameState.drawnCards.length; i++) {
+                const card = gameState.drawnCards[i];
+                let icon = '';
+                let title = '';
+                let content = '';
+
+                if (card.type === 'suspect') {
+                    icon = '👤';
+                    title = card.data.name;
+                    content = card.data.description.substring(0, 15) + '...';
+                } else if (card.type === 'clue') {
+                    icon = '🔍';
+                    title = card.data.content.substring(0, 12) + '...';
+                    content = card.data.content.substring(0, 20) + '...';
+                }
+
+                html +=
+                    '<div class="mini-card" data-index="' + i + '">' +
+                        '<div class="mini-icon">' + icon + '</div>' +
+                        '<div class="mini-title">' + title + '</div>' +
+                        '<div style="font-size:10px;color:#666;">' + content + '</div>' +
+                    '</div>';
+            }
+            library.innerHTML = html;
+        }
+
+        // 点击小卡片查看详情
+        function showCardDetail(card) {
+            let title = '';
+            let content = '';
+
+            if (card.type === 'suspect') {
+                title = card.data.name;
+                content =
+                    '<p><strong>年龄：</strong>' + card.data.age + '岁</p>' +
+                    '<p><strong>描述：</strong>' + card.data.description + '</p>';
+                if (card.data.hiddenInfo) {
+                    content += '<p><strong style="color:#8B0000;">隐藏信息：</strong>' + card.data.hiddenInfo + '</p>';
+                }
+            } else if (card.type === 'clue') {
+                title = '🔍 线索';
+                content = '<p>' + card.data.content + '</p>';
+            }
+
+            showModal(title, content, [{ text: '关闭', action: closeModal }]);
+        }
+
+        /* ============================================================
+         * 抽卡逻辑
+         * ============================================================ */
+
+        function drawCard(type) {
+            // 检查是否所有卡牌都抽完
+            const totalAvailable = gameState.availableClues.length + gameState.availableSuspects.length;
+            if (totalAvailable === 0) {
+                showModal('提示', '所有卡牌已全部抽完！', [{ text: '确定', action: closeModal }]);
+                return;
+            }
+
+            if (gameState.drawsLeft <= 0 || gameState.gameOver) return;
+            if (gameState.currentCard) return;
+
+            let card;
+
+            if (type === 'clue') {
+                if (gameState.availableClues.length > 0) {
+                    const idx = Math.floor(Math.random() * gameState.availableClues.length);
+                    const clue = gameState.availableClues.splice(idx, 1)[0];
+                    if (!clue.unlocked) clue.unlocked = true;
+                    card = { id: generateCardId(), type: 'clue', data: clue };
+                } else {
+                    showModal('提示', '所有线索已全部抽完！', [{ text: '确定', action: closeModal }]);
+                    return;
+                }
+            } else if (type === 'suspect') {
+                if (gameState.availableSuspects.length > 0) {
+                    const idx = Math.floor(Math.random() * gameState.availableSuspects.length);
+                    const suspect = gameState.availableSuspects.splice(idx, 1)[0];
+                    card = { id: generateCardId(), type: 'suspect', data: suspect };
+                } else {
+                    showModal('提示', '所有嫌疑人已全部抽完！', [{ text: '确定', action: closeModal }]);
+                    return;
+                }
+            }
+
+            gameState.currentCard = card;
+            gameState.drawsLeft--;
+
+            renderCard(card);
+            updateUI();
+
+            setTimeout(function() {
+                addCurrentCardToLibrary();
+            }, 800);
+        }
+
+        function generateCardId() {
+            return 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        /* ============================================================
+         * 指认凶手
+         * ============================================================ */
+
+        function accuseMurderer() {
+            const options = suspects.map(function(s) {
+                return {
+                    text: s.name,
+                    action: function() {
+                        const isCorrect = s.id === gameState.murderer.id;
+                        endGame(isCorrect, isCorrect ? '恭喜你找到了真凶！' : '很遗憾，你指认错了');
+                    }
+                };
+            });
+            showModal('⚖️ 指认凶手', '选择你认为是凶手的嫌疑人：', [], options);
+        }
+
+        function endGame(victory, message) {
+            gameState.gameOver = true;
+            gameState.victory = victory;
+
+            document.getElementById('modal').className = 'modal ' + (victory ? 'victory' : 'defeat');
+
+            const content =
+                '<p>' + message + '</p>' +
+                '<div class="truth">' +
+                    '<strong>真凶是：' + gameState.murderer.name + '</strong><br><br>' +
+                    gameState.murderer.description + '<br><br>' +
+                    '<em>作案动机：' + (gameState.murderer.hiddenInfo || '深仇大恨...') + '</em>' +
+                '</div>';
+
+            showModal(
+                victory ? '🎉 游戏胜利！' : '😔 游戏失败',
+                content,
+                [{ text: '再玩一次', action: function() { closeModal(); initGame(); } }]
+            );
+        }
+
+        /* ============================================================
+         * 弹窗通用函数
+         * ============================================================ */
+
+        function showModal(title, content, buttons, optionButtons) {
+            buttons = buttons || [];
+            optionButtons = optionButtons || [];
+
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').innerHTML = content;
+
+            const buttonsContainer = document.getElementById('modalButtons');
+            buttonsContainer.innerHTML = '';
+
+            // 选项按钮（指认凶手用）
+            if (optionButtons.length > 0) {
+                const list = document.createElement('div');
+                list.className = 'suspect-list';
+                for (let i = 0; i < optionButtons.length; i++) {
+                    const btn = optionButtons[i];
+                    const el = document.createElement('div');
+                    el.className = 'suspect-option';
+                    el.innerHTML = '<div class="name">' + btn.text + '</div>';
+                    el.onclick = btn.action;
+                    list.appendChild(el);
+                }
+                buttonsContainer.appendChild(list);
+            }
+
+            // 普通按钮
+            for (let i = 0; i < buttons.length; i++) {
+                const btn = buttons[i];
+                const el = document.createElement('button');
+                el.className = 'modal-btn';
+                el.textContent = btn.text;
+                el.onclick = btn.action;
+                buttonsContainer.appendChild(el);
+            }
+
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        /* ============================================================
+         * 事件绑定 & 启动游戏
+         * ============================================================ */
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 案件解说按钮
+            document.getElementById('narrationBtn').addEventListener('click', showNarration);
+
+            // 抽线索按钮
+            document.getElementById('drawClueBtn').addEventListener('click', function() { drawCard('clue'); });
+
+            // 抽嫌疑人按钮
+            document.getElementById('drawSuspectBtn').addEventListener('click', function() { drawCard('suspect'); });
+
+            // 指认凶手按钮
+            document.getElementById('accuseBtn').addEventListener('click', accuseMurderer);
+
+            // 卡牌库点击事件（查看详情）
+            document.getElementById('cardLibrary').addEventListener('click', function(e) {
+                const miniCard = e.target.closest('.mini-card');
+                if (miniCard) {
+                    const index = parseInt(miniCard.dataset.index);
+                    const card = gameState.drawnCards[index];
+                    if (card) showCardDetail(card);
+                }
+            });
+
+            // 点击弹窗背景关闭（非游戏结束状态）
+            document.getElementById('modalOverlay').addEventListener('click', function(e) {
+                if (e.target.id === 'modalOverlay' && !gameState.gameOver) closeModal();
+            });
+
+            // 启动游戏
+            initGame();
+        });
+    </script>
+</body>
+</html>

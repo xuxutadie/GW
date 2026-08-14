@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>恶劣环境模拟器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #000; overflow: hidden; }
+    
+    #canvas { display: block; width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 1; }
+    
+    #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e293b; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: white; }
+    #loading.hidden { display: none; }
+    #loading .spinner { width: 50px; height: 50px; border: 4px solid #334155; border-top-color: #f97316; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { margin-top: 20px; font-size: 1.2rem; }
+    
+    #ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
+    
+    #main-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; pointer-events: auto; }
+    #main-menu.hidden { display: none; }
+    
+    #main-menu h1 { color: #f97316; font-size: 2.5rem; margin-bottom: 10px; }
+    #main-menu p { color: #94a3b8; margin-bottom: 30px; }
+    
+    .panel { background: rgba(30, 41, 59, 0.8); border: 2px solid #475569; border-radius: 12px; padding: 15px; margin-bottom: 20px; width: 100%; max-width: 600px; pointer-events: auto; }
+    .panel h2 { color: #f97316; font-size: 1.2rem; margin-bottom: 10px; }
+    
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    
+    .card { background: rgba(15, 23, 42, 0.8); border: 2px solid #475569; border-radius: 8px; padding: 10px; cursor: pointer; text-align: center; pointer-events: auto; color: white; }
+    .card:hover { border-color: #f97316; }
+    .card.selected { border-color: #f97316; background: rgba(249, 115, 22, 0.1); }
+    .card .icon { font-size: 1.5rem; margin-bottom: 5px; }
+    .card .name { font-size: 0.85rem; font-weight: bold; }
+    
+    .btn { padding: 10px 30px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; background: #f97316; color: white; pointer-events: auto; }
+    .btn:hover { background: #ea580c; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    #hud { display: none; padding: 10px; color: white; }
+    #hud.active { display: block; }
+    
+    .hud-panel { background: rgba(15, 23, 42, 0.9); padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; }
+    
+    #modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 300; pointer-events: auto; }
+    #modal.active { display: flex; }
+    .modal-content { background: #1e293b; padding: 30px; text-align: center; color: white; border-radius: 12px; }
+    
+    #damage-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(239, 68, 68, 0); pointer-events: none; transition: background 0.2s; z-index: 200; }
+    #damage-overlay.damaged { background: rgba(239, 68, 68, 0.3); }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="spinner"></div>
+    <p id="load-text">加载中...</p>
+  </div>
+
+  <div id="ui-layer">
+    <div id="main-menu">
+      <h1>恶劣环境模拟器</h1>
+      <p>选择地形和环境，收集材料生存！</p>
+      
+      <div class="panel">
+        <h2>🌍 地形</h2>
+        <div class="grid-4" id="terrain-grid">
+          <div class="card" data-id="plain"><div class="icon">🌾</div><div class="name">平原</div></div>
+          <div class="card" data-id="mountain"><div class="icon">⛰️</div><div class="name">山地</div></div>
+          <div class="card" data-id="city"><div class="icon">🏙️</div><div class="name">城市</div></div>
+          <div class="card" data-id="coast"><div class="icon">🌊</div><div class="name">海岸</div></div>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <h2>⚠️ 环境</h2>
+        <div class="grid-3" id="env-grid">
+          <div class="card" data-id="tornado"><div class="icon">🌪️</div><div class="name">龙卷风</div></div>
+          <div class="card" data-id="mudslide"><div class="icon">⛰️</div><div class="name">泥石流</div></div>
+          <div class="card" data-id="typhoon"><div class="icon">🌬️</div><div class="name">台风</div></div>
+          <div class="card" data-id="earthquake"><div class="icon">🌍</div><div class="name">地震</div></div>
+          <div class="card" data-id="fire"><div class="icon">🔥</div><div class="name">火灾</div></div>
+          <div class="card" data-id="flood"><div class="icon">💧</div><div class="name">洪水</div></div>
+        </div>
+      </div>
+      
+      <button class="btn" id="start-btn" disabled>开始游戏</button>
+    </div>
+
+    <div id="hud">
+      <div class="hud-panel">
+        时间: <span id="hud-time">60</span> | 分数: <span id="hud-score">0</span> | 生命: <span id="hud-hp">100</span>
+      </div>
+      <button class="btn" id="back-btn" style="padding: 5px 15px; font-size: 0.8rem;">返回</button>
+    </div>
+    
+    <div id="modal">
+      <div class="modal-content" id="modal-content">
+        <h2 id="modal-title">游戏结束</h2>
+        <p id="modal-desc"></p>
+        <div>分数: <span id="modal-score">0</span></div>
+        <button class="btn" id="restart-btn" style="margin-top: 20px;">再玩一次</button>
+      </div>
+      <div class="modal-content" id="tutorial-content" style="display: none; max-width: 600px;">
+        <h2 id="tutorial-title">应对措施教学</h2>
+        <div id="tutorial-step" style="font-size: 1.5rem; margin: 20px 0;">1/5</div>
+        <div id="tutorial-icon" style="font-size: 4rem; margin: 20px 0;"></div>
+        <p id="tutorial-text" style="font-size: 1.2rem; line-height: 1.6;"></p>
+        <div style="margin-top: 20px;">
+          <button class="btn" id="tutorial-prev" disabled>上一步</button>
+          <button class="btn" id="tutorial-next" style="margin-left: 10px;">下一步</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="damage-overlay"></div>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <script src="three.min.js"></script>
+  <script>
+    const environments = {
+      tornado: { 
+        name: '龙卷风', 
+        damageRate: 2, 
+        materials: ['🏠','🪵','💊','💧','🔦'],
+        tips: [
+          '躲进坚固的建筑物内，远离窗户',
+          '用木板和石头加固门窗',
+          '准备急救药品和饮用水',
+          '携带手电筒以便照明',
+          '远离危险区域，寻找避难所'
+        ]
+      },
+      mudslide: { 
+        name: '泥石流', 
+        damageRate: 2, 
+        materials: ['⛑️','🪢','🦺','🥾','⛏️'],
+        tips: [
+          '佩戴安全帽保护头部',
+          '使用绳索固定物体防止被冲走',
+          '穿上安全背心提高可见度',
+          '穿防滑靴防止滑倒',
+          '用工具清理道路障碍'
+        ]
+      },
+      typhoon: { 
+        name: '台风', 
+        damageRate: 1.5, 
+        materials: ['🛡️','🌂','🍪','🔋','📻'],
+        tips: [
+          '加固门窗防止被风吹破',
+          '出门携带雨伞防雨',
+          '储备饼干等不易变质的食物',
+          '准备备用电池供电器使用',
+          '收听广播了解台风动态'
+        ]
+      },
+      earthquake: { 
+        name: '地震', 
+        damageRate: 1.5, 
+        materials: ['🪖','🔦','💉','🍪','📯'],
+        tips: [
+          '佩戴头盔保护头部',
+          '携带手电筒照明',
+          '准备急救用品',
+          '储备食物和水',
+          '使用喇叭呼救'
+        ]
+      },
+      fire: { 
+        name: '火灾', 
+        damageRate: 1, 
+        materials: ['🧯','😷','🚒','🪢','🧻'],
+        tips: [
+          '使用灭火器灭火',
+          '佩戴口罩防止吸入烟雾',
+          '立即拨打火警电话',
+          '用湿毛巾堵住门缝',
+          '用绳索从窗户逃生'
+        ]
+      },
+      flood: { 
+        name: '洪水', 
+        damageRate: 1, 
+        materials: ['⭕','🚣','📦','🥫','👢'],
+        tips: [
+          '准备救生圈以防溺水',
+          '使用小船转移',
+          '用箱子包装重要物品',
+          '储备罐头食品',
+          '穿防水靴防止触电'
+        ]
+      },
+    };
+
+    const terrains = {
+      plain: { name: '平原', color: 0x22c55e },
+      mountain: { name: '山地', color: 0x64748b },
+      city: { name: '城市', color: 0x475569 },
+      coast: { name: '海岸', color: 0x0369a1 },
+    };
+
+    let selectedTerrain = null;
+    let selectedEnv = null;
+    let score = 0;
+    let timeLeft = 60;
+    let hp = 100;
+    let collectedMaterials = [];
+    let gameTimer = null;
+    let damageTimer = null;
+
+    function init() {
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+        setupMenu();
+      }, 500);
+    }
+
+    function setupMenu() {
+      const terrainGrid = document.getElementById('terrain-grid');
+      const envGrid = document.getElementById('env-grid');
+      const startBtn = document.getElementById('start-btn');
+
+      terrainGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.card');
+        if (!card) return;
+        document.querySelectorAll('#terrain-grid .card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedTerrain = card.dataset.id;
+        updateStartButton();
+      });
+
+      envGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.card');
+        if (!card) return;
+        document.querySelectorAll('#env-grid .card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedEnv = card.dataset.id;
+        updateStartButton();
+      });
+
+      function updateStartButton() {
+        startBtn.disabled = !(selectedTerrain && selectedEnv);
+      }
+
+      startBtn.addEventListener('click', startGame);
+      document.getElementById('back-btn').addEventListener('click', stopGame);
+      document.getElementById('restart-btn').addEventListener('click', () => {
+        document.getElementById('modal').classList.remove('active');
+        stopGame();
+      });
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 60;
+      hp = 100;
+      collectedMaterials = [];
+      
+      document.getElementById('main-menu').classList.add('hidden');
+      document.getElementById('hud').classList.add('active');
+      
+      document.getElementById('hud-time').textContent = timeLeft;
+      document.getElementById('hud-score').textContent = score;
+      document.getElementById('hud-hp').textContent = hp;
+      
+      initScene();
+      
+      gameTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('hud-time').textContent = timeLeft;
+        if (timeLeft <= 0) endGame(false);
+      }, 1000);
+      
+      damageTimer = setInterval(() => {
+        hp -= environments[selectedEnv].damageRate;
+        document.getElementById('hud-hp').textContent = Math.max(0, Math.round(hp));
+        
+        if (hp <= 0) {
+          hp = 0;
+          endGame(false);
+        } else {
+          const overlay = document.getElementById('damage-overlay');
+          overlay.classList.add('damaged');
+          setTimeout(() => overlay.classList.remove('damaged'), 200);
+        }
+      }, 2000);
+    }
+
+    function stopGame() {
+      clearInterval(gameTimer);
+      clearInterval(damageTimer);
+      destroyScene();
+      document.getElementById('main-menu').classList.remove('hidden');
+      document.getElementById('hud').classList.remove('active');
+    }
+
+    function endGame(won) {
+      clearInterval(gameTimer);
+      clearInterval(damageTimer);
+      
+      const modal = document.getElementById('modal');
+      
+      if (won) {
+        document.getElementById('modal-content').style.display = 'none';
+        document.getElementById('tutorial-content').style.display = 'block';
+        showTutorial();
+      } else {
+        document.getElementById('tutorial-content').style.display = 'none';
+        document.getElementById('modal-content').style.display = 'block';
+        document.getElementById('modal-title').textContent = hp <= 0 ? '生命耗尽' : '时间耗尽';
+        document.getElementById('modal-desc').textContent = '失败了...';
+        document.getElementById('modal-score').textContent = score;
+      }
+      
+      modal.classList.add('active');
+    }
+    
+    let tutorialStep = 0;
+    
+    function showTutorial() {
+      tutorialStep = 0;
+      updateTutorial();
+    }
+    
+    function updateTutorial() {
+      const env = environments[selectedEnv];
+      const materials = env.materials;
+      const tips = env.tips;
+      
+      document.getElementById('tutorial-title').textContent = env.name + '应对措施';
+      document.getElementById('tutorial-step').textContent = (tutorialStep + 1) + '/' + materials.length;
+      document.getElementById('tutorial-icon').textContent = materials[tutorialStep];
+      document.getElementById('tutorial-text').textContent = tips[tutorialStep];
+      
+      document.getElementById('tutorial-prev').disabled = tutorialStep === 0;
+      document.getElementById('tutorial-next').textContent = tutorialStep === materials.length - 1 ? '完成' : '下一步';
+    }
+    
+    document.getElementById('tutorial-prev').addEventListener('click', () => {
+      if (tutorialStep > 0) {
+        tutorialStep--;
+        updateTutorial();
+      }
+    });
+    
+    document.getElementById('tutorial-next').addEventListener('click', () => {
+      const env = environments[selectedEnv];
+      if (tutorialStep < env.materials.length - 1) {
+        tutorialStep++;
+        updateTutorial();
+      } else {
+        document.getElementById('modal').classList.remove('active');
+        stopGame();
+      }
+    });
+
+    let scene, camera, renderer;
+    let player;
+    let materialObjects = [];
+    let envEffects = [];
+    let keys = {};
+    let cameraYaw = 0;
+    let cameraPitch = 0;
+    let isMouseLocked = false;
+    let gameTime = 0;
+
+    function initScene() {
+      const canvas = document.getElementById('canvas');
+      
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x87ceeb);
+      
+      camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 4, 8);
+      camera.lookAt(0, 0, 0);
+      
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(10, 20, 10);
+      scene.add(directionalLight);
+
+      createGround();
+      createPlayer();
+      createMaterials();
+      createEnvironmentEffects();
+      
+      window.addEventListener('resize', onWindowResize);
+      window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('keyup', onKeyUp);
+      canvas.addEventListener('click', onCanvasClick);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('pointerlockchange', onPointerLockChange);
+      
+      animate();
+    }
+
+    function createGround() {
+      const geometry = new THREE.PlaneGeometry(60, 60);
+      const material = new THREE.MeshLambertMaterial({ color: terrains[selectedTerrain].color });
+      const ground = new THREE.Mesh(geometry, material);
+      ground.rotation.x = -Math.PI / 2;
+      scene.add(ground);
+      
+      if (selectedTerrain === 'city') {
+        const buildingGeo = new THREE.BoxGeometry(1, 3, 1);
+        const buildingMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+        for (let i = 0; i < 5; i++) {
+          const building = new THREE.Mesh(buildingGeo, buildingMat);
+          building.position.set((Math.random() - 0.5) * 15, 1.5, (Math.random() - 0.5) * 15);
+          building.scale.y = 1 + Math.random() * 2;
+          scene.add(building);
+        }
+      }
+      
+      const rockGeo = new THREE.BoxGeometry(0.4, 0.2, 0.4);
+      const rockMat = new THREE.MeshLambertMaterial({ color: 0x555555 });
+      for (let i = 0; i < 8; i++) {
+        const rock = new THREE.Mesh(rockGeo, rockMat);
+        rock.position.set((Math.random() - 0.5) * 20, 0.1, (Math.random() - 0.5) * 20);
+        rock.rotation.y = Math.random() * Math.PI;
+        scene.add(rock);
+      }
+    }
+
+    function createPlayer() {
+      player = new THREE.Group();
+      
+      const bodyGeo = new THREE.BoxGeometry(0.4, 0.8, 0.4);
+      const bodyMat = new THREE.MeshLambertMaterial({ color: 0x3b82f6 });
+      const body = new THREE.Mesh(bodyGeo, bodyMat);
+      body.position.y = 0.6;
+      player.add(body);
+      
+      const headGeo = new THREE.SphereGeometry(0.25, 16, 16);
+      const headMat = new THREE.MeshLambertMaterial({ color: 0xfdbf6f });
+      const head = new THREE.Mesh(headGeo, headMat);
+      head.position.y = 1.3;
+      player.add(head);
+      
+      const helmetGeo = new THREE.SphereGeometry(0.27, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+      const helmetMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
+      const helmet = new THREE.Mesh(helmetGeo, helmetMat);
+      helmet.position.y = 1.3;
+      player.add(helmet);
+      
+      const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.4, 0.12), bodyMat);
+      leftArm.position.set(-0.28, 0.5, 0);
+      player.add(leftArm);
+      
+      const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.4, 0.12), bodyMat);
+      rightArm.position.set(0.28, 0.5, 0);
+      player.add(rightArm);
+      
+      scene.add(player);
+    }
+
+    function createMaterials() {
+      const positions = [
+        { x: -5, z: -3 }, { x: 5, z: -3 }, { x: 0, z: 5 },
+        { x: -4, z: 4 }, { x: 4, z: 4 }
+      ];
+      
+      const materials = environments[selectedEnv].materials;
+      const colors = [0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xffeaa7];
+      
+      for (let i = 0; i < 5; i++) {
+        const geo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+        const mat = new THREE.MeshLambertMaterial({ color: colors[i] });
+        const obj = new THREE.Mesh(geo, mat);
+        obj.position.set(positions[i].x, 0.3, positions[i].z);
+        obj.userData = { id: i, points: 20, icon: materials[i] };
+        scene.add(obj);
+        materialObjects.push(obj);
+        
+        const ringGeo = new THREE.RingGeometry(0.4, 0.6, 32);
+        const ringMat = new THREE.MeshBasicMaterial({ 
+          color: colors[i], transparent: true, opacity: 0.3, side: THREE.DoubleSide 
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.set(positions[i].x, 0.02, positions[i].z);
+        scene.add(ring);
+      }
+    }
+
+    function createEnvironmentEffects() {
+      switch(selectedEnv) {
+        case 'tornado': createTornadoEffect(); break;
+        case 'mudslide': createMudslideEffect(); break;
+        case 'typhoon': createTyphoonEffect(); break;
+        case 'earthquake': createEarthquakeEffect(); break;
+        case 'fire': createFireEffect(); break;
+        case 'flood': createFloodEffect(); break;
+      }
+    }
+
+    function createTornadoEffect() {
+      const tornadoGeo = new THREE.CylinderGeometry(0.3, 1.5, 8, 12);
+      const tornadoMat = new THREE.MeshBasicMaterial({ 
+        color: 0xbbbbbb, transparent: true, opacity: 0.3, side: THREE.DoubleSide 
+      });
+      const tornado = new THREE.Mesh(tornadoGeo, tornadoMat);
+      tornado.position.set(8, 4, -8);
+      tornado.userData = { type: 'tornado' };
+      scene.add(tornado);
+      envEffects.push(tornado);
+      
+      for (let i = 0; i < 20; i++) {
+        const debrisGeo = new THREE.BoxGeometry(0.15, 0.15, 0.15);
+        const debrisMat = new THREE.MeshBasicMaterial({ color: 0x888888 });
+        const debris = new THREE.Mesh(debrisGeo, debrisMat);
+        debris.position.set(8, 2 + Math.random() * 6, -8);
+        debris.userData = { type: 'tornadoDebris', speed: 0.05 + Math.random() * 0.05 };
+        scene.add(debris);
+        envEffects.push(debris);
+      }
+    }
+
+    function createMudslideEffect() {
+      for (let i = 0; i < 15; i++) {
+        const mudGeo = new THREE.BoxGeometry(0.3, 0.2, 0.3);
+        const mudMat = new THREE.MeshBasicMaterial({ color: 0x78350f });
+        const mud = new THREE.Mesh(mudGeo, mudMat);
+        mud.position.set(
+          (Math.random() - 0.5) * 10,
+          5 + Math.random() * 5,
+          -15 + Math.random() * 5
+        );
+        mud.userData = { type: 'mudslide', speed: 0.08 + Math.random() * 0.12 };
+        scene.add(mud);
+        envEffects.push(mud);
+      }
+    }
+
+    function createTyphoonEffect() {
+      scene.background = new THREE.Color(0x4b5563);
+      
+      const rainGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.5, 6);
+      const rainMat = new THREE.MeshBasicMaterial({ color: 0x93c5fd });
+      for (let i = 0; i < 30; i++) {
+        const rain = new THREE.Mesh(rainGeo, rainMat);
+        rain.position.set(
+          (Math.random() - 0.5) * 30,
+          Math.random() * 15,
+          (Math.random() - 0.5) * 30
+        );
+        rain.userData = { type: 'rain', speed: 0.5 + Math.random() * 0.5 };
+        scene.add(rain);
+        envEffects.push(rain);
+      }
+      
+      for (let i = 0; i < 5; i++) {
+        const cloudGeo = new THREE.SphereGeometry(2, 16, 16);
+        const cloudMat = new THREE.MeshBasicMaterial({ 
+          color: 0x6b7280, transparent: true, opacity: 0.6 
+        });
+        const cloud = new THREE.Mesh(cloudGeo, cloudMat);
+        cloud.position.set(
+          (Math.random() - 0.5) * 20,
+          10 + Math.random() * 5,
+          (Math.random() - 0.5) * 20
+        );
+        cloud.userData = { type: 'cloud' };
+        scene.add(cloud);
+        envEffects.push(cloud);
+      }
+    }
+
+    function createEarthquakeEffect() {
+      for (let i = 0; i < 6; i++) {
+        const crackGeo = new THREE.PlaneGeometry(2, 0.1);
+        const crackMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
+        const crack = new THREE.Mesh(crackGeo, crackMat);
+        crack.rotation.x = -Math.PI / 2;
+        crack.position.set((Math.random() - 0.5) * 20, 0.01, (Math.random() - 0.5) * 20);
+        crack.userData = { type: 'crack' };
+        scene.add(crack);
+        envEffects.push(crack);
+      }
+    }
+
+    function createFireEffect() {
+      const fireColors = [0xff4500, 0xff6b35, 0xff8c42, 0xffa500];
+      
+      for (let i = 0; i < 4; i++) {
+        const fireGeo = new THREE.ConeGeometry(0.4, 1.5, 8);
+        const fireMat = new THREE.MeshBasicMaterial({ 
+          color: fireColors[i], transparent: true, opacity: 0.7 
+        });
+        const fire = new THREE.Mesh(fireGeo, fireMat);
+        fire.position.set(
+          (Math.random() - 0.5) * 10,
+          0.75,
+          (Math.random() - 0.5) * 10
+        );
+        fire.userData = { type: 'fire', baseScale: 1 + Math.random() * 0.5 };
+        scene.add(fire);
+        envEffects.push(fire);
+      }
+      
+      for (let i = 0; i < 20; i++) {
+        const emberGeo = new THREE.SphereGeometry(0.05, 8, 8);
+        const emberMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+        const ember = new THREE.Mesh(emberGeo, emberMat);
+        ember.position.set(
+          (Math.random() - 0.5) * 10,
+          0.5,
+          (Math.random() - 0.5) * 10
+        );
+        ember.userData = { type: 'ember', vy: 0.02 + Math.random() * 0.03 };
+        scene.add(ember);
+        envEffects.push(ember);
+      }
+    }
+
+    function createFloodEffect() {
+      const waterGeo = new THREE.PlaneGeometry(40, 40);
+      const waterMat = new THREE.MeshBasicMaterial({ 
+        color: 0x0ea5e9, transparent: true, opacity: 0.5 
+      });
+      const water = new THREE.Mesh(waterGeo, waterMat);
+      water.rotation.x = -Math.PI / 2;
+      water.position.y = 0.4;
+      water.userData = { type: 'water' };
+      scene.add(water);
+      envEffects.push(water);
+      
+      for (let i = 0; i < 10; i++) {
+        const waveGeo = new THREE.PlaneGeometry(2, 0.1);
+        const waveMat = new THREE.MeshBasicMaterial({ 
+          color: 0x38bdf8, transparent: true, opacity: 0.4 
+        });
+        const wave = new THREE.Mesh(waveGeo, waveMat);
+        wave.rotation.x = -Math.PI / 2;
+        wave.position.set((Math.random() - 0.5) * 15, 0.5, (Math.random() - 0.5) * 15);
+        wave.userData = { type: 'wave' };
+        scene.add(wave);
+        envEffects.push(wave);
+      }
+    }
+
+    function updateEnvironmentEffects() {
+      const time = gameTime * 0.05;
+      
+      envEffects.forEach(obj => {
+        if (!obj.userData.type) return;
+        
+        switch(obj.userData.type) {
+          case 'tornado':
+            obj.rotation.y += 0.1;
+            obj.scale.y = 1 + Math.sin(time * 2) * 0.1;
+            obj.position.x += Math.sin(time) * 0.02;
+            break;
+          case 'tornadoDebris':
+            obj.rotation.y += 0.1;
+            obj.position.y += Math.sin(time + obj.position.x) * 0.1;
+            obj.position.x += Math.sin(time) * 0.03;
+            break;
+          case 'mudslide':
+            obj.position.y -= obj.userData.speed;
+            obj.position.z += 0.05;
+            obj.rotation.y += 0.05;
+            if (obj.position.y < 0) {
+              obj.position.y = 10;
+              obj.position.z = -15 + Math.random() * 5;
+            }
+            break;
+          case 'rain':
+            obj.position.y -= obj.userData.speed;
+            if (obj.position.y < 0) obj.position.y = 15;
+            break;
+          case 'cloud':
+            obj.position.x += Math.sin(time) * 0.02;
+            obj.scale.x = 1 + Math.sin(time * 0.5) * 0.1;
+            obj.scale.z = 1 + Math.sin(time * 0.5) * 0.1;
+            break;
+          case 'crack':
+            if (selectedEnv === 'earthquake') {
+              obj.scale.x = 1 + Math.sin(time * 10) * 0.1;
+            }
+            break;
+          case 'fire':
+            obj.scale.y = obj.userData.baseScale + Math.sin(time * 5) * 0.2;
+            obj.rotation.z = Math.sin(time * 3) * 0.1;
+            break;
+          case 'ember':
+            obj.position.y += obj.userData.vy;
+            obj.position.x += Math.sin(time * 2) * 0.05;
+            obj.scale.setScalar(Math.max(0.1, obj.scale.x - 0.005));
+            if (obj.scale.x < 0.1) {
+              obj.position.y = 0.5;
+              obj.scale.setScalar(1);
+            }
+            break;
+          case 'water':
+            obj.position.y = 0.4 + Math.sin(time) * 0.05;
+            break;
+          case 'wave':
+            obj.scale.x = 1 + Math.sin(time * 3) * 0.3;
+            obj.scale.y = 1 + Math.sin(time * 3) * 0.5;
+            break;
+        }
+      });
+      
+      if (selectedEnv === 'earthquake') {
+        const shake = (Math.random() - 0.5) * 0.1;
+        camera.position.x += shake;
+        camera.position.z += shake;
+      }
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function onCanvasClick() {
+      if (!isMouseLocked) {
+        document.getElementById('canvas').requestPointerLock();
+      }
+    }
+
+    function onMouseMove(e) {
+      if (!isMouseLocked) return;
+      const sensitivity = 0.002;
+      cameraYaw += e.movementX * sensitivity;
+      cameraPitch -= e.movementY * sensitivity;
+      cameraPitch = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, cameraPitch));
+    }
+
+    function onPointerLockChange() {
+      isMouseLocked = document.pointerLockElement === document.getElementById('canvas');
+    }
+
+    function onKeyDown(e) {
+      keys[e.key.toLowerCase()] = true;
+      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 's', 'a', 'd'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+      }
+      if (e.key === 'Escape' && isMouseLocked) document.exitPointerLock();
+    }
+
+    function onKeyUp(e) {
+      keys[e.key.toLowerCase()] = false;
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      gameTime++;
+      
+      updateEnvironmentEffects();
+      updateCamera();
+      updatePlayer();
+      renderer.render(scene, camera);
+    }
+
+    function updatePlayer() {
+      if (!player) return;
+      
+      let moveForward = 0, moveRight = 0;
+      if (keys['arrowup']) moveForward += 1;
+      if (keys['arrowdown']) moveForward -= 1;
+      if (keys['arrowleft']) moveRight -= 1;
+      if (keys['arrowright']) moveRight += 1;
+      
+      if (moveForward !== 0 || moveRight !== 0) {
+        const len = Math.sqrt(moveForward * moveForward + moveRight * moveRight);
+        moveForward /= len;
+        moveRight /= len;
+        
+        const moveSpeed = 0.15;
+        
+        const forward = new THREE.Vector3();
+        camera.getWorldDirection(forward);
+        forward.y = 0;
+        forward.normalize();
+        
+        const right = new THREE.Vector3();
+        right.crossVectors(forward, new THREE.Vector3(0, 1, 0));
+        right.normalize();
+        
+        const movement = new THREE.Vector3();
+        movement.addScaledVector(forward, moveForward * moveSpeed);
+        movement.addScaledVector(right, moveRight * moveSpeed);
+        
+        player.position.add(movement);
+        player.rotation.y = -cameraYaw;
+      }
+      
+      player.position.x = Math.max(-15, Math.min(15, player.position.x));
+      player.position.z = Math.max(-15, Math.min(15, player.position.z));
+      
+      checkCollision();
+    }
+
+    function updateCamera() {
+      if (!player) return;
+      
+      camera.position.x = player.position.x;
+      camera.position.y = player.position.y + 1.5;
+      camera.position.z = player.position.z;
+      
+      const lookVector = new THREE.Vector3();
+      lookVector.x = Math.sin(cameraYaw);
+      lookVector.y = Math.sin(cameraPitch);
+      lookVector.z = -Math.cos(cameraYaw);
+      lookVector.normalize();
+      
+      camera.lookAt(
+        player.position.x + lookVector.x,
+        player.position.y + 1.5 + lookVector.y,
+        player.position.z + lookVector.z
+      );
+    }
+
+    function checkCollision() {
+      if (!player) return;
+      
+      materialObjects.forEach(obj => {
+        if (!obj.visible) return;
+        
+        const distance = player.position.distanceTo(obj.position);
+        if (distance < 1.5) {
+          obj.visible = false;
+          score += obj.userData.points;
+          collectedMaterials.push(obj.userData.id);
+          document.getElementById('hud-score').textContent = score;
+          
+          if (collectedMaterials.length === 5) endGame(true);
+        }
+      });
+    }
+
+    function destroyScene() {
+      window.removeEventListener('resize', onWindowResize);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('pointerlockchange', onPointerLockChange);
+      
+      if (renderer) renderer.dispose();
+      
+      scene = null;
+      camera = null;
+      renderer = null;
+      player = null;
+      materialObjects = [];
+      envEffects = [];
+    }
+
+    init();
+  </script>
+</body>
+</html>

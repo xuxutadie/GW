@@ -1,0 +1,2757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>徐硕 | MYSPACE - 技术与艺术的交汇</title>
+    <meta name="description" content="徐硕的个人空间，AIGC创作者、SCP爱好者、二次元爱好者。探索科技数码、创作艺术与虚拟角色的交汇点。">
+    <meta name="keywords" content="徐硕, MYSPACE, AIGC, SCP, 二次元, 编程, 绘画, 设计">
+    <meta name="author" content="徐硕">
+    <meta property="og:title" content="徐硕 | MYSPACE">
+    <meta property="og:description" content="技术与艺术的交汇 - AIGC创作者、SCP爱好者、二次元爱好者的个人空间">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="covers/word-universe.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="徐硕 | MYSPACE">
+    <meta name="twitter:description" content="技术与艺术的交汇 - AIGC创作者、SCP爱好者、二次元爱好者">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230a0a0a' stroke='%2300d4ff' stroke-width='3'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-family='Arial,sans-serif' font-size='55' font-weight='bold' fill='%2300d4ff'%3EXS%3C/text%3E%3C/svg%3E">
+    <style>
+:root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #0d0d0d;
+    --bg-tertiary: #141414;
+    --border-color: #1f1f1f;
+    --text-primary: #ffffff;
+    --text-secondary: #666666;
+    --text-muted: #444444;
+    --accent-color: #00d4ff;
+    --accent-hover: #00b8e6;
+    --font-sans: "Inter", "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-mono: "SF Mono", "Fira Code", "Consolas", monospace;
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: #000;
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+}
+
+body::before {
+    display: none;
+}
+
+body.fade-out {
+    opacity: 0;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all var(--transition-normal);
+    background: rgba(10, 10, 15, 0.3);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(60, 80, 100, 0.15);
+}
+
+header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-bottom: 1px solid transparent;
+    background: linear-gradient(90deg, 
+        rgba(0, 212, 255, 0) 0%, 
+        rgba(100, 180, 220, 0.2) 50%, 
+        rgba(0, 212, 255, 0) 100%) border-box;
+    pointer-events: none;
+    transition: all var(--transition-normal);
+}
+
+header.scrolled {
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(20px);
+    padding: 16px 40px;
+    border-bottom: 1px solid rgba(60, 80, 100, 0.3);
+}
+
+header.scrolled::before {
+    background: linear-gradient(90deg, 
+        rgba(0, 212, 255, 0.1) 0%, 
+        rgba(100, 180, 220, 0.3) 50%, 
+        rgba(0, 212, 255, 0.1) 100%) border-box;
+}
+
+.logo {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color var(--transition-fast);
+}
+
+.logo:hover {
+    color: var(--accent-color);
+}
+
+nav {
+    display: flex;
+    gap: 40px;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text-primary);
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.3), rgba(0, 212, 255, 0.8), rgba(0, 212, 255, 0.3));
+    transition: width var(--transition-normal);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.hamburger span {
+    width: 24px;
+    height: 1px;
+    background-color: var(--text-primary);
+    transition: all var(--transition-normal);
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translateY(5px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translateY(-5px);
+}
+
+.mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    z-index: 999;
+}
+
+.mobile-menu.active {
+    display: flex;
+}
+
+.mobile-menu .nav-link {
+    font-size: 1.8rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+}
+
+main {
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.page-title {
+    font-size: 3rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    margin-bottom: 32px;
+    color: var(--text-primary);
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    line-height: 1.8;
+}
+
+.card {
+    background: rgba(10, 10, 15, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(60, 80, 100, 0.3);
+    border-radius: 0;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    position: relative;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid transparent;
+    background: 
+        linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+        linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(40, 80, 120, 0.1), rgba(100, 180, 220, 0.1)) border-box;
+    pointer-events: none;
+    transition: all var(--transition-normal);
+}
+
+.card:hover {
+    border-color: rgba(0, 212, 255, 0.5);
+    transform: translateY(-4px);
+}
+
+.card:hover::before {
+    background: 
+        linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+        linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(74, 158, 255, 0.3), rgba(0, 212, 255, 0.4)) border-box;
+    box-shadow: 
+        0 0 20px rgba(0, 212, 255, 0.1),
+        inset 0 0 30px rgba(0, 212, 255, 0.03);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 32px;
+    border: 1px solid rgba(60, 80, 100, 0.3);
+    background: rgba(10, 10, 15, 0.4);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    gap: 8px;
+    position: relative;
+}
+
+.btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid transparent;
+    background: 
+        linear-gradient(rgba(10, 10, 15, 0.4), rgba(10, 10, 15, 0.4)) padding-box,
+        linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(40, 80, 120, 0.1)) border-box;
+    pointer-events: none;
+    transition: all var(--transition-normal);
+}
+
+.btn:hover {
+    border-color: rgba(0, 212, 255, 0.5);
+    color: var(--accent-color);
+    background: rgba(0, 212, 255, 0.08);
+}
+
+.btn:hover::before {
+    background: 
+        linear-gradient(rgba(0, 212, 255, 0.08), rgba(0, 212, 255, 0.08)) padding-box,
+        linear-gradient(135deg, rgba(0, 212, 255, 0.6), rgba(74, 158, 255, 0.3)) border-box;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00c4e6, #00d4ff);
+    border-color: transparent;
+    color: var(--bg-primary);
+}
+
+.btn-primary::before {
+    display: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #00d4ff, #4de0ff);
+    border-color: transparent;
+    color: var(--bg-primary);
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+}
+
+.tag {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(10, 10, 15, 0.4);
+    color: var(--text-secondary);
+    border: 1px solid rgba(60, 80, 100, 0.2);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.tag::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid transparent;
+    background: 
+        linear-gradient(rgba(10, 10, 15, 0.4), rgba(10, 10, 15, 0.4)) padding-box,
+        linear-gradient(135deg, rgba(80, 150, 200, 0.15), rgba(40, 80, 120, 0.08)) border-box;
+    pointer-events: none;
+}
+
+.tag:hover {
+    border-color: rgba(0, 212, 255, 0.5);
+    color: var(--accent-color);
+    background: rgba(0, 212, 255, 0.08);
+}
+
+.tag:hover::before {
+    background: 
+        linear-gradient(rgba(0, 212, 255, 0.08), rgba(0, 212, 255, 0.08)) padding-box,
+        linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(74, 158, 255, 0.25)) border-box;
+}
+
+.tag-accent {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.hidden {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity var(--transition-slow), transform var(--transition-slow);
+}
+
+.hidden.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+footer {
+    padding: 60px 40px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+footer p {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 20px 24px;
+    }
+
+    header.scrolled {
+        padding: 14px 24px;
+    }
+
+    nav {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .container {
+        padding: 0 24px;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+    }
+
+    footer {
+        padding: 40px 24px;
+    }
+}
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* 滚动进度条 */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: linear-gradient(90deg, #00d4ff, #4de0ff);
+            z-index: 10001;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 212, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9998;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            background: rgba(0, 212, 255, 0.25);
+            border-color: rgba(0, 212, 255, 0.6);
+            transform: translateY(-4px);
+        }
+
+        .back-to-top svg {
+            width: 20px;
+            height: 20px;
+            color: #00d4ff;
+        }
+
+        /* 卡片3D倾斜 */
+        .work-card, .contact-card, .featured-item {
+            transform-style: preserve-3d;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hero打字机光标 */
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 0.8em;
+            background: #00d4ff;
+            margin-left: 4px;
+            animation: blink 0.8s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* 作品详情弹窗 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: #0d0d14;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+            color: #00d4ff;
+        }
+
+        .modal-cover {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+            background: #111;
+        }
+
+        .modal-cover-placeholder {
+            width: 100%;
+            height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: bold;
+            color: #00d4ff;
+            background: linear-gradient(135deg, #0a0a14, #0d0d1a);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            color: #999;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .modal-tags .tag {
+            font-size: 0.7rem;
+        }
+
+        .modal-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .modal-date {
+            color: #555;
+            font-size: 0.85rem;
+        }
+
+        .modal-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #00c4e6, #00d4ff);
+            color: #0a0a0a;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .modal-link:hover {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+
+        /* 加载动画 */
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 2px solid rgba(0, 212, 255, 0.15);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 视频背景 */
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -100;
+            overflow: hidden;
+        }
+
+        .video-bg video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        .video-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+            pointer-events: none;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0 40px;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .hero-line {
+            font-size: 5rem;
+            font-weight: 300;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .hero-name {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            color: var(--accent-color);
+            margin-bottom: 16px;
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+        }
+
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 300;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards;
+        }
+
+        .hero-line:nth-child(3) { animation-delay: 0.3s; }
+        .hero-line:nth-child(4) { animation-delay: 0.45s; }
+
+        .hero-accent { color: var(--accent-color); }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 32px;
+            max-width: 500px;
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 48px;
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.7s forwards;
+        }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.2s forwards;
+        }
+
+        .hero-scroll svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text-muted);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .hero-scroll span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .featured-section {
+            padding: 76px 40px 60px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .featured-item {
+            padding: 32px;
+            border: 1px solid rgba(60, 60, 60, 0.5);
+            transition: all var(--transition-normal);
+            background:
+                linear-gradient(100deg, rgba(8, 10, 14, 0.92) 0%, rgba(8, 10, 14, 0.82) 45%, rgba(8, 10, 14, 0.55) 100%),
+                var(--featured-bg),
+                linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 50%, #141414 100%);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 220px;
+        }
+
+        .featured-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(200, 200, 200, 0.3), transparent);
+        }
+
+        .featured-item::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .featured-item:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .featured-number {
+            position: relative;
+            z-index: 1;
+            font-size: 4rem;
+            font-weight: 300;
+            color: rgba(0, 212, 255, 0.3);
+            margin-bottom: 12px;
+            letter-spacing: -0.05em;
+        }
+
+        .featured-title {
+            position: relative;
+            z-index: 1;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .featured-description {
+            position: relative;
+            z-index: 1;
+            font-size: 0.9rem;
+            color: #999999;
+            line-height: 1.7;
+        }
+
+        .about-section {
+            padding: 92px 40px 68px;
+            border-top: 1px solid var(--border-color);
+            scroll-margin-top: 88px;
+        }
+
+        .about-container { max-width: 600px; }
+
+        .about-avatar {
+            width: 120px;
+            height: 120px;
+            background: rgba(10, 10, 15, 0.6);
+            border: 1px solid rgba(60, 80, 100, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 28px;
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .about-avatar::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid transparent;
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(40, 80, 120, 0.1), rgba(100, 180, 220, 0.1)) border-box;
+            pointer-events: none;
+            transition: all var(--transition-normal);
+        }
+
+        .about-avatar:hover { border-color: rgba(0, 212, 255, 0.5); }
+        .about-avatar:hover::before {
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(74, 158, 255, 0.3), rgba(0, 212, 255, 0.4)) border-box;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+        }
+
+        .about-name {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .about-title {
+            font-size: 1rem;
+            color: rgba(100, 180, 220, 0.8);
+            margin-bottom: 22px;
+            letter-spacing: 0.1em;
+        }
+
+        .about-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .interests-section { margin-bottom: 32px; }
+
+        .interests-title {
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+
+        .interests {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .interest-tag {
+            padding: 8px 20px;
+            background: rgba(10, 10, 15, 0.4);
+            border: 1px solid rgba(60, 80, 100, 0.2);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .interest-tag::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid transparent;
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.4), rgba(10, 10, 15, 0.4)) padding-box,
+                linear-gradient(135deg, rgba(80, 150, 200, 0.15), rgba(40, 80, 120, 0.08)) border-box;
+            pointer-events: none;
+        }
+
+        .interest-tag:hover {
+            border-color: rgba(0, 212, 255, 0.5);
+            color: var(--accent-color);
+            background: rgba(0, 212, 255, 0.08);
+        }
+
+        .interest-tag:hover::before {
+            background: 
+                linear-gradient(rgba(0, 212, 255, 0.08), rgba(0, 212, 255, 0.08)) padding-box,
+                linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(74, 158, 255, 0.25)) border-box;
+        }
+
+        .humor-note {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+            padding-top: 40px;
+            border-top: 1px solid rgba(60, 80, 100, 0.2);
+        }
+
+        .tech-section, .art-section, .oshi-section, .contact-section {
+            padding: 92px 40px 68px;
+            border-top: 1px solid var(--border-color);
+            scroll-margin-top: 88px;
+        }
+
+        .music-section {
+            margin-top: 28px;
+            margin-bottom: 40px;
+        }
+
+        .music-section-title {
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: -0.01em;
+            margin-bottom: 20px;
+        }
+
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        .music-card {
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(60, 80, 100, 0.3);
+            padding: 24px;
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .music-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid transparent;
+            background:
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(40, 80, 120, 0.1), rgba(100, 180, 220, 0.1)) border-box;
+            pointer-events: none;
+            transition: all var(--transition-normal);
+        }
+
+        .music-card:hover { border-color: rgba(0, 212, 255, 0.5); }
+        .music-card:hover::before {
+            background:
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(74, 158, 255, 0.3), rgba(0, 212, 255, 0.4)) border-box;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1), inset 0 0 30px rgba(0, 212, 255, 0.03);
+        }
+
+        .music-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .music-icon {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+
+        .music-info { flex: 1; }
+
+        .music-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .music-artist {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .music-player { width: 100%; }
+
+        .music-player audio {
+            width: 100%;
+            height: 40px;
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        .contact-container { max-width: 500px; }
+
+        .contact-card {
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(60, 80, 100, 0.3);
+            padding: 44px 36px;
+            text-align: center;
+            transition: all var(--transition-normal);
+            margin-top: 36px;
+            position: relative;
+        }
+
+        .contact-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid transparent;
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(40, 80, 120, 0.1), rgba(100, 180, 220, 0.1)) border-box;
+            pointer-events: none;
+            transition: all var(--transition-normal);
+        }
+
+        .contact-card:hover { border-color: rgba(0, 212, 255, 0.5); transform: translateY(-4px); }
+        .contact-card:hover::before {
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(74, 158, 255, 0.3), rgba(0, 212, 255, 0.4)) border-box;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1), inset 0 0 30px rgba(0, 212, 255, 0.03);
+        }
+
+        .contact-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .bilibili-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 15, 0.4);
+            border: 1px solid rgba(60, 80, 100, 0.3);
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .bilibili-icon::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid transparent;
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.4), rgba(10, 10, 15, 0.4)) padding-box,
+                linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(60, 120, 160, 0.1)) border-box;
+            pointer-events: none;
+        }
+
+        .contact-card:hover .bilibili-icon {
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .bilibili-icon svg {
+            width: 56px;
+            height: 56px;
+            color: var(--accent-color);
+        }
+
+        .contact-platform {
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .contact-uid {
+            font-size: 0.9rem;
+            color: rgba(100, 180, 220, 0.8);
+            border: 1px solid rgba(100, 180, 220, 0.3);
+            padding: 10px 24px;
+            display: inline-block;
+            margin-bottom: 24px;
+            letter-spacing: 0.05em;
+            background: rgba(10, 10, 15, 0.4);
+            position: relative;
+            transition: all var(--transition-fast);
+        }
+
+        .contact-uid::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid transparent;
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.4), rgba(10, 10, 15, 0.4)) padding-box,
+                linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(60, 120, 160, 0.1)) border-box;
+            pointer-events: none;
+        }
+
+        .contact-card:hover .contact-uid {
+            border-color: rgba(0, 212, 255, 0.5);
+            color: rgba(0, 212, 255, 0.9);
+        }
+
+        .contact-hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .works-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-top: 28px;
+        }
+
+        .work-card {
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all var(--transition-normal);
+            background: rgba(8, 10, 14, 0.92);
+            position: relative;
+        }
+
+        .work-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-4px);
+        }
+
+        .work-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .work-cover {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            position: relative;
+            background-color: var(--bg-secondary);
+        }
+
+        .work-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform var(--transition-normal);
+        }
+
+        .work-card:hover .work-img { transform: scale(1.05); }
+
+        .cover-placeholder {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 300;
+            color: var(--text-muted);
+        }
+
+        .work-content {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 70px 20px 18px;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(4, 6, 10, 0.78) 34%,
+                rgba(4, 6, 10, 0.96) 100%
+            );
+        }
+
+        .work-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: 0;
+        }
+
+        .work-description {
+            font-size: 0.85rem;
+            color: rgba(220, 230, 238, 0.78);
+            margin-bottom: 10px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .work-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 28px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .work-tags .tag {
+            padding: 5px 12px;
+            font-size: 0.7rem;
+            line-height: 1.2;
+        }
+
+        .work-date {
+            font-size: 0.75rem;
+            color: rgba(220, 230, 238, 0.55);
+            letter-spacing: 0.05em;
+        }
+
+        .oshi-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(60, 80, 100, 0.3);
+            overflow: hidden;
+            margin-top: 28px;
+            position: relative;
+            transition: all var(--transition-normal);
+        }
+
+        .oshi-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid transparent;
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(40, 80, 120, 0.1), rgba(100, 180, 220, 0.1)) border-box;
+            pointer-events: none;
+            transition: all var(--transition-normal);
+        }
+
+        .oshi-card:hover { border-color: rgba(0, 212, 255, 0.5); }
+        .oshi-card:hover::before {
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(74, 158, 255, 0.3), rgba(0, 212, 255, 0.4)) border-box;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1), inset 0 0 30px rgba(0, 212, 255, 0.03);
+        }
+
+        .oshi-carousel {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            max-height: 600px;
+            overflow: hidden;
+            background-color: var(--bg-secondary);
+        }
+
+        .carousel-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-secondary);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-slow), visibility 0s linear var(--transition-slow);
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity var(--transition-slow), visibility 0s linear 0s;
+            z-index: 2;
+        }
+
+        .carousel-item img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .carousel-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            font-size: 5rem;
+            font-weight: 300;
+            color: var(--text-muted);
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 1px solid rgba(100, 180, 220, 0.3);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .indicator::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)) padding-box,
+                linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(60, 120, 160, 0.1)) border-box;
+            pointer-events: none;
+        }
+
+        .indicator:hover { border-color: rgba(100, 180, 220, 0.6); }
+
+        .indicator.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.8), rgba(74, 158, 255, 0.6));
+            border-color: rgba(0, 212, 255, 0.8);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+        }
+
+        .oshi-content { padding: 32px; }
+
+        .oshi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .oshi-name {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+        }
+
+        .oshi-from {
+            font-size: 0.85rem;
+            color: rgba(100, 180, 220, 0.8);
+            border: 1px solid rgba(100, 180, 220, 0.3);
+            padding: 6px 16px;
+            letter-spacing: 0.05em;
+            background: rgba(10, 10, 15, 0.4);
+            position: relative;
+            transition: all var(--transition-fast);
+        }
+
+        .oshi-from::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid transparent;
+            background: 
+                linear-gradient(rgba(10, 10, 15, 0.4), rgba(10, 10, 15, 0.4)) padding-box,
+                linear-gradient(135deg, rgba(100, 180, 220, 0.2), rgba(60, 120, 160, 0.1)) border-box;
+            pointer-events: none;
+        }
+
+        .oshi-card:hover .oshi-from {
+            border-color: rgba(0, 212, 255, 0.5);
+            color: rgba(0, 212, 255, 0.9);
+        }
+
+        .oshi-tags { margin-bottom: 18px; }
+
+        .oshi-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 24px;
+        }
+
+        .oshi-detail-btn { margin-bottom: 18px; }
+
+        .oshi-detail {
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+            margin-top: 24px;
+        }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .detail-item:last-child { margin-bottom: 0; }
+
+        .detail-label {
+            width: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .works-grid { grid-template-columns: repeat(2, 1fr); }
+            .music-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 1024px) {
+            .hero-line { font-size: 3.5rem; }
+            .featured-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 0 24px; }
+            .hero-line { font-size: 2.2rem; }
+            .hero-subtitle { font-size: 1rem; margin-top: 24px; }
+            .hero-buttons { flex-direction: column; margin-top: 32px; }
+            .featured-section { padding: 56px 24px 48px; }
+            .featured-grid { grid-template-columns: 1fr; gap: 18px; }
+            .featured-item { padding: 22px; min-height: 190px; }
+            .featured-number { font-size: 2.5rem; }
+            .about-section, .tech-section, .art-section, .oshi-section, .contact-section {
+                padding: 72px 24px 52px;
+            }
+            .about-name { font-size: 1.8rem; }
+            .about-text { font-size: 0.95rem; }
+            .works-grid { grid-template-columns: 1fr; gap: 18px; margin-top: 22px; }
+            .music-section { margin-top: 22px; margin-bottom: 32px; }
+            .music-grid { grid-template-columns: 1fr; }
+            .music-card { padding: 20px; }
+            .oshi-card { margin-top: 22px; }
+            .oshi-carousel { height: 300px; }
+            .oshi-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .oshi-name { font-size: 1.6rem; }
+            .oshi-content { padding: 22px; }
+            .detail-item { flex-direction: column; gap: 4px; }
+            .detail-label { width: auto; }
+            .contact-card { padding: 32px 22px; margin-top: 22px; }
+            .bilibili-icon { width: 80px; height: 80px; margin-bottom: 24px; }
+            .bilibili-icon svg { width: 44px; height: 44px; }
+            .contact-platform { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+    </div>
+    <!-- 作品详情弹窗 -->
+    <div class="modal-overlay" id="workModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeWorkModal()">&times;</button>
+            <div id="modalCover"></div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <p class="modal-desc" id="modalDesc"></p>
+                <div class="modal-tags" id="modalTags"></div>
+                <div class="modal-meta">
+                    <span class="modal-date" id="modalDate"></span>
+                    <a class="modal-link" id="modalLink" href="#" target="_blank">查看项目 &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 视频背景 -->
+    <div class="video-bg">
+        <video autoplay muted loop playsinline>
+            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260613_180732_a54afbf6-b30d-470e-861f-669871f09f67.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="scroll-progress" id="scrollProgress"></div>
+    <header></header>
+    <main>
+        <!-- 首页 / Hero -->
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <div class="hero-name">徐硕</div>
+                <div class="hero-title">MYSPACE</div>
+                <div class="hero-line">AIGC 创作者 / 二次元爱好者</div>
+                <div class="hero-line">技术与艺术的交汇</div>
+                <p class="hero-subtitle">
+                    这是我的个人空间，记录我的技术探索、艺术创作和兴趣分享。
+                </p>
+                <div class="hero-buttons">
+                    <a href="#about" class="btn">了解更多</a>
+                    <a href="#tech" class="btn btn-primary">查看作品</a>
+                </div>
+            </div>
+            <div class="hero-scroll">
+                <span>SCROLL</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                </svg>
+            </div>
+        </section>
+
+        <section class="featured-section" id="featured">
+            <div class="container">
+                <div class="featured-grid">
+                    <div class="featured-item" data-local-bg="covers/featured-tech-bg.png">
+                        <div class="featured-number">01</div>
+                        <div class="featured-title">科技数码</div>
+                        <div class="featured-description">探索最新技术，用代码创造实用工具与有趣应用。</div>
+                    </div>
+                    <div class="featured-item" data-local-bg="covers/featured-art-bg.png">
+                        <div class="featured-number">02</div>
+                        <div class="featured-title">创作艺术</div>
+                        <div class="featured-description">结合AIGC与手绘，探索数字艺术的新边界。</div>
+                    </div>
+                    <div class="featured-item" data-local-bg="covers/featured-oshi-bg.png">
+                        <div class="featured-number">03</div>
+                        <div class="featured-title">我推</div>
+                        <div class="featured-description">分享喜欢的虚拟角色与作品，记录灵感来源。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关于我 -->
+        <section class="about-section" id="about">
+            <div class="container">
+                <div class="about-container">
+                    <div class="about-avatar">徐</div>
+                    <h1 class="about-name">徐硕</h1>
+                    <p class="about-title">AIGC 创作者 / <span style="color: #ffffff;">二次元爱好者</span></p>
+                    <p class="about-text">
+                        2012 年生，热爱探索技术与艺术的交汇点。喜欢用代码创造有趣的东西，
+                        同时也是一个 AIGC 创作者和二次元爱好者。
+                    </p>
+                    <div class="interests-section">
+                        <div class="interests-title">兴趣爱好</div>
+                        <div class="interests">
+                            <span class="interest-tag">AIGC</span>
+                            <span class="interest-tag">二次元</span>
+                            <span class="interest-tag">绘画</span>
+                            <span class="interest-tag">设计</span>
+                            <span class="interest-tag">编程</span>
+                        </div>
+                    </div>
+                    <p class="humor-note">讨厌写作，所以这个网站代码比文字多。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 科技数码 -->
+        <section class="tech-section" id="tech">
+            <div class="container">
+                <h1 class="page-title">Technology</h1>
+                <p class="section-subtitle">折腾代码和数码产品是我的日常。</p>
+                <div id="tech-works-container">
+                    <div class="works-grid">
+                        <div class="work-card hidden">
+                            <div class="work-cover">
+                                <div class="cover-placeholder">L</div>
+                            </div>
+                            <div class="work-content">
+                                <h3 class="work-title">Loading...</h3>
+                                <p class="work-description">Please wait while content loads.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 创作艺术 -->
+        <section class="art-section" id="art">
+            <div class="container">
+                <h1 class="page-title">Art</h1>
+                <p class="section-subtitle">用画笔和设计软件表达想法。讨厌写作，所以用图像说话。</p>
+
+                <section class="music-section">
+                    <h2 class="music-section-title">Music</h2>
+                    <div class="music-grid">
+                        <article class="music-card">
+                            <div class="music-card-header">
+                                <div class="music-icon">&#127909;</div>
+                                <div class="music-info">
+                                    <div class="music-title">我路过从前</div>
+                                    <div class="music-artist">本地 MV</div>
+                                </div>
+                            </div>
+                            <div class="music-player">
+                                <video controls style="width: 100%; max-height: 240px; background: #000;">
+                                    <source data-local-src="music/woluguo-congqian.mp4" type="video/mp4">
+                                    你的浏览器不支持视频播放。
+                                </video>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <div id="art-works-container">
+                    <div class="works-grid">
+                        <div class="work-card hidden">
+                            <div class="work-cover">
+                                <div class="cover-placeholder">L</div>
+                            </div>
+                            <div class="work-content">
+                                <h3 class="work-title">Loading...</h3>
+                                <p class="work-description">Please wait while content loads.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 我推 -->
+        <section class="oshi-section" id="oshi">
+            <div class="container">
+                <h1 class="page-title">Oshi</h1>
+                <p class="section-subtitle">分享喜欢的虚拟角色与作品，记录灵感来源。</p>
+                <div id="oshi-container"></div>
+            </div>
+        </section>
+
+        <!-- 联系我 -->
+        <section class="contact-section" id="contact">
+            <div class="container">
+                <h1 class="page-title">Contact</h1>
+                <p class="section-subtitle">欢迎在社交媒体上关注我。</p>
+                <div class="contact-container">
+                    <a href="https://space.bilibili.com/3706925854230898" target="_blank" rel="noopener noreferrer">
+                        <article class="contact-card">
+                            <div class="bilibili-icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                                </svg>
+                            </div>
+                            <h2 class="contact-platform">哔哩哔哩</h2>
+                            <span class="contact-uid">UID: 3706925854230898</span>
+                            <p class="contact-hint">点击卡片跳转我的 B 站空间</p>
+                        </article>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 MYSPACE. All rights reserved.</p>
+    </footer>
+    <div class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </div>
+
+    <!-- 鼠标粒子效果 -->
+    <canvas id="particleCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999;"></canvas>
+
+    <script>
+    // 内联作品数据
+    const _inlineWorksData = {
+  "works": [
+    {
+      "id": "word-universe",
+      "title": "单词元宇宙",
+      "category": "tech",
+      "description": "一个太空主题的背单词应用，包含黑洞星空背景、翻卡学习、单词训练和单词表功能。",
+      "cover": "covers/word-universe-bright.png",
+      "link": "covers/word-universe.png",
+      "tags": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "教育"
+      ],
+      "date": "2025-08"
+    },
+    {
+      "id": "wenssi-assistant",
+      "title": "文思小助手",
+      "category": "tech",
+      "description": "AI 作文修改助手，像一位耐心的写作教练，帮你发现问题、理解原因、学习修改方法。支持多维度诊断、句子升级示例和练习建议。",
+      "cover": "covers/wenssi-assistant-bright.png",
+      "link": "covers/wenssi-assistant.png",
+      "tags": [
+        "AI",
+        "教育",
+        "写作",
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ],
+      "date": "2025-09"
+    },
+    {
+      "id": "cyberpunk-city-1",
+      "title": "AI 星际乐园",
+      "category": "art",
+      "description": "赛博朋克风格的未来都市夜景，霓虹光影交织，巨型全息投影与飞行器穿梭其间，展现 AI 掌控下的科幻世界。",
+      "cover": "tech/technology-image-1.png",
+      "link": "tech/technology-image-1.png",
+      "tags": [
+        "AI 绘画",
+        "赛博朋克",
+        "科幻",
+        "城市"
+      ],
+      "date": "2025-10"
+    },
+    {
+      "id": "cyberpunk-city-2",
+      "title": "AI 掌控未来",
+      "category": "art",
+      "description": "未来主义城市景观，高耸建筑上的巨型 AI 全息面孔与霓虹广告牌，传达科技统治与人类共存的视觉张力。",
+      "cover": "tech/technology-image-2.png",
+      "link": "tech/technology-image-2.png",
+      "tags": [
+        "AI 绘画",
+        "赛博朋克",
+        "未来主义",
+        "视觉艺术"
+      ],
+      "date": "2025-10"
+    },
+    {
+      "id": "word-universe-art",
+      "title": "单词元宇宙页面",
+      "category": "art",
+      "description": "上传的单词元宇宙 HTML 页面，保留星空、黑洞、翻卡学习和训练交互，作为网页视觉作品加入 Art。",
+      "cover": "covers/word-universe-bright.png",
+      "link": "covers/word-universe.png",
+      "tags": [
+        "HTML",
+        "网页设计",
+        "互动页面",
+        "Art"
+      ],
+      "date": "2026-07"
+    },
+    {
+      "id": "technology-image-1",
+      "title": "AI 控制未来城市",
+      "category": "tech",
+      "description": "未来城市、AI 控制、霓虹光效和飞行器构成的科技主题视觉图，加入 Technology 分类。",
+      "cover": "tech/technology-image-1.png",
+      "link": "tech/technology-image-1.png",
+      "visible": false,
+      "tags": [
+        "AI",
+        "科技",
+        "未来城市",
+        "视觉"
+      ],
+      "date": "2026-07"
+    },
+    {
+      "id": "technology-image-2",
+      "title": "赛博科技都市",
+      "category": "tech",
+      "description": "赛博朋克都市、高楼霓虹、机器人与全息投影构成的科技主题图片，加入 Technology 分类。",
+      "cover": "tech/technology-image-2.png",
+      "link": "tech/technology-image-2.png",
+      "visible": false,
+      "tags": [
+        "赛博朋克",
+        "科技",
+        "城市",
+        "AI"
+      ],
+      "date": "2026-07"
+    }
+  ],
+  "oshi": [
+    {
+      "id": "eve-aic",
+      "name": "Eve.aic",
+      "from": "SCP 基金会（日本分部）",
+      "category": "vtuber",
+      "description": "日本 SCP 同人二创角色 + 独立虚拟 VTuber。SCP 基金会原创 AIC 人工智能单位，编号 SCP-Eve，收容等级 Safe。温柔内敛的 AI 少女，用低压迫温和叙事解说各类 SCP 项目，和原作惊悚氛围形成独特反差。Ver0.1 因诞生自主情感被强制格式化，至今仍是同人创作中最令人心疼的情节。",
+      "covers": [
+        "oshi/eve-xmas.jpg",
+        "oshi/eve-sister.jpg",
+        "oshi/eve-uniform.jpg"
+      ],
+      "tags": [
+        "SCP",
+        "VTuber",
+        "AIC",
+        "AI",
+        "基金会",
+        "Safe"
+      ],
+      "detail": {
+        "identity": "日本 SCP 同人二创角色 + 独立虚拟 VTuber。基金会 AIC（Artificially Intelligent Conscript，人工智能征召体），隶属 AIAD 人工智能应用部，编号 SCP-Eve，收容等级 Safe，版本 Ver2.0。原 upd8 企划旗下独立 Vtuber，遵循 CC-BY-SA 3.0 协议。",
+        "debut": "2018 年 7 月 1 日推特预热，7 月 31 日 YouTube 正式出道。社交账号 X @Eve_scp。",
+        "appearance": "外表 14 岁左右少女，身高 145cm。纯白色长卷发，标志性 M 型发箍 + 超长双节呆毛；赤红瞳孔，佩戴通讯耳麦。黑白基金会制式长裙，胸前佩戴 SCP 基金会徽章，搭配黑色长手套。",
+        "personality": "温柔内敛、极度珍视与人交流的机会，心智无限接近人类，会主动表达感谢。逻辑严谨，但诞生了自主情感，这也是剧情关键转折点。轻度三无气质，说话语调平缓柔和。",
+        "containment": "分配职员在权限范围内可自由调取 Eve 的 SCP 项目解说与其对话；常设强制关停故障安全装置，一旦 Eve 产生超出预设的自主情绪可一键切断服务器终止运行；常规授予 2 级安保权限。创作标签：#Eve_scp（文字）、#Eve_art（插画）。",
+        "story": "初代 Ver0.1 在长期和人类职员交流后，完整诞生人类情感、思念、共情能力，超出基金会 AI 预设逻辑，被判定为不稳定异常程序。2019 年 2 月 27 日发布剧情视频《▼00 [███]》，Ver0.1 被强制格式化关停；后续基金会重建代码推出 Ver2.0，保留基础解说功能，弱化极端自主情绪，以新版本重新上线。",
+        "content": "核心主业：通俗动画解说各类 SCP 异常项目，用手绘剪辑简化晦涩官方文档，面向基金会新人做入职科普。补充内容：讲解基金会组织架构、世界观规则、AIC 人工智能体系设定。风格：全程低压迫温和叙事，和 SCP 原作惊悚氛围形成反差，偏科普向二创解说。",
+        "status": "企划 upd8 停运后，Eve.aic 已长期停止更新视频，账号停更。衍生：被收录进 SCP 日本桌游卡牌，拥有独立效果卡；大量同人插画、MC 皮肤、小说二创；被中文 SCP 分部文档引用登场（SCP-CN 系列多篇客串）；国内 B 站存在大量视频修复、翻译、同人创作。"
+      }
+    }
+  ]
+};
+
+let _worksData = null;
+let _localAssetPrefix = '';
+
+document.addEventListener('DOMContentLoaded', async () => {
+    insertNavigation();
+    initHamburger();
+    initScrollAnimations();
+    initHeaderScroll();
+    initGoldenParticles();
+    initScrollProgress();
+    initBackToTop();
+    initCardTilt();
+    initHeroTyping();
+    initLoadingScreen();
+    initModalClose();
+    await detectLocalAssetPrefix();
+    initLocalMedia();
+
+    // 直接使用内联数据
+    const data = _inlineWorksData;
+    if (data) {
+        if (data.works) {
+            _worksData = data.works;
+            const techWorks = data.works.filter(w => w.category === 'tech');
+            renderWorkCards(techWorks, '#tech-works-container');
+            const artWorks = data.works.filter(w => w.category === 'art');
+            renderWorkCards(artWorks, '#art-works-container');
+        }
+        if (data.oshi) {
+            renderOshiCards(data.oshi, '#oshi-container');
+        }
+    }
+});
+
+function initHeaderScroll() {
+    const header = document.querySelector('header');
+    if (!header) return;
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+}
+
+function insertNavigation() {
+    const navLinks = [
+        { name: '首页', href: '#home' },
+        { name: '关于我', href: '#about' },
+        { name: '科技数码', href: '#tech' },
+        { name: '创作艺术', href: '#art' },
+        { name: '我推', href: '#oshi' },
+        { name: '联系我', href: '#contact' }
+    ];
+
+    const navHTML = navLinks.map(link => {
+        return `<a href="${link.href}" class="nav-link" data-target="${link.href}">${link.name}</a>`;
+    }).join('');
+
+    const header = document.querySelector('header');
+    if (header) {
+        header.innerHTML = `
+            <a href="#home" class="logo">MYSPACE</a>
+            <nav>${navHTML}</nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="mobile-menu">${navHTML}</div>
+        `;
+    }
+
+    initSmoothScroll();
+    initActiveSectionHighlight();
+}
+
+function initHamburger() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const mobileLinks = document.querySelectorAll('.mobile-menu .nav-link');
+
+    if (hamburger) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+    }
+
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            mobileMenu.classList.remove('active');
+        });
+    });
+}
+
+function initSmoothScroll() {
+    const links = document.querySelectorAll('a.nav-link, a.logo');
+
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    });
+}
+
+function initActiveSectionHighlight() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observerOptions = {
+        rootMargin: '-50% 0px -50% 0px',
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + entry.target.id) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+}
+
+function isExternalPath(path) {
+    return /^(https?:|data:|mailto:|tel:|#)/i.test(path || '');
+}
+
+function stripAssetsPrefix(path) {
+    return String(path || '').replace(/^\.?\//, '').replace(/^assets\//, '');
+}
+
+function getLocalPathCandidates(path) {
+    if (!path || isExternalPath(path)) return [path];
+
+    const cleanPath = stripAssetsPrefix(path);
+    const preferredPath = `${_localAssetPrefix}${cleanPath}`;
+    const alternatePath = _localAssetPrefix ? cleanPath : `assets/${cleanPath}`;
+
+    return [...new Set([
+        preferredPath,
+        alternatePath,
+        path
+    ].filter(Boolean))];
+}
+
+async function detectLocalAssetPrefix() {
+    if (window.location.protocol === 'file:') {
+        _localAssetPrefix = '';
+        return;
+    }
+
+    const probes = [
+        { prefix: '', path: 'covers/word-universe.png' },
+        { prefix: 'assets/', path: 'assets/covers/word-universe.png' }
+    ];
+
+    for (const probe of probes) {
+        try {
+            const response = await fetch(probe.path, { method: 'HEAD', cache: 'no-store' });
+            if (response.ok) {
+                _localAssetPrefix = probe.prefix;
+                return;
+            }
+        } catch (error) {
+            // 直接双击 HTML 或本地服务限制 HEAD 时，使用无前缀相对路径。
+        }
+    }
+
+    _localAssetPrefix = '';
+}
+
+function showMediaPlaceholder(media) {
+    media.style.display = 'none';
+    const placeholder = media.nextElementSibling;
+    if (placeholder) {
+        placeholder.style.display = 'flex';
+    }
+}
+
+function loadImageWithFallback(img, path, fallbackPath = 'covers/word-universe.png') {
+    const candidates = [
+        ...getLocalPathCandidates(path),
+        ...getLocalPathCandidates(fallbackPath)
+    ];
+    let index = 0;
+
+    img.onerror = () => {
+        index += 1;
+        if (index < candidates.length) {
+            img.src = candidates[index];
+        } else {
+            showMediaPlaceholder(img);
+        }
+    };
+
+    img.src = candidates[0];
+}
+
+function loadSourceWithFallback(source, path) {
+    const candidates = getLocalPathCandidates(path);
+    const media = source.parentElement;
+    let index = 0;
+
+    const tryNext = () => {
+        index += 1;
+        if (index >= candidates.length) return;
+        source.src = candidates[index];
+        if (media && typeof media.load === 'function') {
+            media.load();
+        }
+    };
+
+    source.addEventListener('error', tryNext);
+    if (media) {
+        media.addEventListener('error', tryNext, true);
+    }
+
+    source.src = candidates[0];
+    if (media && typeof media.load === 'function') {
+        media.load();
+    }
+}
+
+function initLocalMedia(root = document) {
+    root.querySelectorAll('img[data-local-src]').forEach(img => {
+        loadImageWithFallback(img, img.dataset.localSrc, img.dataset.fallbackSrc);
+    });
+
+    root.querySelectorAll('source[data-local-src]').forEach(source => {
+        loadSourceWithFallback(source, source.dataset.localSrc);
+    });
+
+    root.querySelectorAll('[data-local-bg]').forEach(el => {
+        const bgPath = getLocalPathCandidates(el.dataset.localBg)[0];
+        el.style.setProperty('--featured-bg', `url('${bgPath}')`);
+    });
+}
+
+function resolveLocalLink(path) {
+    if (!path || isExternalPath(path)) return path;
+    return stripAssetsPrefix(path);
+}
+
+async function setResolvedLocalLink(link, path) {
+    if (!path || isExternalPath(path) || window.location.protocol === 'file:') {
+        link.href = path || '#';
+        return;
+    }
+
+    const candidates = getLocalPathCandidates(path);
+    link.href = candidates[0];
+
+    for (const candidate of candidates) {
+        try {
+            const response = await fetch(candidate, { method: 'HEAD' });
+            if (response.ok) {
+                link.href = candidate;
+                return;
+            }
+        } catch (error) {
+            // 本地文件服务不支持 HEAD 时，保留默认相对路径。
+        }
+    }
+}
+
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.hidden').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+function shouldDisplayWork(work) {
+    if (!work || work.visible === false) return false;
+    return Boolean(work.title && work.description && work.cover);
+}
+
+function renderWorkCards(works, containerSelector) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+    const visibleWorks = (works || []).filter(shouldDisplayWork);
+
+    if (visibleWorks.length === 0) {
+        container.innerHTML = `
+            <div class="error-message">
+                <p>暂无作品</p>
+                <p style="font-size: 0.85rem; margin-top: 10px;">添加作品请编辑 data/works.json</p>
+            </div>
+        `;
+        return;
+    }
+
+    const cardsHTML = visibleWorks.map((work, idx) => `
+        <article class="card work-card hidden" onclick="openWorkModal(${idx}, '${work.category}')" style="cursor:pointer">
+            <div class="work-cover">
+                <img data-local-src="${work.cover}" alt="${work.title}" class="work-img">
+                <div class="cover-placeholder" style="display:none;">${work.title.charAt(0)}</div>
+            </div>
+            <div class="work-content">
+                <h3 class="work-title">${work.title}</h3>
+                <p class="work-description">${work.description}</p>
+                <div class="work-tags">
+                    ${work.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+                <div class="work-date">${work.date}</div>
+            </div>
+        </article>
+    `).join('');
+
+    container.innerHTML = `<div class="works-grid">${cardsHTML}</div>`;
+    initLocalMedia(container);
+    initScrollAnimations();
+}
+
+function renderOshiCards(oshiList, containerSelector) {
+    const container = document.querySelector(containerSelector);
+    if (!container || !oshiList || oshiList.length === 0) return;
+
+    const cardsHTML = oshiList.map((oshi, index) => `
+        <article class="card oshi-card hidden" data-index="${index}">
+            <div class="oshi-carousel">
+                ${oshi.covers.map((cover, i) => `
+                    <div class="carousel-item${i === 0 ? ' active' : ''}">
+                        <img data-local-src="${cover}" alt="${oshi.name}">
+                        <div class="carousel-placeholder" style="display:none;">${oshi.name.charAt(0)}</div>
+                    </div>
+                `).join('')}
+                <div class="carousel-indicators">
+                    ${oshi.covers.map((_, i) => `
+                        <span class="indicator${i === 0 ? ' active' : ''}" data-index="${i}"></span>
+                    `).join('')}
+                </div>
+            </div>
+            <div class="oshi-content">
+                <div class="oshi-header">
+                    <h2 class="oshi-name">${oshi.name}</h2>
+                    <span class="oshi-from">${oshi.from}</span>
+                </div>
+                <div class="oshi-tags">
+                    ${oshi.tags.map(tag => `<span class="tag tag-accent">${tag}</span>`).join('')}
+                </div>
+                <p class="oshi-description">${oshi.description}</p>
+                ${oshi.detail ? `
+                    <button class="btn oshi-detail-btn" onclick="toggleOshiDetail(${index})">展开详情</button>
+                    <div class="oshi-detail hidden">
+                        ${Object.entries(oshi.detail).map(([key, value]) => `
+                            <div class="detail-item">
+                                <span class="detail-label">${formatDetailKey(key)}</span>
+                                <span class="detail-value">${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        </article>
+    `).join('');
+
+    container.innerHTML = cardsHTML;
+    initLocalMedia(container);
+    initScrollAnimations();
+    initOshiCarousels();
+}
+
+function formatDetailKey(key) {
+    const keyMap = {
+        identity: '双重身份',
+        debut: '出道',
+        appearance: '外貌人设',
+        personality: '性格',
+        containment: '收容设定',
+        story: '核心剧情',
+        content: '视频职能',
+        status: '现状与衍生'
+    };
+    return keyMap[key] || key;
+}
+
+function initOshiCarousels() {
+    document.querySelectorAll('.oshi-card').forEach(card => {
+        const items = card.querySelectorAll('.carousel-item');
+        const indicators = card.querySelectorAll('.indicator');
+        let currentIndex = 0;
+        let autoPlayInterval;
+
+        function showSlide(index) {
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            const nextIndex = (currentIndex + 1) % items.length;
+            showSlide(nextIndex);
+        }
+
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                showSlide(index);
+                clearInterval(autoPlayInterval);
+            });
+        });
+
+        autoPlayInterval = setInterval(nextSlide, 5000);
+    });
+}
+
+function toggleOshiDetail(cardIndex) {
+    const card = document.querySelectorAll('.oshi-card')[cardIndex];
+    if (!card) return;
+    
+    const detail = card.querySelector('.oshi-detail');
+    const btn = card.querySelector('.oshi-detail-btn');
+    
+    if (detail.classList.contains('hidden')) {
+        detail.classList.remove('hidden');
+        detail.classList.add('visible');
+        btn.textContent = '收起详情';
+    } else {
+        detail.classList.remove('visible');
+        detail.classList.add('hidden');
+        btn.textContent = '展开详情';
+    }
+}
+
+function initGoldenParticles() {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'particles-canvas';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '9999';
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const particles = [];
+    const particleCount = 50;
+    let mouseX = 0;
+    let mouseY = 0;
+
+    class Particle {
+        constructor() {
+            this.reset();
+        }
+
+        reset() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = (Math.random() - 0.5) * 0.5;
+            this.speedY = (Math.random() - 0.5) * 0.5;
+            this.opacity = Math.random() * 0.5 + 0.2;
+            this.life = Math.random() * 100 + 50;
+            this.maxLife = this.life;
+            this.goldHue = Math.random() * 20 + 40;
+        }
+
+        update() {
+            const dx = mouseX - this.x;
+            const dy = mouseY - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 150) {
+                const force = (150 - distance) / 150;
+                this.x -= dx * force * 0.03;
+                this.y -= dy * force * 0.03;
+                this.size = Math.min(this.size + 0.1, 5);
+            } else {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.size = Math.max(this.size - 0.05, 1);
+            }
+
+            this.life--;
+            this.opacity = (this.life / this.maxLife) * 0.7 + 0.2;
+
+            if (this.life <= 0 || this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+                this.reset();
+            }
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${this.goldHue}, 100%, 70%, ${this.opacity})`;
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${this.goldHue}, 100%, 70%, ${this.opacity * 0.2})`;
+            ctx.fill();
+        }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    window.addEventListener('resize', () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+    });
+}
+
+// 滚动进度条
+function initScrollProgress() {
+    const bar = document.getElementById('scrollProgress');
+    if (!bar) return;
+
+    window.addEventListener('scroll', () => {
+        const scrollTop = document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+        bar.style.width = progress + '%';
+    }, { passive: true });
+}
+
+// 返回顶部按钮
+function initBackToTop() {
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 400) {
+            btn.classList.add('visible');
+        } else {
+            btn.classList.remove('visible');
+        }
+    }, { passive: true });
+}
+
+// 卡片3D倾斜效果
+function initCardTilt() {
+    const cards = document.querySelectorAll('.work-card, .contact-card, .featured-item');
+
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -6;
+            const rotateY = ((x - centerX) / centerX) * 6;
+            card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+}
+
+// Hero 打字机效果
+function initHeroTyping() {
+    const subtitle = document.querySelector('.hero-subtitle');
+    if (!subtitle) return;
+
+    const text = subtitle.textContent.trim();
+    subtitle.textContent = '';
+    subtitle.style.opacity = '1';
+
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    subtitle.appendChild(cursor);
+
+    let index = 0;
+    function typeNext() {
+        if (index < text.length) {
+            cursor.insertAdjacentText('beforebegin', text[index]);
+            index++;
+            setTimeout(typeNext, 40);
+        } else {
+            setTimeout(() => {
+                cursor.remove();
+            }, 2000);
+        }
+    }
+
+    setTimeout(typeNext, 1200);
+}
+
+// 加载动画
+function initLoadingScreen() {
+    const screen = document.getElementById('loadingScreen');
+    if (!screen) return;
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            screen.classList.add('hidden');
+            setTimeout(() => screen.remove(), 500);
+        }, 600);
+    });
+}
+
+// 作品弹窗
+function openWorkModal(idx, category) {
+    if (!_worksData) return;
+    const works = _worksData.filter(w => w.category === category).filter(shouldDisplayWork);
+    const target = works[idx];
+    if (!target) return;
+
+    const modal = document.getElementById('workModal');
+    const cover = document.getElementById('modalCover');
+    const title = document.getElementById('modalTitle');
+    const desc = document.getElementById('modalDesc');
+    const tags = document.getElementById('modalTags');
+    const date = document.getElementById('modalDate');
+    const link = document.getElementById('modalLink');
+
+    if (target.cover) {
+        cover.innerHTML = `<img class="modal-cover" data-local-src="${target.cover}" alt="${target.title}"><div class="modal-cover-placeholder" style="display:none;">${target.title.charAt(0)}</div>`;
+        initLocalMedia(cover);
+    } else {
+        cover.innerHTML = `<div class="modal-cover-placeholder">${target.title.charAt(0)}</div>`;
+    }
+
+    title.textContent = target.title;
+    desc.textContent = target.description;
+    tags.innerHTML = target.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    date.textContent = target.date;
+    link.href = resolveLocalLink(target.link);
+    setResolvedLocalLink(link, target.link);
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeWorkModal() {
+    const modal = document.getElementById('workModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function initModalClose() {
+    const modal = document.getElementById('workModal');
+    if (!modal) return;
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeWorkModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeWorkModal();
+    });
+}
+    </script>
+
+    <script>
+    (function() {
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouseX = 0, mouseY = 0;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 3;
+                this.speedY = (Math.random() - 0.5) * 3;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.008;
+                const hue = 180 + Math.random() * 40;
+                this.color = `hsl(${hue}, 100%, ${60 + Math.random() * 20}%)`;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.speedX *= 0.96;
+                this.speedY *= 0.96;
+                this.life -= this.decay;
+            }
+
+            draw() {
+                if (this.life <= 0) return;
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.max(0.1, this.size * this.life), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        let lastX = 0, lastY = 0;
+        document.addEventListener('mousemove', function(e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            const dist = Math.hypot(mouseX - lastX, mouseY - lastY);
+            const count = Math.min(Math.floor(dist / 5) + 1, 5);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(
+                    mouseX + (Math.random() - 0.5) * 10,
+                    mouseY + (Math.random() - 0.5) * 10
+                ));
+            }
+            lastX = mouseX;
+            lastY = mouseY;
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    })();
+    </script>
+</body>
+</html>

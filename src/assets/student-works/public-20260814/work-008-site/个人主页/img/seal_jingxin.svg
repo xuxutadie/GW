@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="52" height="52">
+  <defs>
+    <filter id="sealRough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="4" y="4" width="44" height="44" rx="1.5" fill="#A83525" filter="url(#sealRough)"/>
+  <rect x="7.5" y="7.5" width="37" height="37" rx="1" fill="none" stroke="#F0E4CE" stroke-width="1.2" opacity="0.7" filter="url(#sealRough)"/>
+  <text x="26" y="23" font-family="'Noto Serif SC', SimSun, STSong, serif" font-size="14" font-weight="900" fill="#F0E4CE" text-anchor="middle" filter="url(#sealRough)">静</text>
+  <text x="26" y="40" font-family="'Noto Serif SC', SimSun, STSong, serif" font-size="14" font-weight="900" fill="#F0E4CE" text-anchor="middle" filter="url(#sealRough)">心</text>
+</svg>

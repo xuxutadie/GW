@@ -1,0 +1,4318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应急灾害知识教育小游戏合集</title>
+    <style>
+        :root {
+            --bg-primary: #fff9f0;
+            --bg-secondary: #ffebee;
+            --bg-card: #ffffff;
+            --bg-hover: #fff3e0;
+            --text-primary: #4e342e;
+            --text-secondary: #8d6e63;
+            --accent-purple: #e91e63;
+            --accent-green: #4caf50;
+            --accent-red: #f44336;
+            --accent-blue: #2196f3;
+            --accent-yellow: #ffeb3b;
+            --accent-orange: #ff9800;
+            --accent-pink: #ff4081;
+            --border-color: #ffe0b2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 64, 129, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(76, 175, 80, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 40% 40%, rgba(255, 152, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 60% 60%, rgba(156, 39, 176, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 10% 20%, rgba(33, 150, 243, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(255, 235, 59, 0.1) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                background: 
+                    radial-gradient(circle at 20% 80%, rgba(255, 64, 129, 0.15) 0%, transparent 40%),
+                    radial-gradient(circle at 80% 20%, rgba(76, 175, 80, 0.15) 0%, transparent 40%),
+                    radial-gradient(circle at 40% 40%, rgba(255, 152, 0, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 60% 60%, rgba(156, 39, 176, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 10% 20%, rgba(33, 150, 243, 0.12) 0%, transparent 45%),
+                    radial-gradient(circle at 90% 80%, rgba(255, 235, 59, 0.1) 0%, transparent 45%);
+            }
+            25% {
+                background: 
+                    radial-gradient(circle at 60% 30%, rgba(255, 64, 129, 0.18) 0%, transparent 45%),
+                    radial-gradient(circle at 30% 70%, rgba(76, 175, 80, 0.18) 0%, transparent 45%),
+                    radial-gradient(circle at 80% 50%, rgba(255, 152, 0, 0.12) 0%, transparent 55%),
+                    radial-gradient(circle at 20% 50%, rgba(156, 39, 176, 0.12) 0%, transparent 55%),
+                    radial-gradient(circle at 50% 10%, rgba(33, 150, 243, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 90%, rgba(255, 235, 59, 0.12) 0%, transparent 50%);
+            }
+            50% {
+                background: 
+                    radial-gradient(circle at 80% 80%, rgba(255, 64, 129, 0.15) 0%, transparent 40%),
+                    radial-gradient(circle at 20% 20%, rgba(76, 175, 80, 0.15) 0%, transparent 40%),
+                    radial-gradient(circle at 60% 40%, rgba(255, 152, 0, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 60%, rgba(156, 39, 176, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 90% 20%, rgba(33, 150, 243, 0.12) 0%, transparent 45%),
+                    radial-gradient(circle at 10% 80%, rgba(255, 235, 59, 0.1) 0%, transparent 45%);
+            }
+            75% {
+                background: 
+                    radial-gradient(circle at 40% 70%, rgba(255, 64, 129, 0.16) 0%, transparent 42%),
+                    radial-gradient(circle at 60% 30%, rgba(76, 175, 80, 0.16) 0%, transparent 42%),
+                    radial-gradient(circle at 20% 50%, rgba(255, 152, 0, 0.11) 0%, transparent 52%),
+                    radial-gradient(circle at 80% 50%, rgba(156, 39, 176, 0.11) 0%, transparent 52%),
+                    radial-gradient(circle at 50% 90%, rgba(33, 150, 243, 0.14) 0%, transparent 48%),
+                    radial-gradient(circle at 50% 10%, rgba(255, 235, 59, 0.11) 0%, transparent 48%);
+            }
+        }
+
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.06;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-pink);
+            top: -100px;
+            left: -100px;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            background: var(--accent-green);
+            bottom: -80px;
+            right: -80px;
+            animation: float 18s ease-in-out infinite reverse;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-purple);
+            top: 40%;
+            right: -100px;
+            animation: float 20s ease-in-out infinite;
+            animation-delay: -5s;
+        }
+
+        .floating-shape:nth-child(4) {
+            width: 180px;
+            height: 180px;
+            background: var(--accent-orange);
+            bottom: 30%;
+            left: -90px;
+            animation: float 17s ease-in-out infinite reverse;
+            animation-delay: -3s;
+        }
+
+        .floating-shape:nth-child(5) {
+            width: 150px;
+            height: 150px;
+            background: var(--accent-blue);
+            top: 60%;
+            left: 10%;
+            animation: float 22s ease-in-out infinite;
+            animation-delay: -8s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(30px, -50px) rotate(5deg);
+            }
+            50% {
+                transform: translate(-20px, 30px) rotate(-5deg);
+            }
+            75% {
+                transform: translate(40px, 20px) rotate(3deg);
+            }
+        }
+
+        .star {
+            position: fixed;
+            font-size: 1.5rem;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 3rem;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: var(--accent-blue);
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border: 4px solid var(--border-color);
+            border-radius: 32px;
+            padding: 40px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.2);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--accent-yellow) 0%, transparent 70%);
+            opacity: 0.3;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) rotate(-1deg);
+            border-color: var(--accent-orange);
+            box-shadow: 0 12px 30px rgba(255, 152, 0, 0.3);
+        }
+
+        .game-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .game-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+            color: white;
+            border-radius: 50px;
+            box-shadow: 0 4px 8px rgba(233, 30, 99, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(233, 30, 99, 0.5);
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .back-btn {
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quiz-container {
+            background: var(--bg-card);
+            border: 4px solid var(--border-color);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.15);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            margin-bottom: 36px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .option {
+            background: var(--bg-secondary);
+            border: 4px solid var(--border-color);
+            border-radius: 24px;
+            padding: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+            font-size: 1.3rem;
+        }
+
+        .option:hover {
+            border-color: var(--accent-pink);
+            background: var(--bg-hover);
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(255, 64, 129, 0.2);
+        }
+
+        .option.selected {
+            border-color: var(--accent-pink);
+            background: rgba(255, 64, 129, 0.15);
+            transform: scale(1.02);
+        }
+
+        .option.correct {
+            border-color: var(--accent-green);
+            background: rgba(76, 175, 80, 0.15);
+            color: var(--accent-green);
+            transform: scale(1.02);
+        }
+
+        .option.wrong {
+            border-color: var(--accent-red);
+            background: rgba(244, 67, 54, 0.15);
+            color: var(--accent-red);
+            animation: shake 0.5s ease;
+        }
+
+        .option .letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+            border-radius: 50%;
+            font-weight: bold;
+            flex-shrink: 0;
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+            font-size: 1.3rem;
+        }
+
+        .option.correct .letter {
+            background: linear-gradient(135deg, var(--accent-green), #81c784);
+            color: white;
+            animation: bounce 0.5s ease;
+        }
+
+        .option.wrong .letter {
+            background: linear-gradient(135deg, var(--accent-red), #ef5350);
+            color: white;
+        }
+
+        .option-feedback {
+            margin-left: auto;
+            font-size: 2rem;
+            font-weight: bold;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+
+        .option.correct .option-feedback {
+            opacity: 1;
+            transform: scale(1);
+            animation: bounce 0.5s ease;
+        }
+
+        .option.wrong .option-feedback {
+            opacity: 1;
+            transform: scale(1);
+            animation: shake 0.5s ease;
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 16px;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .result-badge.correct {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--accent-green);
+            border: 2px solid var(--accent-green);
+        }
+
+        .result-badge.wrong {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--accent-red);
+            border: 2px solid var(--accent-red);
+        }
+
+        .correct-answer-display {
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px dashed var(--accent-green);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-top: 16px;
+            font-size: 1.1rem;
+            color: var(--accent-green);
+            animation: fadeInUp 0.4s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .explanation {
+            margin-top: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e3f2fd, #fce4ec);
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            display: none;
+            position: relative;
+        }
+
+        .explanation::before {
+            content: '💡';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            font-size: 1.5rem;
+            background: white;
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .explanation.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .explanation-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+        }
+
+        .explanation-text {
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .next-btn {
+            margin-top: 24px;
+            width: 100%;
+            padding: 16px;
+            border-radius: 50px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 16px;
+            background: var(--bg-secondary);
+            border-radius: 50px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-orange), var(--accent-yellow));
+            border-radius: 50px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 30px;
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.2);
+        }
+
+        .score-number {
+            font-size: 5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange), var(--accent-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(255, 64, 129, 0.3);
+        }
+
+        .score-rating {
+            font-size: 1.8rem;
+            margin-top: 16px;
+            font-weight: bold;
+        }
+
+        .rating-perfect {
+            color: #ff9800;
+            text-shadow: 0 0 20px rgba(255, 152, 0, 0.5);
+        }
+
+        .rating-excellent {
+            color: var(--accent-green);
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+
+        .rating-good {
+            color: var(--accent-blue);
+            text-shadow: 0 0 20px rgba(33, 150, 243, 0.5);
+        }
+
+        .rating-poor {
+            color: var(--accent-red);
+            text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);
+        }
+
+        .matching-game {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 36px;
+        }
+
+        .column {
+            background: var(--bg-card);
+            border: 4px solid var(--border-color);
+            border-radius: 32px;
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.15);
+        }
+
+        .column-title {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 4px dashed var(--border-color);
+            color: var(--accent-purple);
+            font-size: 1.6rem;
+            font-weight: bold;
+        }
+
+        .matching-item {
+            background: linear-gradient(135deg, var(--bg-secondary), #fff3e0);
+            border: 4px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+            font-size: 1.3rem;
+        }
+
+        .matching-item:hover {
+            border-color: var(--accent-pink);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(255, 64, 129, 0.2);
+        }
+
+        .matching-item.selected {
+            border-color: var(--accent-pink);
+            background: rgba(255, 64, 129, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 64, 129, 0.3);
+        }
+
+        .matching-item.matched {
+            border-color: var(--accent-green);
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--accent-green);
+            cursor: not-allowed;
+            transform: scale(1.05);
+            animation: bounce 0.5s ease;
+        }
+
+        .matching-item.error {
+            border-color: var(--accent-red);
+            animation: shake 0.5s ease;
+        }
+
+        .timer {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.15);
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timer-text {
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            min-width: 120px;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-green), #81c784);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .horror-scene {
+            background: linear-gradient(135deg, #fff3e0, #ffebee);
+            border: 3px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.15);
+        }
+
+        .horror-scene::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-orange), var(--accent-yellow));
+        }
+
+        .scene-title {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            color: var(--accent-purple);
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(233, 30, 99, 0.2);
+        }
+
+        .scene-description {
+            color: var(--text-primary);
+            line-height: 1.9;
+            margin-bottom: 24px;
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 16px;
+            border-radius: 16px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .rules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .horror-select-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 28px;
+        }
+
+        .horror-scene-card {
+            background: var(--bg-card);
+            border: 4px solid var(--border-color);
+            border-radius: 32px;
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .horror-scene-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--accent-pink);
+            box-shadow: 0 16px 40px rgba(255, 64, 129, 0.3);
+        }
+
+        .horror-scene-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(0.8);
+        }
+
+        .horror-scene-card.disabled:hover {
+            transform: none;
+            border-color: var(--border-color);
+        }
+
+        .horror-scene-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+
+        .horror-scene-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .horror-scene-brief {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .horror-scene-status {
+            margin-top: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .horror-scene-status.pass {
+            color: var(--accent-green);
+        }
+
+        .horror-scene-status.fail {
+            color: var(--accent-red);
+        }
+
+        .difficulty-selector {
+            margin-bottom: 40px;
+        }
+
+        .difficulty-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--accent-purple);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 32px;
+            border-radius: 24px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            min-width: 180px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .difficulty-btn:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .difficulty-btn.selected {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 64, 129, 0.4);
+        }
+
+        .difficulty-btn.easy {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .difficulty-btn.easy:hover, .difficulty-btn.easy.selected {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
+            border-color: var(--accent-green);
+        }
+
+        .difficulty-btn.medium {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        .difficulty-btn.medium:hover, .difficulty-btn.medium.selected {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 152, 0, 0.1));
+            border-color: var(--accent-orange);
+        }
+
+        .difficulty-btn.hard {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .difficulty-btn.hard:hover, .difficulty-btn.hard.selected {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.1));
+            border-color: var(--accent-red);
+        }
+
+        .difficulty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .difficulty-name {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .difficulty-desc {
+            font-size: 0.95rem;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+
+        .rule-box {
+            background: linear-gradient(135deg, #fff8e1, #fce4ec);
+            border: 4px solid var(--border-color);
+            border-radius: 32px;
+            padding: 48px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.15);
+            position: relative;
+        }
+
+        .rule-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-purple);
+            margin-bottom: 36px;
+        }
+
+        .rule-text {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            line-height: 1.8;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            border: 2px dashed var(--accent-orange);
+        }
+
+        .rule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .rule-item {
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px 24px;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            line-height: 1.8;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+        }
+
+        .rule-item-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+            border-radius: 50%;
+            font-weight: bold;
+            color: white;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .story-box {
+            background: linear-gradient(135deg, #fff3e0, #ffebee);
+            border: 4px solid var(--border-color);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.15);
+        }
+
+        .story-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-purple);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .story-text {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            line-height: 2;
+            margin-bottom: 36px;
+            padding: 28px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 24px;
+            border: 3px dashed var(--border-color);
+        }
+
+        .story-options {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .story-option {
+            background: var(--bg-card);
+            border: 4px solid var(--border-color);
+            border-radius: 24px;
+            padding: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.4rem;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+        }
+
+        .story-option:hover {
+            border-color: var(--accent-pink);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(255, 64, 129, 0.2);
+        }
+
+        .story-option.correct {
+            border-color: var(--accent-green);
+            background: rgba(76, 175, 80, 0.15);
+            color: var(--accent-green);
+            transform: scale(1.02);
+            animation: bounce 0.5s ease;
+        }
+
+        .story-option.wrong {
+            border-color: var(--accent-red);
+            background: rgba(244, 67, 54, 0.15);
+            color: var(--accent-red);
+            animation: shake 0.5s ease;
+        }
+
+        .rule-card {
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+        }
+
+        .rule-card:hover {
+            border-color: var(--accent-pink);
+            background: var(--bg-hover);
+            transform: translateX(8px);
+            box-shadow: 0 6px 20px rgba(255, 64, 129, 0.2);
+        }
+
+        .rule-card.selected {
+            border-color: var(--accent-pink);
+            background: rgba(255, 64, 129, 0.15);
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 64, 129, 0.3);
+        }
+
+        .rule-card.correct {
+            border-color: var(--accent-green);
+            background: rgba(76, 175, 80, 0.15);
+            color: var(--accent-green);
+            transform: scale(1.02);
+            animation: bounce 0.5s ease;
+        }
+
+        .rule-card.wrong {
+            border-color: var(--accent-red);
+            background: rgba(244, 67, 54, 0.15);
+            color: var(--accent-red);
+            animation: shake 0.5s ease;
+        }
+
+        .rule-indicator {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 1.5rem;
+        }
+
+        .health-bar {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+        }
+
+        .health-heart {
+            font-size: 2.5rem;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(244, 67, 54, 0.3));
+        }
+
+        .health-heart.active {
+            color: var(--accent-red);
+            animation: pulse 1.5s infinite;
+        }
+
+        .health-heart.empty {
+            color: #e0e0e0;
+            transform: scale(0.7) rotate(-15deg);
+            filter: grayscale(1);
+        }
+
+        .reveal-section {
+            margin-top: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e3f2fd, #fce4ec);
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            display: none;
+            position: relative;
+        }
+
+        .reveal-section::before {
+            content: '🔍';
+            position: absolute;
+            top: -14px;
+            left: 24px;
+            font-size: 1.8rem;
+            background: white;
+            padding: 6px;
+            border-radius: 50%;
+            border: 3px solid var(--border-color);
+        }
+
+        .reveal-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .survival-rate {
+            text-align: center;
+            margin-top: 30px;
+            padding: 30px;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 30px;
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.2);
+        }
+
+        .survival-percentage {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-green);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .bounce {
+            animation: bounce 0.4s ease-in-out;
+        }
+
+        .pulse {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            border: 4px solid var(--border-color);
+            border-radius: 32px;
+            padding: 50px 40px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 12px 40px rgba(255, 152, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--accent-yellow) 0%, transparent 70%);
+            opacity: 0.2;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .login-icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        .login-title {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .login-form {
+            position: relative;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1.2rem;
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.2);
+            transform: scale(1.02);
+        }
+
+        .login-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px 32px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(255, 152, 0, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(-2px) scale(1);
+        }
+
+        .btn-icon {
+            font-size: 1.6rem;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .login-footer p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-orange);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.3);
+        }
+
+        .login-form.hidden {
+            display: none;
+        }
+
+        .login-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            min-height: 44px;
+            transition: all 0.3s ease;
+        }
+
+        .login-message.success {
+            background: rgba(76, 175, 80, 0.15);
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+        }
+
+        .login-message.error {
+            background: rgba(244, 67, 54, 0.15);
+            color: #f44336;
+            border: 2px solid #f44336;
+        }
+
+        .login-message.empty {
+            background: transparent;
+            border: none;
+        }
+
+        .leaderboard-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .leaderboard-tab {
+            padding: 14px 24px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-tab:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-orange);
+            box-shadow: 0 6px 16px rgba(255, 152, 0, 0.2);
+        }
+
+        .leaderboard-tab.active {
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.3);
+        }
+
+        .leaderboard-list {
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(8px);
+            border-color: var(--accent-orange);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+        }
+
+        .leaderboard-rank {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 12px;
+            margin-right: 16px;
+        }
+
+        .leaderboard-rank.rank-1 {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+        }
+
+        .leaderboard-rank.rank-2 {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+            color: white;
+        }
+
+        .leaderboard-rank.rank-3 {
+            background: linear-gradient(135deg, #CD7F32, #B8722D);
+            color: white;
+        }
+
+        .leaderboard-rank.rank-other {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+        }
+
+        .leaderboard-name {
+            flex: 1;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .leaderboard-score {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--accent-orange);
+        }
+
+        .leaderboard-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .screen {
+                padding: 20px 10px;
+            }
+
+            .game-card {
+                padding: 24px;
+            }
+
+            .game-card h3 {
+                font-size: 1.3rem;
+            }
+
+            .game-card p {
+                font-size: 1rem;
+            }
+
+            .matching-game {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .quiz-container {
+                padding: 24px;
+            }
+
+            .question-text {
+                font-size: 1.2rem;
+            }
+
+            .option {
+                padding: 16px;
+                font-size: 1rem;
+            }
+
+            .option .letter {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+
+            .matching-item {
+                padding: 16px;
+                font-size: 1rem;
+            }
+
+            .horror-select-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 16px;
+            }
+
+            .horror-scene-card {
+                padding: 20px;
+            }
+
+            .horror-scene-icon {
+                font-size: 2.5rem;
+            }
+
+            .horror-scene-name {
+                font-size: 1.1rem;
+            }
+
+            .horror-scene-brief {
+                font-size: 0.85rem;
+            }
+
+            .rule-box {
+                padding: 24px;
+            }
+
+            .rule-title {
+                font-size: 1.4rem;
+            }
+
+            .rule-item {
+                padding: 14px 18px;
+                font-size: 1rem;
+            }
+
+            .rule-item-number {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+
+            .story-box {
+                padding: 24px;
+            }
+
+            .story-title {
+                font-size: 1.4rem;
+            }
+
+            .story-text {
+                font-size: 1.1rem;
+                padding: 16px;
+            }
+
+            .story-option {
+                padding: 20px;
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 14px 28px;
+                font-size: 1rem;
+            }
+
+            .result-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .score-number {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+    <div class="stars">
+        <span class="star" style="top:10%; left:15%; animation-delay:0s;">⭐</span>
+        <span class="star" style="top:20%; left:80%; animation-delay:0.5s;">✨</span>
+        <span class="star" style="top:35%; left:25%; animation-delay:1s;">🌟</span>
+        <span class="star" style="top:50%; left:90%; animation-delay:1.5s;">⭐</span>
+        <span class="star" style="top:65%; left:10%; animation-delay:2s;">✨</span>
+        <span class="star" style="top:80%; left:70%; animation-delay:2.5s;">🌟</span>
+        <span class="star" style="top:15%; left:45%; animation-delay:0.3s;">⭐</span>
+        <span class="star" style="top:70%; left:35%; animation-delay:1.2s;">✨</span>
+        <span class="star" style="top:40%; left:60%; animation-delay:1.8s;">🌟</span>
+        <span class="star" style="top:90%; left:20%; animation-delay:2.3s;">⭐</span>
+    </div>
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <span class="login-icon">🎮</span>
+                    <h1 class="login-title">应急灾害知识小游戏</h1>
+                    <p class="login-subtitle">学习应急知识，守护生命安全</p>
+                </div>
+                <div class="login-tabs">
+                    <button class="tab-btn active" id="login-tab" onclick="switchTab('login')">🔑 登录</button>
+                    <button class="tab-btn" id="register-tab" onclick="switchTab('register')">📝 注册</button>
+                </div>
+                <div class="login-form hidden" id="register-form">
+                    <div class="input-group">
+                        <label class="input-label">👤 用户名</label>
+                        <input type="text" id="register-username" class="login-input" placeholder="设置用户名..." maxlength="12">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">🔐 密码</label>
+                        <input type="password" id="register-password" class="login-input" placeholder="设置密码..." maxlength="20">
+                    </div>
+                    <button class="login-btn" onclick="handleRegister()">
+                        <span class="btn-icon">✨</span>
+                        <span class="btn-text">注册账号</span>
+                    </button>
+                </div>
+                <div class="login-form" id="login-form">
+                    <div class="input-group">
+                        <label class="input-label">👤 用户名</label>
+                        <input type="text" id="login-username" class="login-input" placeholder="输入用户名..." maxlength="12">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">🔐 密码</label>
+                        <input type="password" id="login-password" class="login-input" placeholder="输入密码..." maxlength="20">
+                    </div>
+                    <button class="login-btn" onclick="handleLogin()">
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">登录游戏</span>
+                    </button>
+                </div>
+                <div class="login-message" id="login-message"></div>
+                <div class="login-footer">
+                    <p>🌟 选择难度挑战自我</p>
+                    <p>💡 学习实用的应急知识</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="menu-screen" class="screen">
+        <div class="container">
+            <h1>应急灾害知识教育小游戏合集</h1>
+            <div class="game-card" onclick="startGame('quiz')">
+                <h3>🎯 知识问答</h3>
+                <p>测试你的应急灾害常识！10道选择题，涵盖地震、火灾、洪水、台风、泥石流等常见灾害，看看你能得多少分？</p>
+            </div>
+            <div class="game-card" onclick="startGame('matching')">
+                <h3>🔗 灾害连连看</h3>
+                <p>将8种灾害与对应的应对措施进行配对！60秒限时挑战，考验你的反应速度和知识储备。</p>
+            </div>
+            <div class="game-card" onclick="startGame('horror')">
+                <h3>👻 规则怪谈求生</h3>
+                <p>10个诡异场景，每个场景有真有假的生存规则。你能识破谎言，在危机中生存下来吗？</p>
+            </div>
+            <div class="game-card" onclick="showLeaderboard()">
+                <h3>🏆 排行榜</h3>
+                <p>查看所有玩家的游戏成绩排名，看看谁是最强的应急知识大师！</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="leaderboard-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="goToMenu()">← 返回主菜单</button>
+            <h2>🏆 排行榜</h2>
+            <div class="leaderboard-tabs">
+                <button class="leaderboard-tab active" onclick="switchLeaderboardTab('quiz')">🎯 知识问答</button>
+                <button class="leaderboard-tab" onclick="switchLeaderboardTab('matching')">🔗 连连看</button>
+                <button class="leaderboard-tab" onclick="switchLeaderboardTab('horror')">👻 怪谈求生</button>
+            </div>
+            <div id="leaderboard-content" class="leaderboard-list"></div>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="goToMenu()">← 返回主菜单</button>
+            <h2>知识问答</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="quiz-progress"></div>
+            </div>
+            <div class="quiz-container">
+                <span class="question-number" id="quiz-number">第 1/10 题</span>
+                <div class="question-text" id="quiz-question">题目加载中...</div>
+                <div class="options-list" id="quiz-options"></div>
+                <div id="quiz-result-badge"></div>
+                <div id="quiz-correct-answer"></div>
+                <div class="explanation" id="quiz-explanation">
+                    <div class="explanation-title">解析</div>
+                    <div class="explanation-text" id="quiz-explanation-text"></div>
+                </div>
+                <button class="btn btn-primary next-btn" id="quiz-next" style="display:none;" onclick="nextQuestion()">下一题</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-result-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="goToMenu()">← 返回主菜单</button>
+            <h2>答题结果</h2>
+            <div class="score-display">
+                <div class="score-number" id="quiz-score">0</div>
+                <div class="score-rating" id="quiz-rating"></div>
+            </div>
+            <button class="btn btn-primary" onclick="startGame('quiz')">再玩一次</button>
+        </div>
+    </div>
+
+    <div id="matching-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="goToMenu()">← 返回主菜单</button>
+            <h2>灾害连连看</h2>
+            <div class="timer">
+                <div class="timer-display" id="matching-timer">60</div>
+                <div class="timer-text">剩余时间</div>
+            </div>
+            <div class="matching-game">
+                <div class="column">
+                    <div class="column-title">灾害名称</div>
+                    <div id="matching-disasters"></div>
+                </div>
+                <div class="column">
+                    <div class="column-title">应对措施</div>
+                    <div id="matching-measures"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="matching-result-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="goToMenu()">← 返回主菜单</button>
+            <h2>配对结果</h2>
+            <div class="score-display">
+                <div class="score-number" id="matching-score">0</div>
+                <div class="score-rating" id="matching-rating"></div>
+            </div>
+            <div class="result-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="matching-correct">0</div>
+                    <div class="stat-label">正确配对</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="matching-time">0</div>
+                    <div class="stat-label">用时(秒)</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="startGame('matching')">再玩一次</button>
+        </div>
+    </div>
+
+    <div id="horror-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="goToMenu()">← 返回主菜单</button>
+            <h2>规则怪谈求生</h2>
+            <div class="health-bar" id="horror-health"></div>
+            <p style="text-align:center; color:var(--text-secondary); margin-bottom:20px;">选择一个场景，记住规则，然后做出正确的选择！</p>
+            <div class="horror-select-grid" id="horror-select-grid"></div>
+        </div>
+    </div>
+
+    <div id="horror-rule-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="backToHorrorSelect()">← 返回场景选择</button>
+            <h2>规则怪谈求生</h2>
+            <div class="health-bar" id="horror-rule-health"></div>
+            <div class="difficulty-selector">
+                <div class="difficulty-title">🎮 选择难度</div>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn easy" onclick="selectDifficulty('easy')">
+                        <span class="difficulty-icon">🌱</span>
+                        <span class="difficulty-name">简单</span>
+                        <span class="difficulty-desc">3条命，情节简单</span>
+                    </button>
+                    <button class="difficulty-btn medium" onclick="selectDifficulty('medium')">
+                        <span class="difficulty-icon">🌿</span>
+                        <span class="difficulty-name">中等</span>
+                        <span class="difficulty-desc">2条命，情节较复杂</span>
+                    </button>
+                    <button class="difficulty-btn hard" onclick="selectDifficulty('hard')">
+                        <span class="difficulty-icon">🌳</span>
+                        <span class="difficulty-name">困难</span>
+                        <span class="difficulty-desc">1条命，情节复杂</span>
+                    </button>
+                </div>
+            </div>
+            <div class="rule-box">
+                <div class="rule-title">📜 生存规则</div>
+                <div class="rule-list" id="horror-rule-list"></div>
+                <button class="btn btn-primary next-btn" onclick="confirmRule()">我已了解规则，开始求生</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="horror-story-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="backToHorrorSelect()">← 返回场景选择</button>
+            <h2>规则怪谈求生</h2>
+            <div class="health-bar" id="horror-story-health"></div>
+            <div class="story-box">
+                <div class="story-title" id="horror-story-title"></div>
+                <div class="story-text" id="horror-story-text"></div>
+                <div class="story-options" id="horror-story-options"></div>
+                <div class="reveal-section" id="horror-story-reveal">
+                    <div class="explanation-title">结果解析</div>
+                    <div class="explanation-text" id="horror-story-reveal-text"></div>
+                </div>
+                <button class="btn btn-primary next-btn" id="horror-story-next" style="display:none;" onclick="afterStoryChoice()">继续</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="horror-result-screen" class="screen">
+        <div class="container">
+            <button class="btn btn-secondary back-btn" onclick="goToMenu()">← 返回主菜单</button>
+            <h2>生存结果</h2>
+            <div class="survival-rate">
+                <div class="survival-percentage" id="horror-survival">0%</div>
+                <div class="score-rating" id="horror-rating"></div>
+            </div>
+            <div class="result-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="horror-correct">0</div>
+                    <div class="stat-label">正确选择</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="horror-scenes">0</div>
+                    <div class="stat-label">完成场景</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="startGame('horror')">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        const quizQuestions = [
+            {
+                question: "当地震发生时，如果你在室内，应该怎么做？",
+                options: [
+                    "A. 迅速跑到室外空旷地带",
+                    "B. 躲在桌子、椅子等坚固家具下面",
+                    "C. 乘坐电梯下楼",
+                    "D. 站在窗户旁边观察"
+                ],
+                answer: 1,
+                explanation: "地震时应躲在桌子、椅子等坚固家具下面或承重墙的墙角，保护好头部。不要乘坐电梯，不要靠近窗户，等震动停止后再有序撤离。"
+            },
+            {
+                question: "发生火灾时，逃生应该注意什么？",
+                options: [
+                    "A. 乘坐电梯快速逃生",
+                    "B. 用湿毛巾捂住口鼻，低姿匍匐前进",
+                    "C. 往高处跑，等待救援",
+                    "D. 打开所有门窗通风"
+                ],
+                answer: 1,
+                explanation: "火灾逃生时要用湿毛巾捂住口鼻，低姿匍匐前进，因为浓烟会向上飘散。不要乘坐电梯，不要往高处跑，不要打开门窗以免火势扩大。"
+            },
+            {
+                question: "遇到洪水来袭时，应该往哪个方向撤离？",
+                options: [
+                    "A. 往低处走，寻找水源",
+                    "B. 往高处转移，如楼顶、山坡",
+                    "C. 沿河流下游方向跑",
+                    "D. 待在地下室等待救援"
+                ],
+                answer: 1,
+                explanation: "洪水来袭时应立即往高处转移，如楼顶、山坡、高地等。不要待在地下室或低洼处，不要沿河流方向跑，以免被水流冲走。"
+            },
+            {
+                question: "台风来临时，以下哪种做法是正确的？",
+                options: [
+                    "A. 外出观看台风景象",
+                    "B. 关好门窗，加固易被风吹动的物品",
+                    "C. 在海边游泳或钓鱼",
+                    "D. 乘坐船只出海"
+                ],
+                answer: 1,
+                explanation: "台风来临时应关好门窗，加固易被风吹动的物品，避免外出。不要在海边活动，不要乘坐船只出海，以免发生危险。"
+            },
+            {
+                question: "泥石流发生时，应该往哪个方向逃生？",
+                options: [
+                    "A. 顺着泥石流流动方向跑",
+                    "B. 向垂直于泥石流流动方向的高处跑",
+                    "C. 往山谷底部跑",
+                    "D. 待在原地不动"
+                ],
+                answer: 1,
+                explanation: "泥石流发生时应向垂直于泥石流流动方向的高处跑，越快越好。不要顺着泥石流方向跑，那是最危险的路线。"
+            },
+            {
+                question: "触电后应该怎么做？",
+                options: [
+                    "A. 直接用手去拉触电的人",
+                    "B. 立即切断电源或用绝缘物体隔开",
+                    "C. 用水泼向触电者",
+                    "D. 大声呼救等待救援"
+                ],
+                answer: 1,
+                explanation: "触电后应立即切断电源或用干燥的木棍、竹竿等绝缘物体将电线与人体隔开。千万不要直接用手去拉，也不要用水泼，以免自己也触电。"
+            },
+            {
+                question: "发现有人溺水时，应该怎么做？",
+                options: [
+                    "A. 立即跳下水去救人",
+                    "B. 大声呼救，寻找救生工具",
+                    "C. 往水里扔石头吸引注意力",
+                    "D. 转身离开"
+                ],
+                answer: 1,
+                explanation: "发现溺水者应大声呼救，寻找救生圈、竹竿、绳子等工具进行救援。如果不会游泳，不要贸然下水救人，以免自身危险。"
+            },
+            {
+                question: "被烫伤后，正确的处理方法是？",
+                options: [
+                    "A. 立即用冰块冷敷",
+                    "B. 用冷水冲洗伤口15-30分钟",
+                    "C. 涂抹牙膏或酱油",
+                    "D. 用热水热敷"
+                ],
+                answer: 1,
+                explanation: "烫伤后应立即用流动的冷水冲洗伤口15-30分钟，降低皮肤温度。不要用冰块直接冷敷，不要涂抹牙膏、酱油等物品，以免感染。"
+            },
+            {
+                question: "遇到雷暴天气时，以下哪种做法是安全的？",
+                options: [
+                    "A. 在大树下避雨",
+                    "B. 躲在建筑物内",
+                    "C. 在户外打电话",
+                    "D. 站在高处"
+                ],
+                answer: 1,
+                explanation: "雷暴天气应躲在建筑物内或汽车里。不要在大树下避雨，不要在户外使用手机，不要站在高处或开阔地带。"
+            },
+            {
+                question: "发生燃气泄漏时，应该怎么做？",
+                options: [
+                    "A. 立即打开电器开关",
+                    "B. 迅速打开门窗通风",
+                    "C. 点燃火柴检查泄漏点",
+                    "D. 待在室内等待"
+                ],
+                answer: 1,
+                explanation: "燃气泄漏时应迅速打开门窗通风，关闭燃气阀门。不要打开电器开关或使用明火，以免引发爆炸。应立即到室外安全地带拨打燃气公司电话。"
+            }
+        ];
+
+        const matchingPool = [
+            { disaster: "地震", measure: "躲在坚固家具下，保护头部" },
+            { disaster: "火灾", measure: "用湿毛巾捂口鼻，低姿逃生" },
+            { disaster: "洪水", measure: "向高处转移，远离低洼处" },
+            { disaster: "台风", measure: "关好门窗，避免外出" },
+            { disaster: "泥石流", measure: "向垂直方向的高处跑" },
+            { disaster: "雷电", measure: "躲进建筑物内，远离大树" },
+            { disaster: "触电", measure: "切断电源，用绝缘物隔开" },
+            { disaster: "溺水", measure: "大声呼救，寻找救生工具" },
+            { disaster: "雪崩", measure: "向两侧跑，寻找坚固掩体" },
+            { disaster: "海啸", measure: "往高处跑，远离海岸线" },
+            { disaster: "龙卷风", measure: "躲进地下室或最内侧房间" },
+            { disaster: "沙尘暴", measure: "关闭门窗，用湿毛巾捂口鼻" },
+            { disaster: "高温中暑", measure: "转移到阴凉处，补充水分" },
+            { disaster: "冻伤", measure: "用温水复温，不要揉搓" },
+            { disaster: "燃气泄漏", measure: "关闭阀门，开窗通风，不用明火" },
+            { disaster: "高空坠落", measure: "不要随意移动伤者，拨打急救电话" },
+            { disaster: "踩踏", measure: "双手抱头，顺着人流方向移动" },
+            { disaster: "食物中毒", measure: "催吐并保留样本，立即就医" },
+            { disaster: "化学品灼伤", measure: "大量清水冲洗，脱去污染衣物" },
+            { disaster: "冰雹", measure: "躲避到坚固建筑物内，远离窗户" }
+        ];
+
+        const horrorScenes = [
+            {
+                title: "深夜酒店",
+                icon: "🏨",
+                brief: "凌晨的304房间，窗外雷声轰鸣...",
+                rules: [
+                    "雷暴天气时，远离窗户等玻璃制品，防止玻璃破碎伤人",
+                    "不要乘坐电梯逃生，应选择楼梯，并扶好扶手",
+                    "火灾时用湿毛巾捂住口鼻，低姿匍匐前进",
+                    "被困电梯时按下紧急按钮，安静等待专业人员救援",
+                    "地震时躲在桌子等坚固家具下面，保护好头部"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "凌晨3点，你住在酒店304房间。窗外雷声轰鸣，一道闪电划过，你发现窗外的大树被雷击中，窗户玻璃开始出现裂纹...",
+                            options: [
+                                { text: "迅速离开窗户，躲到房间角落", isCorrect: true },
+                                { text: "站在窗边继续观察", isCorrect: false },
+                                { text: "跑到阳台上去看看", isCorrect: false }
+                            ],
+                            explanation: "雷暴天气时应远离窗户，闪电可能击碎玻璃造成伤害。"
+                        },
+                        {
+                            story: "雷暴过后酒店停电了，走廊一片漆黑。你想下楼，但电梯指示灯还在闪烁...",
+                            options: [
+                                { text: "走楼梯下楼", isCorrect: true },
+                                { text: "乘坐电梯下楼", isCorrect: false },
+                                { text: "待在房间里等来电", isCorrect: false }
+                            ],
+                            explanation: "灾害时停电，电梯可能停运或坠落，应选择楼梯。"
+                        },
+                        {
+                            story: "你走到三楼闻到烟味，楼下有火光闪烁...",
+                            options: [
+                                { text: "往上跑，去天台等待救援", isCorrect: true },
+                                { text: "冲下楼跑出去", isCorrect: false },
+                                { text: "躲进附近的房间关门", isCorrect: false }
+                            ],
+                            explanation: "火灾时浓烟向上飘，应往楼上逃生等待救援。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "凌晨3点，你独自住在老旧酒店304房间。窗外雷声轰鸣，闪电照亮房间。你走到窗边想关窗，却发现窗外大树被雷击中，火花四溅，窗户玻璃在冲击波下出现裂纹，碎片眼看就要飞溅进来...",
+                            options: [
+                                { text: "迅速离开窗户，躲到远离窗户的墙角，用被子护住头部", isCorrect: true },
+                                { text: "继续站在窗边观察外面的情况", isCorrect: false },
+                                { text: "用手机拍下闪电发朋友圈", isCorrect: false },
+                                { text: "赶紧用胶带把窗户粘住防止破碎", isCorrect: false }
+                            ],
+                            explanation: "雷暴天气时，应远离窗户等玻璃制品，闪电产生的冲击波可能击碎玻璃造成伤害。"
+                        },
+                        {
+                            story: "雷暴过后酒店突然停电，走廊一片漆黑。你摸索着走出房间，想要去一楼大厅。走廊尽头的电梯指示灯还在微弱闪烁，但你想起逃生规则...",
+                            options: [
+                                { text: "找到安全出口标志，扶着墙壁走楼梯下楼", isCorrect: true },
+                                { text: "按电梯按钮，乘坐电梯下楼", isCorrect: false },
+                                { text: "待在房间里等来电", isCorrect: false },
+                                { text: "大声喊叫寻找其他旅客", isCorrect: false }
+                            ],
+                            explanation: "灾害发生时停电，电梯可能突然停运或坠落，非常危险。应选择楼梯逃生。"
+                        },
+                        {
+                            story: "你顺着楼梯往下走，走到三楼时闻到刺鼻的烟味。探头一看，二楼走廊有火光闪烁，浓烟正在快速往上蔓延！你感到呼吸开始困难...",
+                            options: [
+                                { text: "用湿毛巾捂住口鼻，弯腰低姿往楼上跑", isCorrect: true },
+                                { text: "快步跑下楼冲过火场", isCorrect: false },
+                                { text: "躲进附近的房间关上门", isCorrect: false },
+                                { text: "用灭火器灭火", isCorrect: false }
+                            ],
+                            explanation: "火灾时浓烟会向上飘散，楼下有火时不能往下冲。应用湿毛巾捂住口鼻。"
+                        },
+                        {
+                            story: "你跑到天台发现门被锁住了！浓烟已经追上来，你拼命拍门但无人应答。回头看到楼道里有消防栓箱和窗户...",
+                            options: [
+                                { text: "打开消防栓箱，用水淋湿衣物堵住口鼻", isCorrect: true },
+                                { text: "继续用力拍门，等待有人来开", isCorrect: false },
+                                { text: "直接从窗户跳出去", isCorrect: false },
+                                { text: "大声呼救希望有人听到", isCorrect: false }
+                            ],
+                            explanation: "天台门锁住时不能干等，应利用消防设备保护自己，淋湿衣物堵住口鼻。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "凌晨3点，你独自住在老旧酒店304房间。窗外雷声轰鸣，一道闪电划过夜空，照亮了整个房间。你走到窗边想要关紧窗户，这时你发现窗外的大树被雷击中，火花四溅，窗户玻璃在闪电的冲击下开始出现裂纹，碎片眼看就要飞溅进来...",
+                            options: [
+                                { text: "迅速离开窗户，躲到远离窗户的墙角，用被子护住头部", isCorrect: true },
+                                { text: "继续站在窗边观察外面的情况，用手机拍下闪电", isCorrect: false },
+                                { text: "用胶带把窗户粘住防止破碎", isCorrect: false },
+                                { text: "跑到阳台上去观察", isCorrect: false },
+                                { text: "躲进卫生间里", isCorrect: false }
+                            ],
+                            explanation: "雷暴天气时，应远离窗户等玻璃制品，因为闪电产生的冲击波可能击碎玻璃造成严重伤害。"
+                        },
+                        {
+                            story: "雷暴过后，酒店突然停电了。走廊里一片漆黑，只有应急指示灯发出微弱的红光。你摸索着走出房间，想要去一楼大厅了解情况。走廊尽头，电梯的指示灯还在微弱闪烁...",
+                            options: [
+                                { text: "找到安全出口标志，走楼梯下楼", isCorrect: true },
+                                { text: "按电梯按钮，乘坐电梯下楼", isCorrect: false },
+                                { text: "待在房间里等来电", isCorrect: false },
+                                { text: "大声喊叫寻找其他旅客", isCorrect: false },
+                                { text: "用手机手电筒照路找电梯", isCorrect: false }
+                            ],
+                            explanation: "灾害发生时停电，电梯可能会突然停运或在运行中坠落，非常危险。"
+                        },
+                        {
+                            story: "你顺着楼梯往下走，走到三楼时，突然闻到一股刺鼻的烟味从楼下飘上来。你探头往下看，发现二楼走廊有火光闪烁，浓烟正在快速往上蔓延！温度越来越高，你感到呼吸开始困难...",
+                            options: [
+                                { text: "用湿毛巾捂住口鼻，弯腰低姿往楼上跑，到天台等待救援", isCorrect: true },
+                                { text: "快步跑下楼冲过火场", isCorrect: false },
+                                { text: "躲进附近的房间关上门", isCorrect: false },
+                                { text: "用灭火器灭火", isCorrect: false },
+                                { text: "打开楼梯间窗户透气", isCorrect: false }
+                            ],
+                            explanation: "火灾时浓烟会向上飘散，楼下有火时不能往下冲。应往楼上逃生。"
+                        },
+                        {
+                            story: "你跑到天台，发现门被锁住了！浓烟已经追上来了，你拼命拍门但无人应答。你回头看到楼道里有一个消防栓箱，旁边还有一个窗户...",
+                            options: [
+                                { text: "打开消防栓箱，用水淋湿衣物堵住口鼻，尝试破窗或寻找其他通道", isCorrect: true },
+                                { text: "继续用力拍门，等待有人来开", isCorrect: false },
+                                { text: "直接从窗户跳出去", isCorrect: false },
+                                { text: "大声呼救希望有人听到", isCorrect: false },
+                                { text: "砸破窗户跳下去", isCorrect: false }
+                            ],
+                            explanation: "天台门锁住时不能干等，应利用消防设备保护自己。"
+                        },
+                        {
+                            story: "你终于在天台的另一侧找到了一扇开着的门，进入了隔壁楼栋的楼梯间。此时你听到楼下传来消防车的声音，安全就在眼前...",
+                            options: [
+                                { text: "沿楼梯有序下楼，到安全区域等待消防员指示", isCorrect: true },
+                                { text: "兴奋地冲下楼跑出大楼", isCorrect: false },
+                                { text: "跑到天台边缘挥手求救", isCorrect: false },
+                                { text: "直接从楼梯间窗户跳出去", isCorrect: false },
+                                { text: "用手机拍视频记录", isCorrect: false }
+                            ],
+                            explanation: "即使即将安全，也不能慌乱奔跑，楼梯上可能有积水或碎玻璃导致摔倒。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "空旷办公楼",
+                icon: "🏢",
+                brief: "下班后被困在黑暗的办公楼里...",
+                rules: [
+                    "地震时躲在桌子等坚固家具下面，保护好头部",
+                    "不要乘坐电梯逃生，应选择楼梯，并扶好扶手",
+                    "火灾时用湿毛巾捂住口鼻，低姿匍匐前进",
+                    "被困电梯时按下紧急按钮，安静等待专业人员救援",
+                    "雷暴天气时远离窗户等玻璃制品"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "加班到深夜，整栋楼只剩下你。灯突然熄灭，大楼剧烈晃动——地震了！",
+                            options: [
+                                { text: "躲到办公桌下面，双手护住头部", isCorrect: true },
+                                { text: "立刻冲向电梯离开", isCorrect: false },
+                                { text: "跑到窗边观察情况", isCorrect: false }
+                            ],
+                            explanation: "地震发生时应躲在桌子下面保护头部，不要乘坐电梯。"
+                        },
+                        {
+                            story: "震动平息后，办公室一片狼藉。电梯门开着，似乎还能用...",
+                            options: [
+                                { text: "走安全楼梯下楼", isCorrect: true },
+                                { text: "走进电梯按一楼", isCorrect: false },
+                                { text: "待在办公室等救援", isCorrect: false }
+                            ],
+                            explanation: "地震后电梯可能已损坏，随时可能坠落，应选择楼梯。"
+                        },
+                        {
+                            story: "你走进楼梯间，闻到烧焦的塑料味，楼下有烟雾...",
+                            options: [
+                                { text: "返回楼上，去天台等待救援", isCorrect: true },
+                                { text: "冲过烟雾跑下去", isCorrect: false },
+                                { text: "躲进楼梯间关门", isCorrect: false }
+                            ],
+                            explanation: "地震后引发火灾很危险，应往楼上逃生等待救援。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "加班到深夜，你发现整栋办公楼只剩下你一个人。灯突然熄灭了，只有安全出口指示灯发出幽暗的绿光。突然，大楼剧烈晃动！桌上的文件散落一地，书架摇摇欲坠——地震了！",
+                            options: [
+                                { text: "迅速躲到办公桌下面，双手护住头部和颈部", isCorrect: true },
+                                { text: "立刻冲向电梯离开大楼", isCorrect: false },
+                                { text: "跑到窗边观察地震情况", isCorrect: false },
+                                { text: "躲进卫生间里", isCorrect: false }
+                            ],
+                            explanation: "地震发生时应立即就近躲避，躲在桌子等坚固家具下面，千万不要乘坐电梯。"
+                        },
+                        {
+                            story: "剧烈的震动持续了约30秒后渐渐平息。你从桌子下爬出来，发现办公室一片狼藉——窗户玻璃碎了一地。你急需离开，但电梯门开着，轿厢似乎还停在这一层...",
+                            options: [
+                                { text: "走安全楼梯，扶好扶手，注意脚下碎玻璃", isCorrect: true },
+                                { text: "走进电梯，按一楼按钮", isCorrect: false },
+                                { text: "待在办公室等救援", isCorrect: false },
+                                { text: "打电话叫人来接", isCorrect: false }
+                            ],
+                            explanation: "地震后电梯可能已严重损坏，应选择楼梯逃生。"
+                        },
+                        {
+                            story: "你走进楼梯间，发现墙壁出现了裂缝。走到五楼时，闻到一股烧焦的塑料味——电线短路起火！往下看，四楼走廊已经有淡淡的烟雾...",
+                            options: [
+                                { text: "返回楼上，寻找其他出口或到天台等待救援", isCorrect: true },
+                                { text: "憋一口气冲过烟雾跑下去", isCorrect: false },
+                                { text: "躲进楼梯间关门", isCorrect: false },
+                                { text: "用灭火器灭火", isCorrect: false }
+                            ],
+                            explanation: "穿过浓烟可能导致窒息，应返回寻找其他逃生通道。"
+                        },
+                        {
+                            story: "你跑上天台，发现有一架消防无人机正在附近盘旋。你大声呼救挥手，但天台边缘没有护栏，地面湿滑...",
+                            options: [
+                                { text: "站在天台中央显眼位置挥手", isCorrect: true },
+                                { text: "走到天台边缘让无人机更清楚看到", isCorrect: false },
+                                { text: "跑到天台边缘跳下去", isCorrect: false },
+                                { text: "用手机手电筒照天空", isCorrect: false }
+                            ],
+                            explanation: "天台无护栏且地面湿滑，靠近边缘非常危险，可能坠落。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "加班到深夜，你发现整栋办公楼只剩下你一个人。灯突然熄灭了，只有安全出口指示灯发出幽暗的绿光。突然，大楼剧烈晃动！桌上的文件散落一地，书架摇摇欲坠，天花板发出令人恐惧的嘎吱声——地震了！",
+                            options: [
+                                { text: "迅速躲到办公桌下面，双手护住头部和颈部", isCorrect: true },
+                                { text: "立刻冲向电梯离开大楼", isCorrect: false },
+                                { text: "跑到窗边观察地震情况", isCorrect: false },
+                                { text: "躲进卫生间里", isCorrect: false },
+                                { text: "跑到走廊上看看", isCorrect: false }
+                            ],
+                            explanation: "地震发生时应立即就近躲避，躲在桌子等坚固家具下面，双手护住头部和颈部。千万不要乘坐电梯。"
+                        },
+                        {
+                            story: "剧烈的震动持续了约30秒后渐渐平息。你从桌子下爬出来，发现办公室一片狼藉——窗户玻璃碎了一地，文件柜倒了，到处是散落的物品。你急需离开这栋楼，但电梯门开着，轿厢似乎还停在这一层...",
+                            options: [
+                                { text: "走安全楼梯，扶好扶手，注意脚下碎玻璃", isCorrect: true },
+                                { text: "走进电梯，按一楼按钮", isCorrect: false },
+                                { text: "待在办公室等救援", isCorrect: false },
+                                { text: "打电话叫人来接", isCorrect: false },
+                                { text: "从窗户爬出去", isCorrect: false }
+                            ],
+                            explanation: "地震后电梯可能已严重损坏，即使看似正常也不能乘坐，随时可能坠落。"
+                        },
+                        {
+                            story: "你走进楼梯间，发现墙壁出现了裂缝，有些地方的墙皮脱落了。走到五楼时，你闻到一股烧焦的塑料味——地震可能导致了电线短路起火！往下看，四楼走廊已经有淡淡的烟雾...",
+                            options: [
+                                { text: "返回楼上，寻找其他出口或到天台等待救援", isCorrect: true },
+                                { text: "憋一口气冲过烟雾跑下去", isCorrect: false },
+                                { text: "躲进楼梯间关门", isCorrect: false },
+                                { text: "用灭火器灭火", isCorrect: false },
+                                { text: "打开楼梯间窗户透气", isCorrect: false }
+                            ],
+                            explanation: "地震后引发的火灾非常危险，穿过浓烟可能导致窒息或烧伤。"
+                        },
+                        {
+                            story: "你跑上天台，发现有一架消防无人机正在附近盘旋。你大声呼救挥手，无人机似乎发现了你！但天台边缘没有护栏，地面湿滑...",
+                            options: [
+                                { text: "站在天台中央显眼位置挥手，远离无护栏的边缘", isCorrect: true },
+                                { text: "走到天台边缘让无人机更清楚看到自己", isCorrect: false },
+                                { text: "跑到天台边缘跳下去", isCorrect: false },
+                                { text: "用手机手电筒照天空", isCorrect: false },
+                                { text: "大声喊叫希望有人听到", isCorrect: false }
+                            ],
+                            explanation: "天台无护栏且地面湿滑时，靠近边缘非常危险，可能坠落。"
+                        },
+                        {
+                            story: "不久后，消防员通过隔壁楼栋的天桥赶到天台救你。他们帮你戴上面罩，引导你通过天桥撤离。你的双腿在发抖，但终于安全了...",
+                            options: [
+                                { text: "跟随消防员指引有序撤离，不独自行动", isCorrect: true },
+                                { text: "自己找最快的路跑下去", isCorrect: false },
+                                { text: "兴奋地跑过去拥抱消防员", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "直接从楼梯间窗户跳出去", isCorrect: false }
+                            ],
+                            explanation: "救援人员到达后应完全配合他们的指引，不要自行其是。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "暴雨公交车",
+                icon: "🚌",
+                brief: "公交车被困在积水中，水位正在上涨...",
+                rules: [
+                    "车辆被困积水中时，应立即使用安全锤打破车窗逃生",
+                    "发现有人溺水时，大声呼救并寻找救生工具",
+                    "不要贸然下水救人，确保自身安全",
+                    "洪水来临时往高处转移，远离低洼处",
+                    "雷暴天气时远离大树，不要站在空旷地带"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "暴雨倾盆而下，公交车行驶在低洼路段突然发动机熄火！水已经淹到车轮，车厢开始渗水...",
+                            options: [
+                                { text: "立即取下安全锤，敲碎车窗逃生", isCorrect: true },
+                                { text: "坐在座位上等待司机处理", isCorrect: false },
+                                { text: "打开车门走下去", isCorrect: false }
+                            ],
+                            explanation: "公交车被困积水中应立即用安全锤破窗逃生，不要等待。"
+                        },
+                        {
+                            story: "你爬到车顶，看到不远处有老人在水中挣扎...",
+                            options: [
+                                { text: "大声呼救，寻找绳子或长杆救援", isCorrect: true },
+                                { text: "直接跳下水去救人", isCorrect: false },
+                                { text: "坐在车顶不动", isCorrect: false }
+                            ],
+                            explanation: "不要贸然下水救人，湍急的洪水可能将你也卷走。"
+                        },
+                        {
+                            story: "你们救起老人，但水位越来越高，公交车开始晃动...",
+                            options: [
+                                { text: "带着老人往高处的小楼转移", isCorrect: true },
+                                { text: "留在车顶上等待", isCorrect: false },
+                                { text: "往回游到路边", isCorrect: false }
+                            ],
+                            explanation: "洪水来临时应立即往高处转移，公交车随时可能被冲走。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "暴雨倾盆而下，能见度不足十米。公交车行驶在低洼路段突然发动机熄火！水已经淹到车轮以上，车厢里开始渗水...",
+                            options: [
+                                { text: "立即取下安全锤，敲碎车窗逃生", isCorrect: true },
+                                { text: "坐在座位上等待司机处理", isCorrect: false },
+                                { text: "打开车门走下去", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false }
+                            ],
+                            explanation: "当公交车被困积水中且车门因水压无法打开时，应立即使用安全锤打破车窗逃生。"
+                        },
+                        {
+                            story: "你爬到车顶，看到不远处有老人在水中挣扎，被湍急的水流冲倒...",
+                            options: [
+                                { text: "大声呼救，寻找绳子、长杆或救生圈等工具间接施救", isCorrect: true },
+                                { text: "直接跳下水去把老人拉上来", isCorrect: false },
+                                { text: "坐在车顶不动", isCorrect: false },
+                                { text: "跑过去拉老人", isCorrect: false }
+                            ],
+                            explanation: "发现有人溺水时，如果自身没有专业救援能力，不要贸然下水。"
+                        },
+                        {
+                            story: "你们合力将老人拉上车顶，但水位越来越高，公交车开始晃动...",
+                            options: [
+                                { text: "带着老人蹚水往高处的小楼转移", isCorrect: true },
+                                { text: "留在车顶上等待", isCorrect: false },
+                                { text: "往回游到路边", isCorrect: false },
+                                { text: "打电话叫人来接", isCorrect: false }
+                            ],
+                            explanation: "洪水来临时应立即往高处转移，公交车随时可能被冲走或沉没。"
+                        },
+                        {
+                            story: "你们蹚着齐腰深的水艰难移动。突然你踩到了一个被水淹没的窨井盖，井盖已经被冲开了！",
+                            options: [
+                                { text: "迅速抓住旁边的同伴或固定物，慢慢将脚抽出", isCorrect: true },
+                                { text: "惊慌挣扎，用力把脚拔出来", isCorrect: false },
+                                { text: "直接跳过去", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false }
+                            ],
+                            explanation: "洪水淹没路面时窨井盖可能被冲开，踩到后不要惊慌挣扎。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "暴雨倾盆而下，能见度不足十米。你乘坐的公交车行驶在低洼路段，突然发动机熄火了！水已经淹到车轮以上，车厢里开始渗水。司机拼命尝试重新启动，但发动机完全没有反应。水位还在快速上涨...",
+                            options: [
+                                { text: "立即取下安全锤，敲碎车窗逃生", isCorrect: true },
+                                { text: "坐在座位上等待司机处理", isCorrect: false },
+                                { text: "打开车门走下去", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "大声喊叫求救", isCorrect: false }
+                            ],
+                            explanation: "当公交车被困积水中且车门因水压无法打开时，应立即使用安全锤打破车窗逃生。"
+                        },
+                        {
+                            story: "你从车窗爬了出来，站在公交车顶上。暴雨还在下，水已经漫到车窗。你看到不远处有一位老人在水中挣扎，似乎是被湍急的水流冲倒了，正在拼命呼救...",
+                            options: [
+                                { text: "大声呼救，寻找绳子、长杆或救生圈等工具间接施救", isCorrect: true },
+                                { text: "直接跳下水去把老人拉上来", isCorrect: false },
+                                { text: "坐在车顶不动", isCorrect: false },
+                                { text: "跑过去拉老人", isCorrect: false },
+                                { text: "用手机拍视频记录", isCorrect: false }
+                            ],
+                            explanation: "发现有人溺水时，如果自身没有专业救援能力，不要贸然下水。"
+                        },
+                        {
+                            story: "在你的指挥下，有人找来一根长竹竿，你们合力将老人拉上了车顶。但水位越来越高，公交车开始晃动，似乎快被冲走了。周围一片汪洋，你看到了不远处有一栋三层小楼...",
+                            options: [
+                                { text: "带着老人蹚水往高处的小楼转移", isCorrect: true },
+                                { text: "留在车顶上等待，车顶比水面高", isCorrect: false },
+                                { text: "往回游到路边", isCorrect: false },
+                                { text: "打电话叫人来接", isCorrect: false },
+                                { text: "直接跳上小楼", isCorrect: false }
+                            ],
+                            explanation: "洪水来临时应立即往高处转移，公交车随时可能被冲走或沉没。"
+                        },
+                        {
+                            story: "你们蹚着齐腰深的水艰难地向小楼移动。突然你踩到了一个被水淹没的窨井盖，井盖已经被冲开了，你的脚正往无底的井口滑去！",
+                            options: [
+                                { text: "迅速抓住旁边的同伴或固定物，慢慢将脚抽出", isCorrect: true },
+                                { text: "惊慌挣扎，用力把脚拔出来", isCorrect: false },
+                                { text: "直接跳过去", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false },
+                                { text: "用另一只脚使劲蹬", isCorrect: false }
+                            ],
+                            explanation: "洪水淹没路面时窨井盖可能被冲开，踩到后不要惊慌挣扎。"
+                        },
+                        {
+                            story: "你们终于到达了小楼的二楼。老人已经精疲力竭，你也有点虚脱。从窗户往外看，水位还在上涨，但已经慢了很多。你的手机终于有了一格信号...",
+                            options: [
+                                { text: "拨打110/119求救，告知准确位置和人员情况，节约电量等待救援", isCorrect: true },
+                                { text: "不停打电话给所有亲友求救", isCorrect: false },
+                                { text: "发朋友圈求救", isCorrect: false },
+                                { text: "跑到楼顶去", isCorrect: false },
+                                { text: "继续往高处走", isCorrect: false }
+                            ],
+                            explanation: "信号微弱时，应拨打紧急电话求救，简洁告知位置和人数。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "地下商场",
+                icon: "🏬",
+                brief: "地下商场突发火灾，浓烟开始涌出...",
+                rules: [
+                    "火灾时用湿毛巾捂住口鼻，防止吸入有毒烟雾",
+                    "低姿匍匐前进，因为浓烟会向上飘散",
+                    "不要乘坐扶梯或电梯逃生",
+                    "寻找安全出口标志，不要盲目跟随人流",
+                    "被困时躲在相对安全的房间，用湿布堵住门缝"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "地下商场突然响起警报，浓烟开始涌出，人群惊慌涌向出口...",
+                            options: [
+                                { text: "用湿毛巾捂住口鼻，弯腰寻找安全出口", isCorrect: true },
+                                { text: "跟着人群一起跑", isCorrect: false },
+                                { text: "躲进附近的店铺关门", isCorrect: false }
+                            ],
+                            explanation: "火灾时应低姿逃生，用湿毛巾捂住口鼻，不要盲目跟随人流。"
+                        },
+                        {
+                            story: "你发现扶梯口挤满了人，有人踩空摔倒...",
+                            options: [
+                                { text: "转身寻找消防楼梯间", isCorrect: true },
+                                { text: "挤上扶梯往上爬", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false }
+                            ],
+                            explanation: "火灾时扶梯口拥挤容易踩踏，应找消防楼梯间。"
+                        },
+                        {
+                            story: "你跑到一楼，大门被人群堵住，旁边有消防通道标志...",
+                            options: [
+                                { text: "走旁边的消防通道小门", isCorrect: true },
+                                { text: "继续挤在大门口等", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false }
+                            ],
+                            explanation: "火灾逃生时不要盲目跟随拥挤人群，应找其他安全出口。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "地下商场突然响起警报，广播说发生火灾。浓烟开始从B2层涌出，人群惊慌涌向出口。你被推搡着，呼吸越来越困难...",
+                            options: [
+                                { text: "用湿毛巾或衣物捂住口鼻，弯腰低姿冷静寻找安全出口标志", isCorrect: true },
+                                { text: "跟着人群一起跑，人多的地方肯定安全", isCorrect: false },
+                                { text: "躲进附近的店铺关门", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false }
+                            ],
+                            explanation: "火灾时应低姿逃生，用湿毛巾捂住口鼻防止吸入有毒烟雾。"
+                        },
+                        {
+                            story: "你低姿前进，发现扶梯口挤满了人，扶梯停运了，有人踩空摔倒...",
+                            options: [
+                                { text: "转身寻找楼梯间，走消防楼梯有序撤离", isCorrect: true },
+                                { text: "挤上扶梯，抓着扶手往上爬", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false },
+                                { text: "大声喊叫找人帮忙", isCorrect: false }
+                            ],
+                            explanation: "火灾时扶梯口拥挤容易踩踏，应找消防楼梯间。"
+                        },
+                        {
+                            story: "你跑到消防楼梯间，听到身后有人呼救——一位坐轮椅的老人被遗忘在浓烟中！",
+                            options: [
+                                { text: "快速返回，将老人推到楼梯间", isCorrect: true },
+                                { text: "继续往上跑，自己先到安全地方", isCorrect: false },
+                                { text: "大声喊叫找人帮忙", isCorrect: false },
+                                { text: "把老人留在原地", isCorrect: false }
+                            ],
+                            explanation: "火灾中发现需要帮助的人，应伸出援手，至少带到安全地方等待救援。"
+                        },
+                        {
+                            story: "你帮助老人撤离到一楼，大门被人群堵住。旁边墙上有消防通道标志指向一扇小门...",
+                            options: [
+                                { text: "带老人走旁边的小门消防通道", isCorrect: true },
+                                { text: "继续挤在大门口等", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false },
+                                { text: "直接从窗户爬出去", isCorrect: false }
+                            ],
+                            explanation: "火灾逃生时应冷静寻找其他安全出口或消防通道。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "周末下午，地下商场人来人往。突然，刺耳的警报声响彻整个商场！广播反复播报：'商场发生火灾，请有序撤离！'浓烟开始从B2层楼梯间涌出，人群惊慌失措地涌向出口。你被人群推搡着，感到呼吸越来越困难，视线模糊...",
+                            options: [
+                                { text: "用湿毛巾或衣物捂住口鼻，弯腰低姿冷静寻找安全出口标志", isCorrect: true },
+                                { text: "跟着人群一起跑，人多的地方肯定安全", isCorrect: false },
+                                { text: "躲进附近的店铺关门", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "大声喊叫求救", isCorrect: false }
+                            ],
+                            explanation: "火灾时浓烟会向上飘散，应低姿逃生。不要盲目跟随人流。"
+                        },
+                        {
+                            story: "你低姿前进，发现通往地面的扶梯口挤满了人，场面非常混乱。有人试图往上跑，但扶梯已经停运了，变成了一个巨大的楼梯。有人踩空摔倒了，后面的人差点踩上去...",
+                            options: [
+                                { text: "转身寻找楼梯间，走消防楼梯有序撤离", isCorrect: true },
+                                { text: "挤上扶梯，抓着扶手往上爬", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false },
+                                { text: "大声喊叫找人帮忙", isCorrect: false },
+                                { text: "从扶梯侧面爬上去", isCorrect: false }
+                            ],
+                            explanation: "火灾时扶梯口人群拥挤容易发生踩踏。应转身寻找消防楼梯间。"
+                        },
+                        {
+                            story: "你跑到了消防楼梯间，这里人少很多。正往上跑时，你听到身后有人微弱的呼救声——一位坐轮椅的老人被遗忘在了浓烟中！",
+                            options: [
+                                { text: "快速返回，将老人推到楼梯间，两人协力抬轮椅上楼", isCorrect: true },
+                                { text: "继续往上跑，自己先到安全的地方", isCorrect: false },
+                                { text: "大声喊叫找人帮忙", isCorrect: false },
+                                { text: "把老人留在原地", isCorrect: false },
+                                { text: "自己跑上去叫人", isCorrect: false }
+                            ],
+                            explanation: "火灾中发现需要帮助的人，在自身能力允许的情况下应伸出援手。"
+                        },
+                        {
+                            story: "你帮助老人撤离到一楼，发现大门被人群堵得水泄不通。身后的浓烟越来越近，老人已经开始咳嗽。你急得满头大汗，这时你注意到旁边墙上有一个消防通道标志，指向一扇较小的门...",
+                            options: [
+                                { text: "带老人走旁边的小门消防通道，那里人少", isCorrect: true },
+                                { text: "继续挤在大门口等，人这么多总能出去", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false },
+                                { text: "直接从窗户爬出去", isCorrect: false },
+                                { text: "打开卷帘门出去", isCorrect: false }
+                            ],
+                            explanation: "火灾逃生时不要盲目跟随拥挤的人群，应冷静寻找其他安全出口。"
+                        },
+                        {
+                            story: "你推着老人冲出了消防通道的门！新鲜空气涌入肺部，你大口喘息着。外面已经有消防员和救护车在待命，消防员接过轮椅，将老人送上救护车。你瘫坐在地上，终于安全了...",
+                            options: [
+                                { text: "向消防员说明商场内还有人没出来，提供你看到的情况", isCorrect: true },
+                                { text: "赶紧离开，不关自己的事了", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "跑到安全地方休息", isCorrect: false },
+                                { text: "问消防员要电话", isCorrect: false }
+                            ],
+                            explanation: "安全脱险后，应向消防员提供商场内的情况。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "被困电梯",
+                icon: "🛗",
+                brief: "电梯突然停在楼层之间，灯光熄灭...",
+                rules: [
+                    "被困电梯时按下紧急按钮，安静等待专业人员救援",
+                    "切勿强行扒开电梯门，以免造成坠落",
+                    "不要在电梯内跳跃或剧烈晃动",
+                    "保持冷静，保存体力",
+                    "如果手机有信号，拨打救援电话或联系物业"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "电梯突然停在楼层之间，灯光熄灭...",
+                            options: [
+                                { text: "按下紧急呼叫按钮，安静等待", isCorrect: true },
+                                { text: "用力扒开电梯门缝看看", isCorrect: false },
+                                { text: "大声喊叫求救", isCorrect: false }
+                            ],
+                            explanation: "被困电梯时切勿强行扒门，应按下紧急按钮等待救援。"
+                        },
+                        {
+                            story: "等待了很久没人回应，有人提议大家一起跳一跳...",
+                            options: [
+                                { text: "拒绝跳跃，靠墙坐下保存体力", isCorrect: true },
+                                { text: "同意试试跳跃", isCorrect: false },
+                                { text: "来回走动", isCorrect: false }
+                            ],
+                            explanation: "电梯内跳跃非常危险，可能导致电梯坠落。"
+                        },
+                        {
+                            story: "你听到外面有人走动，想呼救...",
+                            options: [
+                                { text: "有节奏地轻敲电梯门", isCorrect: true },
+                                { text: "用力拍打电梯门大声喊叫", isCorrect: false },
+                                { text: "用脚踢门", isCorrect: false }
+                            ],
+                            explanation: "有节奏地敲击更有效，能让救援人员定位。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "电梯突然停在12楼和13楼之间，灯光熄灭。你掏出手机打开手电筒，电梯似乎在轻微晃动...",
+                            options: [
+                                { text: "按下紧急呼叫按钮，保持冷静安静等待", isCorrect: true },
+                                { text: "用力扒开电梯门缝，看看外面是几楼", isCorrect: false },
+                                { text: "大声喊叫求救", isCorrect: false },
+                                { text: "按所有楼层按钮", isCorrect: false }
+                            ],
+                            explanation: "被困电梯时切勿强行扒门，电梯可能停在楼层之间，非常危险。"
+                        },
+                        {
+                            story: "等待了十几分钟，紧急呼叫按钮没人回应。旁边的人提议大家一起跳一跳让电梯恢复...",
+                            options: [
+                                { text: "拒绝跳跃，建议大家靠墙坐下来保存体力", isCorrect: true },
+                                { text: "同意试试跳跃", isCorrect: false },
+                                { text: "来回走动", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false }
+                            ],
+                            explanation: "电梯内跳跃或剧烈晃动非常危险，可能导致电梯脱离导轨坠落。"
+                        },
+                        {
+                            story: "又过了半小时，你听到外面有人走动的声音，声音断断续续...",
+                            options: [
+                                { text: "有节奏地轻敲电梯门，每隔一段时间敲三下", isCorrect: true },
+                                { text: "用力拍打电梯门，拼命大声喊叫", isCorrect: false },
+                                { text: "用脚踢门", isCorrect: false },
+                                { text: "用手机播放音乐", isCorrect: false }
+                            ],
+                            explanation: "持续大声呼救会消耗体力，有节奏地敲击更有效。"
+                        },
+                        {
+                            story: "维修人员回应说正在维修，大约还要20分钟！电梯里越来越闷热...",
+                            options: [
+                                { text: "安静坐好，深呼吸，减少活动量等待", isCorrect: true },
+                                { text: "把门缝扒开一点缝隙透气", isCorrect: false },
+                                { text: "用力拍打电梯门催促", isCorrect: false },
+                                { text: "脱掉外套散热", isCorrect: false }
+                            ],
+                            explanation: "电梯并非完全密闭不会缺氧，扒开门非常危险。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "你乘坐的电梯正从1楼上升，突然在12楼和13楼之间停了下来。灯光剧烈闪烁了几下后完全熄灭，电梯内一片漆黑。你掏出手机打开手电筒，发现电梯面板上的数字在乱跳。电梯似乎在轻微晃动，发出令人不安的嗡嗡声...",
+                            options: [
+                                { text: "按下紧急呼叫按钮，保持冷静安静等待", isCorrect: true },
+                                { text: "用力扒开电梯门缝，看看外面是几楼", isCorrect: false },
+                                { text: "大声喊叫求救", isCorrect: false },
+                                { text: "按所有楼层按钮", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false }
+                            ],
+                            explanation: "被困电梯时切勿强行扒门，电梯可能停在楼层之间，非常危险。"
+                        },
+                        {
+                            story: "你在黑暗中等待了十几分钟，电梯还是没有动静。紧急呼叫按钮按了好几次都没人回应。你感到越来越焦虑，心跳加速，额头冒汗。旁边的人提议大家一起跳一跳，看看能不能让电梯恢复...",
+                            options: [
+                                { text: "拒绝跳跃，建议大家一起靠墙坐下来保存体力", isCorrect: true },
+                                { text: "同意试试跳跃，反正也没别的办法", isCorrect: false },
+                                { text: "来回走动", isCorrect: false },
+                                { text: "用手机播放音乐缓解紧张", isCorrect: false },
+                                { text: "用力拍打电梯门", isCorrect: false }
+                            ],
+                            explanation: "在电梯内跳跃或剧烈晃动非常危险！可能导致电梯脱离导轨坠落。"
+                        },
+                        {
+                            story: "又过了半小时，你听到外面似乎有人走动的声音和说话声！你兴奋地想要大声呼救，但声音断断续续，似乎在很远的地方...",
+                            options: [
+                                { text: "有节奏地轻敲电梯门，每隔一段时间敲三下", isCorrect: true },
+                                { text: "用力拍打电梯门，拼命大声喊叫", isCorrect: false },
+                                { text: "用脚踢门", isCorrect: false },
+                                { text: "用手机播放音乐", isCorrect: false },
+                                { text: "按所有楼层按钮", isCorrect: false }
+                            ],
+                            explanation: "持续大声呼救会快速消耗体力，有节奏地敲击更有效。"
+                        },
+                        {
+                            story: "你的敲击终于有了回应！外面传来维修人员的声音：'里面的人不要慌，我们正在维修，大约还要20分钟！'你松了一口气，但电梯里越来越闷热，空气似乎在变少...",
+                            options: [
+                                { text: "安静坐好，深呼吸，减少活动量，耐心等待", isCorrect: true },
+                                { text: "把门缝扒开一点缝隙透气", isCorrect: false },
+                                { text: "用力拍打电梯门催促", isCorrect: false },
+                                { text: "脱掉外套散热", isCorrect: false },
+                                { text: "打开手机手电筒照", isCorrect: false }
+                            ],
+                            explanation: "电梯并非完全密闭不会缺氧，扒开门非常危险。"
+                        },
+                        {
+                            story: "终于，你感觉到电梯微微震动了一下，灯光闪了几闪后恢复了！电梯缓缓下降，平稳地停在了12楼。门打开了，维修人员和物业经理站在门口，向你道歉...",
+                            options: [
+                                { text: "确认自己没有受伤后离开，事后向物业反映加强维保", isCorrect: true },
+                                { text: "立刻冲出电梯，再也不坐电梯了", isCorrect: false },
+                                { text: "和维修人员理论", isCorrect: false },
+                                { text: "用手机拍视频记录", isCorrect: false },
+                                { text: "直接回家", isCorrect: false }
+                            ],
+                            explanation: "安全出梯后应检查自身状况，事后向物业反映加强维保。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "荒野露营",
+                icon: "⛺",
+                brief: "深山露营遇到雷雨天气...",
+                rules: [
+                    "雷暴天气时远离大树和金属物体",
+                    "迷路时不要盲目乱走，保持原地等待救援",
+                    "遇到毒蛇时不要惊动，慢慢后退离开",
+                    "生火时确保周围没有可燃物，注意防火",
+                    "野外受伤时先用清水冲洗伤口，简单包扎"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "你们在深山露营，傍晚天空乌云密布，雷声越来越近。扎营处紧挨着大树，地上散落金属帐篷杆...",
+                            options: [
+                                { text: "远离大树和金属用具，到低洼处蹲下", isCorrect: true },
+                                { text: "躲到大树下避雨", isCorrect: false },
+                                { text: "赶紧收拾东西离开", isCorrect: false }
+                            ],
+                            explanation: "雷暴天气应远离大树和金属物体，它们容易引雷。"
+                        },
+                        {
+                            story: "雷暴引发山洪，帐篷被冲走。雨停后你们迷路了，手机只有一格信号...",
+                            options: [
+                                { text: "留在原地，用手机发送定位求救", isCorrect: true },
+                                { text: "分头寻找出路", isCorrect: false },
+                                { text: "往高处走", isCorrect: false }
+                            ],
+                            explanation: "野外迷路时不要分头行动，应留在原地等待救援。"
+                        },
+                        {
+                            story: "第二天你们寻找出路，发现前方草丛中有一条蛇...",
+                            options: [
+                                { text: "立刻停下不动，慢慢后退离开", isCorrect: true },
+                                { text: "捡起石头扔过去驱赶它", isCorrect: false },
+                                { text: "绕路走", isCorrect: false }
+                            ],
+                            explanation: "遇到毒蛇时不要惊动它，慢慢后退离开。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "你和朋友在深山露营，傍晚时分正在帐篷外生火做饭。突然天空乌云密布，远处传来隆隆雷声，越来越近。你们扎营的地方紧挨着一棵大树，地上散落着金属帐篷杆和炊具...",
+                            options: [
+                                { text: "立即远离大树和金属用具，到低洼处蹲下双脚并拢", isCorrect: true },
+                                { text: "躲到大树下避雨，收拾金属用具", isCorrect: false },
+                                { text: "赶紧收拾东西离开", isCorrect: false },
+                                { text: "躲进帐篷里", isCorrect: false }
+                            ],
+                            explanation: "雷暴天气时应远离大树和金属物体，它们容易引雷。"
+                        },
+                        {
+                            story: "雷暴引发了山洪，暴雨冲走了你们的帐篷和大部分装备。等雨停了，你们发现周围的路全被淹了，完全不认识方向。手机只有一格信号，时有时无...",
+                            options: [
+                                { text: "留在原地，用手机尝试发出定位求救，搭建临时庇护所", isCorrect: true },
+                                { text: "分头寻找出路，扩大搜索范围", isCorrect: false },
+                                { text: "往高处走", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false }
+                            ],
+                            explanation: "野外迷路时不要分头行动，应留在原地等待救援。"
+                        },
+                        {
+                            story: "第二天清晨，你们沿溪流方向寻找出路。突然，你发现前方草丛中有一条翠绿色的蛇正在游动，距离你只有两三步远！",
+                            options: [
+                                { text: "立刻停下不动，然后慢慢后退离开，不要惊动它", isCorrect: true },
+                                { text: "捡起地上的石头扔过去驱赶它", isCorrect: false },
+                                { text: "绕路走", isCorrect: false },
+                                { text: "大声喊叫吓走它", isCorrect: false }
+                            ],
+                            explanation: "遇到毒蛇时切勿惊慌，不要驱赶或攻击它。"
+                        },
+                        {
+                            story: "你们继续前进，朋友踩到湿滑苔藓摔倒，小腿被石头划了一道深深的口子，鲜血直往外流...",
+                            options: [
+                                { text: "用清水冲洗伤口，用干净衣物按压止血并简单包扎", isCorrect: true },
+                                { text: "赶紧用止血带紧紧扎住大腿根部", isCorrect: false },
+                                { text: "用泥土覆盖伤口", isCorrect: false },
+                                { text: "用树叶包扎", isCorrect: false }
+                            ],
+                            explanation: "野外受伤时先用清水冲洗伤口，用干净布料按压止血简单包扎。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "你和朋友在深山露营，傍晚时分正在帐篷外生火做饭。突然天空乌云密布，远处传来隆隆雷声，越来越近。你们扎营的地方紧挨着一棵大树，地上散落着金属帐篷杆和炊具，雷声已经近在咫尺...",
+                            options: [
+                                { text: "立即远离大树和金属用具，到低洼处蹲下双脚并拢", isCorrect: true },
+                                { text: "躲到大树下避雨，收拾金属用具", isCorrect: false },
+                                { text: "赶紧收拾东西离开", isCorrect: false },
+                                { text: "躲进帐篷里", isCorrect: false },
+                                { text: "往高处跑", isCorrect: false }
+                            ],
+                            explanation: "雷暴天气时应远离大树和金属物体，它们容易引雷。"
+                        },
+                        {
+                            story: "雷暴引发了山洪，暴雨冲走了你们的帐篷和大部分装备。等雨停了，你们发现周围的路全被淹了，完全不认识方向。手机只有一格信号，时有时无...",
+                            options: [
+                                { text: "留在原地，用手机尝试发出定位求救，搭建临时庇护所", isCorrect: true },
+                                { text: "分头寻找出路，扩大搜索范围", isCorrect: false },
+                                { text: "往高处走", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "沿溪流往下游走", isCorrect: false }
+                            ],
+                            explanation: "野外迷路时不要分头行动，应留在原地等待救援。"
+                        },
+                        {
+                            story: "第二天清晨，你们沿溪流方向寻找出路。突然，你发现前方草丛中有一条翠绿色的蛇正在游动，距离你只有两三步远！它的头部微微抬起，似乎感知到了你的存在...",
+                            options: [
+                                { text: "立刻停下不动，然后慢慢后退离开，不要惊动它", isCorrect: true },
+                                { text: "捡起地上的石头扔过去驱赶它", isCorrect: false },
+                                { text: "绕路走", isCorrect: false },
+                                { text: "大声喊叫吓走它", isCorrect: false },
+                                { text: "直接跑过去", isCorrect: false }
+                            ],
+                            explanation: "遇到毒蛇时切勿惊慌，不要驱赶或攻击它。"
+                        },
+                        {
+                            story: "你们继续前进，你的朋友踩到了湿滑的苔藓，脚一滑摔倒了！他的小腿被锐利的石头划了一道深深的口子，鲜血直往外流...",
+                            options: [
+                                { text: "用清水冲洗伤口，用干净衣物按压止血并简单包扎", isCorrect: true },
+                                { text: "赶紧用止血带紧紧扎住大腿根部", isCorrect: false },
+                                { text: "用泥土覆盖伤口", isCorrect: false },
+                                { text: "用树叶包扎", isCorrect: false },
+                                { text: "让他自己走", isCorrect: false }
+                            ],
+                            explanation: "野外受伤时先用清水冲洗伤口，用干净布料按压止血简单包扎。"
+                        },
+                        {
+                            story: "处理完伤口后，你们听到了远处直升机的声音！你们兴奋极了，但它似乎在另一座山头搜索...",
+                            options: [
+                                { text: "到开阔地用鲜艳衣物或反光物有规律地挥舞", isCorrect: true },
+                                { text: "大声喊叫，用石头敲击树木制造声响", isCorrect: false },
+                                { text: "跑到山顶上去", isCorrect: false },
+                                { text: "用手机手电筒照", isCorrect: false },
+                                { text: "放信号弹", isCorrect: false }
+                            ],
+                            explanation: "直升机噪音很大，应到开阔地带用鲜艳衣物有规律地挥舞。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "高速公路",
+                icon: "🛣️",
+                brief: "高速路上突遇紧急情况...",
+                rules: [
+                    "车辆爆胎时握紧方向盘，缓慢减速，不要急刹车",
+                    "大雾天气开启雾灯和示廓灯，保持安全距离",
+                    "前车急刹时立即刹车并鸣笛提醒后车",
+                    "遇到事故时立即撤离到护栏外，不要留在车内",
+                    "高速上不要随意变道，变道前提前打转向灯"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "你在高速行驶，突然感觉车身剧烈抖动，方向盘变得沉重——右前轮胎爆了！",
+                            options: [
+                                { text: "紧握方向盘保持直行，缓慢松油门减速", isCorrect: true },
+                                { text: "猛踩刹车尽快停下", isCorrect: false },
+                                { text: "赶紧打方向盘变道", isCorrect: false }
+                            ],
+                            explanation: "高速爆胎时猛踩刹车会导致车辆失控翻滚。"
+                        },
+                        {
+                            story: "你遇到了浓雾，能见度不足30米，前车尾灯若隐若现...",
+                            options: [
+                                { text: "开启雾灯和近光灯，降速行驶", isCorrect: true },
+                                { text: "开启双闪灯，跟紧前车尾灯", isCorrect: false },
+                                { text: "打开远光灯", isCorrect: false }
+                            ],
+                            explanation: "大雾天气应开启雾灯和近光灯，降低车速保持安全距离。"
+                        },
+                        {
+                            story: "前方发生追尾事故，你的车停在了行车道上...",
+                            options: [
+                                { text: "迅速将车驶离到应急车道，人员撤离到护栏外", isCorrect: true },
+                                { text: "下车查看情况，在车旁等待", isCorrect: false },
+                                { text: "在车内等待", isCorrect: false }
+                            ],
+                            explanation: "高速事故后应迅速移到应急车道，人员撤离到护栏外。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "你正以120km/h的速度在高速最内侧车道行驶，突然感觉车身剧烈抖动，方向盘变得异常沉重，车身不受控制地向右偏移！你的右前轮胎爆了——在高速上！",
+                            options: [
+                                { text: "双手紧握方向盘保持直行，缓慢松油门减速，安全变道到应急车道", isCorrect: true },
+                                { text: "猛踩刹车尽快停下", isCorrect: false },
+                                { text: "赶紧打方向盘变道", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false }
+                            ],
+                            explanation: "高速爆胎时猛踩刹车会导致车辆失控翻滚。"
+                        },
+                        {
+                            story: "你安全停在应急车道，换好备胎后重新上路，但遇到了浓雾，能见度急剧下降到不足30米...",
+                            options: [
+                                { text: "开启雾灯和近光灯，降速行驶，拉大跟车距离", isCorrect: true },
+                                { text: "开启双闪灯，跟紧前车尾灯以免走错路", isCorrect: false },
+                                { text: "打开远光灯", isCorrect: false },
+                                { text: "继续保持原速行驶", isCorrect: false }
+                            ],
+                            explanation: "大雾天气应开启雾灯和近光灯，降低车速保持安全距离。"
+                        },
+                        {
+                            story: "雾散了继续赶路，前方100米处两辆车发生追尾事故！前车急刹，你的车勉强停下但停在了行车道上...",
+                            options: [
+                                { text: "迅速将车驶离到应急车道，人员撤离到护栏外，报警求助", isCorrect: true },
+                                { text: "下车查看情况，在车旁等待处理", isCorrect: false },
+                                { text: "在车内等待", isCorrect: false },
+                                { text: "赶紧把车开离现场", isCorrect: false }
+                            ],
+                            explanation: "高速事故后千万不要留在车内或车旁！"
+                        },
+                        {
+                            story: "你站在护栏外等待交警时，看到后方一辆大货车似乎刹车不及，正朝事故现场冲来！",
+                            options: [
+                                { text: "向护栏外更远处躲避，远离车道方向", isCorrect: true },
+                                { text: "跑回车旁启动车辆开走", isCorrect: false },
+                                { text: "挥手示意货车停下", isCorrect: false },
+                                { text: "向车后跑去", isCorrect: false }
+                            ],
+                            explanation: "后方有车辆冲来时，应向护栏外更远处躲避。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "你正以120km/h的速度在高速最内侧车道行驶，突然感觉车身剧烈抖动，方向盘变得异常沉重，车身不受控制地向右偏移！你的右前轮胎爆了——在高速上！周围车辆呼啸而过...",
+                            options: [
+                                { text: "双手紧握方向盘保持直行，缓慢松油门减速，安全变道到应急车道", isCorrect: true },
+                                { text: "猛踩刹车尽快停下", isCorrect: false },
+                                { text: "赶紧打方向盘变道", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false },
+                                { text: "拉手刹", isCorrect: false }
+                            ],
+                            explanation: "高速爆胎时猛踩刹车会导致车辆失控翻滚。"
+                        },
+                        {
+                            story: "你安全停在应急车道，打开双闪放好三角警示牌。换好备胎后重新上路，但没过多久遇到了浓雾，能见度急剧下降到不足30米。前车的尾灯若隐若现，你几乎看不清路面标线...",
+                            options: [
+                                { text: "开启雾灯和近光灯，降速行驶，拉大跟车距离", isCorrect: true },
+                                { text: "开启双闪灯，跟紧前车尾灯以免走错路", isCorrect: false },
+                                { text: "打开远光灯", isCorrect: false },
+                                { text: "继续保持原速行驶", isCorrect: false },
+                                { text: "找服务区停车", isCorrect: false }
+                            ],
+                            explanation: "大雾天气应开启雾灯和近光灯，降低车速保持安全距离。"
+                        },
+                        {
+                            story: "雾散了，你松了口气继续赶路。突然，前方100米处两辆车发生追尾事故，碎片散落一地！前车急刹，你紧急踩下刹车，车子在尖锐的刹车声中勉强停下。但你的车停在了行车道上...",
+                            options: [
+                                { text: "迅速将车驶离到应急车道，人员撤离到护栏外，报警求助", isCorrect: true },
+                                { text: "下车查看情况，在车旁等待处理", isCorrect: false },
+                                { text: "在车内等待", isCorrect: false },
+                                { text: "赶紧把车开离现场", isCorrect: false },
+                                { text: "下车拍照取证", isCorrect: false }
+                            ],
+                            explanation: "高速事故后千万不要留在车内或车旁！"
+                        },
+                        {
+                            story: "你站在护栏外等待交警时，看到后方一辆大货车似乎刹车不及，正朝事故现场冲来！你的车还停在应急车道上...",
+                            options: [
+                                { text: "向护栏外更远处躲避，远离车道方向", isCorrect: true },
+                                { text: "跑回车旁启动车辆开走", isCorrect: false },
+                                { text: "挥手示意货车停下", isCorrect: false },
+                                { text: "向车后跑去", isCorrect: false },
+                                { text: "躲进旁边的车", isCorrect: false }
+                            ],
+                            explanation: "后方有车辆冲来时，应向护栏外更远处躲避。"
+                        },
+                        {
+                            story: "大货车在最后一刻避开了，虽然又撞上了护栏但没有造成人员伤亡。交警和救援很快到达现场，指挥交通恢复秩序。你惊魂未定地坐在护栏外...",
+                            options: [
+                                { text: "等情绪平复后，在交警指引下安全驶离，之后找时间做车辆全面检查", isCorrect: true },
+                                { text: "立刻驾车离开，不想再待一分钟", isCorrect: false },
+                                { text: "和其他司机理论", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "直接回家", isCorrect: false }
+                            ],
+                            explanation: "经历高速事故后应等情绪平复再驾车。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "地铁",
+                icon: "🚇",
+                brief: "地铁内突发意外状况...",
+                rules: [
+                    "地铁停电时不要扒开车门，等待工作人员指示",
+                    "车厢内发生火灾时用灭火器灭火，按紧急按钮",
+                    "发生踩踏时双手抱头，顺着人流方向移动",
+                    "候车时站在安全线内，不要倚靠屏蔽门",
+                    "发现可疑物品时立即报告工作人员，不要触碰"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "地铁行驶中突然停电，车厢陷入黑暗。有人开始恐慌，试图扒开屏蔽门...",
+                            options: [
+                                { text: "保持冷静，等待广播通知", isCorrect: true },
+                                { text: "跟着一起扒门，早点出去", isCorrect: false },
+                                { text: "大声喊叫求救", isCorrect: false }
+                            ],
+                            explanation: "地铁停电时扒开车门非常危险，轨道可能有高压电。"
+                        },
+                        {
+                            story: "电力恢复后车门打开，你闻到焦糊味，有人喊'着火了'，人群涌向出口...",
+                            options: [
+                                { text: "用湿物捂住口鼻，弯腰低姿有序撤离", isCorrect: true },
+                                { text: "跟着人群拼命往出口挤", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false }
+                            ],
+                            explanation: "地铁火灾时应冷静有序撤离，用湿物捂住口鼻。"
+                        },
+                        {
+                            story: "站台疏散时人群突然拥挤，有人被推倒了，你感到身后巨大推力...",
+                            options: [
+                                { text: "双手抱头，顺着人流方向移动", isCorrect: true },
+                                { text: "逆着人流方向往回挤", isCorrect: false },
+                                { text: "蹲下来保护自己", isCorrect: false }
+                            ],
+                            explanation: "发生踩踏时切勿逆着人流移动，应双手抱头保护自己。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "早高峰，你挤在拥挤的地铁车厢里。列车行驶到两站之间时突然停电了，车厢陷入黑暗。有乘客开始恐慌，有人大喊'开门！'，有人试图扒开屏蔽门...",
+                            options: [
+                                { text: "保持冷静，劝阻扒门的人，等待广播通知", isCorrect: true },
+                                { text: "跟着一起扒门，早点出去比较好", isCorrect: false },
+                                { text: "大声喊叫求救", isCorrect: false },
+                                { text: "用手机手电筒照", isCorrect: false }
+                            ],
+                            explanation: "地铁停电时扒开车门非常危险，轨道可能有高压电。"
+                        },
+                        {
+                            story: "十分钟后电力恢复，列车驶入下一站。但车门刚打开，你闻到一股焦糊味——前方车厢在冒烟！有人喊'着火了'，人群开始恐慌性涌向出口...",
+                            options: [
+                                { text: "用手中的水瓶打湿衣物捂住口鼻，弯腰低姿沿墙有序撤离", isCorrect: true },
+                                { text: "跟着人群拼命往出口挤", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false }
+                            ],
+                            explanation: "地铁火灾时应冷静有序撤离，用湿物捂住口鼻。"
+                        },
+                        {
+                            story: "站台疏散过程中，前方人群突然剧烈拥挤！有人被推倒了，你感到身后巨大的推力，脚已经快站不稳了...",
+                            options: [
+                                { text: "双手交叉抱头，双臂护住胸部，顺着人流方向斜向移动寻找支撑物", isCorrect: true },
+                                { text: "逆着人流方向拼命往回挤", isCorrect: false },
+                                { text: "蹲下来保护自己", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false }
+                            ],
+                            explanation: "发生踩踏时切勿逆着人流移动，应双手抱头保护自己。"
+                        },
+                        {
+                            story: "你挤到站台柱子旁，死死抱住柱子稳住身体。人群渐渐疏散，你看到有人倒在站台上受伤了...",
+                            options: [
+                                { text: "在确保自身安全前提下，帮助伤者转移到安全区域", isCorrect: true },
+                                { text: "赶紧离开地铁站，太危险了", isCorrect: false },
+                                { text: "大声喊人帮忙", isCorrect: false },
+                                { text: "直接走掉", isCorrect: false }
+                            ],
+                            explanation: "踩踏事件后，在确保安全前提下应帮助受伤的人。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "早高峰，你挤在拥挤的地铁车厢里。列车行驶到两站之间时突然停电了，车厢陷入黑暗，空调停止运转。广播说临时停电正在处理。有乘客开始恐慌，有人大喊'开门！'，有人试图扒开屏蔽门...",
+                            options: [
+                                { text: "保持冷静，劝阻扒门的人，等待广播通知", isCorrect: true },
+                                { text: "跟着一起扒门，早点出去比较好", isCorrect: false },
+                                { text: "大声喊叫求救", isCorrect: false },
+                                { text: "用手机手电筒照", isCorrect: false },
+                                { text: "往车门处挤", isCorrect: false }
+                            ],
+                            explanation: "地铁停电时扒开车门非常危险！轨道可能有高压电。"
+                        },
+                        {
+                            story: "十分钟后电力恢复，列车缓缓驶入下一站。但车门刚打开，你就闻到了一股焦糊味——前方车厢似乎有什么在冒烟！有乘客喊'着火了'，人群开始恐慌性涌向出口...",
+                            options: [
+                                { text: "用手中的水瓶打湿衣物捂住口鼻，弯腰低姿沿墙有序撤离", isCorrect: true },
+                                { text: "跟着人群拼命往出口挤", isCorrect: false },
+                                { text: "往回跑找其他出口", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "在车厢里等", isCorrect: false }
+                            ],
+                            explanation: "地铁火灾时应冷静有序撤离，用湿物捂住口鼻。"
+                        },
+                        {
+                            story: "在站台疏散过程中，前方人群突然剧烈拥挤起来！有人被推倒了，你感到身后巨大的推力，脚已经快站不稳了...",
+                            options: [
+                                { text: "双手交叉抱头，双臂护住胸部，顺着人流方向斜向移动寻找支撑物", isCorrect: true },
+                                { text: "逆着人流方向拼命往回挤", isCorrect: false },
+                                { text: "蹲下来保护自己", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false },
+                                { text: "趴在地上", isCorrect: false }
+                            ],
+                            explanation: "发生踩踏时切勿逆着人流方向移动。"
+                        },
+                        {
+                            story: "你终于挤到了站台的柱子旁，死死抱住柱子稳住身体。人群渐渐疏散，你看到有人倒在站台上，似乎受伤了...",
+                            options: [
+                                { text: "在确保自身安全前提下，帮助伤者转移到安全区域，拨打急救电话", isCorrect: true },
+                                { text: "赶紧离开地铁站，太危险了", isCorrect: false },
+                                { text: "大声喊人帮忙", isCorrect: false },
+                                { text: "直接走掉", isCorrect: false },
+                                { text: "用手机拍视频", isCorrect: false }
+                            ],
+                            explanation: "踩踏事件后，在确保安全前提下应帮助受伤的人。"
+                        },
+                        {
+                            story: "急救人员到达现场，伤者得到了及时救治。地铁工作人员开始组织乘客有序离开车站。出站后你深吸一口气，平复着刚才紧张的心情...",
+                            options: [
+                                { text: "向地铁工作人员反映情况，建议改善应急预案，然后改乘其他交通工具", isCorrect: true },
+                                { text: "立刻坐下一班地铁走，不想耽误时间", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "直接回家", isCorrect: false },
+                                { text: "和工作人员理论", isCorrect: false }
+                            ],
+                            explanation: "经历突发事件后应向工作人员反映情况，帮助改善安全预案。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "海边",
+                icon: "🌊",
+                brief: "海边游玩遭遇突发危险...",
+                rules: [
+                    "遇到涨潮时立即撤离到高处，不要留恋物品",
+                    "发现鲨鱼时不要慌张，缓慢向岸边游",
+                    "被海浪卷走时保持冷静，尽量往岸边游",
+                    "海边岩石湿滑，行走时注意脚下",
+                    "不要在非游泳区游泳，注意救生员指示"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "你们在海边礁石区拍照，突然发现海水快速上涨，背包和鞋子还在下面礁石上...",
+                            options: [
+                                { text: "立即向岸边高处撤离，放弃背包和鞋子", isCorrect: true },
+                                { text: "赶紧下去拿背包和鞋子", isCorrect: false },
+                                { text: "沿着礁石往回走", isCorrect: false }
+                            ],
+                            explanation: "涨潮时海水上涨速度惊人，不要贪恋任何物品。"
+                        },
+                        {
+                            story: "你们回到岸边，发现一个小孩在深水区挣扎呼救，被离岸流卷走...",
+                            options: [
+                                { text: "呼叫旁人帮忙，找救生圈抛给小孩", isCorrect: true },
+                                { text: "直接跳下水去救人", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false }
+                            ],
+                            explanation: "离岸流力量极大，直接下水容易被一起卷走。"
+                        },
+                        {
+                            story: "你注意到远处海面出现异常水线，海水在快速退去...",
+                            options: [
+                                { text: "立即大喊'海啸来了！'，带领所有人往高处跑", isCorrect: true },
+                                { text: "好奇地走近去看露出的海底", isCorrect: false },
+                                { text: "继续待在原地", isCorrect: false }
+                            ],
+                            explanation: "海水快速退去露出大片海底是海啸来临的典型前兆！"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "你们在海边礁石区拍照玩耍，突然发现海水已经漫过了刚才站的礁石！水位快速上涨，背包和鞋子还放在下面礁石上...",
+                            options: [
+                                { text: "立即向岸边高处撤离，放弃背包和鞋子", isCorrect: true },
+                                { text: "赶紧下去拿背包和鞋子", isCorrect: false },
+                                { text: "沿着礁石往回走", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false }
+                            ],
+                            explanation: "涨潮时海水上涨速度惊人，不要贪恋任何物品。"
+                        },
+                        {
+                            story: "你们回到岸边，发现一个小孩在深水区挣扎呼救！他似乎被离岸流卷走了，越挣扎离岸越远。周围没有救生员...",
+                            options: [
+                                { text: "呼叫旁人帮忙，找救生圈或漂浮物抛给小孩", isCorrect: true },
+                                { text: "直接跳下水去把小孩拉回来", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false },
+                                { text: "自己游过去救", isCorrect: false }
+                            ],
+                            explanation: "离岸流力量极大，直接下水容易被一起卷走。"
+                        },
+                        {
+                            story: "有人找到了救生圈抛给小孩，小孩抓住了！但离岸流还在把他往外推...",
+                            options: [
+                                { text: "沿着海岸线平行方向游过去，绕过离岸流后再把小孩带回", isCorrect: true },
+                                { text: "正对着小孩的方向游过去拉他", isCorrect: false },
+                                { text: "继续抛救生圈", isCorrect: false },
+                                { text: "大声喊叫指挥", isCorrect: false }
+                            ],
+                            explanation: "离岸流是垂直于海岸的强水流，正对它游是游不回来的。"
+                        },
+                        {
+                            story: "你成功把小孩带回浅水区！这时你注意到远处海面出现异常水线，海水在快速退去，露出了大片平时在水下的沙滩...",
+                            options: [
+                                { text: "立即大喊'海啸来了！'，带领所有人往高处跑", isCorrect: true },
+                                { text: "好奇地走近去看露出的海底", isCorrect: false },
+                                { text: "继续待在原地", isCorrect: false },
+                                { text: "用手机拍视频", isCorrect: false }
+                            ],
+                            explanation: "海水快速退去露出大片海底是海啸来临的典型前兆！"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "暑假，你和朋友在海边礁石区拍照玩耍。你们玩得正开心，突然发现海水已经漫过了刚才站的那块礁石！水位在快速上涨，你的背包和鞋子还放在下面一块礁石上...",
+                            options: [
+                                { text: "立即向岸边高处撤离，放弃背包和鞋子", isCorrect: true },
+                                { text: "赶紧下去拿背包和鞋子，然后再上来", isCorrect: false },
+                                { text: "沿着礁石往回走", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "站在原地等退潮", isCorrect: false }
+                            ],
+                            explanation: "涨潮时海水上涨速度惊人，不要贪恋任何物品。"
+                        },
+                        {
+                            story: "你们回到岸边，发现一个小孩在深水区挣扎呼救！他似乎被离岸流（暗流）卷走了，越挣扎离岸越远。周围没有救生员...",
+                            options: [
+                                { text: "呼叫旁人帮忙，找救生圈或漂浮物抛给小孩，拨打海上救援电话", isCorrect: true },
+                                { text: "直接跳下水去把小孩拉回来", isCorrect: false },
+                                { text: "大声喊叫", isCorrect: false },
+                                { text: "自己游过去救", isCorrect: false },
+                                { text: "用手机拍视频", isCorrect: false }
+                            ],
+                            explanation: "离岸流力量极大，直接下水容易被一起卷走。"
+                        },
+                        {
+                            story: "在你的指挥下，有人找到了救生圈抛给小孩，小孩抓住了！但离岸流还在把他往外推。你需要想办法把小孩拉回来...",
+                            options: [
+                                { text: "沿着海岸线平行方向游过去，绕过离岸流后再把小孩带回", isCorrect: true },
+                                { text: "正对着小孩的方向游过去拉他", isCorrect: false },
+                                { text: "继续抛救生圈", isCorrect: false },
+                                { text: "大声喊叫指挥", isCorrect: false },
+                                { text: "找长绳子拉", isCorrect: false }
+                            ],
+                            explanation: "离岸流是垂直于海岸的强水流，正对它游是游不回来的。"
+                        },
+                        {
+                            story: "你成功把小孩带回了浅水区！他呛了几口水但意识清醒。这时你注意到远处海面出现一道异常的水线，海水在快速退去，露出了大片平时在水下的沙滩...",
+                            options: [
+                                { text: "立即大喊'海啸来了！'，带领所有人往高处跑", isCorrect: true },
+                                { text: "好奇地走近去看露出的海底", isCorrect: false },
+                                { text: "继续待在原地", isCorrect: false },
+                                { text: "用手机拍视频", isCorrect: false },
+                                { text: "收拾东西离开", isCorrect: false }
+                            ],
+                            explanation: "海水快速退去露出大片海底是海啸来临的典型前兆！"
+                        },
+                        {
+                            story: "你们拼命跑上了海边的山坡。几分钟后，一道巨大的海浪冲上了海岸，淹没了刚才你们站的地方。等待了很久，海面终于恢复了平静...",
+                            options: [
+                                { text: "等待官方解除海啸警报后再下山，不要急于返回海滩", isCorrect: true },
+                                { text: "看海面平静了就赶紧下山回去", isCorrect: false },
+                                { text: "跑到山顶去", isCorrect: false },
+                                { text: "用手机拍视频发朋友圈", isCorrect: false },
+                                { text: "直接回家", isCorrect: false }
+                            ],
+                            explanation: "海啸可能有多次波浪，第一波过后不一定安全。"
+                        }
+                    ]
+                }
+            },
+            {
+                title: "厨房",
+                icon: "🍳",
+                brief: "厨房里发生意外...",
+                rules: [
+                    "油锅起火时立即盖上锅盖，不要用水浇",
+                    "燃气泄漏时关闭阀门，开窗通风，不要使用电器",
+                    "被烫伤时立即用冷水冲洗15分钟",
+                    "切菜时手指弯曲，刀垂直切下",
+                    "烹饪时不要离开厨房，防止食物烧焦"
+                ],
+                episodes: {
+                    easy: [
+                        {
+                            story: "你在厨房炒菜，油热了倒进锅里——'轰！'油锅突然着火了！你下意识想拿水浇灭...",
+                            options: [
+                                { text: "立即盖上锅盖隔绝空气，关闭燃气阀门", isCorrect: true },
+                                { text: "赶紧拿水壶倒水灭火", isCorrect: false },
+                                { text: "用湿毛巾盖上去", isCorrect: false }
+                            ],
+                            explanation: "油锅起火时绝对不能用水浇！应立即盖上锅盖隔绝空气。"
+                        },
+                        {
+                            story: "火灭了，你收拾灶台时闻到刺鼻的煤气味！燃气软管接口处有裂缝在嘶嘶漏气...",
+                            options: [
+                                { text: "先关闭燃气总阀门，打开窗户通风，然后到室外打电话", isCorrect: true },
+                                { text: "赶紧跑回客厅拿手机打电话", isCorrect: false },
+                                { text: "打开排风扇", isCorrect: false }
+                            ],
+                            explanation: "燃气泄漏时，任何电器开关都可能产生电火花引发爆炸！"
+                        },
+                        {
+                            story: "你端起刚烧开的热汤时手一滑，滚烫的汤洒出来！手腕和前臂被烫得通红...",
+                            options: [
+                                { text: "立即用冷水持续冲洗烫伤部位15分钟", isCorrect: true },
+                                { text: "赶紧涂牙膏或酱油缓解疼痛", isCorrect: false },
+                                { text: "用冰块敷", isCorrect: false }
+                            ],
+                            explanation: "烫伤后应立即用冷水冲洗，不要涂牙膏、酱油等。"
+                        }
+                    ],
+                    medium: [
+                        {
+                            story: "周末晚上，你在厨房炒菜。油热了，你把菜倒进锅里——'轰！'油锅突然着火了！火苗窜起半米高，热油四溅...",
+                            options: [
+                                { text: "立即盖上锅盖隔绝空气，关闭燃气阀门", isCorrect: true },
+                                { text: "赶紧拿水壶倒水灭火", isCorrect: false },
+                                { text: "用湿毛巾盖上去", isCorrect: false },
+                                { text: "用干粉灭火器", isCorrect: false }
+                            ],
+                            explanation: "油锅起火时绝对不能用水浇！水遇热油会瞬间汽化爆炸。"
+                        },
+                        {
+                            story: "火灭了，你收拾灶台时闻到刺鼻的煤气味！燃气软管接口处有裂缝在嘶嘶漏气。你想打电话给燃气公司报修，手机却在客厅...",
+                            options: [
+                                { text: "先关闭燃气总阀门，打开厨房窗户通风，然后到室外打电话", isCorrect: true },
+                                { text: "赶紧跑回客厅拿手机打电话", isCorrect: false },
+                                { text: "打开排风扇", isCorrect: false },
+                                { text: "用打火机检查漏气点", isCorrect: false }
+                            ],
+                            explanation: "燃气泄漏时，任何电器开关都可能产生电火花引发爆炸！"
+                        },
+                        {
+                            story: "处理完燃气泄漏，你继续做饭。端起刚烧开的热汤时手一滑，滚烫的汤洒了出来！你的手腕和前臂被烫得通红，火辣辣地疼...",
+                            options: [
+                                { text: "立即用冷水持续冲洗烫伤部位15-20分钟", isCorrect: true },
+                                { text: "赶紧涂牙膏或酱油缓解疼痛", isCorrect: false },
+                                { text: "用冰块敷", isCorrect: false },
+                                { text: "用红药水涂抹", isCorrect: false }
+                            ],
+                            explanation: "烫伤后应立即用冷水持续冲洗，不要涂牙膏、酱油等。"
+                        },
+                        {
+                            story: "冲洗完后，烫伤部位起了水泡。你用干净纱布覆盖，准备去医院。这时你发现厨房地面上有油渍没清理...",
+                            options: [
+                                { text: "先用纸巾擦去油渍防止滑倒，然后去医院", isCorrect: true },
+                                { text: "不管了，先去医院再说", isCorrect: false },
+                                { text: "用水冲洗地面", isCorrect: false },
+                                { text: "拖干净再走", isCorrect: false }
+                            ],
+                            explanation: "厨房地面油渍是重大安全隐患，应先清理再去医院。"
+                        }
+                    ],
+                    hard: [
+                        {
+                            story: "周末晚上，你在厨房炒菜。油热了，你把菜倒进锅里——'轰！'油锅突然着火了！火苗窜起半米高，热油四溅，厨房里瞬间充满了呛人的烟雾。你下意识想拿水浇灭...",
+                            options: [
+                                { text: "立即盖上锅盖隔绝空气，关闭燃气阀门", isCorrect: true },
+                                { text: "赶紧拿水壶倒水灭火", isCorrect: false },
+                                { text: "用湿毛巾盖上去", isCorrect: false },
+                                { text: "用干粉灭火器", isCorrect: false },
+                                { text: "打开窗户", isCorrect: false }
+                            ],
+                            explanation: "油锅起火时绝对不能用水浇！水遇热油会瞬间汽化爆炸。"
+                        },
+                        {
+                            story: "火灭了，你松了口气。但当你收拾灶台时，突然闻到一股刺鼻的煤气味！你循着气味检查，发现燃气软管接口处有一条裂缝，正在嘶嘶漏气。你想打电话给燃气公司报修，手机却在客厅...",
+                            options: [
+                                { text: "先关闭燃气总阀门，打开厨房窗户通风，然后到室外打电话", isCorrect: true },
+                                { text: "赶紧跑回客厅拿手机打电话", isCorrect: false },
+                                { text: "打开排风扇", isCorrect: false },
+                                { text: "用打火机检查漏气点", isCorrect: false },
+                                { text: "用肥皂水检查", isCorrect: false }
+                            ],
+                            explanation: "燃气泄漏时，任何电器开关都可能产生电火花引发爆炸！"
+                        },
+                        {
+                            story: "处理完燃气泄漏，你继续做饭。在端起刚烧开的热汤时，手一滑，滚烫的汤洒了出来！你的手腕和前臂被烫得通红，火辣辣地疼，你疼得直掉眼泪...",
+                            options: [
+                                { text: "立即用冷水持续冲洗烫伤部位15-20分钟", isCorrect: true },
+                                { text: "赶紧涂牙膏或酱油缓解疼痛", isCorrect: false },
+                                { text: "用冰块敷", isCorrect: false },
+                                { text: "用红药水涂抹", isCorrect: false },
+                                { text: "用面粉覆盖", isCorrect: false }
+                            ],
+                            explanation: "烫伤后应立即用冷水持续冲洗，不要涂牙膏、酱油等。"
+                        },
+                        {
+                            story: "冲洗完后，烫伤部位起了水泡。你用干净的纱布轻轻覆盖，准备去医院。这时你发现厨房地面上有油渍，刚才忙乱中没清理...",
+                            options: [
+                                { text: "先用纸巾擦去油渍防止滑倒，然后去医院", isCorrect: true },
+                                { text: "不管了，先去医院再说", isCorrect: false },
+                                { text: "用水冲洗地面", isCorrect: false },
+                                { text: "拖干净再走", isCorrect: false },
+                                { text: "直接踩过去", isCorrect: false }
+                            ],
+                            explanation: "厨房地面油渍是重大安全隐患，应先清理再去医院。"
+                        },
+                        {
+                            story: "从医院回来，你决定彻底检查厨房安全。你发现燃气软管已经老化变硬，灶台旁堆着易燃的纸袋，灭火器也过期了...",
+                            options: [
+                                { text: "更换燃气软管，清理灶台旁易燃物，换新灭火器，安装燃气报警器", isCorrect: true },
+                                { text: "软管还能用，先凑合着，下次再买灭火器", isCorrect: false },
+                                { text: "只换软管", isCorrect: false },
+                                { text: "只清理纸袋", isCorrect: false },
+                                { text: "什么都不做", isCorrect: false }
+                            ],
+                            explanation: "厨房安全不能侥幸凑合！老化软管随时可能泄漏引发爆炸。"
+                        }
+                    ]
+                }
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let shuffledQuizQuestions = [];
+
+        let matchingSelectedDisaster = null;
+        let matchingSelectedMeasure = null;
+        let matchingScore = 0;
+        let matchingTimeLeft = 60;
+        let matchingTimer = null;
+        let shuffledDisasters = [];
+        let shuffledMeasures = [];
+        let matchingData = [];
+
+        let horrorHealth = 3;
+        let horrorCorrectCount = 0;
+        let horrorCompletedScenes = [];
+        let currentHorrorSceneIndex = -1;
+        let currentHorrorEpisodeIndex = 0;
+        let lastChoiceWasCorrect = false;
+        let currentEpisodeOptions = [];
+
+        let playerName = '';
+        let currentLeaderboardTab = 'quiz';
+
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('login-message');
+            messageEl.textContent = text;
+            messageEl.className = `login-message ${type}`;
+            if (type === 'error') {
+                playSound('wrong');
+            } else if (type === 'success') {
+                playSound('correct');
+            }
+        }
+
+        function switchTab(tab) {
+            const registerTab = document.getElementById('register-tab');
+            const loginTab = document.getElementById('login-tab');
+            const registerForm = document.getElementById('register-form');
+            const loginForm = document.getElementById('login-form');
+            const messageEl = document.getElementById('login-message');
+
+            messageEl.className = 'login-message empty';
+            messageEl.textContent = '';
+
+            if (tab === 'register') {
+                registerTab.classList.add('active');
+                loginTab.classList.remove('active');
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            } else {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            }
+        }
+
+        function handleRegister() {
+            const username = document.getElementById('register-username').value.trim();
+            const password = document.getElementById('register-password').value.trim();
+
+            if (username.length === 0) {
+                showMessage('用户名不能为空！', 'error');
+                return;
+            }
+
+            if (password.length === 0) {
+                showMessage('密码不能为空！', 'error');
+                return;
+            }
+
+            if (username.length < 2) {
+                showMessage('用户名至少需要2个字符！', 'error');
+                return;
+            }
+
+            if (password.length < 4) {
+                showMessage('密码至少需要4个字符！', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('disasterGameUsers') || '{}');
+
+            if (users[username]) {
+                showMessage('用户名已存在，请换一个！', 'error');
+                return;
+            }
+
+            users[username] = {
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+
+            localStorage.setItem('disasterGameUsers', JSON.stringify(users));
+            showMessage('注册成功！请登录您的账号', 'success');
+
+            setTimeout(() => {
+                switchTab('login');
+                document.getElementById('login-username').value = username;
+                document.getElementById('login-password').focus();
+            }, 1000);
+        }
+
+        function handleLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+
+            if (username.length === 0) {
+                showMessage('请输入用户名！', 'error');
+                return;
+            }
+
+            if (password.length === 0) {
+                showMessage('请输入密码！', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('disasterGameUsers') || '{}');
+
+            if (!users[username]) {
+                showMessage('用户不存在，请先注册！', 'error');
+                return;
+            }
+
+            if (users[username].password !== password) {
+                showMessage('密码错误，请重新输入！', 'error');
+                return;
+            }
+
+            playerName = username;
+            localStorage.setItem('disasterGameCurrentPlayer', playerName);
+            showMessage('登录成功！', 'success');
+
+            setTimeout(() => {
+                switchScreen('menu-screen');
+                updateWelcomeMessage();
+            }, 500);
+        }
+
+        function updateWelcomeMessage() {
+            const title = document.querySelector('#menu-screen h1');
+            if (playerName) {
+                title.textContent = `${playerName}，欢迎来到应急灾害知识小游戏！`;
+            }
+        }
+
+        function showLeaderboard() {
+            switchScreen('leaderboard-screen');
+            loadLeaderboard('quiz');
+        }
+
+        function switchLeaderboardTab(type) {
+            currentLeaderboardTab = type;
+            document.querySelectorAll('.leaderboard-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            loadLeaderboard(type);
+        }
+
+        function loadLeaderboard(type) {
+            const content = document.getElementById('leaderboard-content');
+            const users = JSON.parse(localStorage.getItem('disasterGameUsers') || '{}');
+
+            const scores = [];
+            for (const [username, userData] of Object.entries(users)) {
+                const userScores = userData.scores || {};
+                let score = 0;
+                let scoreText = '';
+
+                if (type === 'quiz') {
+                    score = userScores.quiz || 0;
+                    scoreText = `${score}/10 分`;
+                } else if (type === 'matching') {
+                    score = userScores.matching || 0;
+                    scoreText = `${score}/8 对`;
+                } else if (type === 'horror') {
+                    score = userScores.horror || 0;
+                    scoreText = `${score}% 生存率`;
+                }
+
+                scores.push({
+                    score,
+                    scoreText
+                });
+            }
+
+            scores.sort((a, b) => b.score - a.score);
+
+            if (scores.length === 0) {
+                content.innerHTML = '<div class="leaderboard-empty">排行榜暂无记录</div>';
+                return;
+            }
+
+            content.innerHTML = scores.slice(0, 10).map((item, index) => {
+                const rank = index + 1;
+                let rankClass = 'rank-other';
+                if (rank === 1) rankClass = 'rank-1';
+                else if (rank === 2) rankClass = 'rank-2';
+                else if (rank === 3) rankClass = 'rank-3';
+
+                return `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank ${rankClass}">${rank}</div>
+                        <div class="leaderboard-name">第 ${rank} 名</div>
+                        <div class="leaderboard-score">${item.scoreText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveGameScore(gameType, score) {
+            if (!playerName) return;
+
+            const users = JSON.parse(localStorage.getItem('disasterGameUsers') || '{}');
+            if (!users[playerName]) return;
+
+            if (!users[playerName].scores) {
+                users[playerName].scores = {};
+            }
+
+            const currentBest = users[playerName].scores[gameType] || 0;
+            if (score > currentBest) {
+                users[playerName].scores[gameType] = score;
+                localStorage.setItem('disasterGameUsers', JSON.stringify(users));
+            }
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                oscillator.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'wrong') {
+                oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+                oscillator.frequency.setValueAtTime(150, audioCtx.currentTime + 0.15);
+                oscillator.frequency.setValueAtTime(100, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.45);
+            } else if (type === 'click') {
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'pop') {
+                oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
+            }
+        }
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function goToMenu() {
+            switchScreen('menu-screen');
+        }
+
+        function startGame(gameType) {
+            if (gameType === 'quiz') {
+                initQuiz();
+            } else if (gameType === 'matching') {
+                initMatching();
+            } else if (gameType === 'horror') {
+                initHorror();
+            }
+        }
+
+        function initQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            shuffledQuizQuestions = shuffleArray(quizQuestions);
+            switchScreen('quiz-screen');
+            loadQuizQuestion();
+        }
+
+        function loadQuizQuestion() {
+            const question = shuffledQuizQuestions[currentQuizIndex];
+            document.getElementById('quiz-number').textContent = `第 ${currentQuizIndex + 1}/${shuffledQuizQuestions.length} 题`;
+            document.getElementById('quiz-question').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.innerHTML = `<span class="letter">${option.charAt(0)}</span><span>${option.substring(3)}</span><span class="option-feedback"></span>`;
+                optionElement.onclick = () => selectQuizOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+
+            document.getElementById('quiz-explanation').classList.remove('active');
+            document.getElementById('quiz-next').style.display = 'none';
+            document.getElementById('quiz-result-badge').innerHTML = '';
+            document.getElementById('quiz-correct-answer').innerHTML = '';
+            
+            const progress = ((currentQuizIndex) / shuffledQuizQuestions.length) * 100;
+            document.getElementById('quiz-progress').style.width = `${progress}%`;
+        }
+
+        function selectQuizOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.onclick = null);
+            
+            const question = shuffledQuizQuestions[currentQuizIndex];
+            
+            if (index === question.answer) {
+                options[index].classList.add('correct');
+                options[index].classList.add('bounce');
+                options[index].querySelector('.option-feedback').textContent = '✓';
+                quizScore++;
+                playSound('correct');
+                
+                document.getElementById('quiz-result-badge').innerHTML = '<div class="result-badge correct">✅ 回答正确！太棒了！</div>';
+            } else {
+                options[index].classList.add('wrong');
+                options[index].classList.add('shake');
+                options[index].querySelector('.option-feedback').textContent = '✗';
+                options[question.answer].classList.add('correct');
+                options[question.answer].classList.add('pulse');
+                options[question.answer].querySelector('.option-feedback').textContent = '✓';
+                playSound('wrong');
+                
+                document.getElementById('quiz-result-badge').innerHTML = '<div class="result-badge wrong">❌ 回答错误</div>';
+                
+                const correctAnswerText = question.options[question.answer];
+                document.getElementById('quiz-correct-answer').innerHTML = 
+                    `<div class="correct-answer-display">💡 正确答案：${correctAnswerText}</div>`;
+            }
+            
+            document.getElementById('quiz-explanation-text').textContent = question.explanation;
+            document.getElementById('quiz-explanation').classList.add('active');
+            document.getElementById('quiz-next').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < shuffledQuizQuestions.length) {
+                loadQuizQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            switchScreen('quiz-result-screen');
+            document.getElementById('quiz-score').textContent = quizScore;
+
+            saveGameScore('quiz', quizScore);
+
+            const rating = document.getElementById('quiz-rating');
+            let ratingText = '';
+            let ratingClass = '';
+
+            if (quizScore === 10) {
+                ratingText = '🎉 完美！';
+                ratingClass = 'rating-perfect';
+            } else if (quizScore >= 8) {
+                ratingText = '👏 优秀！';
+                ratingClass = 'rating-excellent';
+            } else if (quizScore >= 6) {
+                ratingText = '👍 合格';
+                ratingClass = 'rating-good';
+            } else {
+                ratingText = '💪 需加油';
+                ratingClass = 'rating-poor';
+            }
+
+            rating.textContent = ratingText;
+            rating.className = `score-rating ${ratingClass}`;
+        }
+
+        function initMatching() {
+            matchingScore = 0;
+            matchingTimeLeft = 60;
+            matchingSelectedDisaster = null;
+            matchingSelectedMeasure = null;
+
+            const poolShuffled = shuffleArray(matchingPool);
+            matchingData = poolShuffled.slice(0, 8);
+
+            shuffledDisasters = matchingData.map(item => ({ ...item, id: item.disaster }));
+            shuffledMeasures = shuffleArray(matchingData.map(item => ({ ...item, id: item.measure })));
+
+            switchScreen('matching-screen');
+            renderMatchingItems();
+            startMatchingTimer();
+        }
+
+        function renderMatchingItems() {
+            const disastersContainer = document.getElementById('matching-disasters');
+            disastersContainer.innerHTML = '';
+            
+            shuffledDisasters.forEach((item, index) => {
+                const element = document.createElement('div');
+                element.className = 'matching-item';
+                element.dataset.index = index;
+                element.dataset.id = item.disaster;
+                element.textContent = item.disaster;
+                element.onclick = () => selectMatchingItem('disaster', index);
+                disastersContainer.appendChild(element);
+            });
+
+            const measuresContainer = document.getElementById('matching-measures');
+            measuresContainer.innerHTML = '';
+            
+            shuffledMeasures.forEach((item, index) => {
+                const element = document.createElement('div');
+                element.className = 'matching-item';
+                element.dataset.index = index;
+                element.dataset.id = item.disaster;
+                element.textContent = item.measure;
+                element.onclick = () => selectMatchingItem('measure', index);
+                measuresContainer.appendChild(element);
+            });
+        }
+
+        function selectMatchingItem(type, index) {
+            const items = document.querySelectorAll(`.matching-item`);
+            
+            if (type === 'disaster') {
+                matchingSelectedDisaster = { type, index, id: shuffledDisasters[index].disaster };
+                items.forEach(item => {
+                    if (item.dataset.index == index && item.parentElement.id === 'matching-disasters') {
+                        item.classList.add('selected');
+                    } else if (item.parentElement.id === 'matching-disasters') {
+                        item.classList.remove('selected');
+                    }
+                });
+            } else {
+                matchingSelectedMeasure = { type, index, id: shuffledMeasures[index].disaster };
+                items.forEach(item => {
+                    if (item.dataset.index == index && item.parentElement.id === 'matching-measures') {
+                        item.classList.add('selected');
+                    } else if (item.parentElement.id === 'matching-measures') {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            if (matchingSelectedDisaster && matchingSelectedMeasure) {
+                checkMatching();
+            }
+        }
+
+        function checkMatching() {
+            const disasterItem = document.querySelector(`#matching-disasters .matching-item[data-index="${matchingSelectedDisaster.index}"]`);
+            const measureItem = document.querySelector(`#matching-measures .matching-item[data-index="${matchingSelectedMeasure.index}"]`);
+
+            if (matchingSelectedDisaster.id === matchingSelectedMeasure.id) {
+                disasterItem.classList.remove('selected');
+                disasterItem.classList.add('matched');
+                measureItem.classList.remove('selected');
+                measureItem.classList.add('matched');
+                
+                disasterItem.onclick = null;
+                measureItem.onclick = null;
+                
+                matchingScore++;
+                
+                if (matchingScore === matchingData.length) {
+                    clearInterval(matchingTimer);
+                    setTimeout(showMatchingResult, 500);
+                }
+            } else {
+                disasterItem.classList.add('error');
+                measureItem.classList.add('error');
+                
+                setTimeout(() => {
+                    disasterItem.classList.remove('selected', 'error');
+                    measureItem.classList.remove('selected', 'error');
+                }, 500);
+            }
+            
+            matchingSelectedDisaster = null;
+            matchingSelectedMeasure = null;
+        }
+
+        function startMatchingTimer() {
+            clearInterval(matchingTimer);
+            document.getElementById('matching-timer').textContent = matchingTimeLeft;
+            
+            matchingTimer = setInterval(() => {
+                matchingTimeLeft--;
+                document.getElementById('matching-timer').textContent = matchingTimeLeft;
+                
+                if (matchingTimeLeft <= 10) {
+                    document.getElementById('matching-timer').classList.add('pulse-animation');
+                }
+                
+                if (matchingTimeLeft <= 0) {
+                    clearInterval(matchingTimer);
+                    showMatchingResult();
+                }
+            }, 1000);
+        }
+
+        function showMatchingResult() {
+            switchScreen('matching-result-screen');
+            document.getElementById('matching-score').textContent = matchingScore;
+            document.getElementById('matching-correct').textContent = matchingScore;
+            document.getElementById('matching-time').textContent = 60 - matchingTimeLeft;
+
+            saveGameScore('matching', matchingScore);
+
+            const rating = document.getElementById('matching-rating');
+            let ratingText = '';
+            let ratingClass = '';
+
+            const totalPairs = matchingData.length || 8;
+            if (matchingScore === totalPairs) {
+                ratingText = '🎉 完美！';
+                ratingClass = 'rating-perfect';
+            } else if (matchingScore >= totalPairs * 0.75) {
+                ratingText = '👏 优秀！';
+                ratingClass = 'rating-excellent';
+            } else if (matchingScore >= totalPairs * 0.5) {
+                ratingText = '👍 合格';
+                ratingClass = 'rating-good';
+            } else {
+                ratingText = '💪 需加油';
+                ratingClass = 'rating-poor';
+            }
+
+            rating.textContent = ratingText;
+            rating.className = `score-rating ${ratingClass}`;
+        }
+
+        let currentDifficulty = 'medium';
+
+        function initHorror() {
+            horrorHealth = 3;
+            horrorCorrectCount = 0;
+            horrorCompletedScenes = [];
+            currentHorrorSceneIndex = -1;
+            currentHorrorEpisodeIndex = 0;
+            currentDifficulty = 'medium';
+            lastChoiceWasCorrect = false;
+            switchScreen('horror-screen');
+            loadHorrorSelect();
+        }
+
+        function selectDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            const selectedBtn = document.querySelector(`.difficulty-btn.${difficulty}`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('selected');
+            }
+            
+            if (difficulty === 'easy') {
+                horrorHealth = 3;
+            } else if (difficulty === 'medium') {
+                horrorHealth = 2;
+            } else if (difficulty === 'hard') {
+                horrorHealth = 1;
+            }
+            
+            updateHealthBar();
+        }
+
+        function loadHorrorSelect() {
+            updateHealthBar();
+            const grid = document.getElementById('horror-select-grid');
+            grid.innerHTML = '';
+
+            horrorScenes.forEach((scene, index) => {
+                const card = document.createElement('div');
+                const isCompleted = horrorCompletedScenes.includes(index);
+
+                card.className = 'horror-scene-card';
+
+                let checkHtml = '';
+                if (isCompleted) {
+                    checkHtml = `<div style="position:absolute; top:10px; right:10px; font-size:1.5rem;">✓</div>`;
+                }
+
+                card.innerHTML = `
+                    ${checkHtml}
+                    <div class="horror-scene-icon">${scene.icon}</div>
+                    <div class="horror-scene-name">${scene.title}</div>
+                    <div class="horror-scene-brief">${scene.brief}</div>
+                `;
+
+                card.onclick = () => selectHorrorScene(index);
+                grid.appendChild(card);
+            });
+        }
+
+        function selectHorrorScene(index) {
+            if (horrorHealth <= 0) {
+                showHorrorResult();
+                return;
+            }
+            currentHorrorSceneIndex = index;
+            currentHorrorEpisodeIndex = 0;
+            const scene = horrorScenes[index];
+
+            const ruleList = document.getElementById('horror-rule-list');
+            ruleList.innerHTML = '';
+            scene.rules.forEach((rule, i) => {
+                const item = document.createElement('div');
+                item.className = 'rule-item';
+                item.innerHTML = `<span class="rule-item-number">${i + 1}</span><span>${rule}</span>`;
+                ruleList.appendChild(item);
+            });
+
+            updateHealthBar();
+            switchScreen('horror-rule-screen');
+        }
+
+        function confirmRule() {
+            currentHorrorEpisodeIndex = 0;
+            loadHorrorStory();
+            switchScreen('horror-story-screen');
+        }
+
+        function loadHorrorStory() {
+            updateHealthBar();
+            const scene = horrorScenes[currentHorrorSceneIndex];
+            const episodes = scene.episodes[currentDifficulty] || scene.episodes.medium;
+            const episode = episodes[currentHorrorEpisodeIndex];
+
+            document.getElementById('horror-story-title').textContent = `${scene.icon} ${scene.title} · 情节 ${currentHorrorEpisodeIndex + 1}/${episodes.length}`;
+            document.getElementById('horror-story-text').textContent = episode.story;
+
+            const optionsContainer = document.getElementById('horror-story-options');
+            optionsContainer.innerHTML = '';
+
+            currentEpisodeOptions = shuffleArray(episode.options);
+            currentEpisodeOptions.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'story-option';
+                optionElement.innerHTML = `<strong>选项 ${index + 1}：</strong>${option.text}`;
+                optionElement.onclick = () => selectStoryOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+
+            document.getElementById('horror-story-reveal').classList.remove('active');
+            document.getElementById('horror-story-next').style.display = 'none';
+        }
+
+        function selectStoryOption(index) {
+            const options = document.querySelectorAll('.story-option');
+            options.forEach(opt => opt.onclick = null);
+
+            const selectedOption = currentEpisodeOptions[index];
+            lastChoiceWasCorrect = selectedOption.isCorrect;
+
+            if (lastChoiceWasCorrect) {
+                options[index].classList.add('correct');
+                options[index].classList.add('bounce');
+                horrorCorrectCount++;
+                playSound('correct');
+            } else {
+                options[index].classList.add('wrong');
+                options[index].classList.add('shake');
+                horrorHealth--;
+                updateHealthBar();
+                playSound('wrong');
+            }
+
+            currentEpisodeOptions.forEach((opt, i) => {
+                if (i !== index && opt.isCorrect) {
+                    options[i].classList.add('correct');
+                    options[i].classList.add('pulse');
+                }
+            });
+
+            const scene = horrorScenes[currentHorrorSceneIndex];
+            const episodes = scene.episodes[currentDifficulty] || scene.episodes.medium;
+            const episode = episodes[currentHorrorEpisodeIndex];
+            document.getElementById('horror-story-reveal-text').textContent = episode.explanation;
+            document.getElementById('horror-story-reveal').classList.add('active');
+            document.getElementById('horror-story-next').style.display = 'block';
+        }
+
+        function afterStoryChoice() {
+            const scene = horrorScenes[currentHorrorSceneIndex];
+            const episodes = scene.episodes[currentDifficulty] || scene.episodes.medium;
+
+            if (horrorHealth <= 0) {
+                switchScreen('horror-screen');
+                loadHorrorSelect();
+                setTimeout(showHorrorResult, 300);
+                return;
+            }
+
+            currentHorrorEpisodeIndex++;
+            if (currentHorrorEpisodeIndex < episodes.length) {
+                loadHorrorStory();
+            } else {
+                if (!horrorCompletedScenes.includes(currentHorrorSceneIndex)) {
+                    horrorCompletedScenes.push(currentHorrorSceneIndex);
+                }
+                lastChoiceWasCorrect = false;
+                switchScreen('horror-screen');
+                loadHorrorSelect();
+            }
+        }
+
+        function backToHorrorSelect() {
+            switchScreen('horror-screen');
+            loadHorrorSelect();
+        }
+
+        function updateHealthBar() {
+            const healthBars = [
+                document.getElementById('horror-health'),
+                document.getElementById('horror-rule-health'),
+                document.getElementById('horror-story-health')
+            ];
+
+            healthBars.forEach(bar => {
+                if (bar) {
+                    bar.innerHTML = '';
+                    for (let i = 0; i < 3; i++) {
+                        const heart = document.createElement('span');
+                        heart.className = `health-heart ${i < horrorHealth ? 'active' : 'empty'}`;
+                        heart.textContent = '❤️';
+                        bar.appendChild(heart);
+                    }
+                }
+            });
+        }
+
+        function showHorrorResult() {
+            switchScreen('horror-result-screen');
+
+            const totalCompleted = horrorCompletedScenes.length;
+            const totalChoices = horrorScenes.reduce((sum, s) => sum + s.episodes.length, 0);
+            const survivalRate = totalChoices > 0 ? Math.round((horrorCorrectCount / totalChoices) * 100) : 0;
+            document.getElementById('horror-survival').textContent = `${survivalRate}%`;
+            document.getElementById('horror-correct').textContent = horrorCorrectCount;
+            document.getElementById('horror-scenes').textContent = totalCompleted;
+
+            saveGameScore('horror', survivalRate);
+
+            const rating = document.getElementById('horror-rating');
+            let ratingText = '';
+            let ratingClass = '';
+
+            if (survivalRate === 100) {
+                ratingText = '🏆 生存大师！';
+                ratingClass = 'rating-perfect';
+            } else if (survivalRate >= 80) {
+                ratingText = '🌟 优秀幸存者！';
+                ratingClass = 'rating-excellent';
+            } else if (survivalRate >= 60) {
+                ratingText = '✨ 合格幸存者';
+                ratingClass = 'rating-good';
+            } else {
+                ratingText = '💀 遗憾出局';
+                ratingClass = 'rating-poor';
+            }
+
+            rating.textContent = ratingText;
+            rating.className = `score-rating ${ratingClass}`;
+        }
+
+        document.getElementById('register-username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('register-password').focus();
+            }
+        });
+
+        document.getElementById('register-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleRegister();
+            }
+        });
+
+        document.getElementById('login-username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('login-password').focus();
+            }
+        });
+
+        document.getElementById('login-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+
+        const savedPlayer = localStorage.getItem('disasterGameCurrentPlayer');
+        if (savedPlayer) {
+            playerName = savedPlayer;
+        }
+    </script>
+</body>
+</html>

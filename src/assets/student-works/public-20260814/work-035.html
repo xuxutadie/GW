@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>天灾避险小课堂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #00838f;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 22px;
+            color: #006064;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 18px;
+            color: #004d40;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            width: 200px;
+            height: 60px;
+            border: none;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00bcd4 0%, #00838f 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+        }
+
+        .btn-small {
+            width: 140px;
+            height: 45px;
+            font-size: 16px;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .level-card {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border: 3px solid #00bcd4;
+        }
+
+        .level-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #e0e0e0;
+            border-color: #9e9e9e;
+        }
+
+        .level-card.unlocked:hover {
+            transform: scale(1.05);
+        }
+
+        .level-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .level-name {
+            font-size: 14px;
+            color: #006064;
+            font-weight: bold;
+        }
+
+        .star-rating {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: #ffd700;
+            font-size: 14px;
+        }
+
+        .lock-icon {
+            position: absolute;
+            font-size: 24px;
+            color: #757575;
+        }
+
+        .modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: #e0e0e0;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-section h4 {
+            color: #00838f;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-section p {
+            color: #546e7a;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .game-canvas {
+            width: 100%;
+            height: 400px;
+            background: #87ceeb;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .player {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #ff9800;
+            border-radius: 50%;
+            left: 50%;
+            top: 85%;
+            transform: translate(-50%, -50%);
+            transition: left 0.05s linear, top 0.05s linear;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            top: -50px;
+            animation: fall 2s linear forwards;
+        }
+
+        .obstacle.rock {
+            background: #616161;
+        }
+
+        .obstacle.water {
+            background: #2196f3;
+        }
+
+        .obstacle.wind {
+            background: #90caf9;
+        }
+
+        .obstacle.lava {
+            background: #ff5722;
+        }
+
+        .obstacle.mud {
+            background: #795548;
+        }
+
+        .item {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            top: -50px;
+            animation: fall 3s linear forwards;
+        }
+
+        .item.medkit {
+            background: #ef5350;
+        }
+
+        .item.water {
+            background: #2196f3;
+        }
+
+        .item.flashlight {
+            background: #ffa726;
+        }
+
+        .item::before {
+            content: attr(data-icon);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+        }
+
+        .game-hud {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+        }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .quiz-option {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #b2ebf2;
+            border-radius: 10px;
+            background: #f5f5f5;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .quiz-option:hover {
+            border-color: #00bcd4;
+            background: #e0f7fa;
+        }
+
+        .quiz-option.selected {
+            border-color: #00bcd4;
+            background: #b2ebf2;
+        }
+
+        .quiz-option.correct {
+            border-color: #4caf50;
+            background: #c8e6c9;
+        }
+
+        .quiz-option.wrong {
+            border-color: #f44336;
+            background: #ffcdd2;
+        }
+
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .skin-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .skin-card {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-radius: 15px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 2px solid #9c27b0;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .skin-card:hover {
+            transform: scale(1.05);
+        }
+
+        .skin-card.equipped {
+            border-color: #ff9800;
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.5);
+        }
+
+        .skin-card.locked {
+            opacity: 0.6;
+            background: #e0e0e0;
+            border-color: #9e9e9e;
+        }
+
+        .skin-card.locked:hover {
+            transform: none;
+        }
+
+        .skin-avatar {
+            width: 60px;
+            height: 70px;
+            margin: 0 auto 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .skin-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #4a148c;
+            margin-bottom: 5px;
+        }
+
+        .skin-price {
+            font-size: 11px;
+            color: #ff9800;
+        }
+
+        .skin-equipped-badge {
+            font-size: 10px;
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .collection-card {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #00bcd4;
+        }
+
+        .collection-card.locked {
+            opacity: 0.5;
+            background: #e0e0e0;
+            border-color: #9e9e9e;
+        }
+
+        .collection-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .collection-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #006064;
+            margin-bottom: 5px;
+        }
+
+        .completion-badge {
+            font-size: 12px;
+            color: #ff9800;
+        }
+
+        .tutorial-content {
+            color: #546e7a;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .tutorial-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tutorial-content li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .tutorial-content li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .knowledge-list {
+            color: #546e7a;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .knowledge-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border-left: 4px solid #00bcd4;
+        }
+
+        @keyframes fall {
+            0% { top: -50px; }
+            100% { top: 100%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            25% { transform: translate(-50%, -50%) translateX(-5px); }
+            75% { transform: translate(-50%, -50%) translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            .btn {
+                width: 160px;
+                height: 50px;
+                font-size: 16px;
+            }
+
+            .level-card {
+                width: 120px;
+                height: 120px;
+            }
+
+            .game-canvas {
+                height: 300px;
+            }
+
+            .player {
+                width: 40px;
+                height: 40px;
+                font-size: 24px;
+            }
+
+            .obstacle, .item {
+                width: 30px;
+                height: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div id="home-page" class="page active">
+            <h1>🌍 天灾避险小课堂</h1>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p style="color: #546e7a; font-size: 14px;">学习天灾知识，掌握避险技能</p>
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">🎮 开始游戏</button>
+            <button class="btn btn-secondary" onclick="openCollection()">📚 科普图鉴</button>
+            <button class="btn btn-warning" onclick="openSkinHall()">🎨 皮肤大厅</button>
+            <button class="btn btn-danger btn-small" onclick="openTutorial()">📖 操作说明</button>
+        </div>
+
+        <div id="level-page" class="page">
+            <h2>🏆 选择关卡</h2>
+            <div class="level-grid">
+                <div class="level-card unlocked" onclick="selectLevel(0)">
+                    <div class="level-icon">🏔️</div>
+                    <div class="level-name">地震</div>
+                    <div class="star-rating" id="stars-0">★★★</div>
+                </div>
+                <div class="level-card" id="level-1" onclick="selectLevel(1)">
+                    <div class="level-icon">🌊</div>
+                    <div class="level-name">洪水</div>
+                    <div class="star-rating" id="stars-1">★★★</div>
+                    <div class="lock-icon">🔒</div>
+                </div>
+                <div class="level-card" id="level-2" onclick="selectLevel(2)">
+                    <div class="level-icon">🌀</div>
+                    <div class="level-name">台风</div>
+                    <div class="star-rating" id="stars-2">★★★</div>
+                    <div class="lock-icon">🔒</div>
+                </div>
+                <div class="level-card" id="level-3" onclick="selectLevel(3)">
+                    <div class="level-icon">🏔️</div>
+                    <div class="level-name">泥石流</div>
+                    <div class="star-rating" id="stars-3">★★★</div>
+                    <div class="lock-icon">🔒</div>
+                </div>
+                <div class="level-card" id="level-4" onclick="selectLevel(4)">
+                    <div class="level-icon">🌋</div>
+                    <div class="level-name">火山</div>
+                    <div class="star-rating" id="stars-4">★★★</div>
+                    <div class="lock-icon">🔒</div>
+                </div>
+            </div>
+            <button class="btn btn-small btn-danger" style="margin-top: 30px;" onclick="goHome()">返回首页</button>
+        </div>
+
+        <div id="game-page" class="page">
+            <h2 id="game-title">游戏进行中</h2>
+            <div class="game-hud">
+                <div class="hud-item">❤️ <span id="health">3</span></div>
+                <div class="hud-item">⏱️ <span id="time">60</span></div>
+                <div class="hud-item">📦 <span id="score">0</span></div>
+            </div>
+            <div class="game-canvas" id="gameCanvas">
+                <div class="player" id="player"></div>
+            </div>
+            <button class="btn btn-small btn-danger" onclick="quitGame()">退出关卡</button>
+        </div>
+
+        <div id="quiz-page" class="page">
+            <h2>📝 知识考核</h2>
+            <div id="quiz-content" style="width: 100%; max-width: 400px;">
+                <div id="question-text" style="font-size: 18px; color: #006064; margin-bottom: 20px; text-align: center;"></div>
+                <div id="options-container"></div>
+                <div id="quiz-feedback" style="margin-top: 20px; text-align: center; font-size: 16px;"></div>
+            </div>
+        </div>
+
+        <div id="result-page" class="page">
+            <h2>🎉 通关成功！</h2>
+            <div id="star-display" style="font-size: 48px; margin: 20px 0;"></div>
+            <div id="knowledge-section"></div>
+            <button class="btn btn-primary" onclick="nextLevel()">下一关</button>
+            <button class="btn btn-secondary" onclick="goToLevelSelect()">返回选关</button>
+            <button class="btn btn-warning" onclick="replayLevel()">再玩一次</button>
+        </div>
+
+        <div id="skin-hall-page" class="page">
+            <h2>🎨 皮肤大厅</h2>
+            <div style="margin-bottom: 15px;">
+                <span style="font-size: 16px; color: #ff9800;">⭐ 我的星星：<span id="total-stars">0</span></span>
+            </div>
+            <div class="skin-grid" id="skin-grid"></div>
+            <button class="btn btn-small btn-danger" style="margin-top: 20px;" onclick="goHome()">返回首页</button>
+        </div>
+
+        <div id="collection-page" class="page">
+            <h2>📚 科普图鉴</h2>
+            <div class="collection-grid" id="collection-grid"></div>
+            <button class="btn btn-small btn-danger" onclick="goHome()">返回首页</button>
+        </div>
+
+        <div id="info-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeInfoModal()">×</button>
+                <h3 id="info-title">天灾科普</h3>
+                <div class="info-section">
+                    <h4>🌱 形成原因</h4>
+                    <p id="info-cause"></p>
+                </div>
+                <div class="info-section">
+                    <h4>⚠️ 前兆识别</h4>
+                    <p id="info-signs"></p>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 20px;" onclick="startMiniGame()">开始避险挑战</button>
+            </div>
+        </div>
+
+        <div id="tutorial-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeTutorial()">×</button>
+                <h3>📖 操作说明</h3>
+                <div class="tutorial-content">
+                    <h4 style="color: #00838f; margin-bottom: 10px;">电脑操作</h4>
+                    <ul>
+                        <li>← → 方向键：控制小人左右移动</li>
+                        <li>↑ 方向键：控制小人向上移动</li>
+                        <li>↓ 方向键：控制小人向下移动</li>
+                    </ul>
+                    <h4 style="color: #00838f; margin-bottom: 10px; margin-top: 20px;">手机操作</h4>
+                    <ul>
+                        <li>左右滑动：控制小人左右移动</li>
+                        <li>上下滑动：控制小人上下移动</li>
+                    </ul>
+                    <h4 style="color: #00838f; margin-bottom: 10px; margin-top: 20px;">游戏目标</h4>
+                    <ul>
+                        <li>躲避掉落的危险障碍物</li>
+                        <li>收集急救包、饮用水、手电筒等物资</li>
+                        <li>坚持60秒即可完成挑战</li>
+                    </ul>
+                    <h4 style="color: #00838f; margin-bottom: 10px; margin-top: 20px;">生命说明</h4>
+                    <ul>
+                        <li>初始3条生命</li>
+                        <li>碰到障碍物扣1条生命</li>
+                        <li>收集急救包恢复1条生命</li>
+                        <li>生命归零则游戏失败</li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary" onclick="closeTutorial()">知道了</button>
+            </div>
+        </div>
+
+        <div id="collection-detail-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeCollectionDetail()">×</button>
+                <h3 id="detail-title">天灾详情</h3>
+                <div class="info-section">
+                    <h4>🌱 形成原因</h4>
+                    <p id="detail-cause"></p>
+                </div>
+                <div class="info-section">
+                    <h4>⚠️ 前兆识别</h4>
+                    <p id="detail-signs"></p>
+                </div>
+                <div class="info-section">
+                    <h4>🏃 避险方法</h4>
+                    <ul class="knowledge-list" id="detail-methods"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-over-modal" class="modal">
+            <div class="modal-content">
+                <h3>😢 游戏失败</h3>
+                <p style="text-align: center; color: #546e7a; margin: 20px 0;">生命归零了，再试一次吧！</p>
+                <button class="btn btn-primary" onclick="replayLevel()">再玩一次</button>
+                <button class="btn btn-danger" onclick="goToLevelSelect()">返回选关</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const skinData = [
+            { id: 0, name: '精灵法师', price: 0, emoji: '🧚', color: '#81c784' },
+            { id: 1, name: '黑袍巫师', price: 3, emoji: '🧙', color: '#7e57c2' },
+            { id: 2, name: '白胡子法师', price: 5, emoji: '🧓', color: '#42a5f5' },
+            { id: 3, name: '狂战勇士', price: 5, emoji: '⚔️', color: '#ef5350' },
+            { id: 4, name: '绿色史莱姆', price: 2, emoji: '🟢', color: '#66bb6a' },
+            { id: 5, name: '哥布林剑客', price: 4, emoji: '👺', color: '#9ccc65' },
+            { id: 6, name: '精灵弓手', price: 6, emoji: '🧝', color: '#81c784' },
+            { id: 7, name: '死神使者', price: 8, emoji: '💀', color: '#424242' },
+            { id: 8, name: '矮人工匠', price: 6, emoji: '👨‍🔧', color: '#ff8a65' },
+            { id: 9, name: '白银骑士', price: 10, emoji: '🛡️', color: '#bdbdbd' },
+            { id: 10, name: '骷髅领主', price: 12, emoji: '☠️', color: '#616161' },
+            { id: 11, name: '兽人战士', price: 10, emoji: '👹', color: '#a1887f' },
+            { id: 12, name: '暗影蝙蝠', price: 8, emoji: '🦇', color: '#5c6bc0' }
+        ];
+
+        const STORAGE_KEY = 'disaster_game_progress';
+
+        function loadProgress() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (!data.unlockedSkins) {
+                    data.unlockedSkins = [0];
+                }
+                if (data.currentSkin === undefined) {
+                    data.currentSkin = 0;
+                }
+                return data;
+            }
+            return {
+                unlockedLevels: [0],
+                stars: [0, 0, 0, 0, 0],
+                completedLevels: [],
+                unlockedSkins: [0],
+                currentSkin: 0
+            };
+        }
+
+        function saveProgress() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        }
+
+        let progress = loadProgress();
+
+        function getSkinEmoji(skinId) {
+            const skin = skinData[skinId];
+            return skin ? skin.emoji : '😊';
+        }
+
+        function getSkinColor(skinId) {
+            const skin = skinData[skinId];
+            return skin ? skin.color : '#ff9800';
+        }
+
+        function getTotalStars() {
+            return progress.stars.reduce((sum, s) => sum + s, 0);
+        }
+
+        function openSkinHall() {
+            showPage('skin-hall-page');
+            updateSkinHallUI();
+        }
+
+        function updateSkinHallUI() {
+            document.getElementById('total-stars').textContent = getTotalStars();
+            
+            const grid = document.getElementById('skin-grid');
+            if (!grid) {
+                console.error('skin-grid element not found');
+                return;
+            }
+            grid.innerHTML = '';
+            
+            if (!skinData || skinData.length === 0) {
+                console.error('skinData is empty');
+                grid.innerHTML = '<div style="color:red;">皮肤数据加载失败</div>';
+                return;
+            }
+            
+            if (!progress.unlockedSkins || !Array.isArray(progress.unlockedSkins)) {
+                progress.unlockedSkins = [0];
+            }
+            
+            skinData.forEach(skin => {
+                const card = document.createElement('div');
+                card.className = 'skin-card';
+                
+                const isUnlocked = progress.unlockedSkins.includes(skin.id);
+                const isEquipped = progress.currentSkin === skin.id;
+                
+                if (!isUnlocked) {
+                    card.classList.add('locked');
+                }
+                if (isEquipped) {
+                    card.classList.add('equipped');
+                }
+                
+                card.innerHTML = `
+                    <div class="skin-avatar" style="background: ${skin.color}; display: flex; align-items: center; justify-content: center; font-size: 40px; border-radius: 10px;">
+                        ${skin.emoji}
+                    </div>
+                    <div class="skin-name">${skin.name}</div>
+                    ${isEquipped ? '<div class="skin-equipped-badge">✓ 使用中</div>' : 
+                      isUnlocked ? '<div class="skin-price">点击使用</div>' : 
+                      `<div class="skin-price">⭐ ${skin.price}</div>`}
+                `;
+                
+                card.onclick = () => handleSkinClick(skin.id);
+                grid.appendChild(card);
+            });
+        }
+
+        function handleSkinClick(skinId) {
+            const skin = skinData[skinId];
+            const isUnlocked = progress.unlockedSkins.includes(skinId);
+            
+            if (isUnlocked) {
+                progress.currentSkin = skinId;
+                saveProgress();
+                updateSkinHallUI();
+                playSound('correct');
+            } else {
+                const totalStars = getTotalStars();
+                if (totalStars >= skin.price) {
+                    if (confirm(`确定用 ${skin.price} 颗星星解锁「${skin.name}」吗？`)) {
+                        let remaining = skin.price;
+                        for (let i = 0; i < progress.stars.length && remaining > 0; i++) {
+                            const deduct = Math.min(progress.stars[i], remaining);
+                            progress.stars[i] -= deduct;
+                            remaining -= deduct;
+                        }
+                        progress.unlockedSkins.push(skinId);
+                        progress.currentSkin = skinId;
+                        saveProgress();
+                        updateSkinHallUI();
+                        updateLevelUI();
+                        playSound('win');
+                    }
+                } else {
+                    alert(`星星不够！需要 ${skin.price} 颗星星，当前只有 ${totalStars} 颗。快去通关获得更多星星吧！`);
+                    playSound('wrong');
+                }
+            }
+        }
+
+        const disasterData = [
+            {
+                id: 0,
+                name: '地震',
+                icon: '🏔️',
+                color: '#616161',
+                cause: '地震是由于地球内部板块运动产生的能量释放。当地壳板块相互挤压、碰撞或滑动时，会产生巨大的震动波，这就是我们感受到的地震。',
+                signs: '地震发生前可能会出现一些前兆：井水水位突然变化、动物行为异常（如老鼠搬家、鸡鸭不归巢）、地光出现、听到地声等。',
+                methods: [
+                    '室内：躲在桌子、床等坚固家具下面，用手保护头部',
+                    '室外：远离建筑物、大树、电线杆，跑到空旷地带',
+                    '不要乘坐电梯，优先选择楼梯逃生',
+                    '震后迅速撤离到安全地带，防止余震',
+                    '如果被埋，保持冷静，用敲击方式求救'
+                ],
+                quiz: [
+                    {
+                        question: '地震发生时，在室内应该怎么做？',
+                        options: ['跑到阳台大声呼救', '躲在桌子或床下', '立刻乘坐电梯下楼', '站在窗户旁边'],
+                        answer: 1
+                    },
+                    {
+                        question: '地震前可能出现的前兆是什么？',
+                        options: ['天气突然变热', '动物行为异常', '太阳突然消失', '月亮变红'],
+                        answer: 1
+                    },
+                    {
+                        question: '地震后逃生时，应该注意什么？',
+                        options: ['乘坐电梯快速下楼', '用手护住头部，走楼梯', '大声喊叫吸引注意', '先拿贵重物品'],
+                        answer: 1
+                    }
+                ],
+                obstacles: ['rock'],
+                bgColor: '#b0bec5'
+            },
+            {
+                id: 1,
+                name: '洪水',
+                icon: '🌊',
+                color: '#2196f3',
+                cause: '洪水通常是由于暴雨、融雪、堤坝决口等原因导致的。当降雨量超过河道的排水能力时，水流就会泛滥，淹没周边地区。',
+                signs: '洪水来临前的前兆包括：连续强降雨、河水水位快速上涨、天气预报发布洪水预警、上游地区出现洪水等。',
+                methods: [
+                    '立即向高处转移，如屋顶、高地',
+                    '不要强行过河或开车涉水',
+                    '准备好救生衣、游泳圈等救生工具',
+                    '关闭电源和煤气，防止触电和爆炸',
+                    '远离被洪水淹没的区域，防止感染疾病'
+                ],
+                quiz: [
+                    {
+                        question: '洪水来临时，应该往哪里转移？',
+                        options: ['低洼地带', '高处或屋顶', '地下室', '靠近河边的地方'],
+                        answer: 1
+                    },
+                    {
+                        question: '遇到洪水时，以下哪种做法是错误的？',
+                        options: ['关掉电源', '准备救生工具', '开车强行涉水', '向高处转移'],
+                        answer: 2
+                    },
+                    {
+                        question: '洪水过后，需要注意什么？',
+                        options: ['立即喝自来水', '检查房屋安全后再进入', '马上使用电器', '在积水中行走'],
+                        answer: 1
+                    }
+                ],
+                obstacles: ['water'],
+                bgColor: '#81d4fa'
+            },
+            {
+                id: 2,
+                name: '台风',
+                icon: '🌀',
+                color: '#64b5f6',
+                cause: '台风是发生在热带海洋上的强烈气旋。当海水温度较高时，会形成低气压中心，周围空气旋转上升，逐渐形成强大的风暴。',
+                signs: '台风来临前的前兆包括：天气异常闷热、气压持续下降、海水异常上涨、大风逐渐增强、乌云密布等。',
+                methods: [
+                    '待在坚固的建筑物内，关好门窗',
+                    '远离窗户和阳台，防止被碎玻璃划伤',
+                    '准备好应急电源和饮用水',
+                    '不要外出，尤其不要去海边',
+                    '检查房屋加固情况，准备沙袋挡水'
+                ],
+                quiz: [
+                    {
+                        question: '台风来临时，应该怎么做？',
+                        options: ['去海边看海浪', '待在坚固的房屋内', '在户外大树下躲避', '开车外出'],
+                        answer: 1
+                    },
+                    {
+                        question: '台风来临前，需要准备什么？',
+                        options: ['游泳装备', '应急电源和饮用水', '野餐用品', '太阳镜'],
+                        answer: 1
+                    },
+                    {
+                        question: '台风期间，以下哪种行为是危险的？',
+                        options: ['关好门窗', '远离窗户', '在阳台晾晒衣物', '准备应急物资'],
+                        answer: 2
+                    }
+                ],
+                obstacles: ['wind'],
+                bgColor: '#b3e5fc'
+            },
+            {
+                id: 3,
+                name: '泥石流',
+                icon: '🏔️',
+                color: '#795548',
+                cause: '泥石流是山区常见的自然灾害，通常发生在暴雨后。松散的山体土壤和岩石被雨水浸泡后，失去稳定性，形成巨大的泥浆流。',
+                signs: '泥石流发生前的前兆包括：连续暴雨、山体出现裂缝、地面出现下陷、听到山谷中有轰鸣声等。',
+                methods: [
+                    '向泥石流流动方向的两侧山坡逃离',
+                    '不要顺着泥石流方向跑',
+                    '远离沟谷地带和低洼区域',
+                    '如果被困，爬到高处等待救援',
+                    '关注天气预报，提前做好防范'
+                ],
+                quiz: [
+                    {
+                        question: '遇到泥石流时，应该往哪个方向跑？',
+                        options: ['顺着泥石流方向跑', '向两侧山坡高处跑', '往山谷底部跑', '原地不动'],
+                        answer: 1
+                    },
+                    {
+                        question: '泥石流通常发生在什么地方？',
+                        options: ['平原地区', '山区沟谷地带', '城市中心', '沙漠地区'],
+                        answer: 1
+                    },
+                    {
+                        question: '以下哪种情况可能引发泥石流？',
+                        options: ['长时间干旱', '连续强降雨', '地震过后多年', '气温骤降'],
+                        answer: 1
+                    }
+                ],
+                obstacles: ['mud'],
+                bgColor: '#a1887f'
+            },
+            {
+                id: 4,
+                name: '火山',
+                icon: '🌋',
+                color: '#ff5722',
+                cause: '火山喷发是地球内部岩浆和气体的释放。当地壳深处的岩浆压力达到一定程度时，就会冲破地壳，形成火山喷发。',
+                signs: '火山喷发前的前兆包括：地震活动频繁、火山口冒烟增多、地面温度升高、周围泉水水温异常等。',
+                methods: [
+                    '迅速向火山喷发方向的反方向撤离',
+                    '戴上口罩或湿毛巾，防止吸入火山灰',
+                    '保护好眼睛，防止火山灰进入',
+                    '不要开车，火山灰会影响视线',
+                    '关注火山预警信息，及时撤离'
+                ],
+                quiz: [
+                    {
+                        question: '火山喷发时，应该往哪个方向撤离？',
+                        options: ['顺着风向跑', '向火山喷发的反方向跑', '往火山口方向跑', '待在原地'],
+                        answer: 1
+                    },
+                    {
+                        question: '火山喷发时，需要保护什么？',
+                        options: ['手机', '眼睛和呼吸道', '贵重物品', '宠物'],
+                        answer: 1
+                    },
+                    {
+                        question: '火山灰对人体有什么危害？',
+                        options: ['可以美白', '会伤害呼吸道和眼睛', '有益健康', '没有危害'],
+                        answer: 1
+                    }
+                ],
+                obstacles: ['lava'],
+                bgColor: '#ffcc80'
+            }
+        ];
+
+        let currentLevel = 0;
+        let gameState = {
+            health: 3,
+            score: 0,
+            time: 60,
+            isPlaying: false
+        };
+        let playerPos = { x: 50, y: 85 };
+        let gameInterval = null;
+        let obstacleInterval = null;
+        let itemInterval = null;
+        let timeInterval = null;
+
+        function updateLevelUI() {
+            for (let i = 0; i < 5; i++) {
+                const card = document.getElementById(`level-${i}`) || document.querySelectorAll('.level-card')[i];
+                if (card) {
+                    if (progress.unlockedLevels.includes(i)) {
+                        card.classList.remove('locked');
+                        card.classList.add('unlocked');
+                        card.querySelector('.lock-icon').style.display = 'none';
+                    } else {
+                        card.classList.add('locked');
+                        card.classList.remove('unlocked');
+                        card.querySelector('.lock-icon').style.display = 'block';
+                    }
+                    
+                    const starsEl = document.getElementById(`stars-${i}`);
+                    if (starsEl) {
+                        const starCount = progress.stars[i];
+                        let stars = '';
+                        for (let j = 0; j < 3; j++) {
+                            stars += j < starCount ? '★' : '☆';
+                        }
+                        starsEl.textContent = stars;
+                    }
+                }
+            }
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function playSound(type) {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            switch(type) {
+                case 'start':
+                    oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    oscillator.frequency.setValueAtTime(554, audioCtx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(659, audioCtx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.5);
+                    break;
+                case 'correct':
+                    oscillator.frequency.setValueAtTime(523, audioCtx.currentTime);
+                    oscillator.frequency.setValueAtTime(659, audioCtx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(784, audioCtx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.4);
+                    break;
+                case 'wrong':
+                    oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    oscillator.frequency.setValueAtTime(150, audioCtx.currentTime + 0.15);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                    break;
+                case 'collect':
+                    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.15);
+                    break;
+                case 'hit':
+                    oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.2);
+                    break;
+                case 'win':
+                    oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    oscillator.frequency.setValueAtTime(554, audioCtx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(659, audioCtx.currentTime + 0.2);
+                    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.3);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.6);
+                    break;
+            }
+        }
+
+        function startGame() {
+            playSound('start');
+            showPage('level-page');
+            updateLevelUI();
+        }
+
+        function goHome() {
+            showPage('home-page');
+        }
+
+        function selectLevel(levelIndex) {
+            if (!progress.unlockedLevels.includes(levelIndex)) {
+                return;
+            }
+            currentLevel = levelIndex;
+            openInfoModal();
+        }
+
+        function openInfoModal() {
+            const data = disasterData[currentLevel];
+            document.getElementById('info-title').textContent = `${data.icon} ${data.name}科普`;
+            document.getElementById('info-cause').textContent = data.cause;
+            document.getElementById('info-signs').textContent = data.signs;
+            document.getElementById('info-modal').classList.add('active');
+        }
+
+        function closeInfoModal() {
+            document.getElementById('info-modal').classList.remove('active');
+        }
+
+        function startMiniGame() {
+            closeInfoModal();
+            initGame();
+        }
+
+        function initGame() {
+            const data = disasterData[currentLevel];
+            document.getElementById('game-title').textContent = `${data.icon} ${data.name}避险挑战`;
+            
+            gameState = {
+                health: 3,
+                score: 0,
+                time: 60,
+                isPlaying: true
+            };
+            
+            playerPos = { x: 50, y: 85 };
+            
+            document.getElementById('health').textContent = gameState.health;
+            document.getElementById('time').textContent = gameState.time;
+            document.getElementById('score').textContent = gameState.score;
+            
+            const canvas = document.getElementById('gameCanvas');
+            canvas.style.background = data.bgColor;
+            canvas.innerHTML = '<div class="player" id="player"></div>';
+            
+            const player = document.getElementById('player');
+            player.textContent = getSkinEmoji(progress.currentSkin);
+            player.style.background = getSkinColor(progress.currentSkin);
+            
+            showPage('game-page');
+            
+            gameInterval = setInterval(updateGame, 50);
+            obstacleInterval = setInterval(spawnObstacle, 800);
+            itemInterval = setInterval(spawnItem, 3000);
+            timeInterval = setInterval(updateTime, 1000);
+        }
+
+        function updateGame() {
+            if (!gameState.isPlaying) return;
+            
+            const player = document.getElementById('player');
+            player.style.left = `${playerPos.x}%`;
+            player.style.top = `${playerPos.y}%`;
+            
+            checkCollisions();
+        }
+
+        function spawnObstacle() {
+            if (!gameState.isPlaying) return;
+            
+            const canvas = document.getElementById('gameCanvas');
+            const data = disasterData[currentLevel];
+            const obstacleType = data.obstacles[0];
+            
+            const obstacle = document.createElement('div');
+            obstacle.className = `obstacle ${obstacleType}`;
+            obstacle.style.left = `${Math.random() * 90 + 5}%`;
+            
+            const icons = {
+                rock: '🪨',
+                water: '💧',
+                wind: '💨',
+                mud: '🟤',
+                lava: '🔥'
+            };
+            obstacle.textContent = icons[obstacleType];
+            obstacle.style.fontSize = '24px';
+            obstacle.style.textAlign = 'center';
+            obstacle.style.lineHeight = '40px';
+            
+            canvas.appendChild(obstacle);
+            
+            setTimeout(() => {
+                if (obstacle.parentNode) {
+                    obstacle.parentNode.removeChild(obstacle);
+                }
+            }, 2000);
+        }
+
+        function spawnItem() {
+            if (!gameState.isPlaying) return;
+            
+            const canvas = document.getElementById('gameCanvas');
+            const itemTypes = ['medkit', 'water', 'flashlight'];
+            const type = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+            
+            const item = document.createElement('div');
+            item.className = `item ${type}`;
+            item.style.left = `${Math.random() * 90 + 5}%`;
+            item.style.top = '-50px';
+            
+            const icons = {
+                medkit: '🩹',
+                water: '💧',
+                flashlight: '🔦'
+            };
+            item.setAttribute('data-icon', icons[type]);
+            
+            canvas.appendChild(item);
+            
+            setTimeout(() => {
+                if (item.parentNode) {
+                    item.parentNode.removeChild(item);
+                }
+            }, 4000);
+        }
+
+        function updateTime() {
+            if (!gameState.isPlaying) return;
+            
+            gameState.time--;
+            document.getElementById('time').textContent = gameState.time;
+            
+            if (gameState.time <= 0) {
+                endGame(true);
+            }
+        }
+
+        function checkCollisions() {
+            const player = document.getElementById('player');
+            const playerRect = player.getBoundingClientRect();
+            const canvas = document.getElementById('gameCanvas');
+            
+            const obstacles = canvas.querySelectorAll('.obstacle');
+            obstacles.forEach(obs => {
+                const obsRect = obs.getBoundingClientRect();
+                if (isColliding(playerRect, obsRect)) {
+                    playSound('hit');
+                    gameState.health--;
+                    document.getElementById('health').textContent = gameState.health;
+                    player.classList.add('shake');
+                    setTimeout(() => player.classList.remove('shake'), 300);
+                    obs.parentNode.removeChild(obs);
+                    
+                    if (gameState.health <= 0) {
+                        endGame(false);
+                    }
+                }
+            });
+            
+            const items = canvas.querySelectorAll('.item');
+            items.forEach(item => {
+                const itemRect = item.getBoundingClientRect();
+                if (isColliding(playerRect, itemRect)) {
+                    playSound('collect');
+                    if (item.classList.contains('medkit')) {
+                        gameState.health = Math.min(gameState.health + 1, 5);
+                        document.getElementById('health').textContent = gameState.health;
+                    } else {
+                        gameState.score += 10;
+                        document.getElementById('score').textContent = gameState.score;
+                    }
+                    item.parentNode.removeChild(item);
+                }
+            });
+        }
+
+        function isColliding(rect1, rect2) {
+            return rect1.left < rect2.right &&
+                   rect1.right > rect2.left &&
+                   rect1.top < rect2.bottom &&
+                   rect1.bottom > rect2.top;
+        }
+
+        function endGame(success) {
+            gameState.isPlaying = false;
+            clearInterval(gameInterval);
+            clearInterval(obstacleInterval);
+            clearInterval(itemInterval);
+            clearInterval(timeInterval);
+            
+            if (success) {
+                startQuiz();
+            } else {
+                document.getElementById('game-over-modal').classList.add('active');
+            }
+        }
+
+        function quitGame() {
+            gameState.isPlaying = false;
+            clearInterval(gameInterval);
+            clearInterval(obstacleInterval);
+            clearInterval(itemInterval);
+            clearInterval(timeInterval);
+            goToLevelSelect();
+        }
+
+        function replayLevel() {
+            document.getElementById('game-over-modal').classList.remove('active');
+            initGame();
+        }
+
+        function startQuiz() {
+            showPage('quiz-page');
+            currentQuestion = 0;
+            quizCorrect = 0;
+            loadQuestion();
+        }
+
+        let currentQuestion = 0;
+        let quizCorrect = 0;
+
+        function loadQuestion() {
+            const data = disasterData[currentLevel];
+            const question = data.quiz[currentQuestion];
+            
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            document.getElementById('quiz-feedback').textContent = '';
+            
+            question.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                btn.onclick = () => checkAnswer(index, question.answer, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selected, correct, btn) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.disabled = true);
+            
+            if (selected === correct) {
+                playSound('correct');
+                btn.classList.add('correct');
+                quizCorrect++;
+                document.getElementById('quiz-feedback').textContent = '✅ 回答正确！';
+                document.getElementById('quiz-feedback').style.color = '#4caf50';
+            } else {
+                playSound('wrong');
+                btn.classList.add('wrong');
+                options[correct].classList.add('correct');
+                document.getElementById('quiz-feedback').textContent = '❌ 回答错误，再试一次！';
+                document.getElementById('quiz-feedback').style.color = '#f44336';
+                
+                setTimeout(() => {
+                    options.forEach(opt => {
+                        opt.disabled = false;
+                        opt.classList.remove('wrong', 'correct');
+                    });
+                    document.getElementById('quiz-feedback').textContent = '';
+                }, 2000);
+                return;
+            }
+            
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < disasterData[currentLevel].quiz.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1500);
+        }
+
+        function showResult() {
+            playSound('win');
+            showPage('result-page');
+            
+            const stars = Math.min(3, quizCorrect + Math.floor(gameState.score / 30));
+            let starDisplay = '';
+            for (let i = 0; i < 3; i++) {
+                starDisplay += i < stars ? '⭐' : '☆';
+            }
+            document.getElementById('star-display').textContent = starDisplay;
+            
+            const data = disasterData[currentLevel];
+            const knowledgeSection = document.getElementById('knowledge-section');
+            knowledgeSection.innerHTML = `
+                <h3>🏃 ${data.name}自救知识清单</h3>
+                <ul class="knowledge-list">
+                    ${data.methods.map(m => `<li>${m}</li>`).join('')}
+                </ul>
+            `;
+            
+            if (!progress.completedLevels.includes(currentLevel)) {
+                progress.completedLevels.push(currentLevel);
+            }
+            
+            if (stars > progress.stars[currentLevel]) {
+                progress.stars[currentLevel] = stars;
+            }
+            
+            if (currentLevel < 4 && !progress.unlockedLevels.includes(currentLevel + 1)) {
+                progress.unlockedLevels.push(currentLevel + 1);
+            }
+            
+            saveProgress();
+        }
+
+        function nextLevel() {
+            if (currentLevel < 4) {
+                currentLevel++;
+                openInfoModal();
+            } else {
+                goToLevelSelect();
+            }
+        }
+
+        function goToLevelSelect() {
+            showPage('level-page');
+            updateLevelUI();
+        }
+
+        function openCollection() {
+            showPage('collection-page');
+            updateCollectionUI();
+        }
+
+        function updateCollectionUI() {
+            const grid = document.getElementById('collection-grid');
+            grid.innerHTML = '';
+            
+            disasterData.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.className = `collection-card ${progress.completedLevels.includes(index) ? '' : 'locked'}`;
+                
+                const stars = progress.stars[index];
+                let starStr = '';
+                for (let i = 0; i < 3; i++) {
+                    starStr += i < stars ? '⭐' : '☆';
+                }
+                
+                card.innerHTML = `
+                    <div class="collection-icon">${data.icon}</div>
+                    <div class="collection-name">${data.name}</div>
+                    <div class="completion-badge">${starStr}</div>
+                `;
+                
+                if (progress.completedLevels.includes(index)) {
+                    card.onclick = () => openCollectionDetail(index);
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function openCollectionDetail(index) {
+            const data = disasterData[index];
+            document.getElementById('detail-title').textContent = `${data.icon} ${data.name}`;
+            document.getElementById('detail-cause').textContent = data.cause;
+            document.getElementById('detail-signs').textContent = data.signs;
+            
+            const methodsList = document.getElementById('detail-methods');
+            methodsList.innerHTML = data.methods.map(m => `<li>${m}</li>`).join('');
+            
+            document.getElementById('collection-detail-modal').classList.add('active');
+        }
+
+        function closeCollectionDetail() {
+            document.getElementById('collection-detail-modal').classList.remove('active');
+        }
+
+        function openTutorial() {
+            document.getElementById('tutorial-modal').classList.add('active');
+        }
+
+        function closeTutorial() {
+            document.getElementById('tutorial-modal').classList.remove('active');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!gameState.isPlaying) return;
+            
+            const step = 5;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    playerPos.x = Math.max(5, playerPos.x - step);
+                    break;
+                case 'ArrowRight':
+                    playerPos.x = Math.min(95, playerPos.x + step);
+                    break;
+                case 'ArrowUp':
+                    playerPos.y = Math.max(10, playerPos.y - step);
+                    break;
+                case 'ArrowDown':
+                    playerPos.y = Math.min(90, playerPos.y + step);
+                    break;
+            }
+        });
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!gameState.isPlaying) return;
+            e.preventDefault();
+            
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            
+            const deltaX = (touchX - touchStartX) / window.innerWidth * 100;
+            const deltaY = (touchY - touchStartY) / window.innerHeight * 100;
+            
+            playerPos.x = Math.max(5, Math.min(95, playerPos.x + deltaX));
+            playerPos.y = Math.max(10, Math.min(90, playerPos.y + deltaY));
+            
+            touchStartX = touchX;
+            touchStartY = touchY;
+        });
+
+        updateLevelUI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+/* ===== Hero Section ===== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-alt) 100%);
+}
+
+.hero-ink {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(160, 104, 75, 0.08) 0%, rgba(122, 158, 159, 0.05) 40%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px;
+}
+
+.hero-seal {
+  width: 56px;
+  height: 56px;
+  font-size: 0.9rem;
+  margin: 0 auto 24px;
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: 8px;
+  margin-bottom: 16px;
+}
+
+.hero-subtitle {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--color-text-light);
+  margin-bottom: 8px;
+  letter-spacing: 4px;
+}
+
+.hero-signature {
+  font-size: 0.95rem;
+  color: var(--color-text-light);
+  margin-bottom: 32px;
+}
+
+.hero-btn {
+  font-size: 1rem;
+  padding: 14px 36px;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-light);
+  font-size: 0.8rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+  40% { transform: translateX(-50%) translateY(-8px); }
+  60% { transform: translateX(-50%) translateY(-4px); }
+}
+
+/* ===== Intro Section ===== */
+.intro {
+  background: var(--color-bg);
+}
+
+.intro-content {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.intro-text {
+  font-size: 1.05rem;
+  color: var(--color-text-light);
+  margin-bottom: 32px;
+  line-height: 2;
+}
+
+/* ===== Quick Links Section ===== */
+.quick-links {
+  background: var(--color-bg-alt);
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.quick-card {
+  display: block;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 40px 24px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.quick-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+  opacity: 1;
+}
+
+.quick-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  margin-bottom: 20px;
+  color: var(--color-terracotta);
+}
+
+.quick-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  color: var(--color-ink);
+}
+
+.quick-card p {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+}
+
+/* ===== Latest Section ===== */
+.latest {
+  background: var(--color-bg);
+}
+
+.latest-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.latest-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 28px;
+  transition: var(--transition);
+}
+
+.latest-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.latest-card .tag {
+  margin-bottom: 12px;
+}
+
+.latest-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.latest-card h3 a {
+  color: var(--color-ink);
+}
+
+.latest-card h3 a:hover {
+  color: var(--color-terracotta);
+}
+
+.latest-date {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin-bottom: 12px;
+}
+
+.latest-excerpt {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .hero-ink {
+    width: 300px;
+    height: 300px;
+  }
+
+  .quick-grid,
+  .latest-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-card,
+  .latest-card {
+    padding: 28px 20px;
+  }
+}

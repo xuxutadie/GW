@@ -1,0 +1,32 @@
+# 构建输出
+dist/
+
+# 本地检查和临时导入产物
+audit/
+.tmp-*/
+.tmp-*.html
+
+# 本地工具状态
+.superpowers/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# 系统和编辑器文件
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# 日志
+*.log
+
+# 环境变量和密钥文件
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*

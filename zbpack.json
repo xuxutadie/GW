@@ -1,0 +1,4 @@
+{
+  "build_command": "python3 scripts/build.py || python scripts/build.py",
+  "output_dir": "dist"
+}

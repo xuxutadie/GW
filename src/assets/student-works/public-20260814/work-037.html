@@ -1,0 +1,2972 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏大厅</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 1200px;
+}
+
+.page {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 游戏大厅样式 */
+.lobby-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 32px;
+    padding: 60px 40px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+    text-align: center;
+}
+
+.lobby-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3.5rem;
+    color: #22c55e;
+    margin-bottom: 15px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.lobby-subtitle {
+    font-size: 1.3rem;
+    color: #64748b;
+    margin-bottom: 50px;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    justify-content: center;
+}
+
+.game-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    padding: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 3px solid transparent;
+}
+
+.game-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    border-color: #22c55e;
+}
+
+.game-icon {
+    font-size: 5rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.game-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+
+.game-description {
+    font-size: 1rem;
+    color: #64748b;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.game-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.game-tag {
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.back-to-lobby-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Noto Sans SC', sans-serif;
+    box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+    z-index: 1000;
+}
+
+.back-to-lobby-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 116, 139, 0.4);
+}
+
+/* 恐龙连连看原有样式 */
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.start-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 32px;
+    padding: 60px 40px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+    text-align: center;
+}
+
+.dino-banner {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    animation: bannerFloat 3s ease-in-out infinite;
+}
+
+@keyframes bannerFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.dino-emoji {
+    font-size: 3.5rem;
+    animation: dinoBounce 2s ease-in-out infinite;
+}
+
+.dino-emoji:nth-child(1) { animation-delay: 0s; }
+.dino-emoji:nth-child(2) { animation-delay: 0.1s; }
+.dino-emoji:nth-child(3) { animation-delay: 0.2s; }
+.dino-emoji:nth-child(4) { animation-delay: 0.3s; }
+.dino-emoji:nth-child(5) { animation-delay: 0.4s; }
+.dino-emoji:nth-child(6) { animation-delay: 0.5s; }
+.dino-emoji:nth-child(7) { animation-delay: 0.6s; }
+.dino-emoji:nth-child(8) { animation-delay: 0.7s; }
+
+@keyframes dinoBounce {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-15px) scale(1.1);
+    }
+}
+
+.start-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3.5rem;
+    color: #22c55e;
+    margin-bottom: 15px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.start-subtitle {
+    font-size: 1.3rem;
+    color: #64748b;
+    margin-bottom: 40px;
+}
+
+.play-btn {
+    width: 100%;
+    max-width: 300px;
+    padding: 20px 40px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Noto Sans SC', sans-serif;
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+}
+
+.play-btn:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(34, 197, 94, 0.5);
+}
+
+.play-btn:active {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.home-start-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Noto Sans SC', sans-serif;
+    box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+}
+
+.home-start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 116, 139, 0.4);
+}
+
+.home-start-btn:active {
+    transform: translateY(0);
+}
+
+.feature-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.feature-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 3px solid #f59e0b;
+    border-radius: 16px;
+    min-width: 80px;
+}
+
+.feature-icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 3px solid #3b82f6;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+}
+
+.feature-icon-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.feature-icon-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-color: #9ca3af;
+}
+
+.feature-emoji {
+    font-size: 2rem;
+}
+
+.feature-count {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    text-align: center;
+    color: #22c55e;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.high-score {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #64748b;
+    margin-bottom: 30px;
+}
+
+.difficulty-section,
+.level-section {
+    margin-bottom: 30px;
+}
+
+.difficulty-section h2,
+.level-section h2 {
+    font-size: 1.3rem;
+    color: #374151;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.difficulty-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.difficulty-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 20px;
+    border: 3px solid #e5e7eb;
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.difficulty-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.difficulty-btn.selected {
+    border-color: #22c55e;
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+}
+
+.difficulty-btn.locked {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-color: #9ca3af;
+}
+
+.difficulty-btn.locked:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-emoji {
+    font-size: 2rem;
+}
+
+.btn-text {
+    font-weight: 700;
+    color: #374151;
+    font-size: 1.1rem;
+}
+
+.btn-detail {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.level-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.level-btn {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #374151;
+    transition: all 0.3s ease;
+}
+
+.level-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.level-btn.selected {
+    border-color: #f97316;
+    background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+    color: #f97316;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
+}
+
+.level-btn.locked {
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.level-btn.locked:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.level-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.nav-btn {
+    width: 45px;
+    height: 45px;
+    border: 3px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #374151;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-color: #22c55e;
+}
+
+.nav-btn:active {
+    transform: translateY(-1px);
+}
+
+.level-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 3px solid #bbf7d0;
+    border-radius: 12px;
+}
+
+.level-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+#level-input {
+    width: 70px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #22c55e;
+    border: none;
+    background: transparent;
+    font-family: 'Fredoka One', cursive;
+}
+
+#level-input:focus {
+    outline: none;
+}
+
+.level-buttons {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    justify-content: center;
+}
+
+.level-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #374151;
+    transition: all 0.3s ease;
+}
+
+.level-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.start-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+.start-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
+}
+
+.start-btn:active {
+    transform: translateY(-1px);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.header-label {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.header-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: #22c55e;
+}
+
+.progress-container {
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    height: 16px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f97316 0%, #fb923c 50%, #f97316 100%);
+    border-radius: 8px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.game-board {
+    display: grid;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.cell {
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 2px solid #bbf7d0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.cell:hover:not(.empty):not(.matched) {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+}
+
+.cell.selected {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3);
+    transform: scale(1.1);
+}
+
+.cell.empty {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+
+.cell.matched {
+    animation: matchAnimation 0.5s ease forwards;
+}
+
+@keyframes matchAnimation {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+.item-bar {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.item-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 15px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+.item-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-color: #22c55e;
+}
+
+.item-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.item-emoji {
+    font-size: 1.5rem;
+}
+
+.item-text {
+    font-weight: 600;
+    color: #374151;
+}
+
+.item-count {
+    background: #f97316;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.back-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-label {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.stat-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: #22c55e;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.result-btn {
+    flex: 1;
+    min-width: 150px;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+.result-btn:nth-child(1) {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.result-btn:nth-child(2) {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+}
+
+.result-btn:nth-child(3) {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+}
+
+.result-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.shop-diamond-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 3px solid #f59e0b;
+    border-radius: 16px;
+}
+
+.shop-diamond {
+    font-size: 2rem;
+}
+
+.shop-diamond-count {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f59e0b;
+}
+
+.shop-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.shop-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: white;
+    border: 3px solid #e5e7eb;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shop-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-color: #f59e0b;
+}
+
+.shop-item.owned {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border-color: #22c55e;
+}
+
+.shop-item.selected {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: #3b82f6;
+}
+
+.shop-item-icon {
+    font-size: 3rem;
+}
+
+.shop-item-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #374151;
+    text-align: center;
+}
+
+.shop-item-price {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f59e0b;
+}
+
+.shop-item-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.shop-item-status.owned {
+    background: #dcfce7;
+    color: #22c55e;
+}
+
+.shop-item-status.selected {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.shop-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .lobby-title {
+        font-size: 2.5rem;
+    }
+    
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .game-icon {
+        font-size: 4rem;
+    }
+    
+    .start-title {
+        font-size: 2.5rem;
+    }
+    
+    .card {
+        padding: 25px;
+    }
+    
+    .lobby-card {
+        padding: 40px 20px;
+    }
+    
+    .start-card {
+        padding: 40px 20px;
+    }
+    
+    .cell {
+        font-size: 1.5rem;
+    }
+    
+    .game-board {
+        gap: 5px;
+        padding: 15px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="app-container" id="app-container">
+        <!-- 游戏大厅页面 -->
+        <div id="lobby-page" class="page active">
+            <div class="lobby-card">
+                <h1 class="lobby-title">🎮 游戏大厅</h1>
+                <p class="lobby-subtitle">选择你想玩的游戏，开始你的冒险！</p>
+
+                <div class="games-grid" id="games-grid">
+                    <!-- 游戏卡片将通过 JavaScript 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏容器（用于加载各个游戏） -->
+        <div id="game-container" class="page">
+            <button id="back-to-lobby" class="back-to-lobby-btn">
+                🏠 返回大厅
+            </button>
+            <div id="game-content">
+                <!-- 游戏内容将在这里加载 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+// 游戏大厅核心系统
+
+// 游戏接口定义
+class GameInterface {
+    constructor() {
+        this.container = null;
+        this.isRunning = false;
+    }
+
+    // 初始化游戏
+    init(container) {
+        this.container = container;
+        this.isRunning = true;
+    }
+
+    // 销毁游戏
+    destroy() {
+        this.isRunning = false;
+        if (this.container) {
+            this.container.innerHTML = '';
+        }
+    }
+
+    // 获取游戏信息
+    getInfo() {
+        return {
+            name: '未知游戏',
+            description: '游戏描述',
+            icon: '🎮',
+            tags: ['休闲']
+        };
+    }
+}
+
+// 游戏管理器
+class GameManager {
+    constructor() {
+        this.games = new Map();
+        this.currentGame = null;
+        this.pages = {
+            lobby: document.getElementById('lobby-page'),
+            game: document.getElementById('game-container')
+        };
+        this.gameContent = document.getElementById('game-content');
+        this.gamesGrid = document.getElementById('games-grid');
+
+        this.init();
+    }
+
+    // 初始化
+    init() {
+        this.setupEventListeners();
+        this.renderGameGrid();
+    }
+
+    // 设置事件监听
+    setupEventListeners() {
+        document.getElementById('back-to-lobby').addEventListener('click', () => {
+            this.returnToLobby();
+        });
+    }
+
+    // 注册游戏
+    registerGame(gameId, gameClass) {
+        this.games.set(gameId, gameClass);
+        this.renderGameGrid();
+    }
+
+    // 渲染游戏列表
+    renderGameGrid() {
+        this.gamesGrid.innerHTML = '';
+
+        this.games.forEach((GameClass, gameId) => {
+            const info = new GameClass().getInfo();
+
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.innerHTML = `
+                <span class="game-icon">${info.icon}</span>
+                <h3 class="game-title">${info.name}</h3>
+                <p class="game-description">${info.description}</p>
+                <div class="game-tags">
+                    ${info.tags.map(tag => `<span class="game-tag">${tag}</span>`).join('')}
+                </div>
+            `;
+
+            card.addEventListener('click', () => this.startGame(gameId));
+            this.gamesGrid.appendChild(card);
+        });
+    }
+
+    // 启动游戏
+    startGame(gameId) {
+        if (this.currentGame) {
+            this.currentGame.destroy();
+        }
+
+        const GameClass = this.games.get(gameId);
+        if (!GameClass) return;
+
+        this.currentGame = new GameClass();
+        this.showPage('game');
+        this.currentGame.init(this.gameContent);
+    }
+
+    // 返回大厅
+    returnToLobby() {
+        if (this.currentGame) {
+            this.currentGame.destroy();
+            this.currentGame = null;
+        }
+        this.showPage('lobby');
+    }
+
+    // 切换页面
+    showPage(pageName) {
+        Object.values(this.pages).forEach(page => {
+            page.classList.remove('active');
+        });
+
+        if (this.pages[pageName]) {
+            this.pages[pageName].classList.add('active');
+        }
+    }
+}
+
+// 恐龙连连看游戏（模块化）
+class DinosaurLinkGame extends GameInterface {
+    constructor() {
+        super();
+        this.gameState = {
+            difficulty: 'easy',
+            level: 1,
+            score: 0,
+            lives: 5,
+            timeLeft: 300,
+            board: [],
+            rows: 6,
+            cols: 6,
+            selected: null,
+            timer: null
+        };
+        this.elements = {};
+    }
+
+    getInfo() {
+        return {
+            name: '恐龙连连看',
+            description: '经典连连看，可爱恐龙陪你玩！',
+            icon: '🦖',
+            tags: ['休闲', '益智', '闯关']
+        };
+    }
+
+    init(container) {
+        super.init(container);
+        this.container.innerHTML = this.renderHomePage();
+        this.setupHomePage();
+    }
+
+    destroy() {
+        super.destroy();
+        if (this.gameState.timer) {
+            clearInterval(this.gameState.timer);
+        }
+    }
+
+    renderHomePage() {
+        return `
+            <div class="app-container" id="game-app-container">
+                <!-- 开始界面 -->
+                <div id="start-page" class="page active">
+                    <div class="start-card">
+                        <div class="dino-banner">
+                            <span class="dino-emoji">🦕</span>
+                            <span class="dino-emoji">🦖</span>
+                            <span class="dino-emoji">🐊</span>
+                            <span class="dino-emoji">🦎</span>
+                            <span class="dino-emoji">🐢</span>
+                            <span class="dino-emoji">🦤</span>
+                            <span class="dino-emoji">🦚</span>
+                            <span class="dino-emoji">🦜</span>
+                        </div>
+
+                        <h1 class="start-title">🦕 恐龙连连看 🦖</h1>
+                        <p class="start-subtitle">经典连连看，可爱恐龙陪你玩！</p>
+
+                        <button id="play-btn" class="play-btn">
+                            🎮 开始游戏
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 主页面 -->
+                <div id="home-page" class="page">
+                    <div class="card">
+                        <!-- 右上角主界面按钮 -->
+                        <button id="home-start-btn" class="home-start-btn">
+                            🏠 主界面
+                        </button>
+
+                        <div class="feature-icons">
+                            <div class="feature-icon">
+                                <span class="feature-emoji">💎</span>
+                                <span class="feature-count" id="diamond-count">0</span>
+                            </div>
+                            <button class="feature-icon-btn" id="shop-btn">
+                                <span class="feature-emoji">🏪</span>
+                            </button>
+                            <button class="feature-icon-btn" id="unlock-all-btn">
+                                <span class="feature-emoji">🔓</span>
+                                <span class="feature-count" id="unlock-count">1</span>
+                            </button>
+                            <button class="feature-icon-btn" id="reset-all-btn">
+                                <span class="feature-emoji">🔄</span>
+                            </button>
+                        </div>
+
+                        <h1 class="title">🦕 恐龙连连看 🦖</h1>
+                        <div class="high-score">最高分: <span id="high-score">0</span></div>
+
+                        <div class="difficulty-section">
+                            <h2>选择难度</h2>
+                            <div class="difficulty-buttons">
+                                <button class="difficulty-btn" data-difficulty="easy">
+                                    <span class="btn-emoji">🌱</span>
+                                    <span class="btn-text">简单</span>
+                                    <span class="btn-detail">6×6 | 5条命</span>
+                                </button>
+                                <button class="difficulty-btn" data-difficulty="medium">
+                                    <span class="btn-emoji">🌿</span>
+                                    <span class="btn-text">普通</span>
+                                    <span class="btn-detail">8×8 | 3条命</span>
+                                </button>
+                                <button class="difficulty-btn" data-difficulty="hard">
+                                    <span class="btn-emoji">🌳</span>
+                                    <span class="btn-text">困难</span>
+                                    <span class="btn-detail">10×10 | 1条命</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="level-section">
+                            <h2>选择关卡</h2>
+                            <div class="level-selector">
+                                <button id="prev-level" class="nav-btn">◀</button>
+                                <div class="level-input-container">
+                                    <span class="level-label">关卡</span>
+                                    <input type="number" id="level-input" min="1" max="100" value="1">
+                                </div>
+                                <button id="next-level" class="nav-btn">▶</button>
+                            </div>
+                            <div class="level-buttons" id="level-buttons">
+                            </div>
+                        </div>
+
+                        <button id="start-btn" class="start-btn">开始游戏</button>
+                    </div>
+                </div>
+
+                <!-- 游戏页面 -->
+                <div id="game-page" class="page">
+                    <div class="card">
+                        <div class="game-header">
+                            <div class="header-item">
+                                <span class="header-label">关卡</span>
+                                <span class="header-value" id="current-level">1</span>
+                            </div>
+                            <div class="header-item">
+                                <span class="header-label">生命</span>
+                                <span class="header-value" id="lives">❤️❤️❤️❤️❤️</span>
+                            </div>
+                            <div class="header-item">
+                                <span class="header-label">时间</span>
+                                <span class="header-value" id="time">5:00</span>
+                            </div>
+                            <div class="header-item">
+                                <span class="header-label">得分</span>
+                                <span class="header-value" id="score">0</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress"></div>
+                            </div>
+                        </div>
+
+                        <div class="game-board" id="board"></div>
+
+                        <div class="item-bar">
+                            <button class="item-btn" id="hint-btn">
+                                <span class="item-emoji">💡</span>
+                                <span class="item-text">提示</span>
+                                <span class="item-count" id="hint-count">∞</span>
+                            </button>
+                            <button class="item-btn" id="shuffle-btn">
+                                <span class="item-emoji">🔀</span>
+                                <span class="item-text">洗牌</span>
+                                <span class="item-count" id="shuffle-count">∞</span>
+                            </button>
+                            <button class="item-btn" id="addtime-btn">
+                                <span class="item-emoji">⏰</span>
+                                <span class="item-text">加时</span>
+                                <span class="item-count" id="addtime-count">∞</span>
+                            </button>
+                        </div>
+
+                        <button id="back-btn" class="back-btn">返回</button>
+                    </div>
+                </div>
+
+                <!-- 结果页面 -->
+                <div id="result-page" class="page">
+                    <div class="card">
+                        <h1 class="title" id="result-title">🎉 恭喜过关！</h1>
+                        <div class="result-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">得分</span>
+                                <span class="stat-value" id="final-score">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">获得钻石</span>
+                                <span class="stat-value" id="final-diamonds">+1</span>
+                            </div>
+                        </div>
+                        <div class="result-buttons" id="result-buttons">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商店页面 -->
+                <div id="shop-page" class="page">
+                    <div class="card">
+                        <h1 class="title">🏪 商店</h1>
+
+                        <div class="shop-diamond-display">
+                            <span class="shop-diamond">💎</span>
+                            <span class="shop-diamond-count" id="shop-diamond-count">0</span>
+                        </div>
+
+                        <div class="shop-items" id="shop-items">
+                        </div>
+
+                        <div class="shop-buttons">
+                            <button id="shop-close-btn" class="start-btn">关闭商店</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    setupHomePage() {
+        this.pages = {
+            start: document.getElementById('start-page'),
+            home: document.getElementById('home-page'),
+            game: document.getElementById('game-page'),
+            result: document.getElementById('result-page'),
+            shop: document.getElementById('shop-page')
+        };
+
+        this.elements = {
+            highScore: document.getElementById('high-score'),
+            levelInput: document.getElementById('level-input'),
+            prevLevel: document.getElementById('prev-level'),
+            nextLevel: document.getElementById('next-level'),
+            levelButtons: document.getElementById('level-buttons'),
+            board: document.getElementById('board'),
+            currentLevel: document.getElementById('current-level'),
+            lives: document.getElementById('lives'),
+            time: document.getElementById('time'),
+            score: document.getElementById('score'),
+            progress: document.getElementById('progress'),
+            hintCount: document.getElementById('hint-count'),
+            shuffleCount: document.getElementById('shuffle-count'),
+            addtimeCount: document.getElementById('addtime-count'),
+            resultTitle: document.getElementById('result-title'),
+            finalScore: document.getElementById('final-score'),
+            finalDiamonds: document.getElementById('final-diamonds'),
+            resultButtons: document.getElementById('result-buttons'),
+            shopItems: document.getElementById('shop-items'),
+            shopDiamondCount: document.getElementById('shop-diamond-count'),
+            diamondCount: document.getElementById('diamond-count'),
+            unlockCount: document.getElementById('unlock-count')
+        };
+
+        this.setupEventListeners();
+        this.updateDifficultyButtons();
+        this.generateLevelButtons();
+        this.updateDiamondDisplay();
+        this.updateUnlockCount();
+        this.loadHighScore();
+    }
+
+    setupEventListeners() {
+        document.getElementById('play-btn').addEventListener('click', () => {
+            this.showPage('home');
+        });
+
+        document.getElementById('home-start-btn').addEventListener('click', () => {
+            this.showPage('start');
+        });
+
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.selectDifficulty(btn.dataset.difficulty));
+        });
+
+        this.elements.levelInput.addEventListener('change', (e) => {
+            let level = parseInt(e.target.value);
+            if (isNaN(level)) level = 1;
+            if (level < 1) level = 1;
+            if (level > 100) level = 100;
+            this.selectLevel(level);
+        });
+
+        this.elements.prevLevel.addEventListener('click', () => {
+            const newLevel = Math.max(1, this.gameState.level - 1);
+            this.selectLevel(newLevel);
+        });
+
+        this.elements.nextLevel.addEventListener('click', () => {
+            const newLevel = Math.min(100, this.gameState.level + 1);
+            this.selectLevel(newLevel);
+        });
+
+        document.getElementById('start-btn').addEventListener('click', () => this.startGame());
+        document.getElementById('hint-btn').addEventListener('click', () => this.useHint());
+        document.getElementById('shuffle-btn').addEventListener('click', () => this.useShuffle());
+        document.getElementById('addtime-btn').addEventListener('click', () => this.useAddTime());
+        document.getElementById('back-btn').addEventListener('click', () => this.goHome());
+        document.getElementById('shop-btn').addEventListener('click', () => this.showShop());
+        document.getElementById('unlock-all-btn').addEventListener('click', () => this.useUnlockAll());
+        document.getElementById('reset-all-btn').addEventListener('click', () => this.resetAllProgress());
+        document.getElementById('shop-close-btn').addEventListener('click', () => this.goHome());
+    }
+
+    showPage(pageName) {
+        Object.values(this.pages).forEach(page => {
+            page.classList.remove('active');
+        });
+
+        if (this.pages[pageName]) {
+            this.pages[pageName].classList.add('active');
+        }
+    }
+
+    selectDifficulty(difficulty) {
+        const progress = this.getGameProgress();
+        if (!this.isDifficultyUnlocked(difficulty, progress)) {
+            return;
+        }
+
+        this.gameState.difficulty = difficulty;
+        this.updateDifficultyButtons();
+    }
+
+    updateDifficultyButtons() {
+        const progress = this.getGameProgress();
+        const buttons = document.querySelectorAll('.difficulty-btn');
+
+        buttons.forEach(btn => {
+            const diff = btn.dataset.difficulty;
+            const isUnlocked = this.isDifficultyUnlocked(diff, progress);
+            const isSelected = diff === this.gameState.difficulty;
+
+            btn.classList.remove('selected', 'locked');
+            if (isSelected) {
+                btn.classList.add('selected');
+            }
+            if (!isUnlocked) {
+                btn.classList.add('locked');
+            }
+        });
+    }
+
+    isDifficultyUnlocked(difficulty, progress) {
+        if (difficulty === 'easy') return true;
+        if (difficulty === 'medium') return progress.easy >= 100;
+        if (difficulty === 'hard') return progress.medium >= 100;
+        return false;
+    }
+
+    isLevelUnlocked(level, progress) {
+        const currentProgress = progress[this.gameState.difficulty];
+        return level <= currentProgress + 1 && level <= 100;
+    }
+
+    selectLevel(level) {
+        const progress = this.getGameProgress();
+        if (!this.isLevelUnlocked(level, progress)) {
+            return;
+        }
+
+        this.gameState.level = level;
+        this.elements.levelInput.value = level;
+        this.generateLevelButtons();
+    }
+
+    generateLevelButtons() {
+        this.elements.levelButtons.innerHTML = '';
+        const progress = this.getGameProgress();
+        const currentProgress = progress[this.gameState.difficulty];
+
+        for (let i = 1; i <= 100; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'level-btn';
+            btn.textContent = i;
+
+            const isUnlocked = this.isLevelUnlocked(i, progress);
+            const isSelected = i === this.gameState.level;
+
+            if (isSelected) {
+                btn.classList.add('selected');
+            }
+            if (!isUnlocked) {
+                btn.classList.add('locked');
+                btn.textContent = '🔒';
+            } else {
+                btn.addEventListener('click', () => this.selectLevel(i));
+            }
+
+            this.elements.levelButtons.appendChild(btn);
+        }
+    }
+
+    getGameProgress() {
+        const saved = localStorage.getItem('dinosaurLinkProgress');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        return { easy: 1, medium: 0, hard: 0 };
+    }
+
+    saveGameProgress(progress) {
+        localStorage.setItem('dinosaurLinkProgress', JSON.stringify(progress));
+    }
+
+    getDiamonds() {
+        return parseInt(localStorage.getItem('dinosaurLinkDiamonds') || '0');
+    }
+
+    saveDiamonds(count) {
+        localStorage.setItem('dinosaurLinkDiamonds', count.toString());
+    }
+
+    updateDiamondDisplay() {
+        const count = this.getDiamonds();
+        if (this.elements.diamondCount) {
+            this.elements.diamondCount.textContent = count;
+        }
+    }
+
+    getUnlockCount() {
+        const saved = localStorage.getItem('dinosaurLinkUnlockCount');
+        return saved === null ? 1 : parseInt(saved);
+    }
+
+    saveUnlockCount(count) {
+        localStorage.setItem('dinosaurLinkUnlockCount', count.toString());
+    }
+
+    updateUnlockCount() {
+        const count = this.getUnlockCount();
+        if (this.elements.unlockCount) {
+            this.elements.unlockCount.textContent = count === 0 ? '0' : count;
+            const btn = document.getElementById('unlock-all-btn');
+            if (btn) {
+                btn.disabled = count === 0;
+            }
+        }
+    }
+
+    useUnlockAll() {
+        const count = this.getUnlockCount();
+        if (count <= 0) {
+            alert('解锁道具已用完！');
+            return;
+        }
+
+        if (confirm('确定要使用解锁道具吗？这将解锁所有难度和关卡！')) {
+            const progress = { easy: 100, medium: 100, hard: 100 };
+            this.saveGameProgress(progress);
+            this.saveUnlockCount(count - 1);
+
+            this.updateDifficultyButtons();
+            this.generateLevelButtons();
+            this.updateUnlockCount();
+
+            alert('🎉 所有难度和关卡已解锁！');
+        }
+    }
+
+    resetAllProgress() {
+        if (confirm('确定要重置所有进度吗？这将包括关卡进度、钻石和图标！')) {
+            const progress = { easy: 1, medium: 0, hard: 0 };
+            this.saveGameProgress(progress);
+            this.saveDiamonds(0);
+            this.saveUnlockCount(1);
+            this.saveOwnedItems([]);
+            this.saveCurrentIconSet('dino');
+
+            this.updateDifficultyButtons();
+            this.generateLevelButtons();
+            this.updateDiamondDisplay();
+            this.updateUnlockCount();
+
+            alert('已重置！回到最初的开始！');
+        }
+    }
+
+    loadHighScore() {
+        const highScore = localStorage.getItem('dinosaurLinkHighScore');
+        if (highScore) {
+            this.elements.highScore.textContent = highScore;
+        }
+    }
+
+    startGame() {
+        const config = {
+            easy: { rows: 6, cols: 6, types: 6, time: 300, lives: 5, hint: Infinity, shuffle: Infinity, addtime: Infinity },
+            medium: { rows: 8, cols: 8, types: 10, time: 300, lives: 3, hint: 3, shuffle: 3, addtime: 3 },
+            hard: { rows: 10, cols: 10, types: 15, time: 300, lives: 1, hint: 1, shuffle: 1, addtime: 1 }
+        };
+
+        const settings = config[this.gameState.difficulty];
+        this.gameState.rows = settings.rows;
+        this.gameState.cols = settings.cols;
+        this.gameState.lives = settings.lives;
+        this.gameState.timeLeft = settings.time;
+        this.gameState.score = 0;
+        this.gameState.selected = null;
+        this.gameState.hintCount = settings.hint;
+        this.gameState.shuffleCount = settings.shuffle;
+        this.gameState.addtimeCount = settings.addtime;
+
+        this.elements.currentLevel.textContent = this.gameState.level;
+        this.updateUI();
+
+        this.generateBoard(settings.types);
+
+        this.showPage('game');
+
+        this.startTimer();
+    }
+
+    generateBoard(typeCount) {
+        const dinosaurs = this.getCurrentIcons();
+        const icons = dinosaurs.slice(0, typeCount);
+        const totalCells = this.gameState.rows * this.gameState.cols;
+        const pairCount = totalCells / 2;
+        const board = [];
+
+        for (let i = 0; i < pairCount; i++) {
+            const icon = icons[i % typeCount];
+            board.push(icon, icon);
+        }
+
+        const seed = (this.gameState.difficulty === 'easy' ? 1 : this.gameState.difficulty === 'medium' ? 2 : 3) * 1000 + this.gameState.level;
+        this.shuffleWithSeed(board, seed);
+
+        const boardWithEmpties = [];
+        const newRows = this.gameState.rows + 2;
+        const newCols = this.gameState.cols + 2;
+        for (let i = 0; i < newRows * newCols; i++) {
+            boardWithEmpties.push(null);
+        }
+
+        for (let r = 0; r < this.gameState.rows; r++) {
+            for (let c = 0; c < this.gameState.cols; c++) {
+                const idx = (r + 1) * newCols + (c + 1);
+                boardWithEmpties[idx] = board[r * this.gameState.cols + c];
+            }
+        }
+
+        this.gameState.board = boardWithEmpties;
+        this.gameState.rows = newRows;
+        this.gameState.cols = newCols;
+
+        this.renderBoard();
+    }
+
+    getCurrentIcons() {
+        const currentSet = this.getCurrentIconSet();
+        if (currentSet === 'ladybug') {
+            return ['🐞', '🐛', '🦗', '🪲', '🦟', '🐝', '🦋', '🐌', '🪱', '🐜', '🐝', '🐛', '🦟', '🪲', '🐞'];
+        } else if (currentSet === 'aphid') {
+            return ['🐛', '🐜', '🐝', '🪱', '🦟', '🪲', '🐞', '🦋', '🐌', '🦗', '🐛', '🐜', '🪱', '🦟', '🪲'];
+        } else if (currentSet === 'pillbug') {
+            return ['🪲', '🐞', '🐛', '🦗', '🦋', '🐌', '🪱', '🐜', '🐝', '🦟', '🪲', '🐞', '🐛', '🦗', '🦋'];
+        } else if (currentSet === 'fish') {
+            return ['🐟', '🐠', '🐡', '🦈', '🐙', '🐚', '🐋', '🐳', '🐬', '🦭', '🐟', '🐠', '🐡', '🦈', '🐙'];
+        } else if (currentSet === 'expert') {
+            return ['⭐', '🌟', '✨', '💫', '⚡', '🔥', '💥', '🎯', '🏆', '👑', '⭐', '🌟', '✨', '💫', '⚡'];
+        } else {
+            return ['🦖', '🦕', '🐊', '🦎', '🐢', '🦤', '🦚', '🦜', '🐍', '🦋', '🦂', '🕷️', '🐸', '🐊', '🦎'];
+        }
+    }
+
+    getCurrentIconSet() {
+        return localStorage.getItem('dinosaurLinkIconSet') || 'dino';
+    }
+
+    saveCurrentIconSet(setName) {
+        localStorage.setItem('dinosaurLinkIconSet', setName);
+    }
+
+    getOwnedItems() {
+        const saved = localStorage.getItem('dinosaurLinkOwnedItems');
+        return saved ? JSON.parse(saved) : ['dino'];
+    }
+
+    saveOwnedItems(items) {
+        localStorage.setItem('dinosaurLinkOwnedItems', JSON.stringify(items));
+    }
+
+    shuffleWithSeed(array, seed) {
+        let rng = seed;
+        const random = () => {
+            rng = (rng * 9301 + 49297) % 233280;
+            return rng / 233280;
+        };
+
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    renderBoard() {
+        this.elements.board.innerHTML = '';
+        this.elements.board.style.gridTemplateColumns = `repeat(${this.gameState.cols}, 1fr)`;
+
+        for (let r = 0; r < this.gameState.rows; r++) {
+            for (let c = 0; c < this.gameState.cols; c++) {
+                const idx = r * this.gameState.cols + c;
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = idx;
+
+                if (this.gameState.board[idx]) {
+                    cell.textContent = this.gameState.board[idx];
+                    cell.addEventListener('click', () => this.handleCellClick(idx));
+                } else {
+                    cell.classList.add('empty');
+                }
+
+                this.elements.board.appendChild(cell);
+            }
+        }
+    }
+
+    handleCellClick(index) {
+        if (!this.gameState.board[index]) return;
+
+        const cells = this.elements.board.querySelectorAll('.cell');
+
+        if (this.gameState.selected === null) {
+            this.gameState.selected = index;
+            cells[index].classList.add('selected');
+        } else if (this.gameState.selected === index) {
+            cells[index].classList.remove('selected');
+            this.gameState.selected = null;
+        } else {
+            const first = this.gameState.selected;
+            const second = index;
+
+            if (this.gameState.board[first] === this.gameState.board[second] &&
+                this.canConnect(first, second)) {
+                cells[first].classList.add('matched');
+                cells[second].classList.add('matched');
+
+                setTimeout(() => {
+                    this.gameState.board[first] = null;
+                    this.gameState.board[second] = null;
+                    this.renderBoard();
+
+                    this.gameState.score += 100;
+                    this.updateUI();
+
+                    if (this.checkWin()) {
+                        this.handleWin();
+                    }
+                }, 500);
+            } else {
+                cells[first].classList.remove('selected');
+                this.gameState.lives--;
+                this.updateUI();
+
+                if (this.gameState.lives <= 0) {
+                    this.handleLose();
+                }
+            }
+
+            this.gameState.selected = null;
+        }
+    }
+
+    canConnect(idx1, idx2) {
+        const r1 = Math.floor(idx1 / this.gameState.cols);
+        const c1 = idx1 % this.gameState.cols;
+        const r2 = Math.floor(idx2 / this.gameState.cols);
+        const c2 = idx2 % this.gameState.cols;
+
+        if (this.isPathClear(r1, c1, r2, c2)) return true;
+        if (this.isPathWithOneCorner(r1, c1, r2, c2)) return true;
+        if (this.isPathWithTwoCorners(r1, c1, r2, c2)) return true;
+
+        return false;
+    }
+
+    isPathClear(r1, c1, r2, c2) {
+        if (r1 !== r2 && c1 !== c2) return false;
+
+        if (r1 === r2) {
+            const minC = Math.min(c1, c2);
+            const maxC = Math.max(c1, c2);
+            for (let c = minC + 1; c < maxC; c++) {
+                if (this.gameState.board[r1 * this.gameState.cols + c]) return false;
+            }
+        } else {
+            const minR = Math.min(r1, r2);
+            const maxR = Math.max(r1, r2);
+            for (let r = minR + 1; r < maxR; r++) {
+                if (this.gameState.board[r * this.gameState.cols + c1]) return false;
+            }
+        }
+
+        return true;
+    }
+
+    isPathWithOneCorner(r1, c1, r2, c2) {
+        if (this.gameState.board[r1 * this.gameState.cols + c2] === null) {
+            if (this.isPathClear(r1, c1, r1, c2) && this.isPathClear(r1, c2, r2, c2)) {
+                return true;
+            }
+        }
+
+        if (this.gameState.board[r2 * this.gameState.cols + c1] === null) {
+            if (this.isPathClear(r1, c1, r2, c1) && this.isPathClear(r2, c1, r2, c2)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    isPathWithTwoCorners(r1, c1, r2, c2) {
+        for (let c = 0; c < this.gameState.cols; c++) {
+            if (c !== c1 && c !== c2) {
+                if (this.gameState.board[r1 * this.gameState.cols + c] === null &&
+                    this.gameState.board[r2 * this.gameState.cols + c] === null) {
+                    if (this.isPathClear(r1, c1, r1, c) &&
+                        this.isPathClear(r1, c, r2, c) &&
+                        this.isPathClear(r2, c, r2, c2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        for (let r = 0; r < this.gameState.rows; r++) {
+            if (r !== r1 && r !== r2) {
+                if (this.gameState.board[r * this.gameState.cols + c1] === null &&
+                    this.gameState.board[r * this.gameState.cols + c2] === null) {
+                    if (this.isPathClear(r1, c1, r, c1) &&
+                        this.isPathClear(r, c1, r, c2) &&
+                        this.isPathClear(r, c2, r2, c2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    checkWin() {
+        return this.gameState.board.every(cell => cell === null);
+    }
+
+    handleWin() {
+        this.stopTimer();
+
+        const diamonds = this.getDiamonds();
+        this.saveDiamonds(diamonds + 1);
+
+        const progress = this.getGameProgress();
+        if (progress[this.gameState.difficulty] < this.gameState.level) {
+            progress[this.gameState.difficulty] = this.gameState.level;
+            this.saveGameProgress(progress);
+        }
+
+        const highScore = parseInt(localStorage.getItem('dinosaurLinkHighScore') || '0');
+        if (this.gameState.score > highScore) {
+            localStorage.setItem('dinosaurLinkHighScore', this.gameState.score.toString());
+        }
+
+        this.elements.resultTitle.textContent = '🎉 恭喜过关！';
+        this.elements.finalScore.textContent = this.gameState.score;
+        this.elements.finalDiamonds.textContent = '+1 💎';
+
+        this.elements.resultButtons.innerHTML = `
+            <button class="result-btn" id="replay-btn">再来一遍</button>
+            ${this.gameState.level < 100 ? '<button class="result-btn" id="next-level-btn">下一关</button>' : ''}
+            <button class="result-btn" id="home-btn">返回主界面</button>
+        `;
+
+        document.getElementById('replay-btn').addEventListener('click', () => this.startGame());
+        if (document.getElementById('next-level-btn')) {
+            document.getElementById('next-level-btn').addEventListener('click', () => this.startNextLevel());
+        }
+        document.getElementById('home-btn').addEventListener('click', () => this.goHome());
+
+        this.showPage('result');
+        this.updateDiamondDisplay();
+    }
+
+    handleLose() {
+        this.stopTimer();
+
+        this.elements.resultTitle.textContent = '😢 挑战失败';
+        this.elements.finalScore.textContent = this.gameState.score;
+        this.elements.finalDiamonds.textContent = '没有获得钻石';
+
+        this.elements.resultButtons.innerHTML = `
+            <button class="result-btn" id="replay-btn">再来一遍</button>
+            <button class="result-btn" id="home-btn">返回主界面</button>
+        `;
+
+        document.getElementById('replay-btn').addEventListener('click', () => this.startGame());
+        document.getElementById('home-btn').addEventListener('click', () => this.goHome());
+
+        this.showPage('result');
+    }
+
+    startNextLevel() {
+        this.gameState.level = Math.min(100, this.gameState.level + 1);
+        this.startGame();
+    }
+
+    updateUI() {
+        const hearts = '❤️'.repeat(this.gameState.lives) + '🖤'.repeat(Math.max(0, 5 - this.gameState.lives));
+        this.elements.lives.textContent = hearts;
+        this.elements.time.textContent = this.formatTime(this.gameState.timeLeft);
+        this.elements.score.textContent = this.gameState.score;
+
+        const totalCells = (this.gameState.rows - 2) * (this.gameState.cols - 2);
+        const remainingCells = this.gameState.board.filter(c => c !== null).length;
+        const eliminatedCells = totalCells - remainingCells;
+        const progressPercent = (eliminatedCells / totalCells) * 100;
+        this.elements.progress.style.width = `${progressPercent}%`;
+
+        const hintText = this.gameState.hintCount === Infinity ? '∞' : this.gameState.hintCount;
+        const shuffleText = this.gameState.shuffleCount === Infinity ? '∞' : this.gameState.shuffleCount;
+        const addtimeText = this.gameState.addtimeCount === Infinity ? '∞' : this.gameState.addtimeCount;
+
+        this.elements.hintCount.textContent = hintText;
+        this.elements.shuffleCount.textContent = shuffleText;
+        this.elements.addtimeCount.textContent = addtimeText;
+
+        document.getElementById('hint-btn').disabled = this.gameState.hintCount === 0;
+        document.getElementById('shuffle-btn').disabled = this.gameState.shuffleCount === 0;
+        document.getElementById('addtime-btn').disabled = this.gameState.addtimeCount === 0;
+    }
+
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    startTimer() {
+        this.gameState.timer = setInterval(() => {
+            this.gameState.timeLeft--;
+            this.updateUI();
+
+            if (this.gameState.timeLeft <= 0) {
+                this.handleLose();
+            }
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.gameState.timer) {
+            clearInterval(this.gameState.timer);
+            this.gameState.timer = null;
+        }
+    }
+
+    useHint() {
+        if (this.gameState.hintCount <= 0) return;
+
+        for (let i = 0; i < this.gameState.board.length; i++) {
+            for (let j = i + 1; j < this.gameState.board.length; j++) {
+                if (this.gameState.board[i] && this.gameState.board[j] &&
+                    this.gameState.board[i] === this.gameState.board[j] &&
+                    this.canConnect(i, j)) {
+                    const cells = this.elements.board.querySelectorAll('.cell');
+                    cells[i].style.boxShadow = '0 0 20px 10px #FFD700';
+                    cells[j].style.boxShadow = '0 0 20px 10px #FFD700';
+
+                    setTimeout(() => {
+                        cells[i].style.boxShadow = '';
+                        cells[j].style.boxShadow = '';
+                    }, 2000);
+
+                    if (this.gameState.hintCount !== Infinity) {
+                        this.gameState.hintCount--;
+                    }
+                    this.updateUI();
+                    return;
+                }
+            }
+        }
+    }
+
+    useShuffle() {
+        if (this.gameState.shuffleCount <= 0) return;
+
+        const remaining = [];
+        const indices = [];
+
+        for (let i = 0; i < this.gameState.board.length; i++) {
+            if (this.gameState.board[i]) {
+                remaining.push(this.gameState.board[i]);
+                indices.push(i);
+            }
+        }
+
+        for (let i = remaining.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+        }
+
+        for (let i = 0; i < indices.length; i++) {
+            this.gameState.board[indices[i]] = remaining[i];
+        }
+
+        this.renderBoard();
+
+        if (this.gameState.shuffleCount !== Infinity) {
+            this.gameState.shuffleCount--;
+        }
+        this.updateUI();
+    }
+
+    useAddTime() {
+        if (this.gameState.addtimeCount <= 0) return;
+
+        this.gameState.timeLeft += 30;
+
+        if (this.gameState.addtimeCount !== Infinity) {
+            this.gameState.addtimeCount--;
+        }
+        this.updateUI();
+    }
+
+    showShop() {
+        this.renderShopItems();
+        this.updateShopDiamondDisplay();
+        this.showPage('shop');
+    }
+
+    renderShopItems() {
+        const items = [
+            { id: 'dino', name: '恐龙图标', icon: '🦖', price: 0 },
+            { id: 'ladybug', name: '七星瓢虫', icon: '🐞', price: 20 },
+            { id: 'aphid', name: '蚜虫', icon: '🐛', price: 20 },
+            { id: 'pillbug', name: '西瓜虫', icon: '🪲', price: 20 },
+            { id: 'fish', name: '鱼', icon: '🐟', price: 20 },
+            { id: 'unlock3', name: '解锁3关', icon: '🎮', price: 30, special: 'unlockLevel', unlockCount: 3 },
+            { id: 'unlock4', name: '解锁4关', icon: '🎯', price: 40, special: 'unlockLevel', unlockCount: 4 },
+            { id: 'unlock5', name: '解锁5关', icon: '🏆', price: 50, special: 'unlockLevel', unlockCount: 5 },
+            { id: 'unlock50', name: '解锁50关', icon: '👑', price: 200, special: 'unlockLevel', unlockCount: 50 },
+            { id: 'unlockMedium', name: '解锁普通模式', icon: '⚔️', price: 150, special: 'unlockMode', unlockMode: 'medium' },
+            { id: 'unlockHard', name: '解锁困难模式', icon: '🔥', price: 300, special: 'unlockMode', unlockMode: 'hard' },
+            { id: 'expert', name: '专家级别', icon: '⭐', price: 1000 },
+            { id: 'unlock', name: '解锁全部', icon: '🔓', price: 100, special: 'unlockAll' }
+        ];
+
+        this.elements.shopItems.innerHTML = '';
+        const ownedItems = this.getOwnedItems();
+        const currentSet = this.getCurrentIconSet();
+
+        items.forEach(item => {
+            const isOwned = ownedItems.includes(item.id);
+            const isSelected = currentSet === item.id;
+            const isSpecialItem = item.special && ['unlockLevel', 'unlockMode', 'unlockAll'].includes(item.special);
+
+            const itemEl = document.createElement('div');
+            itemEl.className = 'shop-item';
+            if (isOwned) itemEl.classList.add('owned');
+            if (isSelected) itemEl.classList.add('selected');
+
+            let statusText = '';
+            if (isSpecialItem) {
+                statusText = isOwned ? '已使用' : `${item.price}💎`;
+            } else if (isOwned) {
+                statusText = isSelected ? '使用中' : '已拥有';
+            } else {
+                statusText = `${item.price}💎`;
+            }
+
+            let statusClass = '';
+            if (isOwned) {
+                statusClass = isSelected ? 'selected' : 'owned';
+            }
+
+            itemEl.innerHTML = `
+                <span class="shop-item-icon">${item.icon}</span>
+                <span class="shop-item-name">${item.name}</span>
+                ${item.price > 0 && !isOwned ? `<span class="shop-item-price">💎${item.price}</span>` : ''}
+                <span class="shop-item-status ${statusClass}">${statusText}</span>
+            `;
+
+            if (!isOwned || !isSpecialItem) {
+                itemEl.addEventListener('click', () => this.handleShopItemClick(item));
+            } else {
+                itemEl.style.cursor = 'not-allowed';
+            }
+
+            this.elements.shopItems.appendChild(itemEl);
+        });
+    }
+
+    handleShopItemClick(item) {
+        const ownedItems = this.getOwnedItems();
+        const diamonds = this.getDiamonds();
+
+        if (ownedItems.includes(item.id)) {
+            if (!item.special || !['unlockLevel', 'unlockMode', 'unlockAll'].includes(item.special)) {
+                this.saveCurrentIconSet(item.id);
+                this.renderShopItems();
+            }
+            return;
+        }
+
+        if (diamonds < item.price) {
+            alert('你的钻石不够了，请先收集好钻石再来兑换');
+            return;
+        }
+
+        this.saveDiamonds(diamonds - item.price);
+
+        if (item.special === 'unlockLevel') {
+            const progress = this.getGameProgress();
+            const currentProgress = progress[this.gameState.difficulty];
+            const newProgress = Math.min(100, currentProgress + item.unlockCount);
+            progress[this.gameState.difficulty] = newProgress;
+            this.saveGameProgress(progress);
+
+            this.renderShopItems();
+            this.updateShopDiamondDisplay();
+            this.updateDiamondDisplay();
+
+            alert(`🎉 恭喜！已成功解锁${item.unlockCount}关！`);
+            return;
+        }
+
+        if (item.special === 'unlockMode') {
+            const progress = this.getGameProgress();
+            if (item.unlockMode === 'medium') {
+                progress.easy = Math.max(progress.easy, 100);
+                progress.medium = Math.max(progress.medium, 1);
+            } else if (item.unlockMode === 'hard') {
+                progress.easy = Math.max(progress.easy, 100);
+                progress.medium = Math.max(progress.medium, 100);
+                progress.hard = Math.max(progress.hard, 1);
+            }
+            this.saveGameProgress(progress);
+
+            this.renderShopItems();
+            this.updateShopDiamondDisplay();
+            this.updateDiamondDisplay();
+
+            alert(`🎉 恭喜！已成功解锁${item.unlockMode === 'medium' ? '普通' : '困难'}模式！`);
+            return;
+        }
+
+        if (item.special === 'unlockAll') {
+            const progress = { easy: 100, medium: 100, hard: 100 };
+            this.saveGameProgress(progress);
+
+            this.renderShopItems();
+            this.updateShopDiamondDisplay();
+            this.updateDiamondDisplay();
+
+            alert('🎉 恭喜！已解锁全部关卡和模式！');
+            return;
+        }
+
+        ownedItems.push(item.id);
+        this.saveOwnedItems(ownedItems);
+        this.saveCurrentIconSet(item.id);
+
+        this.renderShopItems();
+        this.updateShopDiamondDisplay();
+        this.updateDiamondDisplay();
+
+        alert(`🎉 恭喜！你成功购买了「${item.name}」！`);
+    }
+
+    updateShopDiamondDisplay() {
+        const count = this.getDiamonds();
+        this.elements.shopDiamondCount.textContent = count;
+    }
+
+    goHome() {
+        this.stopTimer();
+        this.showPage('home');
+        this.updateDifficultyButtons();
+        this.generateLevelButtons();
+        this.updateDiamondDisplay();
+        this.updateUnlockCount();
+    }
+}
+
+// 简单的数字猜谜游戏（示例）
+class NumberGuessGame extends GameInterface {
+    constructor() {
+        super();
+        this.targetNumber = 0;
+        this.attempts = 0;
+        this.maxAttempts = 10;
+    }
+
+    getInfo() {
+        return {
+            name: '数字猜谜',
+            description: '猜一个1-100的数字，看看你能猜对吗？',
+            icon: '🔢',
+            tags: ['益智', '休闲']
+        };
+    }
+
+    init(container) {
+        super.init(container);
+        this.startNewGame();
+        this.render();
+    }
+
+    startNewGame() {
+        this.targetNumber = Math.floor(Math.random() * 100) + 1;
+        this.attempts = 0;
+    }
+
+    render() {
+        this.container.innerHTML = `
+            <div class="card" style="max-width: 600px;">
+                <h1 class="title" style="font-size: 2rem;">🔢 数字猜谜</h1>
+                <p style="text-align: center; color: #64748b; margin-bottom: 20px;">
+                    猜一个 1-100 的数字，你有 ${this.maxAttempts} 次机会！
+                </p>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="number" id="guess-input" min="1" max="100" 
+                           style="flex: 1; padding: 15px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1.2rem; text-align: center;">
+                    <button id="guess-btn" class="play-btn" style="max-width: 150px; margin: 0;">猜！</button>
+                </div>
+
+                <div id="message" style="text-align: center; font-size: 1.5rem; margin-bottom: 20px; min-height: 2rem;"></div>
+                <div style="text-align: center; color: #64748b;">
+                    已尝试: <span id="attempts">0</span> / ${this.maxAttempts}
+                </div>
+
+                <button id="new-game-btn" class="back-btn" style="margin-top: 20px;">新游戏</button>
+            </div>
+        `;
+
+        this.setupGameListeners();
+    }
+
+    setupGameListeners() {
+        document.getElementById('guess-btn').addEventListener('click', () => this.makeGuess());
+        document.getElementById('guess-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.makeGuess();
+        });
+        document.getElementById('new-game-btn').addEventListener('click', () => {
+            this.startNewGame();
+            this.render();
+        });
+    }
+
+    makeGuess() {
+        const input = document.getElementById('guess-input');
+        const message = document.getElementById('message');
+        const attemptsEl = document.getElementById('attempts');
+        const guess = parseInt(input.value);
+
+        if (isNaN(guess) || guess < 1 || guess > 100) {
+            message.textContent = '请输入 1-100 的数字！';
+            message.style.color = '#EF4444';
+            return;
+        }
+
+        this.attempts++;
+        attemptsEl.textContent = this.attempts;
+
+        if (guess === this.targetNumber) {
+            message.textContent = `🎉 恭喜你！猜对了！用了 ${this.attempts} 次！`;
+            message.style.color = '#22C55E';
+            document.getElementById('guess-btn').disabled = true;
+        } else if (this.attempts >= this.maxAttempts) {
+            message.textContent = `😢 游戏结束！答案是 ${this.targetNumber}`;
+            message.style.color = '#EF4444';
+            document.getElementById('guess-btn').disabled = true;
+        } else if (guess < this.targetNumber) {
+            message.textContent = '⬆️ 太小了！再大点！';
+            message.style.color = '#3B82F6';
+        } else {
+            message.textContent = '⬇️ 太大了！再小点！';
+            message.style.color = '#3B82F6';
+        }
+
+        input.value = '';
+        input.focus();
+    }
+}
+
+// 跑酷小蓝游戏
+class ParkourGame extends GameInterface {
+    constructor() {
+        super();
+        this.state = 'menu';
+        this.currentLevel = 1;
+        this.totalLevels = 200;
+        this.score = 0;
+        this.lives = 3;
+        this.allFruits = ['🍉', '🍋', '🍇', '🥝', '🍓', '🍌', '🍎', '🥥', '🍈', '🍍', '🍐', '🍑', '🍒', '🥭', '🥑', '🍊', '🍋‍🟩', '🫐', '🍅', '🫒', '🍏', '🥕', '🍆', '🥦', '🧅'];
+        this.fruits = [];
+        this.currentFruitIndex = 0;
+        this.invincible = false;
+        this.invincibleTimer = null;
+        this.gameLoop = null;
+        this.animationId = null;
+        this.spawnTimer = null;
+        this.coinTimer = null;
+        this.keydownHandler = null;
+        this.clickHandler = null;
+        this.player = {
+            x: 50,
+            y: 0,
+            width: 40,
+            height: 40,
+            velocityY: 0,
+            isJumping: false,
+            jumpCount: 0
+        };
+        this.obstacles = [];
+        this.coins = [];
+        this.gravity = 0.8;
+        this.jumpForce = -15;
+        this.groundHeight = 60;
+        this.speed = 3;
+        this.canvasWidth = 0;
+        this.canvasHeight = 0;
+        this.spawnInterval = 2000;
+        this.coinInterval = 2500;
+        this.elements = {};
+    }
+
+    getInfo() {
+        return {
+            name: '跑酷小蓝',
+            description: '控制小蓝角色躲避障碍，收集水果！共200关，每10关增加1种水果！',
+            icon: '🏃',
+            tags: ['跑酷', '休闲']
+        };
+    }
+
+    getUnlockedLevel() {
+        const saved = localStorage.getItem('parkour_unlocked_level');
+        return saved ? parseInt(saved, 10) : 1;
+    }
+
+    setUnlockedLevel(level) {
+        const current = this.getUnlockedLevel();
+        if (level > current) {
+            localStorage.setItem('parkour_unlocked_level', level.toString());
+        }
+    }
+
+    getFruitsForLevel(level) {
+        const fruitCount = Math.min(5 + Math.floor((level - 1) / 10), this.allFruits.length);
+        return this.allFruits.slice(0, fruitCount);
+    }
+
+    init(container) {
+        super.init(container);
+        this.renderMenu();
+    }
+
+    renderMenu() {
+        const unlocked = this.getUnlockedLevel();
+        let levelsHTML = '';
+        for (let i = 1; i <= this.totalLevels; i++) {
+            const isUnlocked = i <= unlocked;
+            const fruits = this.getFruitsForLevel(i);
+            const fruitCount = fruits.length;
+            const lastFruits = fruits.slice(-3).join('');
+            if (isUnlocked) {
+                levelsHTML += `<button class="parkour-level-btn" data-level="${i}" style="width: 50px; height: 50px; border: 2px solid #3B82F6; background: linear-gradient(135deg, #60A5FA, #3B82F6); color: white; border-radius: 10px; font-size: 0.95rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <span style="line-height: 1;">${i}</span>
+                    <span style="font-size: 0.6rem; opacity: 0.9; margin-top: 2px;">${fruitCount}果</span>
+                </button>`;
+            } else {
+                levelsHTML += `<button class="parkour-level-btn" data-level="${i}" disabled style="width: 50px; height: 50px; border: 2px dashed #CBD5E1; background: #F1F5F9; color: #94A3B8; border-radius: 10px; font-size: 0.95rem; font-weight: bold; cursor: not-allowed; display: flex; align-items: center; justify-content: center;">🔒</button>`;
+            }
+        }
+
+        this.container.innerHTML = `
+            <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="font-size: 2rem; color: #1E293B; margin-bottom: 8px;">🏃 跑酷小蓝</h1>
+                    <div style="color: #64748b; font-size: 1rem; margin-bottom: 10px;">200关挑战 · 每10关增加1种新水果 · 已解锁 ${unlocked}/${this.totalLevels} 关</div>
+                    <div style="background: #F8FAFC; border-radius: 12px; padding: 10px 20px; display: inline-block; font-size: 0.9rem; color: #475569;">
+                        <b>水果池:</b> ${this.allFruits.join(' ')}
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; max-height: 500px; overflow-y: auto; padding: 15px; background: #F8FAFC; border-radius: 12px;">
+                    ${levelsHTML}
+                </div>
+                <div style="text-align: center; color: #64748b; margin-top: 15px; font-size: 0.9rem;">
+                    💡 点击关卡开始游戏 · 通关后自动解锁下一关
+                </div>
+            </div>
+        `;
+
+        const levelBtns = this.container.querySelectorAll('.parkour-level-btn');
+        levelBtns.forEach(btn => {
+            if (!btn.disabled) {
+                btn.addEventListener('click', () => {
+                    const level = parseInt(btn.dataset.level, 10);
+                    this.startLevel(level);
+                });
+            }
+        });
+    }
+
+    startLevel(level) {
+        this.currentLevel = level;
+        this.fruits = this.getFruitsForLevel(level);
+        this.state = 'ready';
+        this.score = 0;
+        this.lives = 3;
+        this.currentFruitIndex = 0;
+        this.invincible = false;
+        this.obstacles = [];
+        this.coins = [];
+        this.speed = 3;
+        this.spawnInterval = 2000;
+        this.coinInterval = 2500;
+
+        this.renderGameView();
+    }
+
+    renderGameView() {
+        const fruitSlots = this.fruits.map(f => `<span style="font-size: 1.8rem; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 3px dashed #94A3B8; border-radius: 10px; background: #F1F5F9; color: transparent; text-shadow: none; flex-shrink: 0;">${f}</span>`).join('');
+        const hintText = this.fruits.slice(0, 8).join(' → ') + (this.fruits.length > 8 ? ' ...' : '');
+
+        this.container.innerHTML = `
+            <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <button id="parkour-back-btn" style="padding: 8px 16px; background: #64748b; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: bold;">← 返回选关</button>
+                    <div style="font-size: 1.5rem; color: #1E293B; font-weight: bold;">🏃 第 ${this.currentLevel} 关</div>
+                    <div style="font-size: 1rem; color: #475569; font-weight: bold;">需收集 ${this.fruits.length} 个水果</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #F8FAFC; border-radius: 12px; margin-bottom: 15px; gap: 10px; flex-wrap: wrap;">
+                    <div style="font-size: 1.3rem; white-space: nowrap;" id="parkour-lives">❤️❤️❤️</div>
+                    <div id="parkour-fruit-progress" style="display: flex; gap: 6px; justify-content: center; flex: 1; flex-wrap: wrap; min-height: 46px;">
+                        ${fruitSlots}
+                    </div>
+                    <div style="font-size: 1.2rem; color: #3B82F6; font-weight: bold; white-space: nowrap;">
+                        得分: <span id="parkour-score">0</span>
+                    </div>
+                </div>
+                <div id="parkour-canvas-container" style="position: relative; width: 100%; height: 400px; background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 70%, #A5D6A7 70%, #A5D6A7 100%); border-radius: 12px; overflow: hidden; border: 3px solid #4DB6AC;">
+                    <div id="parkour-ground" style="position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, #8D6E63, #6D4C41); border-top: 4px solid #5D4037;"></div>
+                    <div id="parkour-player" style="position: absolute; width: 40px; height: 40px; background: #3B82F6; border-radius: 8px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                        🏃
+                    </div>
+                    <div id="parkour-obstacles" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+                    <div id="parkour-coins" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+                    <div id="parkour-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 10; padding: 20px; text-align: center;">
+                        <div id="parkour-overlay-title" style="font-size: 2.2rem; margin-bottom: 12px; font-weight: bold;">🎮 第 ${this.currentLevel} 关</div>
+                        <div id="parkour-overlay-subtitle" style="font-size: 1.1rem; margin-bottom: 20px; max-width: 600px;">点击画面或按空格键跳跃（可二段跳），躲避障碍，按顺序收集 ${this.fruits.length} 种水果！</div>
+                        <div style="font-size: 1.5rem; margin-bottom: 25px; background: rgba(255,255,255,0.15); padding: 12px 20px; border-radius: 10px;">${this.fruits.join(' ')}</div>
+                        <div id="parkour-final-score" style="font-size: 1.3rem; margin-bottom: 15px; display: none;">最终得分: <span id="parkour-final-score-value">0</span></div>
+                        <button id="parkour-start-btn" style="padding: 12px 35px; font-size: 1.2rem; background: #3B82F6; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);">
+                            开始游戏
+                        </button>
+                        <div id="parkour-win-buttons" style="display: none; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px;">
+                            <button id="parkour-restart-btn" style="padding: 12px 25px; font-size: 1.1rem; background: #22C55E; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);">
+                                再玩一次
+                            </button>
+                            <button id="parkour-next-btn" style="padding: 12px 25px; font-size: 1.1rem; background: #3B82F6; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); display: none;">
+                                下一关 →
+                            </button>
+                            <button id="parkour-menu-btn-2" style="padding: 12px 25px; font-size: 1.1rem; background: #64748b; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(100, 116, 139, 0.4);">
+                                返回选关
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; color: #64748b; margin-top: 15px; font-size: 0.9rem;">
+                    💡 点击画面或按 <b>空格键</b> 跳跃（可二段跳），按顺序收集：${hintText}
+                </div>
+            </div>
+        `;
+
+        this.bindGameElements();
+        this.bindGameEvents();
+        this.player.y = this.canvasHeight - this.groundHeight - this.player.height;
+        this.renderCanvas();
+    }
+
+    bindGameElements() {
+        this.elements = {
+            container: document.getElementById('parkour-canvas-container'),
+            player: document.getElementById('parkour-player'),
+            obstacles: document.getElementById('parkour-obstacles'),
+            coins: document.getElementById('parkour-coins'),
+            score: document.getElementById('parkour-score'),
+            lives: document.getElementById('parkour-lives'),
+            fruitProgress: document.getElementById('parkour-fruit-progress'),
+            overlay: document.getElementById('parkour-overlay'),
+            overlayTitle: document.getElementById('parkour-overlay-title'),
+            overlaySubtitle: document.getElementById('parkour-overlay-subtitle'),
+            finalScore: document.getElementById('parkour-final-score'),
+            finalScoreValue: document.getElementById('parkour-final-score-value'),
+            startBtn: document.getElementById('parkour-start-btn'),
+            restartBtn: document.getElementById('parkour-restart-btn'),
+            nextBtn: document.getElementById('parkour-next-btn'),
+            winButtons: document.getElementById('parkour-win-buttons'),
+            menuBtn: document.getElementById('parkour-back-btn'),
+            menuBtn2: document.getElementById('parkour-menu-btn-2')
+        };
+
+        const rect = this.elements.container.getBoundingClientRect();
+        this.canvasWidth = rect.width;
+        this.canvasHeight = rect.height;
+    }
+
+    bindGameEvents() {
+        this.keydownHandler = (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (this.state === 'ready') {
+                    this.startGame();
+                } else if (this.state === 'playing') {
+                    this.jump();
+                }
+            }
+        };
+
+        this.clickHandler = () => {
+            if (this.state === 'playing') {
+                this.jump();
+            }
+        };
+
+        document.addEventListener('keydown', this.keydownHandler);
+        this.elements.container.addEventListener('click', this.clickHandler);
+
+        this.elements.startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.startGame();
+        });
+
+        this.elements.restartBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.restartGame();
+        });
+
+        if (this.elements.nextBtn) {
+            this.elements.nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (this.currentLevel < this.totalLevels) {
+                    this.startLevel(this.currentLevel + 1);
+                } else {
+                    this.renderMenu();
+                }
+            });
+        }
+
+        this.elements.menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.stopGameLoop();
+            this.stopSpawnObstacles();
+            this.stopSpawnCoins();
+            this.renderMenu();
+        });
+
+        this.elements.menuBtn2.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.stopGameLoop();
+            this.stopSpawnObstacles();
+            this.stopSpawnCoins();
+            this.renderMenu();
+        });
+    }
+
+    startGame() {
+        this.state = 'playing';
+        this.score = 0;
+        this.lives = 3;
+        this.currentFruitIndex = 0;
+        this.invincible = false;
+        this.obstacles = [];
+        this.coins = [];
+        this.speed = 3;
+        this.spawnInterval = 2000;
+        this.coinInterval = 2500;
+        this.player.y = this.canvasHeight - this.groundHeight - this.player.height;
+        this.player.velocityY = 0;
+        this.player.isJumping = false;
+        this.player.jumpCount = 0;
+
+        this.elements.score.textContent = '0';
+        this.updateLives();
+        this.updateFruitProgress();
+        this.elements.player.style.opacity = '1';
+        this.elements.overlay.style.display = 'none';
+
+        this.startGameLoop();
+        this.startSpawnObstacles();
+        this.startSpawnCoins();
+    }
+
+    restartGame() {
+        this.stopGameLoop();
+        this.stopSpawnObstacles();
+        this.stopSpawnCoins();
+        if (this.invincibleTimer) {
+            clearTimeout(this.invincibleTimer);
+            this.invincibleTimer = null;
+        }
+        this.elements.obstacles.innerHTML = '';
+        this.elements.coins.innerHTML = '';
+        this.startGame();
+    }
+
+    jump() {
+        if (this.state !== 'playing') return;
+
+        if (this.player.jumpCount < 2) {
+            this.player.velocityY = this.jumpForce;
+            this.player.isJumping = true;
+            this.player.jumpCount++;
+        }
+    }
+
+    startGameLoop() {
+        const loop = () => {
+            if (this.state !== 'playing') return;
+            this.update();
+            this.renderCanvas();
+            this.animationId = requestAnimationFrame(loop);
+        };
+        this.animationId = requestAnimationFrame(loop);
+    }
+
+    stopGameLoop() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+    }
+
+    startSpawnObstacles() {
+        const spawn = () => {
+            if (this.state !== 'playing') return;
+            this.spawnObstacle();
+            if (this.spawnInterval > 800) {
+                this.spawnInterval -= 10;
+            }
+            this.spawnTimer = setTimeout(spawn, this.spawnInterval);
+        };
+        this.spawnTimer = setTimeout(spawn, this.spawnInterval);
+    }
+
+    stopSpawnObstacles() {
+        if (this.spawnTimer) {
+            clearTimeout(this.spawnTimer);
+            this.spawnTimer = null;
+        }
+    }
+
+    startSpawnCoins() {
+        this.spawnCoin();
+        this.coinTimer = setInterval(() => {
+            if (this.state === 'playing') {
+                this.spawnCoin();
+            }
+        }, this.coinInterval);
+    }
+
+    stopSpawnCoins() {
+        if (this.coinTimer) {
+            clearInterval(this.coinTimer);
+            this.coinTimer = null;
+        }
+    }
+
+    spawnObstacle() {
+        const types = [
+            { width: 30, height: 40, emoji: '🌵' },
+            { width: 35, height: 50, emoji: '🪨' },
+            { width: 40, height: 45, emoji: '🧱' },
+            { width: 30, height: 35, emoji: '🔥' }
+        ];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const obstacle = {
+            x: this.canvasWidth + 20,
+            y: this.canvasHeight - this.groundHeight - type.height,
+            width: type.width,
+            height: type.height,
+            emoji: type.emoji
+        };
+        this.obstacles.push(obstacle);
+    }
+
+    spawnCoin() {
+        if (this.currentFruitIndex >= this.fruits.length) return;
+        const heights = [100, 150, 200, 250];
+        const coin = {
+            x: this.canvasWidth + 20,
+            y: this.canvasHeight - this.groundHeight - heights[Math.floor(Math.random() * heights.length)],
+            width: 30,
+            height: 30,
+            emoji: this.fruits[this.currentFruitIndex],
+            collected: false
+        };
+        this.coins.push(coin);
+    }
+
+    update() {
+        this.speed += 0.001;
+
+        this.player.velocityY += this.gravity;
+        this.player.y += this.player.velocityY;
+
+        const groundY = this.canvasHeight - this.groundHeight - this.player.height;
+        if (this.player.y >= groundY) {
+            this.player.y = groundY;
+            this.player.velocityY = 0;
+            this.player.isJumping = false;
+            this.player.jumpCount = 0;
+        }
+
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
+            const obs = this.obstacles[i];
+            obs.x -= this.speed;
+
+            if (!this.invincible && this.checkCollision(this.player, obs)) {
+                this.lives--;
+                this.updateLives();
+                if (this.lives <= 0) {
+                    this.gameOver();
+                    return;
+                }
+                this.startInvincible();
+                this.obstacles.splice(i, 1);
+                continue;
+            }
+
+            if (obs.x + obs.width < 0) {
+                this.obstacles.splice(i, 1);
+                this.score += 5;
+                this.elements.score.textContent = this.score;
+            }
+        }
+
+        for (let i = this.coins.length - 1; i >= 0; i--) {
+            const coin = this.coins[i];
+            coin.x -= this.speed;
+
+            if (!coin.collected && this.checkCollision(this.player, coin)) {
+                coin.collected = true;
+                this.score += 10;
+                this.currentFruitIndex++;
+                this.elements.score.textContent = this.score;
+                this.updateFruitProgress();
+                this.coins.splice(i, 1);
+                if (this.currentFruitIndex >= this.fruits.length) {
+                    this.win();
+                    return;
+                }
+                continue;
+            }
+
+            if (coin.x + coin.width < 0) {
+                this.coins.splice(i, 1);
+            }
+        }
+    }
+
+    checkCollision(a, b) {
+        const padding = 5;
+        return (
+            a.x + padding < b.x + b.width - padding &&
+            a.x + a.width - padding > b.x + padding &&
+            a.y + padding < b.y + b.height - padding &&
+            a.y + a.height - padding > b.y + padding
+        );
+    }
+
+    startInvincible() {
+        this.invincible = true;
+        let flashCount = 0;
+        const flashInterval = setInterval(() => {
+            if (!this.invincible || this.state !== 'playing') {
+                clearInterval(flashInterval);
+                if (this.elements && this.elements.player) {
+                    this.elements.player.style.opacity = '1';
+                }
+                return;
+            }
+            if (this.elements && this.elements.player) {
+                this.elements.player.style.opacity = (flashCount % 2 === 0) ? '0.3' : '1';
+            }
+            flashCount++;
+        }, 100);
+        this.invincibleTimer = setTimeout(() => {
+            this.invincible = false;
+            clearInterval(flashInterval);
+            if (this.elements && this.elements.player) {
+                this.elements.player.style.opacity = '1';
+            }
+        }, 1500);
+    }
+
+    updateLives() {
+        let hearts = '';
+        for (let i = 0; i < this.lives; i++) {
+            hearts += '❤️';
+        }
+        for (let i = this.lives; i < 3; i++) {
+            hearts += '🖤';
+        }
+        this.elements.lives.textContent = hearts;
+    }
+
+    updateFruitProgress() {
+        const spans = this.elements.fruitProgress.querySelectorAll('span');
+        spans.forEach((span, index) => {
+            if (index < this.currentFruitIndex) {
+                span.style.color = '';
+                span.style.textShadow = '';
+                span.style.border = '3px solid #22C55E';
+                span.style.background = 'linear-gradient(135deg, #FEF3C7, #FDE68A)';
+                span.style.boxShadow = '0 0 10px rgba(34, 197, 94, 0.5)';
+                span.style.transform = 'scale(1.1)';
+                span.style.transition = 'all 0.3s ease';
+            } else {
+                span.style.color = 'transparent';
+                span.style.textShadow = 'none';
+                span.style.border = '3px dashed #94A3B8';
+                span.style.background = '#F1F5F9';
+                span.style.boxShadow = 'none';
+                span.style.transform = 'scale(1)';
+                span.style.transition = 'all 0.3s ease';
+            }
+        });
+    }
+
+    gameOver() {
+        this.state = 'gameover';
+        this.stopGameLoop();
+        this.stopSpawnObstacles();
+        this.stopSpawnCoins();
+
+        this.elements.overlayTitle.textContent = '💥 第 ' + this.currentLevel + ' 关失败！';
+        this.elements.overlaySubtitle.textContent = '别灰心，再来一次挑战更高分数！';
+        this.elements.finalScore.style.display = 'block';
+        this.elements.finalScoreValue.textContent = this.score;
+        this.elements.startBtn.style.display = 'none';
+        this.elements.winButtons.style.display = 'flex';
+        this.elements.nextBtn.style.display = 'none';
+        this.elements.restartBtn.style.display = 'block';
+        this.elements.restartBtn.textContent = '再试一次';
+        this.elements.overlay.style.display = 'flex';
+    }
+
+    win() {
+        this.state = 'win';
+        this.stopGameLoop();
+        this.stopSpawnObstacles();
+        this.stopSpawnCoins();
+
+        this.setUnlockedLevel(this.currentLevel + 1);
+
+        this.elements.overlayTitle.textContent = '🎉 第 ' + this.currentLevel + ' 关通过！';
+        if (this.currentLevel >= this.totalLevels) {
+            this.elements.overlaySubtitle.textContent = '🌟 恭喜！你已经完成了全部200关！你是真正的跑酷大师！';
+        } else {
+            this.elements.overlaySubtitle.textContent = '太棒了！你收集了所有水果！下一关解锁了 ' + this.getFruitsForLevel(this.currentLevel + 1).length + ' 种水果！';
+        }
+        this.elements.finalScore.style.display = 'block';
+        this.elements.finalScoreValue.textContent = this.score;
+        this.elements.startBtn.style.display = 'none';
+        this.elements.winButtons.style.display = 'flex';
+        this.elements.restartBtn.style.display = 'block';
+        this.elements.restartBtn.textContent = '再玩一次';
+        if (this.currentLevel < this.totalLevels) {
+            this.elements.nextBtn.style.display = 'block';
+        } else {
+            this.elements.nextBtn.style.display = 'none';
+        }
+        this.elements.overlay.style.display = 'flex';
+    }
+
+    renderCanvas() {
+        if (!this.elements.player) return;
+        this.elements.player.style.left = this.player.x + 'px';
+        this.elements.player.style.top = this.player.y + 'px';
+
+        this.elements.obstacles.innerHTML = '';
+        for (const obs of this.obstacles) {
+            const el = document.createElement('div');
+            el.style.position = 'absolute';
+            el.style.left = obs.x + 'px';
+            el.style.top = obs.y + 'px';
+            el.style.width = obs.width + 'px';
+            el.style.height = obs.height + 'px';
+            el.style.display = 'flex';
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
+            el.style.fontSize = Math.min(obs.width, obs.height) + 'px';
+            el.textContent = obs.emoji;
+            this.elements.obstacles.appendChild(el);
+        }
+
+        this.elements.coins.innerHTML = '';
+        for (const coin of this.coins) {
+            const el = document.createElement('div');
+            el.style.position = 'absolute';
+            el.style.left = coin.x + 'px';
+            el.style.top = coin.y + 'px';
+            el.style.width = coin.width + 'px';
+            el.style.height = coin.height + 'px';
+            el.style.display = 'flex';
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
+            el.style.fontSize = '28px';
+            el.textContent = coin.emoji;
+            this.elements.coins.appendChild(el);
+        }
+    }
+
+    destroy() {
+        this.state = 'menu';
+        this.stopGameLoop();
+        this.stopSpawnObstacles();
+        this.stopSpawnCoins();
+        if (this.invincibleTimer) {
+            clearTimeout(this.invincibleTimer);
+            this.invincibleTimer = null;
+        }
+
+        if (this.keydownHandler) {
+            document.removeEventListener('keydown', this.keydownHandler);
+            this.keydownHandler = null;
+        }
+
+        super.destroy();
+    }
+}
+
+// 初始化游戏大厅
+const gameManager = new GameManager();
+
+// 注册游戏
+gameManager.registerGame('dinosaur-link', DinosaurLinkGame);
+gameManager.registerGame('number-guess', NumberGuessGame);
+gameManager.registerGame('parkour', ParkourGame);
+
+    </script>
+</body>
+</html>

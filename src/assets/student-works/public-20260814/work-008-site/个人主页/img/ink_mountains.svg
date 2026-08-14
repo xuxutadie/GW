@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 900" preserveAspectRatio="xMidYMid slice" width="1920" height="900">
+  <defs>
+    <filter id="farMist"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="midMist"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="nearSoft"><feGaussianBlur stdDeviation="3"/></filter>
+    <linearGradient id="mistGrad1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0E4CE" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#F0E4CE" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#F0E4CE" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EDE2CA" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F0E4CE" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 天空底色微微渐变 -->
+  <rect x="0" y="0" width="1920" height="400" fill="url(#skyGrad)"/>
+
+  <!-- 远山：最淡最远，几乎融入纸面 -->
+  <g opacity="0.06" filter="url(#farMist)">
+    <path d="M-50,220 Q120,160 280,200 Q420,140 560,190 Q680,130 820,180 Q950,120 1100,170 Q1250,110 1400,160 Q1550,130 1700,170 Q1830,140 1970,180 L1970,600 L-50,600 Z" fill="#3D3429"/>
+  </g>
+
+  <!-- 中远山：淡淡轮廓，云雾缭绕 -->
+  <g opacity="0.09" filter="url(#midMist)">
+    <path d="M-50,280 Q80,220 200,260 Q320,200 450,250 Q550,210 650,250 Q750,200 880,240 Q1000,190 1120,230 Q1250,180 1380,230 Q1500,190 1620,240 Q1750,200 1970,250 L1970,600 L-50,600 Z" fill="#352D24"/>
+  </g>
+
+  <!-- 主山峰区域：写意笔法，有尖有圆 -->
+  <g opacity="0.11" filter="url(#nearSoft)">
+    <path d="M200,320 L280,180 L310,200 L380,100 L420,150 L480,80 L530,140 L580,60 L640,130 L700,90 L760,160 L820,120 L870,180 L900,320 Z" fill="#2C2620"/>
+    <path d="M750,300 L830,170 L870,200 L940,110 L990,170 L1050,90 L1110,150 L1170,110 L1230,190 L1280,300 Z" fill="#2A241E"/>
+    <path d="M1100,310 L1180,200 L1230,230 L1300,150 L1360,210 L1430,170 L1500,250 L1560,310 Z" fill="#2E2720"/>
+  </g>
+
+  <!-- 左侧小山坡 -->
+  <g opacity="0.08" filter="url(#nearSoft)">
+    <path d="M-50,350 Q60,290 150,330 Q230,280 320,330 Q380,310 420,350 L420,600 L-50,600 Z" fill="#3A3026"/>
+  </g>
+
+  <!-- 右侧缓坡 -->
+  <g opacity="0.07" filter="url(#midMist)">
+    <path d="M1450,380 Q1550,320 1650,360 Q1750,310 1850,350 Q1920,330 1970,360 L1970,650 L1450,650 Z" fill="#352D24"/>
+  </g>
+
+  <!-- 云雾带1：山腰云气 -->
+  <rect x="0" y="200" width="1920" height="120" fill="#F0E4CE" opacity="0.25" filter="url(#farMist)"/>
+
+  <!-- 云雾带2：山谷薄雾 -->
+  <rect x="0" y="320" width="1920" height="180" fill="url(#mistGrad1)"/>
+
+  <!-- 底部渐隐融入纸面 -->
+  <rect x="0" y="400" width="1920" height="500" fill="url(#mistGrad1)"/>
+
+  <!-- 飞鸟：极淡，点缀意境 -->
+  <g fill="none" stroke="#2C2620" stroke-linecap="round">
+    <path d="M860,130 Q866,124 872,130 Q878,124 884,130" stroke-width="1.1" opacity="0.2"/>
+    <path d="M920,170 Q925,165 930,170 Q935,165 940,170" stroke-width="0.9" opacity="0.17"/>
+    <path d="M780,155 Q784,151 788,155 Q792,151 796,155" stroke-width="0.8" opacity="0.15"/>
+    <path d="M1020,195 Q1023,192 1026,195 Q1029,192 1032,195" stroke-width="0.7" opacity="0.13"/>
+    <path d="M700,110 Q704,106 708,110 Q712,106 716,110" stroke-width="0.8" opacity="0.14"/>
+    <path d="M1100,145 Q1104,141 1108,145 Q1112,141 1116,145" stroke-width="0.7" opacity="0.12"/>
+  </g>
+</svg>

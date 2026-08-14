@@ -1,0 +1,278 @@
+/* ===== Profile Section ===== */
+.profile {
+  padding-top: 120px;
+  background: var(--color-bg);
+}
+
+.profile-wrapper {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.profile-avatar {
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-scroll {
+  position: relative;
+  padding: 12px;
+}
+
+.avatar-scroll::before,
+.avatar-scroll::after,
+.avatar-scroll > .avatar-placeholder::before,
+.avatar-scroll > .avatar-placeholder::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--color-terracotta);
+  border-style: solid;
+  opacity: 0.6;
+}
+
+.avatar-scroll::before {
+  top: 0;
+  left: 0;
+  border-width: 2px 0 0 2px;
+}
+
+.avatar-scroll::after {
+  top: 0;
+  right: 0;
+  border-width: 2px 2px 0 0;
+}
+
+.avatar-placeholder::before {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 2px 2px;
+}
+
+.avatar-placeholder::after {
+  bottom: 0;
+  right: 0;
+  border-width: 0 2px 2px 0;
+}
+
+.avatar-placeholder {
+  position: relative;
+  width: 240px;
+  height: 300px;
+  background: var(--color-bg-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-light);
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+}
+
+.profile-info h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.profile-lead {
+  font-size: 1.1rem;
+  color: var(--color-text);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.profile-text {
+  color: var(--color-text-light);
+  line-height: 1.9;
+  margin-bottom: 32px;
+}
+
+.profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meta-item {
+  display: flex;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.meta-label {
+  color: var(--color-text-light);
+  min-width: 80px;
+}
+
+.meta-value {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* ===== Timeline Section ===== */
+.timeline-section {
+  background: var(--color-bg-alt);
+}
+
+.timeline {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: 32px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--color-border);
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 40px;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -32px;
+  top: 6px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--color-terracotta);
+  border: 2px solid var(--color-bg-alt);
+}
+
+.timeline-year {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: var(--color-terracotta);
+  margin-bottom: 4px;
+  font-family: var(--font-serif);
+}
+
+.timeline-content h3 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.timeline-content p {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  line-height: 1.7;
+}
+
+/* ===== Skills Section ===== */
+.skills {
+  background: var(--color-bg);
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.skill-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 32px;
+  transition: var(--transition);
+}
+
+.skill-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.skill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  margin-bottom: 16px;
+  color: var(--color-terracotta);
+}
+
+.skill-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.skill-card p {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  line-height: 1.7;
+}
+
+/* ===== Philosophy Section ===== */
+.philosophy {
+  background: var(--color-bg-alt);
+  text-align: center;
+}
+
+.philosophy-content {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.philosophy-seal {
+  margin: 0 auto 24px;
+  width: 52px;
+  height: 52px;
+  font-size: 0.8rem;
+}
+
+.philosophy-quote {
+  text-align: left;
+  margin: 0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .profile-wrapper {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .profile-avatar {
+    justify-content: center;
+  }
+
+  .avatar-placeholder {
+    width: 200px;
+    height: 250px;
+  }
+
+  .profile-info h1 {
+    text-align: center;
+  }
+
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline {
+    padding-left: 28px;
+  }
+
+  .timeline-dot {
+    left: -28px;
+  }
+}

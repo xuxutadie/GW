@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人档案</title>
+    <style>
+        /* ===== 主页面基础样式（来自 profile.html） ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            min-height: 200vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: #000;
+            position: relative;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            color: #fff;
+        }
+
+        #earth-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .top-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .bottom-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            position: relative;
+        }
+
+        .bottom-content {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 40px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stack-container {
+            position: relative;
+            width: 24vw;
+            max-width: 280px;
+            min-width: 200px;
+            aspect-ratio: 4 / 3;
+            touch-action: none;
+            cursor: grab;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .stack-container:active {
+            cursor: grabbing;
+        }
+
+        .folder-cover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            pointer-events: auto;
+            border: 1px solid rgba(0, 240, 255, 0.7);
+            box-shadow:
+                0 0 0 1px rgba(0, 240, 255, 0.25),
+                0 0 18px rgba(0, 240, 255, 0.45),
+                0 0 45px rgba(0, 128, 255, 0.25),
+                inset 0 0 25px rgba(0, 240, 255, 0.12),
+                0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .folder-cover[data-pos="0"] {
+            z-index: 5;
+            transform: translateX(0) rotate(0deg) scale(1);
+            box-shadow:
+                0 0 0 1px rgba(0, 240, 255, 0.4),
+                0 0 25px rgba(0, 240, 255, 0.65),
+                0 0 60px rgba(0, 128, 255, 0.4),
+                inset 0 0 30px rgba(0, 240, 255, 0.15),
+                0 15px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .folder-cover[data-pos="0"]:hover {
+            transform: translateX(0) rotate(0deg) scale(1.08);
+        }
+
+        .folder-cover[data-pos="1"] {
+            z-index: 4;
+            transform: translateX(105%) rotate(3deg) scale(0.9);
+        }
+
+        .folder-cover[data-pos="1"]:hover {
+            transform: translateX(105%) rotate(3deg) scale(0.98);
+        }
+
+        .folder-cover[data-pos="2"] {
+            z-index: 2;
+            transform: translateX(220%) rotate(6deg) scale(0.82);
+        }
+
+        .folder-cover[data-pos="2"]:hover {
+            transform: translateX(220%) rotate(6deg) scale(0.9);
+        }
+
+        .folder-cover[data-pos="3"] {
+            z-index: 3;
+            transform: translateX(-105%) rotate(-3deg) scale(0.9);
+        }
+
+        .folder-cover[data-pos="3"]:hover {
+            transform: translateX(-105%) rotate(-3deg) scale(0.98);
+        }
+
+        .folder-cover[data-pos="4"] {
+            z-index: 1;
+            transform: translateX(-220%) rotate(-6deg) scale(0.82);
+        }
+
+        .folder-cover[data-pos="4"]:hover {
+            transform: translateX(-220%) rotate(-6deg) scale(0.9);
+        }
+
+        .folder-cover-inner {
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(145deg, #0a1428 0%, #0d1f3d 50%, #0a1428 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Georgia', serif;
+        }
+
+        .folder-cover-inner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                #00f0ff 20%,
+                #0080ff 50%,
+                #00f0ff 80%,
+                transparent 100%);
+            box-shadow: 0 0 10px #00f0ff;
+        }
+
+        /* 科技感四角装饰 */
+        .folder-cover-inner::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 18px;
+            height: 18px;
+            border-top: 2px solid #00f0ff;
+            border-right: 2px solid #00f0ff;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+        }
+
+        .folder-title {
+            font-size: clamp(10px, 1.6vw, 18px);
+            color: #495057;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 2vh;
+            position: relative;
+        }
+
+        .folder-name {
+            font-size: clamp(11px, 1.7vw, 20px);
+            color: #00f0ff;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            text-shadow:
+                0 0 8px rgba(0, 240, 255, 0.8),
+                0 0 20px rgba(0, 240, 255, 0.5),
+                0 2px 6px rgba(0, 0, 0, 0.9);
+            margin-top: 2vh;
+            position: relative;
+            z-index: 2;
+            padding: 10px 20px;
+            background: rgba(10, 20, 40, 0.85);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 240, 255, 0.6);
+            box-shadow:
+                0 0 15px rgba(0, 240, 255, 0.4),
+                inset 0 0 10px rgba(0, 240, 255, 0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+            opacity: 0.65;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .folder-cover:hover .card-img {
+            transform: scale(1.06);
+            opacity: 0.85;
+        }
+
+        .folder-year {
+            position: absolute;
+            bottom: 8%;
+            right: 10%;
+            font-size: clamp(8px, 0.9vw, 12px);
+            color: rgba(0, 240, 255, 0.6);
+            letter-spacing: 0.1em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .decoration {
+            position: absolute;
+            width: 15%;
+            height: 15%;
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+        }
+
+        .decoration-1 { top: 15%; left: 10%; }
+        .decoration-2 { bottom: 15%; left: 8%; width: 8%; height: 8%; border-radius: 0; transform: rotate(45deg); }
+        .decoration-3 { top: 20%; right: 12%; width: 10%; height: 10%; border-radius: 0; }
+
+        .folder-cover.entering-from-right {
+            transition: none !important;
+            transform: translateX(280%) rotate(10deg) scale(0.75) !important;
+            opacity: 0 !important;
+            z-index: 10 !important;
+        }
+
+        .folder-cover.entering-from-left {
+            transition: none !important;
+            transform: translateX(-280%) rotate(-10deg) scale(0.75) !important;
+            opacity: 0 !important;
+            z-index: 10 !important;
+        }
+
+        .top-left-title {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            align-items: flex-start;
+            z-index: 100;
+            color: #00f0ff;
+            text-shadow:
+                0 0 8px rgba(0, 240, 255, 0.8),
+                0 0 20px rgba(0, 240, 255, 0.5);
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        .top-left-title .main-text {
+            font-size: 48px;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            line-height: 1;
+        }
+
+        .top-left-title .sub-text {
+            font-size: 24px;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 0.1em;
+            line-height: 1;
+            margin-left: 6px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(10, 20, 40, 0.85);
+            border: 1px solid rgba(0, 240, 255, 0.7);
+            box-shadow:
+                0 0 0 1px rgba(0, 240, 255, 0.2),
+                0 0 15px rgba(0, 240, 255, 0.5),
+                inset 0 0 10px rgba(0, 240, 255, 0.15);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            font-size: 18px;
+            color: #00f0ff;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+            backdrop-filter: blur(6px);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(0, 240, 255, 0.15);
+            box-shadow:
+                0 0 0 1px rgba(0, 240, 255, 0.4),
+                0 0 25px rgba(0, 240, 255, 0.8),
+                0 0 50px rgba(0, 128, 255, 0.4),
+                inset 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 桌面端放大时增大箭头按钮 */
+        @media (min-width: 1200px) {
+            .control-btn {
+                width: 64px;
+                height: 64px;
+                font-size: 26px;
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .control-btn {
+                width: 76px;
+                height: 76px;
+                font-size: 32px;
+            }
+        }
+
+        /* ===== 铁门过渡动画（共用） ===== */
+        .iron-gate-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10000;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .iron-gate {
+            position: absolute;
+            top: 0;
+            width: 50vw;
+            height: 100vh;
+            background:
+                linear-gradient(180deg, #1a1a2e 0%, #16213e 30%, #0f3460 70%, #16213e 100%);
+            border: 2px solid #00f0ff;
+            box-shadow:
+                inset 0 0 30px rgba(0, 240, 255, 0.3),
+                0 0 20px rgba(0, 240, 255, 0.5);
+            transition: transform 0.8s cubic-bezier(0.6, 0, 0.4, 1);
+        }
+
+        .iron-gate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(90deg, transparent 48%, rgba(0, 240, 255, 0.15) 50%, transparent 52%),
+                linear-gradient(0deg, transparent 48%, rgba(0, 240, 255, 0.15) 50%, transparent 52%);
+            background-size: 60px 80px;
+        }
+
+        .iron-gate::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40px;
+            height: 80px;
+            background: linear-gradient(180deg, #00f0ff, #0080ff);
+            box-shadow:
+                0 0 20px #00f0ff,
+                0 0 40px rgba(0, 240, 255, 0.5);
+            transform: translateY(-50%);
+            border-radius: 4px;
+        }
+
+        .iron-gate-left {
+            left: 0;
+            border-right: 3px solid #00f0ff;
+            transform: translateX(0);
+        }
+
+        .iron-gate-left::after {
+            right: -2px;
+        }
+
+        .iron-gate-right {
+            right: 0;
+            border-left: 3px solid #00f0ff;
+            transform: translateX(0);
+        }
+
+        .iron-gate-right::after {
+            left: -2px;
+        }
+
+        .iron-gate-overlay.gate-open .iron-gate-left {
+            transform: translateX(-100%);
+        }
+
+        .iron-gate-overlay.gate-open .iron-gate-right {
+            transform: translateX(100%);
+        }
+
+        .iron-gate-overlay.gate-closed .iron-gate-left,
+        .iron-gate-overlay.gate-closed .iron-gate-right {
+            transform: translateX(0);
+        }
+
+        /* 铁门中央发光效果 */
+        .gate-center-glow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg,
+                transparent 0%,
+                #00f0ff 20%,
+                #00ffff 50%,
+                #00f0ff 80%,
+                transparent 100%);
+            box-shadow:
+                0 0 30px #00f0ff,
+                0 0 60px #00f0ff,
+                0 0 100px rgba(0, 240, 255, 0.5);
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .iron-gate-overlay.gate-closed .gate-center-glow {
+            opacity: 1;
+        }
+
+        /* 铁门上的装饰铆钉 */
+        .gate-rivet {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #00f0ff 30%, #0066aa 70%);
+            border-radius: 50%;
+            box-shadow:
+                0 0 8px #00f0ff,
+                inset 0 0 4px rgba(255,255,255,0.5);
+        }
+
+        .iron-gate-left .gate-rivet:nth-child(1) { top: 10%; right: 20px; }
+        .iron-gate-left .gate-rivet:nth-child(2) { top: 30%; right: 20px; }
+        .iron-gate-left .gate-rivet:nth-child(3) { top: 50%; right: 20px; }
+        .iron-gate-left .gate-rivet:nth-child(4) { top: 70%; right: 20px; }
+        .iron-gate-left .gate-rivet:nth-child(5) { top: 90%; right: 20px; }
+
+        .iron-gate-right .gate-rivet:nth-child(1) { top: 10%; left: 20px; }
+        .iron-gate-right .gate-rivet:nth-child(2) { top: 30%; left: 20px; }
+        .iron-gate-right .gate-rivet:nth-child(3) { top: 50%; left: 20px; }
+        .iron-gate-right .gate-rivet:nth-child(4) { top: 70%; left: 20px; }
+        .iron-gate-right .gate-rivet:nth-child(5) { top: 90%; left: 20px; }
+
+        /* ===== 附加页面视图容器样式 ===== */
+        .page-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        /* ===== 附加页面内容框样式（来自 basic/education/skills/hobbies/contact.html） ===== */
+        .content {
+            opacity: 0;
+            background: rgba(10, 20, 40, 0.85);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            width: 60vw;
+            max-width: 600px;
+            padding: 40px;
+            border-radius: 16px;
+            border: 2px solid #00f0ff;
+            box-shadow:
+                0 0 0 1px rgba(0, 240, 255, 0.25),
+                0 0 25px rgba(0, 240, 255, 0.65),
+                0 0 60px rgba(0, 128, 255, 0.4),
+                inset 0 0 30px rgba(0, 240, 255, 0.15),
+                0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+            animation: fadeIn 0.5s ease 0.9s forwards;
+            z-index: 2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #00f0ff;
+            text-shadow:
+                0 0 8px rgba(0, 240, 255, 0.8),
+                0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        .content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #fff;
+        }
+        .back-hint {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 28px;
+            background: linear-gradient(90deg, #00f0ff, #0080ff);
+            color: #fff;
+            border: 1px solid rgba(0, 240, 255, 0.7);
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            box-shadow:
+                0 0 15px rgba(0, 240, 255, 0.5),
+                inset 0 0 10px rgba(0, 240, 255, 0.15);
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 0 25px rgba(0, 240, 255, 0.8),
+                0 0 50px rgba(0, 128, 255, 0.4),
+                inset 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+        kbd {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #00f0ff;
+        }
+
+        /* ===== 侧边装饰地球（附加页面） ===== */
+        .side-earth {
+            position: fixed;
+            top: 50%;
+            width: 360px;
+            height: 360px;
+            transform: translateY(-50%);
+            z-index: 1;
+            pointer-events: none;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(0, 240, 255, 0.5);
+            box-shadow:
+                0 0 50px rgba(0, 240, 255, 0.3),
+                inset 0 0 50px rgba(0, 240, 255, 0.15);
+            background: radial-gradient(circle at 35% 35%, #0d1f3d 0%, #0a1428 60%, #050a14 100%);
+        }
+
+        .side-earth-left { left: -180px; }
+        .side-earth-right { right: -180px; }
+
+        .side-earth::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background-image:
+                /* "大陆"斑块（俯瞰视角下的陆地） */
+                radial-gradient(ellipse 70px 50px at 28% 28%, rgba(0, 240, 255, 0.4), transparent 65%),
+                radial-gradient(ellipse 55px 70px at 72% 48%, rgba(0, 128, 255, 0.35), transparent 65%),
+                radial-gradient(ellipse 60px 45px at 38% 72%, rgba(0, 240, 255, 0.3), transparent 65%),
+                radial-gradient(ellipse 40px 55px at 78% 75%, rgba(0, 128, 200, 0.25), transparent 65%),
+                /* 纬线（以地球中心为圆心的同心圆，越外越亮模拟球面边缘） */
+                radial-gradient(circle, transparent 0 29px, rgba(0, 240, 255, 0.18) 29px 30px, transparent 30px 100%),
+                radial-gradient(circle, transparent 0 59px, rgba(0, 240, 255, 0.18) 59px 60px, transparent 60px 100%),
+                radial-gradient(circle, transparent 0 89px, rgba(0, 240, 255, 0.2) 89px 90px, transparent 90px 100%),
+                radial-gradient(circle, transparent 0 119px, rgba(0, 240, 255, 0.22) 119px 120px, transparent 120px 100%),
+                radial-gradient(circle, transparent 0 149px, rgba(0, 240, 255, 0.25) 149px 150px, transparent 150px 100%),
+                /* 经线（从地球中心向外放射，每30度一条） */
+                repeating-conic-gradient(rgba(0, 240, 255, 0.18) 0deg 0.8deg, transparent 0.8deg 30deg);
+            animation: earthRotateCCW 28s linear infinite;
+        }
+
+        .side-earth::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, transparent 40%, rgba(0, 0, 0, 0.5) 95%);
+            pointer-events: none;
+        }
+
+        @keyframes earthRotateCCW {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="earth-canvas"></canvas>
+
+    <!-- 铁门过渡动画（全局共用） -->
+    <div class="iron-gate-overlay gate-closed" id="ironGateOverlay">
+        <div class="iron-gate iron-gate-left">
+            <div class="gate-rivet"></div>
+            <div class="gate-rivet"></div>
+            <div class="gate-rivet"></div>
+            <div class="gate-rivet"></div>
+            <div class="gate-rivet"></div>
+        </div>
+        <div class="gate-center-glow"></div>
+        <div class="iron-gate iron-gate-right">
+            <div class="gate-rivet"></div>
+            <div class="gate-rivet"></div>
+            <div class="gate-rivet"></div>
+            <div class="gate-rivet"></div>
+            <div class="gate-rivet"></div>
+        </div>
+    </div>
+
+    <!-- ===== 主页面视图 ===== -->
+    <div id="main-view">
+        <div class="top-left-title">
+            <span class="main-text">我的</span>
+            <span class="sub-text">个人</span>
+            <span class="sub-text">页面</span>
+        </div>
+        <div class="top-section">
+            <div class="stack-container" id="stack">
+                <div class="folder-cover" data-pos="0" data-page="page-basic">
+                    <div class="folder-cover-inner">
+                        <div class="decoration decoration-1"></div>
+                        <div class="decoration decoration-2"></div>
+                        <div class="decoration decoration-3"></div>
+                        <img class="card-img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cyberpunk+holographic+ID+card+with+human+avatar+silhouette+floating+cyan+data+particles+dark+background+sci-fi+neon+lighting&image_size=square" alt="基本资料">
+                        <div class="folder-name">基本资料</div>
+                    </div>
+                </div>
+                <div class="folder-cover" data-pos="1" data-page="page-education">
+                    <div class="folder-cover-inner">
+                        <div class="decoration decoration-1"></div>
+                        <div class="decoration decoration-2"></div>
+                        <div class="decoration decoration-3"></div>
+                        <img class="card-img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=futuristic+glowing+school+campus+holographic+books+pencils+cyan+neon+lights+dark+background+sci-fi+education&image_size=square" alt="学习经历">
+                        <div class="folder-name">学习经历</div>
+                    </div>
+                </div>
+                <div class="folder-cover" data-pos="2" data-page="page-skills">
+                    <div class="folder-cover-inner">
+                        <div class="decoration decoration-1"></div>
+                        <div class="decoration decoration-2"></div>
+                        <div class="decoration decoration-3"></div>
+                        <img class="card-img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=luminous+trophy+star+achievement+badges+floating+dark+void+cyan+energy+rings+digital+circuits+cyberpunk+neon&image_size=square" alt="优势特长">
+                        <div class="folder-name">优势特长</div>
+                    </div>
+                </div>
+                <div class="folder-cover" data-pos="3" data-page="page-hobbies">
+                    <div class="folder-cover-inner">
+                        <div class="decoration decoration-1"></div>
+                        <div class="decoration decoration-2"></div>
+                        <div class="decoration decoration-3"></div>
+                        <img class="card-img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=futuristic+gamer+setup+RGB+mechanical+keyboard+gaming+mouse+neon+cyan+lights+AI+robot+companion+building+blocks+high-tech+car+hologram+dark+room+modern+tech&image_size=square" alt="兴趣爱好">
+                        <div class="folder-name">兴趣爱好</div>
+                    </div>
+                </div>
+                <div class="folder-cover" data-pos="4" data-page="page-contact">
+                    <div class="folder-cover-inner">
+                        <div class="decoration decoration-1"></div>
+                        <div class="decoration decoration-2"></div>
+                        <div class="decoration decoration-3"></div>
+                        <img class="card-img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=futuristic+communication+tower+cyan+signal+waves+holographic+phone+envelope+icons+dark+space+cyberpunk+network&image_size=square" alt="联系方式">
+                        <div class="folder-name">联系方式</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" id="btnLeft" aria-label="向左滑动">‹</button>
+                <button class="control-btn" id="btnRight" aria-label="向右滑动">›</button>
+            </div>
+        </div>
+
+        <div class="bottom-section">
+            <div style="color:#fff;font-size:0.5rem;letter-spacing:0.1em;text-align:center;position:absolute;bottom:30px;left:0;right:0;">——————————我可是有有底线的——————————</div>
+        </div>
+    </div>
+
+    <!-- ===== 附加页面视图：基本资料 ===== -->
+    <div id="page-basic" class="page-view" style="display:none">
+        <div class="side-earth side-earth-left"></div>
+        <div class="side-earth side-earth-right"></div>
+        <div class="content">
+            <h1>基本资料</h1>
+            <p>姓名：成昱江<br>性别：男<br>出生年份：2012</p>
+            <a href="#" class="back-btn">返回首页</a>
+            <div class="back-hint">快捷键：<kbd>Esc</kbd> 或 <kbd>Backspace</kbd> 返回首页</div>
+        </div>
+    </div>
+
+    <!-- ===== 附加页面视图：学习经历 ===== -->
+    <div id="page-education" class="page-view" style="display:none">
+        <div class="side-earth side-earth-left"></div>
+        <div class="side-earth side-earth-right"></div>
+        <div class="content">
+            <h1>学习经历</h1>
+            <p>就读年级：初二（八年级）<br>就读学校：贵州师范大学云岩实验中学<br>最喜欢的科目：生物、物理</p>
+            <a href="#" class="back-btn">返回首页</a>
+            <div class="back-hint">快捷键：<kbd>Esc</kbd> 或 <kbd>Backspace</kbd> 返回首页</div>
+        </div>
+    </div>
+
+    <!-- ===== 附加页面视图：优势特长 ===== -->
+    <div id="page-skills" class="page-view" style="display:none">
+        <div class="side-earth side-earth-left"></div>
+        <div class="side-earth side-earth-right"></div>
+        <div class="content">
+            <h1>优势特长</h1>
+            <p>理科学习、AIGC、乐高拼搭</p>
+            <a href="#" class="back-btn">返回首页</a>
+            <div class="back-hint">快捷键：<kbd>Esc</kbd> 或 <kbd>Backspace</kbd> 返回首页</div>
+        </div>
+    </div>
+
+    <!-- ===== 附加页面视图：兴趣爱好 ===== -->
+    <div id="page-hobbies" class="page-view" style="display:none">
+        <div class="side-earth side-earth-left"></div>
+        <div class="side-earth side-earth-right"></div>
+        <div class="content">
+            <h1>兴趣爱好</h1>
+            <p>人工智能、汽车、科技、玩手机、拼乐高</p>
+            <a href="#" class="back-btn">返回首页</a>
+            <div class="back-hint">快捷键：<kbd>Esc</kbd> 或 <kbd>Backspace</kbd> 返回首页</div>
+        </div>
+    </div>
+
+    <!-- ===== 附加页面视图：联系方式 ===== -->
+    <div id="page-contact" class="page-view" style="display:none">
+        <div class="side-earth side-earth-left"></div>
+        <div class="side-earth side-earth-right"></div>
+        <div class="content">
+            <h1>联系方式</h1>
+            <p>QQ邮箱：565169986@qq.com<br>电话：18198291916（母占中）<br>地址：中国 · 贵阳</p>
+            <a href="#" class="back-btn">返回首页</a>
+            <div class="back-hint">快捷键：<kbd>Esc</kbd> 或 <kbd>Backspace</kbd> 返回首页</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const stack = document.getElementById('stack');
+        const cards = Array.from(stack.querySelectorAll('.folder-cover'));
+        let isAnimating = false;
+        let autoTimer = null;
+        let restartTimer = null;
+        let isInteracting = false;
+        let longPressTimer = null;
+        let startX = 0;
+        const threshold = 8;
+        const longPressDelay = 200;
+
+        function startAutoCycle() {
+            stopAutoCycle();
+            autoTimer = setInterval(() => {
+                if (!isAnimating && !isInteracting) {
+                    cycleCenterToSide('left');
+                }
+            }, 3000);
+        }
+
+        function stopAutoCycle() {
+            if (autoTimer) {
+                clearInterval(autoTimer);
+                autoTimer = null;
+            }
+        }
+
+        function resumeAutoCycle() {
+            stopAutoCycle();
+            if (restartTimer) clearTimeout(restartTimer);
+            restartTimer = setTimeout(() => {
+                restartTimer = null;
+                startAutoCycle();
+            }, 2000);
+        }
+
+        function startInteraction() {
+            if (isInteracting) return;
+            isInteracting = true;
+            stopAutoCycle();
+            if (restartTimer) {
+                clearTimeout(restartTimer);
+                restartTimer = null;
+            }
+        }
+
+        function stopInteraction() {
+            if (!isInteracting) return;
+            isInteracting = false;
+            resumeAutoCycle();
+        }
+
+        // ===== 视图切换核心逻辑 =====
+        let isNavigating = false;
+        let currentView = 'main-view'; // 当前显示的视图 id
+
+        function showView(targetId) {
+            const earthCanvas = document.getElementById('earth-canvas');
+
+            // 隐藏所有视图
+            document.getElementById('main-view').style.display = 'none';
+            document.querySelectorAll('.page-view').forEach(p => p.style.display = 'none');
+
+            // 显示目标视图
+            const target = document.getElementById(targetId);
+            if (target) {
+                if (targetId === 'main-view') {
+                    target.style.display = '';
+                    // 主页面：显示主地球
+                    if (earthCanvas) earthCanvas.style.display = 'block';
+                } else {
+                    target.style.display = 'flex';
+                    // 附加页面：隐藏主地球（已有侧边地球装饰）
+                    if (earthCanvas) earthCanvas.style.display = 'none';
+                    // 重新触发 content 的 fadeIn 动画
+                    const content = target.querySelector('.content');
+                    if (content) {
+                        content.style.animation = 'none';
+                        // 强制 reflow
+                        void content.offsetWidth;
+                        content.style.animation = '';
+                    }
+                }
+                currentView = targetId;
+            }
+        }
+
+        // 从主页面切换到附加页面（带铁门动画）
+        function navigateWithGate(targetId) {
+            if (isAnimating || isNavigating) return;
+            isNavigating = true;
+            // 强制清理所有交互状态和定时器
+            isInteracting = false;
+            if (restartTimer) { clearTimeout(restartTimer); restartTimer = null; }
+            stopAutoCycle();
+            const gateOverlay = document.getElementById('ironGateOverlay');
+            // 1) 触发铁门关闭
+            gateOverlay.classList.remove('gate-open');
+            gateOverlay.classList.add('gate-closed');
+            // 2) 等待900ms后切换视图
+            setTimeout(() => {
+                showView(targetId);
+                // 3) 触发铁门打开
+                gateOverlay.classList.remove('gate-closed');
+                gateOverlay.classList.add('gate-open');
+                setTimeout(() => {
+                    isNavigating = false;
+                }, 800);
+            }, 900);
+        }
+
+        // 从附加页面返回主页面（带铁门动画）
+        function navigateBackToMain() {
+            if (isNavigating) return;
+            isNavigating = true;
+            // 强制清理所有交互状态和定时器，确保自循环能正常恢复
+            isInteracting = false;
+            if (restartTimer) { clearTimeout(restartTimer); restartTimer = null; }
+            const gateOverlay = document.getElementById('ironGateOverlay');
+            // 1) 触发铁门关闭
+            gateOverlay.classList.remove('gate-open');
+            gateOverlay.classList.add('gate-closed');
+            // 2) 等待900ms后切换回主页面
+            setTimeout(() => {
+                showView('main-view');
+                // 3) 触发铁门打开
+                gateOverlay.classList.remove('gate-closed');
+                gateOverlay.classList.add('gate-open');
+                // 4) 恢复自动轮播
+                resumeAutoCycle();
+                setTimeout(() => {
+                    isNavigating = false;
+                }, 800);
+            }, 900);
+        }
+
+        // 页面加载完成后打开铁门
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const gateOverlay = document.getElementById('ironGateOverlay');
+                gateOverlay.classList.remove('gate-closed');
+                gateOverlay.classList.add('gate-open');
+            }, 100);
+        });
+
+        // 鼠标长按互动系统
+        stack.addEventListener('pointerdown', (e) => {
+            if (isAnimating) return;
+            e.preventDefault();
+            startX = e.clientX;
+
+            if (longPressTimer) clearTimeout(longPressTimer);
+            longPressTimer = setTimeout(() => {
+                startInteraction();
+            }, longPressDelay);
+        });
+
+        stack.addEventListener('pointermove', (e) => {
+            if (isAnimating) return;
+
+            if (!isInteracting) {
+                startX = e.clientX;
+                return;
+            }
+
+            const dx = e.clientX - startX;
+            if (dx < -threshold) {
+                cycleCenterToSide('left');
+                startX = e.clientX;
+            } else if (dx > threshold) {
+                cycleCenterToSide('right');
+                startX = e.clientX;
+            }
+        });
+
+        stack.addEventListener('pointerup', () => {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            if (isInteracting) {
+                stopInteraction();
+            }
+        });
+
+        stack.addEventListener('pointercancel', () => {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            if (isInteracting) {
+                stopInteraction();
+            }
+        });
+
+        // 卡片点击事件 —— 点击进入附加页面
+        stack.addEventListener('click', (e) => {
+            if (isAnimating || isInteracting) return;
+            const clickedCard = e.target.closest('.folder-cover');
+            if (clickedCard) {
+                const page = clickedCard.dataset.page;
+                if (page) {
+                    navigateWithGate(page);
+                }
+            }
+        });
+
+        // 返回按钮点击事件（事件委托，覆盖所有附加页面的 .back-btn）
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.back-btn');
+            if (btn) {
+                e.preventDefault();
+                if (currentView !== 'main-view') {
+                    navigateBackToMain();
+                }
+            }
+        });
+
+        // Esc/Backspace 键 —— 改为返回主页面视图
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'Backspace') {
+                // 仅在附加页面视图下生效
+                if (currentView !== 'main-view') {
+                    e.preventDefault();
+                    navigateBackToMain();
+                }
+            }
+        });
+
+        async function cycleCenterToSide(direction) {
+            isAnimating = true;
+
+            if (direction === 'left') {
+                const pos4Card = cards.find(c => c.dataset.pos === '4');
+
+                pos4Card.classList.add('entering-from-right');
+                pos4Card.dataset.pos = '2';
+                void pos4Card.offsetWidth;
+                pos4Card.classList.remove('entering-from-right');
+
+                cards.forEach(card => {
+                    if (card === pos4Card) return;
+                    const pos = parseInt(card.dataset.pos);
+                    if (pos === 0) card.dataset.pos = '3';
+                    else if (pos === 1) card.dataset.pos = '0';
+                    else if (pos === 2) card.dataset.pos = '1';
+                    else if (pos === 3) card.dataset.pos = '4';
+                });
+
+                await new Promise(r => setTimeout(r, 500));
+
+                const newPos4Card = cards.find(c => c.dataset.pos === '4');
+                newPos4Card.style.opacity = '0';
+                newPos4Card.style.transform = 'translateX(-180%) rotate(-10deg) scale(0.7)';
+
+                await new Promise(r => setTimeout(r, 50));
+
+                newPos4Card.style.opacity = '';
+                newPos4Card.style.transform = '';
+            } else {
+                const pos2Card = cards.find(c => c.dataset.pos === '2');
+
+                pos2Card.classList.add('entering-from-left');
+                pos2Card.dataset.pos = '4';
+                void pos2Card.offsetWidth;
+                pos2Card.classList.remove('entering-from-left');
+
+                cards.forEach(card => {
+                    if (card === pos2Card) return;
+                    const pos = parseInt(card.dataset.pos);
+                    if (pos === 0) card.dataset.pos = '1';
+                    else if (pos === 3) card.dataset.pos = '0';
+                    else if (pos === 4) card.dataset.pos = '3';
+                    else if (pos === 1) card.dataset.pos = '2';
+                });
+
+                await new Promise(r => setTimeout(r, 500));
+
+                const newPos2Card = cards.find(c => c.dataset.pos === '2');
+                newPos2Card.style.opacity = '0';
+                newPos2Card.style.transform = 'translateX(180%) rotate(10deg) scale(0.7)';
+
+                await new Promise(r => setTimeout(r, 50));
+
+                newPos2Card.style.opacity = '';
+                newPos2Card.style.transform = '';
+            }
+
+            isAnimating = false;
+        }
+
+        document.getElementById('btnLeft').addEventListener('click', () => {
+            if (isAnimating) return;
+            startInteraction();
+            cycleCenterToSide('right');
+            setTimeout(() => stopInteraction(), 2000);
+        });
+
+        document.getElementById('btnRight').addEventListener('click', () => {
+            if (isAnimating) return;
+            startInteraction();
+            cycleCenterToSide('left');
+            setTimeout(() => stopInteraction(), 2000);
+        });
+
+        startAutoCycle();
+
+        // ===== 3D 立体地球背景 =====
+        const earthCanvas = document.getElementById('earth-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: earthCanvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // 地球主体（线框 + 半透明实体）
+        const earthRadius = 6.5;
+        const earthGroup = new THREE.Group();
+
+        // 经纬度 -> 3D 坐标
+        function latLngToVec3(lat, lng, radius) {
+            const phi = (90 - lat) * Math.PI / 180;
+            const theta = (lng + 180) * Math.PI / 180;
+            return new THREE.Vector3(
+                -radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+        }
+
+        // 大洲轮廓（修正后：各大洲边界清晰，不相交）
+        const continents = {
+            // 亚洲（西界止于苏伊士运河/红海东岸，与非洲相接但不重叠）
+            // 优化：印度半岛三角形突出 + 东南亚中南半岛/马来半岛还原
+            asia: [
+                [78, 55], [80, 90], [75, 140], [72, 175], [65, 175],
+                [60, 165], [55, 160], [50, 155], [45, 150], [40, 140],
+                [35, 130], [30, 122], [25, 120], [22, 108],
+                // 中南半岛东岸（越南）
+                [18, 107], [14, 109], [12, 103], [10, 105], [9, 106],
+                // 马来半岛（细长向南）
+                [7, 100], [4, 102], [1, 104], [3, 101], [5, 98],
+                // 缅甸西海岸 → 孟加拉湾
+                [10, 95], [13, 93], [16, 94], [18, 92],
+                // 孟加拉国 → 印度东海岸
+                [21, 89], [19, 85],
+                // 印度半岛东海岸向南突出
+                [14, 80], [10, 79], [8, 77.5],
+                // 科摩林角（最南端）
+                [8, 77], [9, 76],
+                // 印度西海岸向北回
+                [13, 74], [16, 73], [20, 72], [23, 68],
+                // 古吉拉特 → 巴基斯坦 → 阿拉伯海
+                [25, 63], [25, 58], [20, 57], [15, 50],
+                [12, 45], [15, 42], [25, 38], [28, 34], [30, 32],
+                [33, 30], [35, 35], [40, 38], [42, 40], [45, 45], [50, 50],
+                [55, 50], [60, 55], [65, 60], [70, 60], [75, 60], [78, 55]
+            ],
+            // 欧洲（南界止于地中海北岸，与非洲之间有地中海分隔）
+            europe: [
+                [72, 5], [72, 25], [70, 35], [66, 40], [62, 40], [60, 32],
+                [55, 32], [52, 35], [50, 38], [46, 38], [42, 35], [40, 28],
+                [37, 25], [40, 20], [42, 15], [45, 12], [44, 8], [48, 5],
+                [50, 0], [48, -5], [54, -5], [56, -8], [52, -10], [50, -5],
+                [45, -5], [45, 0], [48, 0], [50, 5], [55, 10], [58, 12],
+                [62, 5], [68, 5], [72, 5]
+            ],
+            // 非洲（北界止于地中海南岸，东界沿红海西岸到亚丁湾）
+            africa: [
+                [37, -10], [37, 0], [37, 10], [33, 22], [32, 25], [30, 32],
+                [25, 35], [20, 38], [15, 40], [12, 43], [11, 48], [5, 48],
+                [0, 45], [-5, 42], [-10, 40], [-15, 40], [-22, 35], [-28, 32],
+                [-33, 28], [-35, 22], [-35, 18], [-32, 15], [-25, 12],
+                [-18, 12], [-12, 13], [-5, 10], [0, 8], [5, 0], [8, -5],
+                [10, -13], [12, -18], [20, -18], [25, -15], [30, -10],
+                [33, -8], [37, -10]
+            ],
+            // 北美洲（含阿拉斯加、加拿大、美国本土、中美洲）
+            northAmerica: [
+                [65, -168], [71, -156], [71, -140], [70, -128],
+                [71, -110], [69, -95], [67, -85], [60, -78],
+                [56, -76], [55, -67], [52, -55], [47, -53],
+                [44, -67], [40, -72], [35, -76], [32, -80],
+                [25, -80], [25, -82], [28, -83], [22, -84],
+                [19, -91], [18, -92], [15, -89], [14, -83],
+                [9, -78], [13, -90], [16, -100], [20, -106],
+                [25, -113], [30, -116], [35, -121], [40, -124],
+                [48, -125], [55, -132], [60, -141], [62, -155],
+                [65, -168]
+            ],
+            // 南美洲
+            southAmerica: [
+                [12, -72], [10, -62], [5, -52], [0, -48], [-5, -35],
+                [-12, -38], [-22, -42], [-30, -50], [-35, -55], [-42, -60],
+                [-50, -68], [-55, -70], [-52, -73], [-45, -73], [-35, -72],
+                [-25, -70], [-18, -71], [-10, -78], [-5, -80], [0, -80],
+                [5, -77], [10, -75], [12, -72]
+            ],
+            // 大洋洲（仅澳大利亚本土，不含新几内亚，避免与亚洲相连）
+            australia: [
+                [-11, 142], [-15, 145], [-20, 149], [-25, 153], [-30, 153],
+                [-37, 150], [-39, 146], [-38, 141], [-35, 138], [-34, 132],
+                [-32, 125], [-25, 113], [-22, 114], [-18, 122], [-15, 128],
+                [-12, 135], [-11, 142]
+            ],
+            // 南极洲（环绕南极的环形）
+            antarctica: [
+                [-62, -180], [-65, -170], [-70, -160], [-73, -150], [-76, -140],
+                [-78, -130], [-80, -120], [-82, -110], [-80, -100], [-78, -90],
+                [-80, -80], [-82, -70], [-80, -60], [-78, -50], [-75, -40],
+                [-72, -30], [-70, -20], [-68, -10], [-67, 0], [-68, 10],
+                [-70, 20], [-72, 30], [-75, 40], [-78, 50], [-80, 60], [-78, 70],
+                [-76, 80], [-73, 90], [-70, 100], [-68, 110], [-67, 120],
+                [-68, 130], [-70, 140], [-72, 150], [-70, 160], [-68, 170],
+                [-65, 180], [-62, -180]
+            ]
+        };
+
+        // 4 大洋文字标签位置（中心经纬度）
+        const oceanLabels = {
+            pacific: { lat: 0, lng: -160, name: 'PACIFIC' },
+            atlantic: { lat: 0, lng: -30, name: 'ATLANTIC' },
+            indian: { lat: -20, lng: 80, name: 'INDIAN' },
+            arctic: { lat: 80, lng: 0, name: 'ARCTIC' }
+        };
+
+        // 7 大洲文字标签位置（中心经纬度）
+        const continentLabels = {
+            asia: { lat: 45, lng: 90, name: 'ASIA' },
+            europe: { lat: 50, lng: 20, name: 'EUROPE' },
+            africa: { lat: 5, lng: 20, name: 'AFRICA' },
+            northAmerica: { lat: 45, lng: -100, name: 'N.AMERICA' },
+            southAmerica: { lat: -15, lng: -60, name: 'S.AMERICA' },
+            australia: { lat: -25, lng: 135, name: 'AUSTRALIA' },
+            antarctica: { lat: -80, lng: 0, name: 'ANTARCTICA' }
+        };
+
+        // ===== 七大洲颜色填充纹理 =====
+        const continentColors = {
+            asia: 'rgba(255, 180, 90, 0.9)',        // 金黄
+            europe: 'rgba(100, 180, 255, 0.9)',     // 天蓝
+            africa: 'rgba(255, 110, 90, 0.9)',      // 珊瑚红
+            northAmerica: 'rgba(255, 220, 80, 0.9)', // 明黄
+            southAmerica: 'rgba(200, 140, 255, 0.9)', // 淡紫
+            australia: 'rgba(120, 255, 170, 0.9)',   // 翠绿
+            antarctica: 'rgba(230, 240, 255, 0.9)'  // 冰白
+        };
+
+        // 大洲描边色（更深一些）
+        const continentStroke = {
+            asia: 'rgba(255, 140, 50, 1)',
+            europe: 'rgba(60, 140, 220, 1)',
+            africa: 'rgba(220, 80, 60, 1)',
+            northAmerica: 'rgba(220, 180, 30, 1)',
+            southAmerica: 'rgba(170, 100, 230, 1)',
+            australia: 'rgba(70, 220, 130, 1)',
+            antarctica: 'rgba(180, 210, 240, 1)'
+        };
+
+        const texCanvas = document.createElement('canvas');
+        texCanvas.width = 2048;
+        texCanvas.height = 1024;
+        const texCtx = texCanvas.getContext('2d');
+
+        texCtx.fillStyle = '#0a1a3a';
+        texCtx.fillRect(0, 0, texCanvas.width, texCanvas.height);
+
+        function latLngToCanvas(lat, lng) {
+            const x = ((lng + 180) / 360) * texCanvas.width;
+            const y = ((90 - lat) / 180) * texCanvas.height;
+            return [x, y];
+        }
+
+        function drawContinent(coords, color, strokeColor) {
+            let crosses180 = false;
+            for (let i = 0; i < coords.length - 1; i++) {
+                const lng1 = coords[i][1];
+                const lng2 = coords[i + 1][1];
+                if (Math.abs(lng1 - lng2) > 180) {
+                    crosses180 = true;
+                    break;
+                }
+            }
+
+            function drawPath(shift) {
+                texCtx.beginPath();
+                coords.forEach(([lat, lng], i) => {
+                    const [x, y] = latLngToCanvas(lat, lng + shift);
+                    if (i === 0) texCtx.moveTo(x, y);
+                    else texCtx.lineTo(x, y);
+                });
+                texCtx.closePath();
+                texCtx.fillStyle = color;
+                texCtx.fill();
+                // 描边让轮廓更清晰
+                texCtx.strokeStyle = strokeColor;
+                texCtx.lineWidth = 3;
+                texCtx.stroke();
+            }
+
+            if (!crosses180) {
+                drawPath(0);
+            } else {
+                const offset = 360;
+                drawPath(0);
+                drawPath(offset);
+            }
+        }
+
+        Object.keys(continents).forEach(key => {
+            drawContinent(continents[key], continentColors[key], continentStroke[key]);
+        });
+
+        const earthTexture = new THREE.CanvasTexture(texCanvas);
+        earthTexture.wrapS = THREE.RepeatWrapping;
+        earthTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+        // 内层球（带大洲颜色纹理）
+        const innerSphere = new THREE.Mesh(
+            new THREE.SphereGeometry(earthRadius, 64, 64),
+            new THREE.MeshBasicMaterial({
+                map: earthTexture,
+                transparent: true,
+                opacity: 0.8
+            })
+        );
+        earthGroup.add(innerSphere);
+
+        // 经纬线网（青色霓虹）
+        const wireSphere = new THREE.Mesh(
+            new THREE.SphereGeometry(earthRadius + 0.02, 48, 32),
+            new THREE.MeshBasicMaterial({
+                color: 0x00f0ff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.55
+            })
+        );
+        earthGroup.add(wireSphere);
+
+        // 外层光晕（更大、更淡的发光球）
+        const glowSphere = new THREE.Mesh(
+            new THREE.SphereGeometry(earthRadius * 1.08, 64, 64),
+            new THREE.MeshBasicMaterial({
+                color: 0x00f0ff,
+                transparent: true,
+                opacity: 0.08,
+                side: THREE.BackSide
+            })
+        );
+        earthGroup.add(glowSphere);
+
+        // 散布的亮点（模拟城市灯光 / 数据点）
+        const pointsGeometry = new THREE.BufferGeometry();
+        const pointsCount = 600;
+        const positions = new Float32Array(pointsCount * 3);
+        for (let i = 0; i < pointsCount; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const r = earthRadius * 1.01;
+            positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = r * Math.cos(phi);
+        }
+        pointsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const pointsMaterial = new THREE.PointsMaterial({
+            color: 0x00f0ff,
+            size: 0.08,
+            transparent: true,
+            opacity: 0.9
+        });
+        const points = new THREE.Points(pointsGeometry, pointsMaterial);
+        earthGroup.add(points);
+
+        // 大洋文字标签（3D Sprite）
+        function createTextSprite(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.font = 'bold 28px Courier New';
+            ctx.fillStyle = 'rgba(0, 240, 255, 0.85)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0, 240, 255, 0.8)';
+            ctx.shadowBlur = 15;
+            ctx.fillText(text, 128, 32);
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 0.8
+            });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(3, 0.75, 1);
+            return sprite;
+        }
+
+        Object.keys(oceanLabels).forEach(key => {
+            const { lat, lng, name } = oceanLabels[key];
+            const pos = latLngToVec3(lat, lng, earthRadius * 1.05);
+            const sprite = createTextSprite(name);
+            sprite.position.copy(pos);
+            earthGroup.add(sprite);
+        });
+
+        Object.keys(continentLabels).forEach(key => {
+            const { lat, lng, name } = continentLabels[key];
+            const pos = latLngToVec3(lat, lng, earthRadius * 1.05);
+            const sprite = createTextSprite(name);
+            sprite.position.copy(pos);
+            earthGroup.add(sprite);
+        });
+
+        scene.add(earthGroup);
+
+        // 月球轨道组
+        const moonOrbit = new THREE.Group();
+        moonOrbit.rotation.x = Math.PI * 0.45;
+        scene.add(moonOrbit);
+
+        // 月球（灰白色小球，带外发光）
+        const moonRadius = 0.4;
+        const moon = new THREE.Mesh(
+            new THREE.SphereGeometry(moonRadius, 32, 32),
+            new THREE.MeshBasicMaterial({
+                color: 0xcccccc,
+                transparent: true,
+                opacity: 0.95
+            })
+        );
+        const moonDistance = earthRadius * 1.8;
+        moon.position.set(moonDistance, 0, 0);
+        moonOrbit.add(moon);
+
+        // 月球外发光层
+        const moonGlow = new THREE.Mesh(
+            new THREE.SphereGeometry(moonRadius * 1.6, 32, 32),
+            new THREE.MeshBasicMaterial({
+                color: 0xdddddd,
+                transparent: true,
+                opacity: 0.15,
+                side: THREE.BackSide
+            })
+        );
+        moon.add(moonGlow);
+
+        // 星空背景
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 800;
+        const starsPositions = new Float32Array(starsCount * 3);
+        for (let i = 0; i < starsCount; i++) {
+            starsPositions[i * 3] = (Math.random() - 0.5) * 200;
+            starsPositions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+            starsPositions[i * 3 + 2] = (Math.random() - 0.5) * 200;
+        }
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
+        const starsMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.15,
+            transparent: true,
+            opacity: 0.7
+        });
+        const stars = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(stars);
+
+        camera.position.z = window.innerWidth < 768 ? 26 : 18;
+
+        let scrollOffset = 0;
+        window.addEventListener('scroll', () => {
+            scrollOffset = window.scrollY / window.innerHeight;
+        });
+
+        function animateEarth() {
+            requestAnimationFrame(animateEarth);
+            earthGroup.rotation.y += 0.0015;
+            points.rotation.y += 0.002;
+            moonOrbit.rotation.z -= 0.004;
+            stars.rotation.y += 0.0002;
+
+            // 滚动时地球略微下沉 + 旋转视角
+            camera.position.y = -scrollOffset * 4;
+            camera.lookAt(0, -scrollOffset * 2, 0);
+
+            renderer.render(scene, camera);
+        }
+        animateEarth();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.position.z = window.innerWidth < 768 ? 26 : 18;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

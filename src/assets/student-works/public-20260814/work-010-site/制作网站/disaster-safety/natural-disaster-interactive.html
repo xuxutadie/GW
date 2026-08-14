@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>自然灾害科普互动网站</title>
+  <style>
+    :root {
+      --sky: #4db7ff;
+      --sky-dark: #178edb;
+      --sky-soft: #e9f7ff;
+      --safe: #2fc579;
+      --safe-dark: #15925a;
+      --safe-soft: #e9fbf2;
+      --warn: #ff5b5f;
+      --warn-dark: #d93d42;
+      --warn-soft: #fff0f1;
+      --orange: #ff9b42;
+      --yellow: #ffd35a;
+      --blue-alert: #4d8dff;
+      --ink: #21324a;
+      --muted: #68778d;
+      --line: #dbe8f3;
+      --card: rgba(255, 255, 255, 0.88);
+      --bg: #f7fbff;
+      --shadow: 0 18px 45px rgba(44, 117, 176, 0.14);
+      --shadow-soft: 0 10px 28px rgba(44, 117, 176, 0.1);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --ease: cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(77,183,255,.18), transparent 30%),
+        radial-gradient(circle at 88% 18%, rgba(47,197,121,.18), transparent 26%),
+        linear-gradient(180deg, #f8fcff 0%, #f6fbf7 100%);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; border: 0; }
+    img, svg { max-width: 100%; display: block; }
+
+    .container { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+    .section { padding: 86px 0; }
+    .section-head { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 28px; }
+    .eyebrow {
+      display: inline-flex; gap: 8px; align-items: center;
+      padding: 7px 13px; border-radius: 999px;
+      background: var(--sky-soft); color: var(--sky-dark);
+      font-size: 13px; font-weight: 800;
+    }
+    .section h2 { font-size: clamp(28px, 4vw, 42px); line-height: 1.2; margin-top: 12px; }
+    .section-desc { color: var(--muted); max-width: 620px; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,.82);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(219,232,243,.8);
+    }
+    .nav {
+      height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: .02em; }
+    .brand-mark {
+      width: 42px; height: 42px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--sky), var(--safe));
+      display: grid; place-items: center; color: #fff; box-shadow: var(--shadow-soft);
+    }
+    .brand span:last-child { font-size: 18px; }
+    .nav-links { display: flex; gap: 6px; list-style: none; align-items: center; }
+    .nav-links a {
+      display: inline-flex; padding: 9px 12px; border-radius: 999px;
+      color: var(--muted); font-size: 14px; font-weight: 700;
+      transition: .25s var(--ease);
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--sky-dark); background: var(--sky-soft); transform: translateY(-1px); }
+    .menu-btn { display: none; width: 42px; height: 42px; border-radius: 14px; background: var(--sky-soft); color: var(--sky-dark); }
+
+    .hero { position: relative; padding: 44px 0 72px; overflow: hidden; }
+    .hero-grid {
+      display: grid; grid-template-columns: 1.02fr .98fr; gap: 36px; align-items: center;
+      min-height: 560px;
+    }
+    .hero-card {
+      position: relative; background: var(--card); border: 1px solid rgba(219,232,243,.85);
+      border-radius: 36px; padding: clamp(28px, 5vw, 54px); box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: ""; position: absolute; width: 240px; height: 240px; border-radius: 50%;
+      right: -80px; top: -80px; background: rgba(77,183,255,.14);
+    }
+    .hero h1 { font-size: clamp(38px, 6vw, 68px); line-height: 1.08; letter-spacing: -1.5px; margin: 18px 0; }
+    .hero h1 strong { color: var(--sky-dark); }
+    .hero p { color: var(--muted); font-size: 18px; max-width: 650px; }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      min-height: 46px; padding: 12px 18px; border-radius: 999px; font-weight: 900;
+      color: #fff; background: linear-gradient(135deg, var(--sky), var(--safe));
+      box-shadow: 0 12px 24px rgba(77,183,255,.24); transition: .25s var(--ease);
+    }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 18px 32px rgba(77,183,255,.3); }
+    .btn.secondary { color: var(--sky-dark); background: #fff; border: 1px solid var(--line); box-shadow: none; }
+    .status-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+    .status-pill {
+      background: rgba(255,255,255,.72); border: 1px solid var(--line); border-radius: 18px; padding: 13px;
+    }
+    .status-pill b { display: block; font-size: 22px; color: var(--safe-dark); line-height: 1.1; }
+    .status-pill small { color: var(--muted); font-weight: 700; }
+
+    .scene {
+      position: relative; min-height: 520px; border-radius: 36px;
+      background: linear-gradient(180deg, #dff4ff 0 42%, #d9f6e8 42% 100%);
+      box-shadow: var(--shadow); overflow: hidden; border: 1px solid rgba(255,255,255,.8);
+    }
+    .sun { position: absolute; right: 54px; top: 44px; width: 82px; height: 82px; border-radius: 50%; background: #ffd35a; box-shadow: 0 0 0 18px rgba(255,211,90,.18); animation: breathe 4s infinite ease-in-out; }
+    .cloud { position: absolute; background: #fff; border-radius: 999px; box-shadow: 0 10px 18px rgba(77,183,255,.13); animation: float 7s infinite ease-in-out; }
+    .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50%; }
+    .cloud.c1 { width: 130px; height: 38px; left: 46px; top: 58px; }
+    .cloud.c1::before { width: 55px; height: 55px; left: 18px; top: -24px; }
+    .cloud.c1::after { width: 70px; height: 70px; left: 55px; top: -35px; }
+    .cloud.c2 { width: 100px; height: 30px; right: 150px; top: 144px; animation-delay: -2s; }
+    .cloud.c2::before { width: 44px; height: 44px; left: 16px; top: -18px; }
+    .cloud.c2::after { width: 52px; height: 52px; left: 45px; top: -26px; }
+    .hill { position: absolute; left: -12%; right: -12%; bottom: 118px; height: 190px; background: #a7e7c1; border-radius: 50% 50% 0 0; }
+    .hill.two { bottom: 82px; left: 28%; background: #8fdda9; }
+    .house { position: absolute; left: 58px; bottom: 112px; width: 160px; height: 122px; background: #fff; border-radius: 18px; border: 4px solid #b7ddf3; }
+    .roof { position: absolute; left: -12px; top: -54px; width: 184px; height: 88px; background: var(--sky); clip-path: polygon(50% 0, 100% 66%, 92% 100%, 8% 100%, 0 66%); }
+    .door { position: absolute; left: 62px; bottom: 0; width: 42px; height: 64px; background: #ffbd77; border-radius: 16px 16px 0 0; }
+    .window { position: absolute; width: 36px; height: 30px; background: #dff4ff; border-radius: 10px; top: 34px; }
+    .window.w1 { left: 22px; } .window.w2 { right: 22px; }
+    .tree { position: absolute; bottom: 108px; width: 52px; height: 120px; }
+    .tree.t1 { right: 62px; } .tree.t2 { right: 132px; transform: scale(.8); bottom: 100px; }
+    .tree::before { content: ""; position: absolute; left: 21px; bottom: 0; width: 12px; height: 58px; background: #9b6b42; border-radius: 8px; }
+    .tree::after { content: ""; position: absolute; left: 0; top: 0; width: 52px; height: 76px; background: var(--safe); border-radius: 50% 50% 45% 45%; }
+    .floating-note {
+      position: absolute; left: 44px; bottom: 32px; right: 44px;
+      padding: 18px; border-radius: 24px; background: rgba(255,255,255,.86);
+      border: 1px solid rgba(219,232,243,.9); display: flex; gap: 12px; align-items: center;
+      box-shadow: var(--shadow-soft);
+    }
+    .floating-note .icon { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: var(--safe-soft); color: var(--safe-dark); font-size: 24px; }
+
+    .banner-dots { display: flex; gap: 8px; margin-top: 20px; }
+    .banner-dots button { width: 28px; height: 8px; border-radius: 999px; background: #c7e4f8; transition: .25s; }
+    .banner-dots button.active { width: 48px; background: var(--sky); }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .disaster-card {
+      position: relative; min-height: 245px; padding: 22px; border-radius: var(--radius);
+      background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow-soft);
+      overflow: hidden; transition: .3s var(--ease);
+    }
+    .disaster-card:hover { transform: translateY(-9px) rotate(-.6deg); border-color: rgba(77,183,255,.55); background: linear-gradient(180deg, #fff, var(--sky-soft)); }
+    .disaster-card:hover .card-more { max-height: 96px; opacity: 1; margin-top: 12px; }
+    .disaster-card:hover .mini-illu { transform: translateY(-5px) scale(1.04); }
+    .disaster-card h3 { font-size: 22px; margin: 14px 0 6px; }
+    .disaster-card p { color: var(--muted); font-size: 14px; }
+    .card-more { max-height: 0; opacity: 0; overflow: hidden; transition: .32s var(--ease); }
+    .mini-illu { height: 92px; border-radius: 20px; display: grid; place-items: center; transition: .3s var(--ease); }
+    .quake { background: #fff4e8; } .typhoon { background: #eaf7ff; } .flood { background: #e9f0ff; } .slide { background: #eef9ef; }
+
+    .feature-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 22px; align-items: stretch; }
+    .panel {
+      background: rgba(255,255,255,.9); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-soft);
+    }
+    .panel h3 { font-size: 24px; margin-bottom: 8px; }
+    .panel .hint { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+
+    .warning-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .warning-tabs button {
+      padding: 10px 15px; border-radius: 999px; color: #fff; font-weight: 900;
+      transition: .25s var(--ease); opacity: .68;
+    }
+    .warning-tabs button.active { opacity: 1; transform: translateY(-2px); box-shadow: 0 10px 18px rgba(33,50,74,.14); }
+    .warning-tabs [data-level="红色"] { background: var(--warn); }
+    .warning-tabs [data-level="橙色"] { background: var(--orange); }
+    .warning-tabs [data-level="黄色"] { background: var(--yellow); color: #6f4f00; }
+    .warning-tabs [data-level="蓝色"] { background: var(--blue-alert); }
+    .warning-content {
+      display: grid; grid-template-columns: 110px 1fr; gap: 18px; align-items: center;
+      background: var(--sky-soft); padding: 18px; border-radius: 22px;
+    }
+    .warning-badge {
+      width: 96px; height: 96px; border-radius: 32px; display: grid; place-items: center;
+      color: #fff; font-size: 28px; font-weight: 1000;
+    }
+    .warning-list { display: grid; gap: 10px; }
+    .warning-list div { background: #fff; padding: 12px 14px; border-radius: 16px; color: var(--muted); }
+    .warning-list b { color: var(--ink); margin-right: 6px; }
+
+    .daily-card { display: grid; gap: 18px; align-content: start; }
+    .progress-card { background: linear-gradient(135deg, var(--sky-soft), var(--safe-soft)); }
+    .bar { height: 13px; background: #dbeefa; border-radius: 99px; overflow: hidden; margin: 14px 0 10px; }
+    .bar span { display: block; height: 100%; width: 38%; background: linear-gradient(90deg, var(--sky), var(--safe)); border-radius: inherit; transition: width .45s var(--ease); }
+    .check-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .tag { display: inline-flex; padding: 7px 10px; border-radius: 999px; background: #fff; color: var(--muted); border: 1px solid var(--line); font-weight: 800; font-size: 13px; }
+
+    .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+    .supplies, .bag {
+      min-height: 268px; padding: 18px; border-radius: 24px; background: var(--sky-soft);
+      display: flex; gap: 12px; flex-wrap: wrap; align-content: flex-start;
+    }
+    .bag { background: var(--safe-soft); border: 2px dashed rgba(47,197,121,.45); }
+    .item {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 16px;
+      background: #fff; border: 1px solid var(--line); box-shadow: 0 8px 18px rgba(44,117,176,.08);
+      transition: .2s var(--ease); font-weight: 800;
+    }
+    .item:hover { transform: translateY(-3px); }
+    .item.selected { background: var(--safe); color: #fff; border-color: var(--safe); }
+    .game-score { margin-top: 12px; color: var(--muted); font-weight: 800; }
+
+    .quiz-wrap { display: grid; grid-template-columns: .9fr 1.1fr; gap: 22px; }
+    .question-box { background: var(--sky-soft); padding: 22px; border-radius: 24px; min-height: 300px; }
+    .question-title { font-size: 22px; font-weight: 900; margin-bottom: 14px; }
+    .options { display: grid; gap: 10px; }
+    .option {
+      text-align: left; padding: 12px 14px; border-radius: 16px; background: #fff; color: var(--ink);
+      border: 1px solid transparent; transition: .2s; font-weight: 800;
+    }
+    .option:hover { border-color: var(--sky); transform: translateX(3px); }
+    .option.chosen { background: var(--sky); color: #fff; }
+    .quiz-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .report {
+      background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 22px; min-height: 300px;
+    }
+    .report h4 { font-size: 22px; margin-bottom: 12px; }
+    .report-list { display: grid; gap: 10px; color: var(--muted); }
+    .report-list div { padding: 12px; border-radius: 16px; background: #f8fbff; }
+
+    .scenario-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .scenario-tabs button {
+      padding: 10px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--line);
+      color: var(--muted); font-weight: 900;
+    }
+    .scenario-tabs button.active { background: var(--safe); color: #fff; border-color: var(--safe); }
+    .scenario-stage {
+      position: relative; min-height: 430px; border-radius: 28px; overflow: hidden;
+      background: linear-gradient(180deg, #dff4ff 0 52%, #edf7ed 52% 100%);
+      border: 1px solid var(--line);
+    }
+    .stage-label { position: absolute; left: 20px; top: 18px; background: rgba(255,255,255,.9); border-radius: 999px; padding: 8px 12px; font-weight: 900; color: var(--sky-dark); z-index: 2; }
+    .hazard {
+      position: absolute; width: 58px; height: 58px; border-radius: 20px;
+      background: rgba(255,255,255,.92); color: var(--warn); display: grid; place-items: center;
+      border: 2px solid rgba(255,91,95,.35);
+      box-shadow: 0 12px 24px rgba(255,91,95,.16), 0 0 0 7px rgba(255,91,95,.08);
+      transition: .2s var(--ease); animation: pulse 2.2s infinite ease-in-out;
+    }
+    .hazard svg { width: 38px; height: 38px; }
+    .hazard:hover { transform: translateY(-3px) scale(1.06); background: #fff; border-color: var(--warn); }
+    .hazard.found {
+      border-radius: 50%; background: var(--safe); color: #fff; border-color: var(--safe);
+      box-shadow: 0 0 0 8px rgba(47,197,121,.18); opacity: 1; font-weight: 1000; animation: none;
+    }
+    .hazard.fall { color: #ff7a3d; border-color: rgba(255,122,61,.42); box-shadow: 0 12px 24px rgba(255,122,61,.15), 0 0 0 7px rgba(255,122,61,.08); }
+    .hazard.block { color: #7b6cff; border-color: rgba(123,108,255,.36); box-shadow: 0 12px 24px rgba(123,108,255,.14), 0 0 0 7px rgba(123,108,255,.08); }
+    .hazard.water { color: #4d8dff; border-color: rgba(77,141,255,.4); box-shadow: 0 12px 24px rgba(77,141,255,.14), 0 0 0 7px rgba(77,141,255,.08); }
+    .hazard.tree-risk { color: #15925a; border-color: rgba(47,197,121,.4); box-shadow: 0 12px 24px rgba(47,197,121,.14), 0 0 0 7px rgba(47,197,121,.08); }
+    .stage-object { position: absolute; border-radius: 18px; background: #fff; border: 4px solid #b7ddf3; }
+    .desk { left: 64px; bottom: 68px; width: 180px; height: 76px; background: #ffcf8a; border-color: #eca75d; }
+    .desk::before { content: ""; position: absolute; left: 24px; right: 24px; bottom: -34px; height: 34px; background: linear-gradient(90deg, #d8914c 0 12px, transparent 12px calc(100% - 12px), #d8914c calc(100% - 12px)); border-radius: 8px; }
+    .bookcase { right: 70px; bottom: 72px; width: 118px; height: 250px; background: #fff7d9; border-color: #ffd35a; transform: rotate(-4deg); transform-origin: bottom center; }
+    .bookcase::before { content: ""; position: absolute; left: 14px; right: 14px; top: 34px; height: 160px; background: repeating-linear-gradient(180deg, transparent 0 32px, rgba(255,211,90,.7) 32px 38px), repeating-linear-gradient(90deg, #72c69a 0 12px, #ffbd77 12px 22px, #4db7ff 22px 33px, transparent 33px 42px); border-radius: 10px; opacity: .9; }
+    .bookcase::after { content: "未固定"; position: absolute; right: -20px; top: 14px; padding: 4px 8px; border-radius: 999px; background: #fff; color: var(--warn); border: 1px solid rgba(255,91,95,.3); font-size: 12px; font-weight: 900; }
+    .clutter { position: absolute; left: 95px; bottom: 74px; width: 108px; height: 54px; border: 0; background: transparent; }
+    .clutter::before { content: ""; position: absolute; left: 0; bottom: 0; width: 46px; height: 36px; border-radius: 8px; background: #9bd6ff; box-shadow: 36px 8px 0 #ffd35a, 65px -4px 0 #ffbd77; }
+    .hanging-lamp { position: absolute; left: 50%; top: 54px; width: 62px; height: 90px; border: 0; background: transparent; transform: translateX(-50%); }
+    .hanging-lamp::before { content: ""; position: absolute; left: 29px; top: 0; width: 4px; height: 48px; background: rgba(33,50,74,.28); border-radius: 8px; }
+    .hanging-lamp::after { content: ""; position: absolute; left: 7px; bottom: 0; width: 48px; height: 34px; border-radius: 30px 30px 12px 12px; background: #ffd35a; border: 4px solid #ffbd77; box-shadow: 0 10px 18px rgba(255,189,119,.22); }
+    .road { left: 0; right: 0; bottom: 0; height: 96px; border-radius: 0; border: 0; background: #9fb3c9; }
+    .road::before { content: ""; position: absolute; left: 0; right: 0; top: 44px; height: 6px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.75) 0 36px, transparent 36px 64px); }
+    .ad-board { position: absolute; left: 78px; bottom: 110px; width: 118px; height: 92px; border-radius: 12px; background: #fff; border: 4px solid #ff9b42; transform: rotate(6deg); box-shadow: 0 14px 24px rgba(33,50,74,.12); }
+    .ad-board::before { content: "临时牌"; position: absolute; inset: 16px 10px auto; text-align: center; color: #ff7a3d; font-weight: 900; }
+    .ad-board::after { content: ""; position: absolute; left: 16px; bottom: -58px; width: 10px; height: 58px; background: #9fb3c9; box-shadow: 70px 0 0 #9fb3c9; }
+    .puddle-visual { position: absolute; left: 45%; bottom: 26px; width: 150px; height: 44px; border: 0; border-radius: 50%; background: rgba(77,141,255,.34); box-shadow: inset 0 0 0 6px rgba(255,255,255,.35); }
+    .puddle-visual::after { content: ""; position: absolute; left: 34px; top: 12px; width: 48px; height: 8px; border-radius: 999px; background: rgba(255,255,255,.6); }
+    .tree-big { right: 78px; bottom: 92px; width: 78px; height: 178px; background: transparent; border: 0; }
+    .tree-big::before { content: ""; position: absolute; left: 31px; bottom: 0; width: 16px; height: 80px; border-radius: 12px; background: #9b6b42; }
+    .tree-big::after { content: ""; position: absolute; inset: 0 0 70px; border-radius: 45px; background: var(--safe); }
+    .rain-person { position: absolute; right: 118px; bottom: 92px; width: 38px; height: 82px; border: 0; background: transparent; }
+    .rain-person::before { content: ""; position: absolute; left: 10px; top: 8px; width: 22px; height: 22px; border-radius: 50%; background: #ffbd77; box-shadow: 0 27px 0 8px #4db7ff; }
+    .rain-person::after { content: ""; position: absolute; left: 2px; top: 0; width: 54px; height: 18px; border-radius: 50% 50% 4px 4px; background: #ff5b5f; transform: rotate(-8deg); }
+    .blackboard { left: 70px; top: 76px; width: 260px; height: 135px; background: #72c69a; border-color: #3d9f68; }
+    .window-glass { position: absolute; right: 82px; top: 74px; width: 126px; height: 138px; border-radius: 18px; background: rgba(223,244,255,.9); border: 4px solid #b7ddf3; }
+    .window-glass::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #b7ddf3; }
+    .window-glass::after { content: ""; position: absolute; left: 22px; top: 20px; width: 72px; height: 82px; background: linear-gradient(135deg, transparent 0 42%, rgba(255,91,95,.65) 43% 47%, transparent 48% 100%), linear-gradient(50deg, transparent 0 48%, rgba(255,91,95,.5) 49% 52%, transparent 53% 100%); }
+    .aisle-block { position: absolute; left: 238px; bottom: 84px; width: 104px; height: 68px; border: 0; background: transparent; }
+    .aisle-block::before { content: ""; position: absolute; left: 0; bottom: 0; width: 44px; height: 42px; border-radius: 10px; background: #ffbd77; box-shadow: 46px 9px 0 #9bd6ff; }
+    .wrong-way { position: absolute; right: 92px; bottom: 86px; width: 58px; height: 90px; border: 0; background: transparent; }
+    .wrong-way::before { content: ""; position: absolute; left: 18px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: #ffbd77; box-shadow: 0 32px 0 10px #7b6cff; }
+    .wrong-way::after { content: "逆行"; position: absolute; left: -6px; bottom: 0; padding: 4px 8px; border-radius: 999px; background: #fff; color: #7b6cff; border: 1px solid rgba(123,108,255,.28); font-size: 12px; font-weight: 900; }
+    .safe-tip { margin-top: 12px; color: var(--muted); font-weight: 800; }
+
+    .content-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .article {
+      background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-soft);
+      transition: .25s var(--ease);
+    }
+    .article:hover { transform: translateY(-5px); }
+    .article-visual { height: 140px; border-radius: 22px; background: var(--sky-soft); display: grid; place-items: center; margin-bottom: 16px; }
+    .article h3 { margin-bottom: 8px; }
+    .article p { color: var(--muted); font-size: 14px; }
+    .article a { display: inline-flex; margin-top: 14px; color: var(--sky-dark); font-weight: 900; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-card {
+      text-align: center; background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 24px 14px; box-shadow: var(--shadow-soft);
+    }
+    .stat-card b { display: block; color: var(--sky-dark); font-size: clamp(28px, 4vw, 42px); line-height: 1.1; }
+    .stat-card span { color: var(--muted); font-weight: 800; }
+
+    .comments-grid { display: grid; grid-template-columns: .95fr 1.05fr; gap: 22px; }
+    .form { display: grid; gap: 12px; }
+    .field { width: 100%; border: 1px solid var(--line); border-radius: 16px; padding: 13px 14px; background: #fff; color: var(--ink); outline: none; }
+    .field:focus { border-color: var(--sky); box-shadow: 0 0 0 4px rgba(77,183,255,.13); }
+    .comment-stream { max-height: 334px; overflow: hidden; position: relative; border-radius: 22px; background: var(--sky-soft); padding: 16px; }
+    .comment-list { display: grid; gap: 12px; animation: scrollUp 18s linear infinite; }
+    .comment { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+    .comment b { color: var(--sky-dark); }
+    .comment p { color: var(--muted); font-size: 14px; }
+
+    .footer {
+      margin-top: 40px; padding: 46px 0; background: #17334f; color: rgba(255,255,255,.82);
+    }
+    .footer-grid { display: grid; grid-template-columns: 1.2fr repeat(3, 1fr); gap: 22px; }
+    .footer h3, .footer h4 { color: #fff; margin-bottom: 10px; }
+    .footer a { display: block; margin: 8px 0; color: rgba(255,255,255,.72); }
+    .downloads { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .download { padding: 9px 12px; border-radius: 999px; background: rgba(255,255,255,.1); font-weight: 800; }
+
+    .modal {
+      position: fixed; inset: 0; z-index: 100; background: rgba(19,47,76,.36);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal.show { display: flex; }
+    .modal-card {
+      width: min(560px, 100%); background: #fff; border-radius: 30px; padding: 26px;
+      box-shadow: 0 26px 90px rgba(0,0,0,.2); animation: pop .25s var(--ease);
+    }
+    .modal-top { display: flex; justify-content: space-between; gap: 16px; align-items: start; margin-bottom: 12px; }
+    .close { width: 40px; height: 40px; border-radius: 14px; background: var(--warn-soft); color: var(--warn); font-weight: 1000; }
+    .answer-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px; }
+    .answer-row button { padding: 14px; border-radius: 18px; font-weight: 1000; color: #fff; }
+    .answer-row button:first-child { background: var(--safe); }
+    .answer-row button:last-child { background: var(--warn); }
+    .analysis-box { margin-top: 14px; border-radius: 18px; padding: 14px; background: var(--sky-soft); color: var(--muted); display: none; }
+    .analysis-box.show { display: block; }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(30px);
+      background: #17334f; color: #fff; padding: 12px 16px; border-radius: 999px; z-index: 120;
+      opacity: 0; transition: .25s var(--ease); box-shadow: var(--shadow);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(12px); } }
+    @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+    @keyframes pop { from { transform: translateY(18px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+
+    @media (max-width: 980px) {
+      .nav-links {
+        position: fixed; left: 18px; right: 18px; top: 82px; display: none; flex-direction: column; align-items: stretch;
+        background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 12px; box-shadow: var(--shadow);
+      }
+      .nav-links.show { display: flex; }
+      .nav-links a { justify-content: center; }
+      .menu-btn { display: block; }
+      .hero-grid, .feature-grid, .game-grid, .quiz-wrap, .comments-grid, .footer-grid { grid-template-columns: 1fr; }
+      .grid-4, .content-grid, .stats { grid-template-columns: repeat(2, 1fr); }
+      .hero-grid { min-height: auto; }
+      .scene { min-height: 430px; }
+    }
+
+    @media (max-width: 620px) {
+      .container { width: min(100% - 26px, 1180px); }
+      .section { padding: 58px 0; }
+      .section-head { display: block; }
+      .grid-4, .content-grid, .stats, .status-strip { grid-template-columns: 1fr; }
+      .hero { padding-top: 28px; }
+      .hero-card { border-radius: 28px; }
+      .scene { min-height: 360px; border-radius: 28px; }
+      .house { transform: scale(.75); transform-origin: left bottom; }
+      .floating-note { left: 16px; right: 16px; bottom: 16px; }
+      .warning-content { grid-template-columns: 1fr; }
+      .warning-badge { width: 82px; height: 82px; }
+      .scenario-stage { min-height: 360px; }
+      .answer-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav container">
+      <a class="brand" href="#home" aria-label="自然灾害科普互动网站首页">
+        <span class="brand-mark">
+          <svg viewBox="0 0 48 48" width="28" height="28" aria-hidden="true">
+            <path d="M24 5 7 13v12c0 10 7 16 17 19 10-3 17-9 17-19V13L24 5Z" fill="currentColor" opacity=".96"/>
+            <path d="M15 25h18M24 16v18" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span>安心防灾学堂</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#encyclopedia">灾害百科</a></li>
+        <li><a href="#avoidance">互动避险</a></li>
+        <li><a href="#quiz">防灾答题</a></li>
+        <li><a href="#simulation">模拟演练</a></li>
+        <li><a href="#warning">预警查询</a></li>
+        <li><a href="#qa">留言问答</a></li>
+      </ul>
+      <button class="menu-btn" id="menuBtn" aria-label="展开导航">☰</button>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-card">
+          <span class="eyebrow">高互动科普 · 不止看文章</span>
+          <h1 id="heroTitle">动手学习<br><strong>自然灾害避险</strong></h1>
+          <p id="heroText">通过答题、配对、预警图解与场景找隐患，把地震、台风、洪涝、泥石流知识变成可操作的安全能力。</p>
+          <div class="hero-actions">
+            <a class="btn" href="#avoidance">开始互动学习</a>
+            <button class="btn secondary" id="dailyOpen">打开每日问答</button>
+          </div>
+          <div class="status-strip">
+            <div class="status-pill"><b id="learnedCount">0</b><small>今日已学知识点</small></div>
+            <div class="status-pill"><b id="checkDays">1</b><small>连续安全打卡</small></div>
+            <div class="status-pill"><b id="scoreMini">--</b><small>最近答题得分</small></div>
+          </div>
+          <div class="banner-dots" id="bannerDots" aria-label="轮播切换"></div>
+        </div>
+        <div class="scene" aria-label="晴空下的安全家园插画">
+          <span class="sun"></span>
+          <span class="cloud c1"></span>
+          <span class="cloud c2"></span>
+          <span class="hill"></span>
+          <span class="hill two"></span>
+          <div class="house"><span class="roof"></span><span class="window w1"></span><span class="window w2"></span><span class="door"></span></div>
+          <span class="tree t1"></span><span class="tree t2"></span>
+          <div class="floating-note">
+            <span class="icon">✓</span>
+            <div><b id="heroTipTitle">今日提示：先判断风险，再选择路线</b><br><span id="heroTipText">遇到预警时，优先查看官方信息，准备饮用水、手电和应急联系卡。</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="encyclopedia">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">灾害百科</span>
+            <h2>四类常见灾害互动卡片</h2>
+          </div>
+          <p class="section-desc">鼠标悬浮或手机轻触卡片，可查看简介与避险关键词。整体采用扁平化矢量风格，避免恐怖画面。</p>
+        </div>
+        <div class="grid-4">
+          <article class="disaster-card">
+            <div class="mini-illu quake">
+              <svg viewBox="0 0 180 100" width="160" height="90"><path d="M8 82h164" stroke="#d8a04d" stroke-width="7" stroke-linecap="round"/><path d="M42 72 70 34l25 38 24-30 22 30" fill="none" stroke="#ff9b42" stroke-width="9" stroke-linejoin="round"/><path d="m87 8-9 25 19-3-10 28 28-38-21 4 9-16z" fill="#ff5b5f"/></svg>
+            </div>
+            <h3>地震</h3>
+            <p>发生突然，重点是“趴下、掩护、稳住”。</p>
+            <div class="card-more"><p>室内避开玻璃和悬挂物，室外远离高楼、广告牌和电线杆。</p></div>
+          </article>
+          <article class="disaster-card">
+            <div class="mini-illu typhoon">
+              <svg viewBox="0 0 180 100" width="160" height="90"><path d="M88 50c28-32 78-8 54 22-17 21-58 12-70-6 21 7 45-1 44-17-2-22-44-16-66 11" fill="none" stroke="#4db7ff" stroke-width="10" stroke-linecap="round"/><path d="M29 72h52M24 48h70M46 25h70" stroke="#2fc579" stroke-width="8" stroke-linecap="round"/></svg>
+            </div>
+            <h3>台风</h3>
+            <p>伴随强风、暴雨和风暴潮，需提前加固。</p>
+            <div class="card-more"><p>关紧门窗，收起阳台物品，避免到海边、河边和临时建筑附近。</p></div>
+          </article>
+          <article class="disaster-card">
+            <div class="mini-illu flood">
+              <svg viewBox="0 0 180 100" width="160" height="90"><path d="M22 74c17-15 35 15 52 0s35 15 52 0 24-3 34 3" fill="none" stroke="#4d8dff" stroke-width="8" stroke-linecap="round"/><path d="M22 50c17-15 35 15 52 0s35 15 52 0 24-3 34 3" fill="none" stroke="#4db7ff" stroke-width="8" stroke-linecap="round"/><path d="M92 10c-15 22-22 34-22 48 0 14 11 25 25 25s25-11 25-25c0-14-9-26-28-48z" fill="#e9f7ff" stroke="#4d8dff" stroke-width="6"/></svg>
+            </div>
+            <h3>洪涝</h3>
+            <p>低洼积水和道路漫水是常见风险。</p>
+            <div class="card-more"><p>不要涉水通行，转移到高处，远离井盖、电箱和被淹地下空间。</p></div>
+          </article>
+          <article class="disaster-card">
+            <div class="mini-illu slide">
+              <svg viewBox="0 0 180 100" width="160" height="90"><path d="M16 82h150L73 18z" fill="#b7e5bd"/><path d="M70 18 30 82h80z" fill="#8fdda9"/><circle cx="105" cy="54" r="10" fill="#9b6b42"/><circle cx="124" cy="70" r="8" fill="#9b6b42"/><path d="M54 70h28l-13-20z" fill="#ff9b42"/></svg>
+            </div>
+            <h3>泥石流</h3>
+            <p>山区强降雨后易发生，切忌沿沟谷奔跑。</p>
+            <div class="card-more"><p>听到轰鸣或见水位骤变，应向沟谷两侧高处快速转移。</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="warning">
+      <div class="container feature-grid">
+        <div class="panel">
+          <span class="eyebrow">预警查询</span>
+          <h3>交互式预警等级图解</h3>
+          <p class="hint">点击红、橙、黄、蓝预警，查看对应危害与应对措施。</p>
+          <div class="warning-tabs" id="warningTabs">
+            <button data-level="红色" class="active">红色预警</button>
+            <button data-level="橙色">橙色预警</button>
+            <button data-level="黄色">黄色预警</button>
+            <button data-level="蓝色">蓝色预警</button>
+          </div>
+          <div class="warning-content">
+            <div class="warning-badge" id="warningBadge">红</div>
+            <div>
+              <h3 id="warningTitle">极高风险，应立即避险</h3>
+              <div class="warning-list">
+                <div><b>灾害说明</b><span id="warningDesc">可能出现严重影响生命财产安全的灾害过程。</span></div>
+                <div><b>主要危害</b><span id="warningRisk">强风、暴雨、山洪、地质灾害或严重积水。</span></div>
+                <div><b>应对措施</b><span id="warningAction">停止户外活动，服从转移安排，保持通讯畅通。</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="daily-card">
+          <div class="panel progress-card">
+            <h3>防灾进度条</h3>
+            <p class="hint">完成互动模块会自动增加今日学习进度。</p>
+            <div class="bar"><span id="progressBar"></span></div>
+            <p><b id="progressText">38%</b> 今日学习进度</p>
+            <div class="check-row">
+              <span class="tag">地震避险 ✓</span><span class="tag">预警识别 ✓</span><span class="tag">物资准备</span><span class="tag">场景演练</span>
+            </div>
+            <button class="btn" id="checkBtn" style="margin-top:18px;">学习打卡</button>
+          </div>
+          <div class="panel">
+            <h3>每日随机问答</h3>
+            <p class="hint">每天用 30 秒巩固一个安全判断。</p>
+            <button class="btn secondary" id="dailyOpen2">抽一道题</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="avoidance">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">互动避险</span>
+            <h2>家庭应急物资配对小游戏</h2>
+          </div>
+          <p class="section-desc">点击左侧物资，把正确的应急包物品放入右侧。系统会实时判断是否配对成功。</p>
+        </div>
+        <div class="panel">
+          <div class="game-grid">
+            <div>
+              <h3>备选物资</h3>
+              <p class="hint">选择更适合应急包的物品。</p>
+              <div class="supplies" id="supplies"></div>
+            </div>
+            <div>
+              <h3>家庭应急包</h3>
+              <p class="hint">目标：饮用水、手电、急救包、口哨、充电宝、应急联系卡。</p>
+              <div class="bag" id="bag"></div>
+              <p class="game-score" id="gameScore">已放入 0 / 6 件正确物资</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="quiz">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">防灾答题</span>
+            <h2>在线防灾知识题库</h2>
+          </div>
+          <p class="section-desc">包含单选、多选、判断题。完成后自动出分，并生成一份简短科普报告。</p>
+        </div>
+        <div class="panel quiz-wrap">
+          <div class="question-box">
+            <p class="tag" id="qType">单选题</p>
+            <div class="question-title" id="questionTitle"></div>
+            <div class="options" id="options"></div>
+            <div class="quiz-actions">
+              <button class="btn" id="nextQuestion">下一题</button>
+              <button class="btn secondary" id="submitQuiz">交卷评分</button>
+            </div>
+          </div>
+          <div class="report" id="report">
+            <h4>科普报告</h4>
+            <div class="report-list" id="reportList">
+              <div>完成答题后，这里会生成得分、优势知识点和建议复习内容。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="simulation">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">模拟演练</span>
+            <h2>场景找隐患互动</h2>
+          </div>
+          <p class="section-desc">切换居家、户外、校园场景，点击画面中的危险图标，查看对应的不安全行为与避险建议。</p>
+        </div>
+        <div class="panel">
+          <div class="scenario-tabs" id="scenarioTabs">
+            <button class="active" data-scene="home">居家</button>
+            <button data-scene="outdoor">户外</button>
+            <button data-scene="school">校园</button>
+          </div>
+          <div class="scenario-stage" id="scenarioStage"></div>
+          <p class="safe-tip" id="scenarioTip">点击危险图标查看隐患说明。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">科普图文区</span>
+            <h2>把专业知识讲清楚</h2>
+          </div>
+          <p class="section-desc">围绕“识别风险、准备物资、正确行动、复盘学习”组织图文内容，适合学生与大众学习。</p>
+        </div>
+        <div class="content-grid">
+          <article class="article">
+            <div class="article-visual"><svg viewBox="0 0 120 90" width="120"><rect x="20" y="22" width="80" height="52" rx="16" fill="#fff"/><path d="M35 49h50M35 35h34M35 63h24" stroke="#4db7ff" stroke-width="7" stroke-linecap="round"/><circle cx="90" cy="28" r="13" fill="#2fc579"/></svg></div>
+            <h3>预警信息怎么看</h3>
+            <p>学会区分预警颜色、发布时间、影响区域和建议行动，避免只看标题。</p>
+            <a href="#warning">去学习 →</a>
+          </article>
+          <article class="article">
+            <div class="article-visual"><svg viewBox="0 0 120 90" width="120"><rect x="27" y="28" width="66" height="45" rx="15" fill="#e9fbf2" stroke="#2fc579" stroke-width="6"/><path d="M44 28v-6c0-8 32-8 32 0v6M48 51h24M60 39v24" stroke="#2fc579" stroke-width="6" stroke-linecap="round"/></svg></div>
+            <h3>应急包怎么配</h3>
+            <p>饮用水、照明、急救、通讯、个人药品和身份信息是基础组合。</p>
+            <a href="#avoidance">去配对 →</a>
+          </article>
+          <article class="article">
+            <div class="article-visual"><svg viewBox="0 0 120 90" width="120"><path d="M20 70h80" stroke="#9fb3c9" stroke-width="9" stroke-linecap="round"/><path d="M38 66 60 22l22 44" fill="#fff4e8" stroke="#ff9b42" stroke-width="7" stroke-linejoin="round"/><path d="M60 39v14M60 62h.1" stroke="#ff5b5f" stroke-width="7" stroke-linecap="round"/></svg></div>
+            <h3>隐患怎么发现</h3>
+            <p>从悬挂物、玻璃、低洼地、临时建筑、拥挤出口等线索开始观察。</p>
+            <a href="#simulation">去演练 →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="stats">
+          <div class="stat-card"><b data-count="48">0</b><span>科普知识点</span></div>
+          <div class="stat-card"><b data-count="36">0</b><span>互动题库</span></div>
+          <div class="stat-card"><b data-count="12">0</b><span>演练场景</span></div>
+          <div class="stat-card"><b data-count="96">0</b><span>学习完成率</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="qa">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">留言问答</span>
+            <h2>提问、投稿与热门评论</h2>
+          </div>
+          <p class="section-desc">支持用户留言提问、提交科普心得，右侧热门评论柔和滚动展示。</p>
+        </div>
+        <div class="comments-grid">
+          <div class="panel">
+            <h3>我要留言</h3>
+            <p class="hint">可以提交问题、心得或班级活动建议。</p>
+            <form class="form" id="commentForm">
+              <input class="field" id="nameInput" placeholder="昵称或班级" required />
+              <textarea class="field" id="msgInput" rows="5" placeholder="写下你的防灾问题或学习心得" required></textarea>
+              <button class="btn" type="submit">提交留言</button>
+            </form>
+          </div>
+          <div class="panel">
+            <h3>热门评论滚动</h3>
+            <div class="comment-stream">
+              <div class="comment-list" id="commentList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>安心防灾学堂</h3>
+        <p>面向学生与大众的自然灾害科普互动网站。主张冷静、科学、可练习的避险学习。</p>
+        <div class="downloads">
+          <span class="download">家庭应急清单</span>
+          <span class="download">校园演练表</span>
+          <span class="download">预警识别卡</span>
+        </div>
+      </div>
+      <div><h4>栏目</h4><a href="#encyclopedia">灾害百科</a><a href="#avoidance">互动避险</a><a href="#quiz">防灾答题</a></div>
+      <div><h4>互动</h4><a href="#simulation">模拟演练</a><a href="#warning">预警查询</a><a href="#qa">留言问答</a></div>
+      <div><h4>版权</h4><p>© 2026 自然灾害科普互动网站<br>资源仅用于公益科普学习。</p></div>
+    </div>
+  </footer>
+
+  <div class="modal" id="dailyModal" role="dialog" aria-modal="true" aria-label="每日防灾问答">
+    <div class="modal-card">
+      <div class="modal-top">
+        <div>
+          <span class="eyebrow">每日防灾随机问答</span>
+          <h3 id="dailyQuestion" style="margin-top:12px;font-size:24px;"></h3>
+        </div>
+        <button class="close" id="closeModal" aria-label="关闭">×</button>
+      </div>
+      <p class="hint">请选择“正确”或“错误”，系统会实时弹出解析。</p>
+      <div class="answer-row">
+        <button data-answer="true">正确</button>
+        <button data-answer="false">错误</button>
+      </div>
+      <div class="analysis-box" id="analysisBox"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">已完成</div>
+
+  <script>
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+    const state = {
+      learned: 0,
+      progress: 38,
+      checkDays: Number(localStorage.getItem("safeCheckDays") || 1),
+      quizAnswers: [],
+      questionIndex: 0,
+      currentDaily: null,
+      foundHazards: new Set()
+    };
+
+    const banners = [
+      { title: "动手学习<br><strong>自然灾害避险</strong>", text: "通过答题、配对、预警图解与场景找隐患，把地震、台风、洪涝、泥石流知识变成可操作的安全能力。", tip: "今日提示：先判断风险，再选择路线", tipText: "遇到预警时，优先查看官方信息，准备饮用水、手电和应急联系卡。" },
+      { title: "看懂预警<br><strong>提前做好准备</strong>", text: "红橙黄蓝不是颜色游戏，而是风险等级。点击图解即可了解危害和行动建议。", tip: "今日提示：预警升级时减少外出", tipText: "台风和暴雨预警期间，远离河道、广告牌、临时围挡和地下空间。" },
+      { title: "模拟演练<br><strong>发现身边隐患</strong>", text: "在居家、户外、校园场景中找出错误避险行为，训练观察力和判断力。", tip: "今日提示：演练后要复盘", tipText: "把不会做、做错的动作记录下来，下次演练前先重点复习。" }
+    ];
+
+    const dailyQuestions = [
+      { q: "地震时，如果来不及跑到室外，应优先躲在坚固桌子下或承重墙角附近。", a: true, explain: "正确。室内应先保护头颈，躲避玻璃、吊灯和高大家具，震动停止后再有序撤离。" },
+      { q: "暴雨积水不深时，可以快速骑车通过低洼路段。", a: false, explain: "错误。积水可能遮挡井盖、坑洞和带电设施，水流也可能突然增强，应绕行或等待安全转移。" },
+      { q: "台风来临前，应收回阳台花盆、衣架等易坠落物。", a: true, explain: "正确。强风会让轻小物品变成坠落风险，提前加固门窗和收纳杂物很重要。" },
+      { q: "遇到泥石流，应沿沟谷向下游奔跑，速度会更快。", a: false, explain: "错误。泥石流常沿沟谷高速下泄，应向沟谷两侧高处转移。" }
+    ];
+
+    const warningData = {
+      "红色": { color: "#ff5b5f", text: "红", title: "极高风险，应立即避险", desc: "可能出现严重影响生命财产安全的灾害过程。", risk: "强风、暴雨、山洪、地质灾害或严重积水。", action: "停止户外活动，服从转移安排，保持通讯畅通。" },
+      "橙色": { color: "#ff9b42", text: "橙", title: "高风险，减少外出", desc: "灾害影响明显，局地可能出现险情。", risk: "道路积水、树木倒伏、山体松动、交通受阻。", action: "提前储备物资，避开危险区域，关注官方更新。" },
+      "黄色": { color: "#ffd35a", text: "黄", title: "中等风险，提前准备", desc: "灾害天气或风险正在发展，需要提高警惕。", risk: "出行不便，局地可能发生短时强降雨或大风。", action: "检查门窗、排水和应急包，规划安全路线。" },
+      "蓝色": { color: "#4d8dff", text: "蓝", title: "一般风险，关注变化", desc: "存在一定灾害可能，需持续关注预报。", risk: "轻度风雨、局部积水或交通延误。", action: "留意天气和预警，避免前往高风险地点。" }
+    };
+
+    const supplies = [
+      ["饮用水", "💧", true], ["手电筒", "🔦", true], ["急救包", "➕", true], ["口哨", "📣", true],
+      ["充电宝", "🔋", true], ["应急联系卡", "🪪", true], ["玻璃花瓶", "🏺", false], ["大型玩偶", "🧸", false],
+      ["易碎相框", "🖼️", false], ["零食礼盒", "🍪", false]
+    ];
+
+    const quiz = [
+      { type: "单选题", q: "地震发生时，室内最优先的动作是什么？", options: ["冲向电梯", "保护头颈并寻找掩护", "站到窗边观察", "拿手机拍摄"], answer: [1], explain: "地震时先保护头颈，躲在坚固家具旁或承重墙角，震后再撤离。" },
+      { type: "多选题", q: "家庭应急包建议包含哪些物品？", options: ["饮用水", "手电筒", "急救包", "易碎装饰品"], answer: [0,1,2], explain: "应急包以维持生命、照明、急救和通讯为主，避免放入易碎无关物品。" },
+      { type: "判断题", q: "看到城市道路积水时，不应贸然涉水通过。", options: ["正确", "错误"], answer: [0], explain: "积水可能遮挡坑洞、井盖和带电设施，应绕行或等待安全通行信息。" },
+      { type: "单选题", q: "山区暴雨后听到沟谷轰鸣声，应该怎么做？", options: ["到沟谷里查看", "向沟谷两侧高处转移", "沿水流方向奔跑", "站在桥下等待"], answer: [1], explain: "轰鸣声可能是泥石流征兆，应迅速向两侧高处转移。" }
+    ];
+
+    const scenes = {
+      home: {
+        label: "居家地震避险场景",
+        objects: '<div class="stage-label">居家：点击 3 个危险点</div><div class="stage-object hanging-lamp"></div><div class="stage-object desk"></div><div class="stage-object clutter"></div><div class="stage-object bookcase"></div>',
+        hazards: [
+          { x: 80, y: 25, type: "fall", icon: "fall", tip: "高大家具未固定，地震时可能倾倒，应加固。" },
+          { x: 25, y: 66, type: "block", icon: "block", tip: "桌下空间堆满杂物，会影响快速避险。" },
+          { x: 50, y: 26, type: "fall", icon: "fall", tip: "悬挂灯具过低或固定不牢，震动时可能掉落。" }
+        ]
+      },
+      outdoor: {
+        label: "户外台风暴雨场景",
+        objects: '<div class="stage-label">户外：点击 3 个危险点</div><div class="stage-object road"></div><div class="stage-object ad-board"></div><div class="stage-object puddle-visual"></div><div class="stage-object tree-big"></div><div class="stage-object rain-person"></div><div class="stage-object" style="left:70px;bottom:96px;width:130px;height:190px;background:#fff;border-color:#b7ddf3;"></div>',
+        hazards: [
+          { x: 19, y: 48, type: "fall", icon: "fall", tip: "靠近临时围挡和广告牌，强风时有坠落风险。" },
+          { x: 73, y: 44, type: "tree-risk", icon: "tree", tip: "树下避雨不安全，雷雨和大风时应远离。" },
+          { x: 47, y: 72, type: "water", icon: "water", tip: "低洼积水路段不宜涉水通过。" }
+        ]
+      },
+      school: {
+        label: "校园疏散演练场景",
+        objects: '<div class="stage-label">校园：点击 3 个危险点</div><div class="stage-object blackboard"></div><div class="stage-object window-glass"></div><div class="stage-object desk" style="left:70px;bottom:72px;"></div><div class="stage-object desk" style="left:310px;bottom:72px;"></div><div class="stage-object aisle-block"></div><div class="stage-object wrong-way"></div>',
+        hazards: [
+          { x: 36, y: 57, type: "block", icon: "block", tip: "课桌间通道被占用，影响快速疏散。" },
+          { x: 72, y: 26, type: "fall", icon: "glass", tip: "靠近玻璃窗观察灾情，可能被碎片伤到。" },
+          { x: 77, y: 60, type: "block", icon: "block", tip: "疏散时逆行取物，会造成拥堵。" }
+        ]
+      }
+    };
+
+    const comments = [
+      ["六年级一班", "配对游戏很好记，我回家检查了手电和电池。"],
+      ["小林", "原来蓝色预警也不能完全忽视，要持续关注变化。"],
+      ["安全老师", "建议班级演练后让同学写 3 条复盘心得。"],
+      ["晴天", "场景找隐患很直观，适合亲子一起学习。"],
+      ["山城同学", "泥石流要往沟谷两侧高处跑，这点终于记住了。"]
+    ];
+
+    function showToast(text) {
+      const toast = $("#toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function addProgress(num = 6) {
+      state.progress = Math.min(100, state.progress + num);
+      state.learned += 1;
+      $("#progressBar").style.width = state.progress + "%";
+      $("#progressText").textContent = state.progress + "%";
+      $("#learnedCount").textContent = state.learned;
+    }
+
+    function initNav() {
+      $("#menuBtn").addEventListener("click", () => $("#navLinks").classList.toggle("show"));
+      $$("#navLinks a").forEach(a => a.addEventListener("click", () => $("#navLinks").classList.remove("show")));
+      const links = $$(".nav-links a");
+      window.addEventListener("scroll", () => {
+        let current = "";
+        links.forEach(link => {
+          const section = document.querySelector(link.getAttribute("href"));
+          if (section && section.offsetTop - 130 <= scrollY) current = link.getAttribute("href");
+        });
+        links.forEach(link => link.classList.toggle("active", link.getAttribute("href") === current));
+      }, { passive: true });
+    }
+
+    function initBanner() {
+      const dots = $("#bannerDots");
+      banners.forEach((_, i) => {
+        const btn = document.createElement("button");
+        btn.setAttribute("aria-label", `切换到第 ${i + 1} 张轮播`);
+        btn.addEventListener("click", () => setBanner(i));
+        dots.appendChild(btn);
+      });
+      let index = 0;
+      function setBanner(i) {
+        index = i;
+        const item = banners[index];
+        $("#heroTitle").innerHTML = item.title;
+        $("#heroText").textContent = item.text;
+        $("#heroTipTitle").textContent = item.tip;
+        $("#heroTipText").textContent = item.tipText;
+        $$("#bannerDots button").forEach((b, idx) => b.classList.toggle("active", idx === index));
+      }
+      window.setBanner = setBanner;
+      setBanner(0);
+      setInterval(() => setBanner((index + 1) % banners.length), 5200);
+    }
+
+    function initDaily() {
+      const modal = $("#dailyModal");
+      const open = () => {
+        const q = dailyQuestions[Math.floor(Math.random() * dailyQuestions.length)];
+        state.currentDaily = q;
+        $("#dailyQuestion").textContent = q.q;
+        $("#analysisBox").classList.remove("show");
+        $("#analysisBox").textContent = "";
+        modal.classList.add("show");
+      };
+      $("#dailyOpen").addEventListener("click", open);
+      $("#dailyOpen2").addEventListener("click", open);
+      $("#closeModal").addEventListener("click", () => modal.classList.remove("show"));
+      modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("show"); });
+      $$(".answer-row button").forEach(btn => btn.addEventListener("click", () => {
+        const chosen = btn.dataset.answer === "true";
+        const ok = chosen === state.currentDaily.a;
+        $("#analysisBox").innerHTML = `<b>${ok ? "回答正确" : "再想一想"}</b><br>${state.currentDaily.explain}`;
+        $("#analysisBox").classList.add("show");
+        addProgress(ok ? 8 : 3);
+      }));
+      setTimeout(open, 900);
+    }
+
+    function initWarning() {
+      function setLevel(level) {
+        const data = warningData[level];
+        $("#warningBadge").style.background = data.color;
+        $("#warningBadge").textContent = data.text;
+        $("#warningTitle").textContent = data.title;
+        $("#warningDesc").textContent = data.desc;
+        $("#warningRisk").textContent = data.risk;
+        $("#warningAction").textContent = data.action;
+        $$("#warningTabs button").forEach(b => b.classList.toggle("active", b.dataset.level === level));
+        addProgress(2);
+      }
+      $$("#warningTabs button").forEach(btn => btn.addEventListener("click", () => setLevel(btn.dataset.level)));
+      setLevel("红色");
+    }
+
+    function initSupplies() {
+      const box = $("#supplies");
+      const bag = $("#bag");
+      let correct = 0;
+      supplies.sort(() => Math.random() - .5).forEach(([name, icon, isRight]) => {
+        const item = document.createElement("button");
+        item.className = "item";
+        item.innerHTML = `<span>${icon}</span>${name}`;
+        item.addEventListener("click", () => {
+          if (item.classList.contains("selected")) return;
+          item.classList.add("selected");
+          if (isRight) {
+            correct += 1;
+            bag.appendChild(item);
+            $("#gameScore").textContent = `已放入 ${correct} / 6 件正确物资`;
+            showToast(`已放入：${name}`);
+            addProgress(6);
+            if (correct === 6) showToast("应急包配齐了！");
+          } else {
+            showToast(`${name} 不适合放入基础应急包`);
+            setTimeout(() => item.classList.remove("selected"), 700);
+          }
+        });
+        box.appendChild(item);
+      });
+    }
+
+    function initQuiz() {
+      function renderQuestion() {
+        const q = quiz[state.questionIndex];
+        $("#qType").textContent = q.type;
+        $("#questionTitle").textContent = q.q;
+        $("#options").innerHTML = "";
+        (state.quizAnswers[state.questionIndex] ||= []);
+        q.options.forEach((op, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "option";
+          btn.textContent = op;
+          btn.classList.toggle("chosen", state.quizAnswers[state.questionIndex].includes(idx));
+          btn.addEventListener("click", () => {
+            const answers = state.quizAnswers[state.questionIndex];
+            if (q.type === "多选题") {
+              const pos = answers.indexOf(idx);
+              pos >= 0 ? answers.splice(pos, 1) : answers.push(idx);
+            } else {
+              state.quizAnswers[state.questionIndex] = [idx];
+            }
+            renderQuestion();
+          });
+          $("#options").appendChild(btn);
+        });
+      }
+      $("#nextQuestion").addEventListener("click", () => {
+        state.questionIndex = (state.questionIndex + 1) % quiz.length;
+        renderQuestion();
+      });
+      $("#submitQuiz").addEventListener("click", () => {
+        let correct = 0;
+        const details = quiz.map((q, i) => {
+          const ans = [...(state.quizAnswers[i] || [])].sort().join(",");
+          const std = [...q.answer].sort().join(",");
+          const ok = ans === std;
+          if (ok) correct++;
+          return `<div><b>${ok ? "✓" : "·"} ${q.type}</b><br>${q.explain}</div>`;
+        }).join("");
+        const score = Math.round(correct / quiz.length * 100);
+        $("#scoreMini").textContent = score;
+        $("#reportList").innerHTML = `<div><b>本次得分：${score} 分</b><br>答对 ${correct} / ${quiz.length} 题。</div><div><b>学习建议</b><br>${score >= 80 ? "基础掌握较好，可继续挑战模拟演练。" : "建议重点复习预警识别、应急物资和场景避险。"}</div>${details}`;
+        showToast("科普报告已生成");
+        addProgress(12);
+      });
+      renderQuestion();
+    }
+
+    function initScenario() {
+      const stage = $("#scenarioStage");
+      const hazardIcons = {
+        fall: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 44 40H4L24 5Z" fill="currentColor" opacity=".16"/><path d="M24 5 44 40H4L24 5Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M24 17v12" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="34" r="2.8" fill="currentColor"/></svg>',
+        block: '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="11" width="34" height="26" rx="8" fill="currentColor" opacity=".16"/><path d="M12 32 36 16M13 16h22a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5H13a5 5 0 0 1-5-5v-6a5 5 0 0 1 5-5Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M16 38h16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>',
+        water: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6C14 20 10 27 10 34c0 8 6 13 14 13s14-5 14-13c0-7-4-14-14-28Z" fill="currentColor" opacity=".18"/><path d="M24 6C14 20 10 27 10 34c0 8 6 13 14 13s14-5 14-13c0-7-4-14-14-28Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="M17 34c3 3 9 5 14 0" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>',
+        tree: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M25 7c-8 3-12 10-11 17 1 6 5 10 11 10s10-4 11-10c1-7-3-14-11-17Z" fill="currentColor" opacity=".18"/><path d="M24 34v9M18 43h12" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M25 7c-8 3-12 10-11 17 1 6 5 10 11 10s10-4 11-10c1-7-3-14-11-17Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="m13 10 22 28" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>',
+        glass: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 8h24v32H12z" fill="currentColor" opacity=".12"/><path d="M12 8h24v32H12z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="m25 10-5 10 7 5-6 13M13 25h22" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      };
+      function render(sceneName) {
+        const scene = scenes[sceneName];
+        state.foundHazards = new Set();
+        stage.innerHTML = scene.objects;
+        scene.hazards.forEach((h, i) => {
+          const btn = document.createElement("button");
+          btn.className = `hazard ${h.type || ""}`;
+          btn.style.left = h.x + "%";
+          btn.style.top = h.y + "%";
+          btn.innerHTML = hazardIcons[h.icon] || hazardIcons.fall;
+          btn.title = h.tip;
+          btn.setAttribute("aria-label", "危险点图标");
+          btn.addEventListener("click", () => {
+            btn.classList.add("found");
+            btn.textContent = "✓";
+            state.foundHazards.add(i);
+            $("#scenarioTip").textContent = `已发现 ${state.foundHazards.size} / ${scene.hazards.length} 个危险点。${h.tip}`;
+            addProgress(5);
+            if (state.foundHazards.size === scene.hazards.length) showToast("本场景危险点已找齐");
+          });
+          stage.appendChild(btn);
+        });
+        $("#scenarioTip").textContent = `点击画面中的危险图标，已发现 0 / ${scene.hazards.length} 个危险点。`;
+      }
+      $$("#scenarioTabs button").forEach(btn => btn.addEventListener("click", () => {
+        $$("#scenarioTabs button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        render(btn.dataset.scene);
+      }));
+      render("home");
+    }
+
+    function initComments() {
+      const list = $("#commentList");
+      function draw() {
+        list.innerHTML = [...comments, ...comments].map(([name, msg]) => `<div class="comment"><b>${name}</b><p>${msg}</p></div>`).join("");
+      }
+      $("#commentForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const name = $("#nameInput").value.trim();
+        const msg = $("#msgInput").value.trim();
+        if (!name || !msg) return;
+        comments.unshift([name, msg]);
+        $("#commentForm").reset();
+        draw();
+        showToast("留言已加入热门评论");
+        addProgress(4);
+      });
+      draw();
+    }
+
+    function initCounters() {
+      const cards = $$(".stat-card b");
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target;
+          const target = Number(el.dataset.count);
+          let cur = 0;
+          const timer = setInterval(() => {
+            cur += Math.ceil(target / 28);
+            if (cur >= target) { cur = target; clearInterval(timer); }
+            el.textContent = cur + (target === 96 ? "%" : "");
+          }, 28);
+          io.unobserve(el);
+        });
+      }, { threshold: .4 });
+      cards.forEach(card => io.observe(card));
+    }
+
+    function initCheckIn() {
+      $("#checkDays").textContent = state.checkDays;
+      $("#checkBtn").addEventListener("click", () => {
+        state.checkDays += 1;
+        localStorage.setItem("safeCheckDays", state.checkDays);
+        $("#checkDays").textContent = state.checkDays;
+        showToast("打卡成功，继续保持！");
+        addProgress(8);
+      });
+      $("#progressBar").style.width = state.progress + "%";
+      $("#progressText").textContent = state.progress + "%";
+    }
+
+    initNav();
+    initBanner();
+    initDaily();
+    initWarning();
+    initSupplies();
+    initQuiz();
+    initScenario();
+    initComments();
+    initCounters();
+    initCheckIn();
+  </script>
+</body>
+</html>

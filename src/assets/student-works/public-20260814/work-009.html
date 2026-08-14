@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#FF6B9D">
+    <title>轻养生提醒卡</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+        html, body { height: 100%; overflow-x: hidden; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(180deg, #fff5f7 0%, #fef7e7 50%, #e7f5ff 100%);
+            color: #3a3a3a;
+            font-size: 16px;
+            line-height: 1.7;
+            padding-top: 0;
+            padding-bottom: 76px;
+            min-height: 100vh;
+        }
+        @supports (padding-top: env(safe-area-inset-top)) {
+            body { padding-top: env(safe-area-inset-top); padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+        }
+        .top-bar {
+            background: linear-gradient(135deg, #FF6B9D 0%, #C44569 100%);
+            padding: 16px 20px 18px;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 16px rgba(255,107,157,0.3);
+        }
+        .top-bar h1 { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+        .top-bar p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+        .container { padding: 16px; padding-bottom: 90px; max-width: 600px; margin: 0 auto; }
+        .page { display: none; animation: pageFadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes pageFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .welcome-card {
+            background: linear-gradient(135deg, #FFE66D 0%, #FFD93D 100%);
+            border-radius: 18px;
+            padding: 24px 22px;
+            color: #5a451a;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 20px rgba(255,230,109,0.4);
+        }
+        .welcome-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+        .welcome-card p { font-size: 15px; opacity: 0.9; }
+        .progress-section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .recipe-card {
+            background: linear-gradient(135deg, #FF9FF3 0%, #F368E0 100%);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 20px rgba(243,104,224,0.3);
+            color: #fff;
+        }
+        .recipe-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .recipe-label { font-size: 14px; font-weight: 600; opacity: 0.9; }
+        .recipe-refresh {
+            background: rgba(255,255,255,0.25); color: #fff; border: none;
+            padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer;
+            font-weight: 500;
+        }
+        .recipe-refresh:active { background: rgba(255,255,255,0.4); transform: scale(0.95); }
+        .recipe-name { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .recipe-reason {
+            font-size: 14px; opacity: 0.9; line-height: 1.7; margin-bottom: 16px;
+            padding: 10px 14px; background: rgba(255,255,255,0.2); border-radius: 10px;
+        }
+        .recipe-detail { margin-bottom: 12px; }
+        .recipe-detail-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; opacity: 0.95; }
+        .recipe-detail-text { font-size: 14px; line-height: 1.7; opacity: 0.95; }
+        .recipe-nutrition { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+        .nutrition-tag {
+            background: rgba(255,255,255,0.25); padding: 6px 14px;
+            border-radius: 16px; font-size: 12px; font-weight: 500;
+        }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .progress-header span { font-size: 15px; font-weight: 600; color: #5a5a5a; }
+        .progress-count { font-size: 15px; color: #FF6B9D; font-weight: 700; }
+        .progress-bar-bg { height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #FF6B9D, #FF85B3); border-radius: 6px; transition: width 0.5s ease; }
+        .daily-task {
+            background: linear-gradient(135deg, #6EC1E4 0%, #4CA1AF 100%);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 14px rgba(110,193,228,0.4);
+        }
+        .daily-task-label { font-size: 13px; color: rgba(255,255,255,0.85); font-weight: 600; margin-bottom: 6px; }
+        .daily-task-text { font-size: 16px; color: #fff; font-weight: 500; }
+        .section-title { font-size: 17px; font-weight: 700; color: #5a5a5a; margin-bottom: 14px; padding-left: 2px; }
+        .reminder-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border-left: 5px solid #6EC1E4;
+        }
+        .reminder-card.important { border-left-color: #FF9F43; }
+        .reminder-card.completed { opacity: 0.55; border-left-color: #bbb; }
+        .reminder-card.completed .reminder-title { text-decoration: line-through; }
+        .reminder-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .reminder-title { font-size: 18px; font-weight: 600; color: #3a3a3a; }
+        .reminder-badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+        .badge-important { background: #FFEAA7; color: #D63031; }
+        .badge-normal { background: #DDA0DD; color: #8B008B; }
+        .reminder-time { font-size: 14px; color: #999; margin-bottom: 6px; }
+        .reminder-desc { font-size: 15px; color: #777; margin-bottom: 14px; line-height: 1.6; }
+        .btn-complete {
+            background: #FF6B9D;
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 44px;
+            min-width: 88px;
+        }
+        .btn-complete:active { background: #C44569; transform: scale(0.96); }
+        .btn-complete.done { background: #bbb; }
+        .alarm-indicator {
+            display: flex; align-items: center; gap: 6px; font-size: 13px; color: #FF6B9D;
+            margin-bottom: 14px; padding: 6px 12px; background: #FFE6E6; border-radius: 20px; width: fit-content;
+        }
+        .form-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 15px; font-weight: 600; color: #5a5a5a; margin-bottom: 10px; }
+        .form-group select, .form-group input, .form-group textarea {
+            width: 100%; padding: 14px 16px; border: 2px solid #e0ddd8; border-radius: 12px;
+            font-size: 17px; color: #4a4a4a; background: #fafaf7; font-family: inherit; min-height: 50px;
+            -webkit-appearance: none; appearance: none;
+        }
+        .form-group select:focus, .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #FF6B9D; }
+        .form-group textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+        .btn-submit {
+            background: linear-gradient(135deg, #FF6B9D 0%, #C44569 100%);
+            color: #fff; border: none; padding: 16px 32px; border-radius: 14px;
+            font-size: 18px; font-weight: 700; cursor: pointer; width: 100%; min-height: 54px;
+        }
+        .btn-submit:active { transform: scale(0.98); }
+        .alarm-section { background: #FFF0F5; border-radius: 14px; padding: 18px 20px; margin-bottom: 20px; border: 2px solid #FFB6C1; }
+        .alarm-title { font-size: 16px; font-weight: 700; color: #C44569; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .alarm-time-picker { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .alarm-time-label { font-size: 15px; color: #5a5a5a; font-weight: 500; white-space: nowrap; }
+        .alarm-time-input {
+            flex: 1; padding: 12px 14px; border: 2px solid #FFB6C1; border-radius: 10px;
+            font-size: 18px; color: #3a3a3a; background: #fff; font-family: inherit; text-align: center; min-height: 48px;
+            -webkit-appearance: none; appearance: none;
+        }
+        .alarm-time-input:focus { outline: none; border-color: #FF6B9D; }
+        .toggle-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid #FFB6C1; }
+        .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .toggle-label { font-size: 16px; color: #3a3a3a; font-weight: 500; flex: 1; }
+        .toggle-switch { position: relative; width: 56px; height: 32px; cursor: pointer; flex-shrink: 0; }
+        .toggle-switch input { display: none; }
+        .toggle-slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ddd; border-radius: 16px; transition: background-color 0.3s; }
+        .toggle-slider:before {
+            position: absolute; content: ""; height: 26px; width: 26px; left: 3px; bottom: 3px;
+            background-color: #fff; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch input:checked + .toggle-slider { background-color: #FF6B9D; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
+        .ai-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+        .ai-hint { font-size: 14px; color: #999; margin-bottom: 16px; line-height: 1.6; }
+        .quick-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+        .quick-tag {
+            background: #FFEAA7; color: #D63031; border: none; padding: 10px 20px; border-radius: 24px;
+            font-size: 15px; cursor: pointer; font-weight: 500; min-height: 40px;
+        }
+        .quick-tag:active { background: #FDCB6E; color: #fff; transform: scale(0.95); }
+        .ai-result { background: #fafaf7; border-radius: 14px; padding: 18px; margin-top: 18px; display: none; }
+        .ai-result.show { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .ai-result h4 { font-size: 16px; color: #FF6B9D; margin-bottom: 10px; }
+        .ai-result p { font-size: 15px; color: #5a5a5a; margin-bottom: 12px; line-height: 1.8; }
+        .ai-disclaimer {
+            background: #FFF0F5; border-radius: 12px; padding: 14px 16px; margin-top: 14px;
+            font-size: 13px; color: #C44569; line-height: 1.7; text-align: center;
+        }
+        .mood-select-group { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+        .mood-option {
+            flex: 1; background: #f5f0eb; border: 2px solid #e0ddd8; border-radius: 16px;
+            padding: 16px 4px; font-size: 32px; cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; gap: 6px; transition: all 0.2s; min-height: 90px;
+        }
+        .mood-option span { font-size: 13px; color: #888; font-weight: 500; }
+        .mood-option:active { transform: scale(0.94); }
+        .mood-option.selected { background: #FFE6E6; border-color: #FF6B9D; }
+        .mood-option.selected span { color: #C44569; }
+        .mood-result { background: #fafaf7; border-radius: 14px; padding: 20px; margin-top: 18px; display: none; }
+        .mood-result.show { display: block; animation: slideDown 0.3s ease; }
+        .mood-result-title { font-size: 17px; font-weight: 700; color: #FF6B9D; margin-bottom: 10px; }
+        .mood-result p { font-size: 15px; color: #6a6a6a; line-height: 1.9; }
+        .mood-week { display: flex; justify-content: space-between; gap: 6px; margin-top: 10px; }
+        .mood-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .mood-day-label { font-size: 11px; color: #aaa; }
+        .mood-day-circle { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .mood-day-circle.empty { color: #ddd; font-size: 14px; }
+
+        .answer-book-wrap { display: flex; justify-content: center; margin: 20px 0; perspective: 1000px; }
+        .answer-book {
+            width: 220px; height: 280px; position: relative; cursor: pointer;
+            transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .answer-book.flipped { transform: rotateY(180deg); }
+        .book-cover, .book-page {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 8px; backface-visibility: hidden; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .book-cover {
+            background: linear-gradient(135deg, #8b6f47 0%, #6b5233 100%);
+            color: #fff; box-shadow: 0 8px 30px rgba(107,82,51,0.3);
+            border: 3px solid #5a4528;
+        }
+        .book-icon { font-size: 64px; margin-bottom: 12px; }
+        .book-title { font-size: 24px; font-weight: 700; letter-spacing: 4px; margin-bottom: 8px; }
+        .book-subtitle { font-size: 14px; opacity: 0.8; }
+        .book-page {
+            background: linear-gradient(180deg, #fdfaf5 0%, #f5efe0 100%);
+            transform: rotateY(180deg); box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border: 2px solid #e8dfc8;
+        }
+        .book-answer {
+            font-size: 16px; color: #5a4a30; line-height: 2;
+            text-align: center; font-weight: 500;
+        }
+        .book-footer { margin-top: 20px; font-size: 13px; color: #a08060; font-style: italic; }
+        .answer-hint { text-align: center; font-size: 14px; color: #999; margin: 16px 0 20px; line-height: 1.6; }
+        .daily-quote {
+            font-size: 16px; color: #6b5530; line-height: 2; text-align: center;
+            padding: 10px 0; font-weight: 500;
+        }
+
+        .section-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .section-tab {
+            flex: 1; padding: 12px 16px; border: 2px solid #e0ddd8; border-radius: 10px;
+            font-size: 15px; font-weight: 600; cursor: pointer; background: #fafaf7; color: #888;
+            min-height: 44px;
+        }
+        .section-tab.active { background: #FF6B9D; color: #fff; border-color: #FF6B9D; }
+        .section-tab:active { transform: scale(0.96); }
+
+        .treehole-response {
+            background: #E8F5E9; border-radius: 12px; padding: 16px; margin-top: 16px;
+            display: none; animation: slideDown 0.3s ease;
+        }
+        .treehole-response.show { display: block; }
+        .treehole-response-icon { font-size: 24px; margin-bottom: 8px; }
+        .treehole-response-text { font-size: 15px; color: #2E7D32; line-height: 1.8; }
+
+        .gratitude-list { margin-top: 16px; }
+        .gratitude-item {
+            background: #FFF3E0; border-left: 4px solid #FF9F43;
+            padding: 14px 16px; border-radius: 0 10px 10px 0; margin-bottom: 10px;
+        }
+        .gratitude-item-date { font-size: 13px; color: #E65100; margin-bottom: 4px; }
+        .gratitude-item-text { font-size: 15px; color: #BF360C; line-height: 1.6; }
+
+        .emotion-first-aid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .aid-item {
+            background: #fafaf7; border-radius: 12px; padding: 14px;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+        .aid-icon { font-size: 28px; margin-bottom: 8px; }
+        .aid-title { font-size: 14px; font-weight: 600; color: #5a5a5a; margin-bottom: 4px; }
+        .aid-desc { font-size: 12px; color: #999; line-height: 1.5; }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+            display: flex; justify-content: space-around; padding: 8px 0; padding-bottom: 8px;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.06); z-index: 100;
+        }
+        @supports (padding-bottom: env(safe-area-inset-bottom)) { .bottom-nav { padding-bottom: calc(8px + env(safe-area-inset-bottom)); } }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 6px 4px; cursor: pointer; color: #aaa; }
+        .nav-item-icon { font-size: 22px; margin-bottom: 2px; }
+        .nav-item-text { font-size: 11px; font-weight: 500; }
+        .nav-item.active { color: #FF6B9D; }
+        .nav-item:active { transform: scale(0.92); }
+        .alarm-modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);
+            display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;
+        }
+        .alarm-modal.show { display: flex; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .alarm-modal-content {
+            background: #fff; border-radius: 24px; padding: 36px 24px 28px; max-width: 360px; width: 100%;
+            text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .alarm-modal-icon { font-size: 72px; margin-bottom: 18px; animation: shake 0.5s infinite; }
+        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+        .alarm-modal-title { font-size: 22px; font-weight: 700; color: #4a4a4a; margin-bottom: 10px; }
+        .alarm-modal-desc { font-size: 16px; color: #777; margin-bottom: 28px; line-height: 1.7; }
+        .alarm-modal-btn {
+            background: linear-gradient(135deg, #FF6B9D 0%, #C44569 100%);
+            color: #fff; border: none; padding: 16px 48px; border-radius: 28px;
+            font-size: 18px; font-weight: 700; cursor: pointer; min-height: 54px;
+        }
+        .alarm-modal-btn:active { transform: scale(0.96); }
+        .toast {
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: #FF6B9D; color: #fff; padding: 12px 32px; border-radius: 28px;
+            font-size: 15px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 999;
+            pointer-events: none; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .footer-disclaimer { text-align: center; font-size: 12px; color: #bbb; padding: 20px 16px 10px; line-height: 1.7; }
+        .page-desc { font-size: 14px; color: #aaa; margin-bottom: 16px; line-height: 1.6; padding-left: 2px; }
+
+        @media (min-width: 600px) {
+            body { padding-bottom: 90px; }
+            .top-nav-desktop { display: block; }
+            .top-bar { display: none; }
+            .container { padding-bottom: 90px; }
+        }
+        .top-nav-desktop {
+            display: none; background: linear-gradient(135deg, #FF6B9D 0%, #C44569 100%);
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(255,107,157,0.3);
+        }
+        .desktop-brand { text-align: center; padding: 18px 16px 10px; color: #fff; font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+        .desktop-brand span { font-size: 14px; font-weight: 400; opacity: 0.85; display: block; margin-top: 4px; }
+        .desktop-tabs { display: flex; list-style: none; padding: 0 16px; justify-content: center; gap: 8px; }
+        .desktop-tabs li { text-align: center; }
+        .desktop-tabs li a {
+            display: block; padding: 12px 24px 14px; color: rgba(255,255,255,0.75);
+            text-decoration: none; font-size: 16px; font-weight: 500; border-bottom: 3px solid transparent; cursor: pointer;
+        }
+        .desktop-tabs li a:hover { color: #fff; }
+        .desktop-tabs li a.active { color: #fff; border-bottom-color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar"><h1>轻养生提醒卡</h1><p>每天看得懂、做得到、能坚持</p></div>
+<div class="top-nav-desktop">
+    <div class="desktop-brand">轻养生提醒卡<span>每天看得懂、做得到、能坚持</span></div>
+    <ul class="desktop-tabs">
+        <li><a class="active" onclick="switchPage('home')" id="d-tab-home">今日提醒</a></li>
+        <li><a onclick="switchPage('add')" id="d-tab-add">添加提醒</a></li>
+        <li><a onclick="switchPage('ai')" id="d-tab-ai">白话解释</a></li>
+        <li><a onclick="switchPage('mood')" id="d-tab-mood">情绪签到</a></li>
+        <li><a onclick="switchPage('answer')" id="d-tab-answer">答案书</a></li>
+    </ul>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="alarm-modal" id="alarm-modal">
+    <div class="alarm-modal-content">
+        <div class="alarm-modal-icon">⏰</div>
+        <div class="alarm-modal-title" id="alarm-modal-title">健康提醒</div>
+        <div class="alarm-modal-desc" id="alarm-modal-desc"></div>
+        <button class="alarm-modal-btn" onclick="stopAlarm()">我知道了</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="page active" id="page-home">
+        <div class="welcome-card"><h2>今天也照顾好自己 💚</h2><p>慢慢来，一件一件完成今天的健康小事</p></div>
+        <div class="progress-section">
+            <div class="progress-header"><span>今日完成进度</span><span class="progress-count" id="progress-text">0/0 项</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div></div>
+        </div>
+        <div class="daily-task" id="daily-task"><div class="daily-task-label">🌟 今日健康小任务</div><div class="daily-task-text" id="daily-task-text"></div></div>
+        <div class="recipe-card" id="recipe-card">
+            <div class="recipe-header">
+                <div class="recipe-label">🍳 今日健康食谱</div>
+                <button class="recipe-refresh" onclick="refreshRecipe()">换一个</button>
+            </div>
+            <div class="recipe-name" id="recipe-name"></div>
+            <div class="recipe-reason" id="recipe-reason"></div>
+            <div class="recipe-detail">
+                <div class="recipe-detail-title">🥗 食材</div>
+                <div class="recipe-detail-text" id="recipe-ingredients"></div>
+            </div>
+            <div class="recipe-detail">
+                <div class="recipe-detail-title">👩‍🍳 做法</div>
+                <div class="recipe-detail-text" id="recipe-steps"></div>
+            </div>
+            <div class="recipe-nutrition">
+                <div class="nutrition-tag" id="nutrition-tag1"></div>
+                <div class="nutrition-tag" id="nutrition-tag2"></div>
+                <div class="nutrition-tag" id="nutrition-tag3"></div>
+            </div>
+        </div>
+        <div class="section-title">今日提醒</div>
+        <div id="reminder-list"></div>
+    </div>
+
+    <div class="page" id="page-add">
+        <div class="page-desc">添加一个新的健康提醒，让小助手帮你记住</div>
+        <div class="form-card">
+            <div class="form-group"><label>提醒类型</label><select id="add-type">
+                <option value="吃药">💊 吃药</option><option value="测血压">🩺 测血压</option><option value="运动">🏃 运动</option>
+                <option value="喝水">💧 喝水</option><option value="复查">📋 复查</option><option value="体检">🏥 体检</option><option value="其他">📝 其他</option>
+            </select></div>
+            <div class="form-group"><label>重要程度</label><select id="add-importance">
+                <option value="普通">普通</option><option value="重要">重要</option>
+            </select></div>
+            <div class="alarm-section">
+                <div class="alarm-title">⏰ 闹钟提醒设置</div>
+                <div class="alarm-time-picker"><span class="alarm-time-label">提醒时间</span><input type="time" id="add-alarm-time" class="alarm-time-input"></div>
+                <div class="toggle-row"><span class="toggle-label">🔊 声音提醒</span><label class="toggle-switch"><input type="checkbox" id="add-sound" checked><span class="toggle-slider"></span></label></div>
+                <div class="toggle-row"><span class="toggle-label">📳 震动提醒</span><label class="toggle-switch"><input type="checkbox" id="add-vibration" checked><span class="toggle-slider"></span></label></div>
+            </div>
+            <button class="btn-submit" onclick="addReminder()">添加提醒</button>
+        </div>
+    </div>
+
+    <div class="page" id="page-ai">
+        <div class="page-desc">输入一个健康问题或体检指标，用大白话给你讲讲</div>
+        <div class="ai-card">
+            <div class="ai-hint">点击下方快捷标签，或自己输入问题：</div>
+            <div class="quick-tags">
+                <button class="quick-tag" onclick="fillAiInput('血压偏高')">血压偏高</button>
+                <button class="quick-tag" onclick="fillAiInput('血糖偏高')">血糖偏高</button>
+                <button class="quick-tag" onclick="fillAiInput('脂肪肝')">脂肪肝</button>
+                <button class="quick-tag" onclick="fillAiInput('睡眠差')">睡眠差</button>
+                <button class="quick-tag" onclick="fillAiInput('颈椎不舒服')">颈椎不舒服</button>
+            </div>
+            <div class="form-group"><input type="text" id="ai-input" placeholder="例如：血压偏高、血糖偏高、脂肪肝..."></div>
+            <button class="btn-submit" onclick="generateExplanation()">生成白话解释</button>
+            <div class="ai-result" id="ai-result"><h4>📖 白话解释</h4><div id="ai-result-content"></div></div>
+            <div class="ai-disclaimer">⚠️ 本工具仅用于健康提醒和科普，不提供医疗诊断，不能替代医生建议。如有不适，请及时就医。</div>
+        </div>
+    </div>
+
+    <div class="page" id="page-mood">
+        <div class="page-desc">照顾好自己的情绪，就是最好的爱自己</div>
+
+        <div class="ai-card">
+            <div class="section-tabs">
+                <button class="section-tab active" onclick="switchMoodTab('checkin')" id="mood-tab-checkin">😊 情绪签到</button>
+                <button class="section-tab" onclick="switchMoodTab('treehole')" id="mood-tab-treehole">🌳 情绪树洞</button>
+                <button class="section-tab" onclick="switchMoodTab('gratitude')" id="mood-tab-gratitude">✨ 感恩日记</button>
+            </div>
+
+            <div class="section-content" id="mood-content-checkin">
+                <div class="ai-hint">选择你现在的心情：</div>
+                <div class="mood-select-group" id="mood-options">
+                    <button class="mood-option" onclick="selectMood(this, 'happy')">😄<span>开心</span></button>
+                    <button class="mood-option" onclick="selectMood(this, 'calm')">😌<span>平静</span></button>
+                    <button class="mood-option" onclick="selectMood(this, 'tired')">😴<span>疲惫</span></button>
+                    <button class="mood-option" onclick="selectMood(this, 'anxious')">😰<span>焦虑</span></button>
+                    <button class="mood-option" onclick="selectMood(this, 'sad')">😢<span>低落</span></button>
+                </div>
+                <div class="form-group"><label>想说点什么？（可选）</label><textarea id="mood-note" placeholder="今天发生了什么？随便写写就好" style="min-height:70px"></textarea></div>
+                <button class="btn-submit" onclick="saveMood()">记录今天的心情</button>
+                <div class="mood-result" id="mood-result"><div class="mood-result-title" id="mood-result-title"></div><p id="mood-result-text"></p></div>
+                <div class="mood-week-wrap"><div class="ai-hint" style="margin-top:20px">📊 本周心情轨迹</div><div class="mood-week" id="mood-week"></div></div>
+            </div>
+
+            <div class="section-content" id="mood-content-treehole" style="display:none">
+                <div class="ai-hint">把心里的烦恼写下来，我会认真听...</div>
+                <textarea id="treehole-input" placeholder="今天有什么不开心的事？想说什么都可以..." style="min-height:100px"></textarea>
+                <button class="btn-submit" onclick="sendToTreehole()">倾诉一下</button>
+                <div class="treehole-response" id="treehole-response"></div>
+            </div>
+
+            <div class="section-content" id="mood-content-gratitude" style="display:none">
+                <div class="ai-hint">记录今天值得感恩的小事，让美好留在心里</div>
+                <textarea id="gratitude-input" placeholder="今天发生了什么值得感恩的事？哪怕很小..." style="min-height:100px"></textarea>
+                <button class="btn-submit" onclick="saveGratitude()">记录感恩</button>
+                <div class="gratitude-list" id="gratitude-list"></div>
+            </div>
+        </div>
+
+        <div class="ai-card">
+            <div class="ai-hint">💝 情绪急救指南</div>
+            <div class="emotion-first-aid">
+                <div class="aid-item"><div class="aid-icon">🎵</div><div class="aid-content"><div class="aid-title">感到焦虑时</div><div class="aid-desc">试试听舒缓的音乐，做几次深呼吸</div></div></div>
+                <div class="aid-item"><div class="aid-icon">🚶</div><div class="aid-content"><div class="aid-title">感到疲惫时</div><div class="aid-desc">起身走一走，看看窗外</div></div></div>
+                <div class="aid-item"><div class="aid-icon">💧</div><div class="aid-content"><div class="aid-title">感到烦躁时</div><div class="aid-desc">喝一杯温水，闭眼静坐一分钟</div></div></div>
+                <div class="aid-item"><div class="aid-icon">💬</div><div class="aid-content"><div class="aid-title">感到孤独时</div><div class="aid-desc">给信任的朋友打个电话</div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page" id="page-answer">
+        <div class="page-desc">心里想着一个问题，翻开答案书，也许答案就在眼前</div>
+        <div class="ai-card">
+            <div class="answer-book-wrap">
+                <div class="answer-book" id="answer-book" onclick="openAnswerBook()">
+                    <div class="book-cover">
+                        <div class="book-icon">📖</div>
+                        <div class="book-title">答案书</div>
+                        <div class="book-subtitle">点击翻开</div>
+                    </div>
+                    <div class="book-page">
+                        <div class="book-answer" id="book-answer"></div>
+                        <div class="book-footer">—— 送给此刻的你</div>
+                    </div>
+                </div>
+            </div>
+            <div class="answer-hint" id="answer-hint">💡 深呼吸，在心里默念你的问题，然后点击书本</div>
+            <button class="btn-submit" onclick="openAnswerBook()">再翻一次</button>
+        </div>
+        <div class="ai-card">
+            <div class="ai-hint">🌿 今日心灵寄语</div>
+            <div class="daily-quote" id="daily-quote"></div>
+        </div>
+    </div>
+
+    <div class="footer-disclaimer">本项目仅用于健康提醒、习惯陪伴和健康科普，不提供医疗诊断，不能替代医生建议。</div>
+</div>
+
+<nav class="bottom-nav">
+    <div class="nav-item active" onclick="switchPage('home')" id="nav-home"><div class="nav-item-icon">🏠</div><div class="nav-item-text">今日</div></div>
+    <div class="nav-item" onclick="switchPage('add')" id="nav-add"><div class="nav-item-icon">➕</div><div class="nav-item-text">添加</div></div>
+    <div class="nav-item" onclick="switchPage('ai')" id="nav-ai"><div class="nav-item-icon">💡</div><div class="nav-item-text">白话</div></div>
+    <div class="nav-item" onclick="switchPage('mood')" id="nav-mood"><div class="nav-item-icon">😊</div><div class="nav-item-text">情绪</div></div>
+    <div class="nav-item" onclick="switchPage('answer')" id="nav-answer"><div class="nav-item-icon">📖</div><div class="nav-item-text">答案</div></div>
+</nav>
+
+<script>
+    var memoryStorage = {};
+    var localStorageAvailable = true;
+
+    function initStorage() { try { var k = '__test__'; localStorage.setItem(k, 't'); localStorage.removeItem(k); } catch(e) { localStorageAvailable = false; } }
+    function safeGetItem(key) { try { return localStorageAvailable ? localStorage.getItem(key) : (memoryStorage[key] || null); } catch(e) { return memoryStorage[key] || null; } }
+    function safeSetItem(key, value) { try { if(localStorageAvailable) localStorage.setItem(key, value); else memoryStorage[key] = value; } catch(e) { memoryStorage[key] = value; } }
+
+    var defaultReminders = [
+        { id: 1, type: '吃药', time: '19:30', desc: '记得服用降压药，完成后点一下记录。', importance: '重要', completed: false, alarmTime: '19:30', sound: true, vibration: true },
+        { id: 2, type: '测血压', time: '07:00', desc: '测量一次血压，记录今天的状态。', importance: '重要', completed: false, alarmTime: '07:00', sound: true, vibration: true },
+        { id: 3, type: '运动', time: '20:00', desc: '散步 15 分钟，不追求强度，先坚持。', importance: '普通', completed: false, alarmTime: '20:00', sound: false, vibration: true },
+        { id: 4, type: '喝水', time: '15:00', desc: '喝一杯温水，久坐后起身活动一下。', importance: '普通', completed: false, alarmTime: '15:00', sound: true, vibration: false }
+    ];
+
+    var dailyTasks = [
+        '晚饭后散步 15 分钟，不追求强度，先坚持',
+        '今天试试少放一勺盐，清淡一点也很好吃',
+        '睡前放下手机，听听音乐放松 10 分钟',
+        '中午闭目养神 10 分钟，下午精神会更好',
+        '今天喝够 6 杯水，每杯大约 200 毫升',
+        '试试做 5 分钟颈部拉伸，缓解肩膀僵硬',
+        '今天早点休息，10 点半之前躺下',
+        '饭后站立 15 分钟，帮助消化也活动身体'
+    ];
+
+    var typeIcons = {'吃药':'💊','测血压':'🩺','运动':'🏃','喝水':'💧','复查':'📋','体检':'🏥','其他':'📝'};
+
+    function getReminders() { try { var s = safeGetItem('health_reminders'); return s ? JSON.parse(s) : (saveReminders(defaultReminders), defaultReminders); } catch(e) { return defaultReminders; } }
+    function saveReminders(r) { try { safeSetItem('health_reminders', JSON.stringify(r)); } catch(e) {} }
+
+    function switchPage(name) {
+        try {
+            document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+            document.getElementById('page-' + name).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+            var nav = document.getElementById('nav-' + name); if(nav) nav.classList.add('active');
+            document.querySelectorAll('.desktop-tabs a').forEach(function(t) { t.classList.remove('active'); });
+            var dt = document.getElementById('d-tab-' + name); if(dt) dt.classList.add('active');
+            window.scrollTo(0,0);
+        } catch(e) {}
+    }
+
+    function renderHome() {
+        try {
+            var rs = getReminders(); var list = document.getElementById('reminder-list'); list.innerHTML = '';
+            var total = rs.length; var done = rs.filter(function(r) { return r.completed; }).length;
+            document.getElementById('progress-text').textContent = done + '/' + total + ' 项';
+            document.getElementById('progress-bar').style.width = (total > 0 ? Math.round(done/total*100) : 0) + '%';
+
+            var today = new Date().toDateString();
+            var savedDate = safeGetItem('daily_task_date');
+            var savedIdx = safeGetItem('daily_task_index');
+            if(savedDate !== today || savedIdx === null) { savedIdx = Math.floor(Math.random()*dailyTasks.length); safeSetItem('daily_task_date', today); safeSetItem('daily_task_index', savedIdx); }
+            document.getElementById('daily-task-text').textContent = dailyTasks[parseInt(savedIdx)];
+
+            rs.forEach(function(r) {
+                var card = document.createElement('div');
+                card.className = 'reminder-card' + (r.importance==='重要'?' important':'') + (r.completed?' completed':'');
+                var icon = typeIcons[r.type] || '📝';
+                var badgeClass = r.importance==='重要'?'badge-important':'badge-normal';
+                var alarmInfo = '';
+                if(r.alarmTime) {
+                    var alarmIcons = []; if(r.sound) alarmIcons.push('🔊'); if(r.vibration) alarmIcons.push('📳');
+                    alarmInfo = '<div class="alarm-indicator">⏰ ' + r.alarmTime + (alarmIcons.length>0?' '+alarmIcons.join(' '):'') + '</div>';
+                }
+                card.innerHTML =
+                    '<div class="reminder-top"><div class="reminder-title">' + icon + ' ' + r.type + '</div><span class="reminder-badge ' + badgeClass + '">' + r.importance + '</span></div>' +
+                    '<div class="reminder-time">🕐 ' + r.time + '</div><div class="reminder-desc">' + r.desc + '</div>' +
+                    alarmInfo +
+                    '<button class="btn-complete' + (r.completed?' done':'') + '" onclick="completeReminder(' + r.id + ')" ' + (r.completed?'disabled':'') + '>' + (r.completed?'✓ 已完成':'完成') + '</button>';
+                list.appendChild(card);
+            });
+        } catch(e) {}
+    }
+
+    function completeReminder(id) {
+        try {
+            var rs = getReminders(); var completed = false;
+            rs.forEach(function(r) { if(r.id === id) { r.completed = !r.completed; completed = r.completed; } });
+            saveReminders(rs); renderHome(); showToast(completed?'太棒了，又完成一项！':'已取消完成');
+        } catch(e) {}
+    }
+
+    function addReminder() {
+        try {
+            var type = document.getElementById('add-type').value;
+            var importance = document.getElementById('add-importance').value;
+            var alarmTime = document.getElementById('add-alarm-time').value;
+            var sound = document.getElementById('add-sound').checked;
+            var vibration = document.getElementById('add-vibration').checked;
+            if(!alarmTime) { showToast('请设置提醒时间'); return; }
+            var rs = getReminders();
+            var maxId = rs.length > 0 ? Math.max.apply(Math, rs.map(function(r) { return r.id; })) : 0;
+            rs.push({ id: maxId + 1, type: type, time: alarmTime, desc: typeIcons[type] + ' ' + type + '提醒', importance: importance, completed: false, alarmTime: alarmTime, sound: sound, vibration: vibration });
+            saveReminders(rs);
+            document.getElementById('add-alarm-time').value = '';
+            document.getElementById('add-sound').checked = true;
+            document.getElementById('add-vibration').checked = true;
+            showToast('提醒添加成功！'); switchPage('home'); renderHome();
+        } catch(e) { showToast('添加失败，请重试'); }
+    }
+
+    var explanations = {
+        '血压偏高': {
+            meaning: '血压偏高，就是血液在血管里流动时对血管壁的压力比较大。就像水管里水压太大一样，长期这样会让血管和心脏更辛苦。',
+            tips: '日常可以注意：饮食少盐少油、规律运动（比如每天散步 30 分钟）、控制体重、少熬夜、戒烟限酒、保持心情平稳。在家可以定期测血压，记录变化趋势。',
+            doctor: '如果血压持续偏高，或者伴有头晕、头痛、胸闷等不适，建议尽早去医院心内科就诊，由医生评估是否需要用药。'
+        },
+        '血糖偏高': {
+            meaning: '血糖偏高，就是血液里的葡萄糖含量超出了正常范围。可能是身体调节糖分的能力下降了，就像身体处理糖的"工人"不够用了。',
+            tips: '日常可以注意：减少精制糖和甜食的摄入、主食适量搭配粗粮、饭后散步帮助消耗血糖、控制体重、定期监测空腹和餐后血糖。',
+            doctor: '如果空腹血糖持续偏高，或者出现多饮、多尿、体重下降等症状，建议去医院内分泌科检查，由医生判断是否需要进一步干预。'
+        },
+        '脂肪肝': {
+            meaning: '脂肪肝，就是肝脏里堆积了过多的脂肪。简单说，肝脏本来是处理营养的"化工厂"，现在被脂肪占了位置，工作效率会受影响。',
+            tips: '日常可以注意：控制饮食热量，少吃油炸和甜食、适当增加有氧运动（如快走、游泳）、控制体重缓慢下降、少喝酒或戒酒、避免熬夜。',
+            doctor: '轻度脂肪肝通过生活方式调整通常可以改善。但如果肝功能指标异常，或出现右上腹不适、乏力等症状，建议去消化内科或肝病科就诊。'
+        },
+        '睡眠差': {
+            meaning: '睡眠差，可能是入睡困难、容易醒来、醒太早或睡不踏实。中年人激素变化、压力大、睡前刷手机等都可能影响睡眠质量。',
+            tips: '日常可以注意：固定时间上床和起床、睡前 1 小时放下手机、卧室保持安静凉爽、午后少喝茶和咖啡、白天适当运动但别在睡前做、试试睡前泡脚或听轻音乐。',
+            doctor: '如果长期失眠影响白天精神，或者伴有严重打鼾、呼吸暂停，建议去睡眠科或呼吸内科检查。'
+        },
+        '颈椎不舒服': {
+            meaning: '颈椎不舒服，大多是长期低头、坐姿不正导致颈部肌肉和椎间盘过度疲劳。就像一根弹簧被长期压着，慢慢就失去了弹性。',
+            tips: '日常可以注意：看手机时尽量把手机举到眼睛高度、每工作 40 分钟活动一下脖子、做简单的颈部拉伸、睡觉用合适高度的枕头、避免长时间保持同一姿势。',
+            doctor: '如果出现手麻、头晕、颈部剧痛，或者症状持续不缓解，建议去骨科或康复科检查，排除颈椎病等问题。'
+        }
+    };
+
+    function fillAiInput(t) { try { document.getElementById('ai-input').value = t; } catch(e) {} }
+
+    function generateExplanation() {
+        try {
+            var input = document.getElementById('ai-input').value.trim();
+            if(!input) { showToast('请先输入或选择一个健康问题'); return; }
+            var result = explanations[input] || null;
+            if(!result) {
+                Object.keys(explanations).forEach(function(k) { if(input.indexOf(k)!==-1 || k.indexOf(input)!==-1) { result = explanations[k]; } });
+            }
+            if(!result) {
+                result = {
+                    meaning: '关于"' + input + '"，这可能是身体给出的一个信号，提醒你需要多关注自己的健康状态了。很多中年人都会遇到类似的困扰，不用过于紧张，但也不能忽视。',
+                    tips: '日常可以注意：保持规律作息、均衡饮食、适当运动、定期体检、管理好情绪和压力。如果有具体的指标异常，建议记录下来，方便就医时提供给医生参考。',
+                    doctor: '如果症状持续存在或加重，建议去相关科室就诊，听取专业医生的建议。早发现、早关注，通常更容易改善。'
+                };
+            }
+            document.getElementById('ai-result-content').innerHTML =
+                '<p><strong>🔵 这可能意味着什么：</strong></p><p>' + result.meaning + '</p>' +
+                '<p><strong>🟢 日常可以注意什么：</strong></p><p>' + result.tips + '</p>' +
+                '<p><strong>🟡 什么时候建议咨询医生：</strong></p><p>' + result.doctor + '</p>';
+            document.getElementById('ai-result').classList.add('show');
+        } catch(e) { showToast('生成失败，请重试'); }
+    }
+
+    var selectedMood = '';
+    var moodConfig = {
+        'happy': { icon: '😄', label: '开心', bg: '#FFEAA7' },
+        'calm': { icon: '😌', label: '平静', bg: '#6EC1E4' },
+        'tired': { icon: '😴', label: '疲惫', bg: '#DDA0DD' },
+        'anxious': { icon: '😰', label: '焦虑', bg: '#FFEAA7' },
+        'sad': { icon: '😢', label: '低落', bg: '#FFB6C1' }
+    };
+
+    var moodAdvice = {
+        'happy': ['太好了！保持这份好心情，记得分享给身边的人，快乐会加倍的～', '心情这么好，今天可以奖励自己一小段放松时间，做件喜欢的事。', '开心是最好的养生，继续保持！今天也辛苦了，好好享受这份愉悦。'],
+        'calm': ['平静是一种难能可贵的状态，说明你内心很安稳，继续保持哦。', '心如止水，难得的安宁。可以做些冥想或者听听舒缓的音乐，让这份平静延续。', '平静的日子也很美好，享受当下的这份安宁，明天会更好。'],
+        'tired': ['累了就歇会儿，别硬撑。中年人的累，需要好好对待。先休息，其他的慢慢再说。', '身体在提醒你该休息了，给自己放个假吧。哪怕只是闭眼 5 分钟，也是好的。', '累的时候，对自己温柔一点。休息不是偷懒，是为了更好地出发。'],
+        'anxious': ['焦虑的时候，试着把烦恼写下来，或者找个信任的人聊聊。别一个人扛着。', '深呼吸，告诉自己：一切都会过去的。你已经很棒了，别太苛责自己。', '焦虑是正常的，很多人都会有。试着专注于当下能做的事，一步一步来。'],
+        'sad': ['难过的时候，允许自己哭出来，别憋着。眼泪也是一种释放。', '生活总有起伏，低谷只是暂时的。照顾好自己，明天又是新的一天。', '你不是一个人，总有人关心你。如果愿意，说说你的烦恼，我在听。']
+    };
+
+    function selectMood(el, mood) { try { document.querySelectorAll('.mood-option').forEach(function(b) { b.classList.remove('selected'); }); el.classList.add('selected'); selectedMood = mood; } catch(e) {} }
+
+    function getMoodRecords() { try { var d = safeGetItem('moodRecords'); return d ? JSON.parse(d) : []; } catch(e) { return []; } }
+
+    function saveMoodRecord(record) {
+        try {
+            var records = getMoodRecords();
+            var today = new Date().toISOString().split('T')[0];
+            var found = false;
+            records.forEach(function(r, i) { if(r.date === today) { records[i] = record; found = true; } });
+            if(!found) records.push(record);
+            safeSetItem('moodRecords', JSON.stringify(records));
+        } catch(e) {}
+    }
+
+    function saveMood() {
+        try {
+            if(!selectedMood) { showToast('请先选择你的心情'); return; }
+            var note = document.getElementById('mood-note').value.trim();
+            var today = new Date().toISOString().split('T')[0];
+            var record = { date: today, mood: selectedMood, note: note, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'}) };
+            saveMoodRecord(record);
+            var advices = moodAdvice[selectedMood];
+            var advice = advices[Math.floor(Math.random()*advices.length)];
+            var config = moodConfig[selectedMood];
+            document.getElementById('mood-result-title').innerHTML = config.icon + ' ' + config.label + ' - ' + today;
+            document.getElementById('mood-result-text').textContent = advice;
+            document.getElementById('mood-result').classList.add('show');
+            renderMoodWeek();
+            showToast('心情记录成功！');
+        } catch(e) { showToast('记录失败，请重试'); }
+    }
+
+    function renderMoodWeek() {
+        try {
+            var records = getMoodRecords();
+            var weekEl = document.getElementById('mood-week');
+            weekEl.innerHTML = '';
+            var days = ['日','一','二','三','四','五','六'];
+            var today = new Date();
+            for(var i=6; i>=0; i--) {
+                var d = new Date(today); d.setDate(today.getDate()-i);
+                var dateStr = d.toISOString().split('T')[0];
+                var dayLabel = days[d.getDay()];
+                var record = records.find(function(r) { return r.date === dateStr; });
+                var moodCircle = record && moodConfig[record.mood] ? '<div class="mood-day-circle" style="background:' + moodConfig[record.mood].bg + ';">' + moodConfig[record.mood].icon + '</div>' : '<div class="mood-day-circle empty">·</div>';
+                weekEl.innerHTML += '<div class="mood-day"><div class="mood-day-label">' + dayLabel + '</div>' + moodCircle + '</div>';
+            }
+        } catch(e) {}
+    }
+
+    // ==================== 答案书 ====================
+    var answerBookAnswers = [
+        '道法自然，万物自有规律。你的人生，也有它自己的节奏。',
+        '无为不是消极，而是不强求。顺其自然，反而水到渠成。',
+        '人法地，地法天，天法道，道法自然。顺应规律，事半功倍。',
+        '上善若水，水利万物而不争。不争不抢，自有属于你的风景。',
+        '知足不辱，知止不殆。知道满足，才能长久快乐。',
+        '祸兮福之所倚，福兮祸之所伏。困境中藏着转机，别灰心。',
+        '少私寡欲，见素抱朴。简单一点，内心更安宁。',
+        '宠辱不惊，看庭前花开花落；去留无意，望天上云卷云舒。',
+        '万物皆有裂痕，那是光照进来的地方。接纳不完美，才有光。',
+        '你不需要向任何人证明什么，好好活着就是最大的胜利。',
+        '别和自己较劲，也别和别人攀比。你的人生，你做主。',
+        '慢慢来，比较快。有时候慢，才是真正的快。',
+        '休息不是偷懒，是为了更好地出发。给自己一点留白时间。',
+        '过去心不可得，未来心不可得，活在当下最重要。',
+        '烦恼本无根，不捡自然无。放下执念，轻装上阵。',
+        '人生下半场，不是比谁跑得更快，而是比谁走得更稳。',
+        '身体是革命的本钱，健康是一切的基础。照顾好自己。',
+        '家人的陪伴，是最好的财富。珍惜眼前人。',
+        '你已经做得很好了，别再苛责自己。你值得被温柔对待。',
+        '答案在你心里，只是需要时间沉淀。静心等待，自有答案。',
+        '日出东方落西方，愁也一天喜也一天。不如选择开心过。',
+        '面朝大海，春暖花开。心若向阳，无畏悲伤。',
+        '山重水复疑无路，柳暗花明又一村。转机就在下一个转角。',
+        '不以物喜，不以己悲。内心强大，方能从容面对。',
+        '不内耗，不纠结，不焦虑。简单生活，快乐自来。',
+        '心无挂碍，无挂碍故，无有恐怖。放下包袱，自在前行。',
+        '行到水穷处，坐看云起时。随遇而安，自有风景。',
+        '大道至简，知易行难。简单的道理，需要用心去践行。',
+        '塞翁失马，焉知非福。失去的，会以另一种方式回来。',
+        '人生如逆旅，我亦是行人。珍惜每一段旅程，不留遗憾。',
+        '别把自己逼太紧，弦绷太紧要断的。松弛一点，反而更好。',
+        '你不是一个人，总有人在默默关心你。敞开心扉，接受爱。',
+        '对自己好一点，你辛苦了。好好吃饭，好好睡觉，好好生活。',
+        '人生没有白走的路，每一步都算数。相信自己的选择。',
+        '岁月会给你答案，别着急。耐心等待，花自会开。',
+        '别为打翻的牛奶哭泣，也别为明天的事情担忧。活好当下。',
+        '健康地活着，就是最大的幸福。其他的，都是锦上添花。',
+        '中年人的智慧，是学会了取舍。该放的放，该留的留。',
+        '有些事，放下了就轻松了。别背着包袱过日子。',
+        '面朝太阳，阴影就在身后。保持积极，好运自然来。',
+        '你一直在进步，只是你没发现。给自己一点肯定。',
+        '家是永远的港湾，累了就回来歇歇。家人永远支持你。',
+        '笑一笑，没什么大不了的。心态好，一切都好。',
+        '人生没有标准答案，你的选择就是最好的答案。',
+        '不攀缘，不求缘，缘来自然会来。做好自己，静待花开。',
+        '静心观自在，心安即是家。内心平静，处处皆安。',
+        '万物皆空，因果不空。种善因，得善果。',
+        '人生难得糊涂，太清醒反而累。适时糊涂，也是智慧。',
+        '与其改变世界，不如改变自己。内心变了，世界就变了。',
+        '别跟自己过不去，也别跟生活过不去。好好爱自己。'
+    ];
+
+    var dailyQuotes = [
+        '身体是革命的本钱，照顾好自己是一切的前提。',
+        '人到中年，学会和自己和解，就是最大的智慧。',
+        '不必羡慕别人的生活，你的节奏刚刚好。',
+        '健康不是一切，但没有健康就没有一切。',
+        '每天进步一点点，就是最好的状态。',
+        '生活不易，但你比想象中更坚强。',
+        '中年人最好的状态：眼里有光，心中有爱，身体康健。',
+        '放慢脚步，才能看见沿途的风景。'
+    ];
+
+    var lastAnswerIndex = -1;
+
+    function openAnswerBook() {
+        try {
+            var book = document.getElementById('answer-book');
+            var isFlipped = book.classList.contains('flipped');
+            var idx;
+            do {
+                idx = Math.floor(Math.random() * answerBookAnswers.length);
+            } while (idx === lastAnswerIndex && answerBookAnswers.length > 1);
+            lastAnswerIndex = idx;
+            var answer = answerBookAnswers[idx];
+
+            if(!isFlipped) {
+                document.getElementById('book-answer').textContent = answer;
+                book.classList.add('flipped');
+                document.getElementById('answer-hint').textContent = '🌟 这是给你的答案';
+            } else {
+                book.classList.remove('flipped');
+                document.getElementById('answer-hint').textContent = '💡 再想想你的问题，然后点击书本';
+                setTimeout(function() {
+                    document.getElementById('book-answer').textContent = answer;
+                    book.classList.add('flipped');
+                    document.getElementById('answer-hint').textContent = '🌟 这是给你的新答案';
+                }, 400);
+            }
+        } catch(e) {}
+    }
+
+    function renderDailyQuote() {
+        try {
+            var today = new Date().toDateString();
+            var savedDate = safeGetItem('daily_quote_date');
+            var savedIdx = safeGetItem('daily_quote_index');
+            if(savedDate !== today || savedIdx === null) {
+                savedIdx = Math.floor(Math.random() * dailyQuotes.length);
+                safeSetItem('daily_quote_date', today);
+                safeSetItem('daily_quote_index', savedIdx);
+            }
+            document.getElementById('daily-quote').textContent = dailyQuotes[parseInt(savedIdx)];
+        } catch(e) {}
+    }
+
+    // ==================== 情绪价值 ====================
+    var treeholeResponses = [
+        '谢谢你愿意和我分享。有时候把烦恼说出来，就已经解决了一半。你不是一个人在面对。',
+        '我听到了。生活确实不容易，但你已经在坚持了，这本身就很了不起。给自己一点时间，一切都会好起来的。',
+        '把心事写下来，就像把担子放下了一些。好好照顾自己，你值得被温柔对待。',
+        '无论发生什么，都不要忘记：你是被爱的，也是被需要的。今天辛苦了，好好休息一下。',
+        '烦恼会来，也会走。此刻的困扰，只是漫长人生中的一小段插曲。相信时间会给你答案。',
+        '谢谢你的信任。有时候我们需要的不是解决方案，只是一个愿意倾听的人。我在这里。',
+        '深呼吸，告诉自己：这只是暂时的。你比想象中更强大，一定能度过这个难关。',
+        '生活总有起伏，重要的是我们一直在前行。今天的烦恼，明天再看也许就不是什么大事了。',
+        '把烦恼交给时间，把快乐留给自己。好好吃饭，好好睡觉，一切都会慢慢好起来的。',
+        '我理解你的感受。中年人的压力确实很大，但请相信，你已经做得很好了。给自己一个拥抱吧。'
+    ];
+
+    function switchMoodTab(tab) {
+        try {
+            document.getElementById('mood-tab-checkin').classList.toggle('active', tab === 'checkin');
+            document.getElementById('mood-tab-treehole').classList.toggle('active', tab === 'treehole');
+            document.getElementById('mood-tab-gratitude').classList.toggle('active', tab === 'gratitude');
+            document.getElementById('mood-content-checkin').style.display = tab === 'checkin' ? 'block' : 'none';
+            document.getElementById('mood-content-treehole').style.display = tab === 'treehole' ? 'block' : 'none';
+            document.getElementById('mood-content-gratitude').style.display = tab === 'gratitude' ? 'block' : 'none';
+            if(tab === 'gratitude') renderGratitudeList();
+        } catch(e) {}
+    }
+
+    function sendToTreehole() {
+        try {
+            var input = document.getElementById('treehole-input').value.trim();
+            if(!input) { showToast('请先写下你的烦恼'); return; }
+
+            var response = treeholeResponses[Math.floor(Math.random() * treeholeResponses.length)];
+            var responseEl = document.getElementById('treehole-response');
+            responseEl.innerHTML = '<div class="treehole-response-icon">🌳</div><div class="treehole-response-text">' + response + '</div>';
+            responseEl.classList.add('show');
+
+            document.getElementById('treehole-input').value = '';
+            showToast('倾诉成功，心里舒服些了吗？');
+        } catch(e) { showToast('发送失败，请重试'); }
+    }
+
+    function getGratitudeRecords() {
+        try {
+            var data = safeGetItem('gratitudeRecords');
+            return data ? JSON.parse(data) : [];
+        } catch(e) { return []; }
+    }
+
+    function saveGratitudeRecord(record) {
+        try {
+            var records = getGratitudeRecords();
+            records.unshift(record);
+            if(records.length > 30) records = records.slice(0, 30);
+            safeSetItem('gratitudeRecords', JSON.stringify(records));
+        } catch(e) {}
+    }
+
+    function saveGratitude() {
+        try {
+            var input = document.getElementById('gratitude-input').value.trim();
+            if(!input) { showToast('请写下值得感恩的事'); return; }
+
+            var today = new Date().toISOString().split('T')[0];
+            var record = {
+                date: today,
+                text: input,
+                time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})
+            };
+
+            saveGratitudeRecord(record);
+            document.getElementById('gratitude-input').value = '';
+            renderGratitudeList();
+            showToast('感恩记录成功！');
+        } catch(e) { showToast('保存失败，请重试'); }
+    }
+
+    function renderGratitudeList() {
+        try {
+            var records = getGratitudeRecords();
+            var list = document.getElementById('gratitude-list');
+            list.innerHTML = '';
+
+            if(records.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#aaa;font-size:14px">还没有感恩记录，今天有什么值得感恩的事吗？</p>';
+                return;
+            }
+
+            records.forEach(function(record) {
+                var item = document.createElement('div');
+                item.className = 'gratitude-item';
+                item.innerHTML = '<div class="gratitude-item-date">✨ ' + record.date + ' ' + record.time + '</div><div class="gratitude-item-text">' + record.text + '</div>';
+                list.appendChild(item);
+            });
+        } catch(e) {}
+    }
+
+    // ==================== 今日健康食谱 ====================
+    var recipeLibrary = [
+        {
+            name: '🍅 番茄牛腩汤',
+            tags: ['tired', 'anxious', 'sad'],
+            body: ['血压高', '通用'],
+            reason: '今天你可能有点累，一碗热乎乎的番茄牛腩汤，暖胃又暖心，番茄的酸甜能让心情好起来。',
+            ingredients: '牛腩 300g、番茄 3个、土豆 1个、洋葱半个、姜片适量',
+            steps: '1. 牛腩切块焯水；2. 番茄去皮切块炒出沙；3. 加水放牛腩炖40分钟；4. 加土豆洋葱再炖15分钟；5. 加盐调味即可。',
+            nutrition: ['高蛋白', '补气血', '暖胃']
+        },
+        {
+            name: '🥑 牛油果鸡蛋沙拉',
+            tags: ['happy', 'calm'],
+            body: ['血脂高', '通用'],
+            reason: '心情不错的日子，来份清爽的牛油果沙拉吧，健康又轻盈，吃完身体没负担。',
+            ingredients: '牛油果 1个、水煮蛋 2个、生菜适量、小番茄 6个、橄榄油少许',
+            steps: '1. 生菜洗净铺底；2. 牛油果切块、鸡蛋切片；3. 小番茄对半切；4. 全部摆好，淋少许橄榄油和盐即可。',
+            nutrition: ['低卡', '优质脂肪', '高纤维']
+        },
+        {
+            name: '🍲 山药枸杞粥',
+            tags: ['tired', 'sad'],
+            body: ['肠胃弱', '通用'],
+            reason: '累了的时候，一碗温软的山药粥最养人，山药补脾胃，枸杞明目，吃完暖暖的。',
+            ingredients: '大米 100g、山药 200g、枸杞 20粒、冰糖适量',
+            steps: '1. 大米淘洗后加水煮开；2. 山药去皮切块加入；3. 小火熬30分钟至粘稠；4. 加枸杞和冰糖再煮5分钟。',
+            nutrition: ['养胃', '易消化', '补气']
+        },
+        {
+            name: '🐟 清蒸鲈鱼',
+            tags: ['calm', 'happy'],
+            body: ['血压高', '血脂高', '通用'],
+            reason: '心情平静的时候最适合享受美食，清蒸鲈鱼清淡鲜美，高蛋白低脂肪。',
+            ingredients: '鲈鱼 1条、葱姜适量、蒸鱼豉油 2勺、料酒少许',
+            steps: '1. 鱼处理干净划两刀，抹料酒腌10分钟；2. 铺葱姜，水开后蒸8分钟；3. 倒掉蒸出的水，淋蒸鱼豉油；4. 浇热油激发香味。',
+            nutrition: ['高蛋白', '低脂肪', '补脑']
+        },
+        {
+            name: '🍵 银耳莲子羹',
+            tags: ['anxious', 'sad', 'tired'],
+            body: ['睡眠差', '通用'],
+            reason: '焦虑的时候，来一碗甜甜的银耳莲子羹吧，润燥安神，让心情慢慢平静下来。',
+            ingredients: '银耳 1朵、莲子 20粒、红枣 5颗、冰糖适量',
+            steps: '1. 银耳提前泡发撕小朵；2. 莲子去芯，红枣去核；3. 全部放锅加水煮40分钟；4. 加冰糖煮至融化即可。',
+            nutrition: ['润燥', '安神', '美容养颜']
+        },
+        {
+            name: '🥦 西兰花炒虾仁',
+            tags: ['happy', 'calm'],
+            body: ['血脂高', '血糖高', '通用'],
+            reason: '开心的日子也要吃得健康，西兰花配虾仁，清爽不腻，营养满分。',
+            ingredients: '西兰花 1颗、虾仁 200g、蒜末适量、料酒少许',
+            steps: '1. 西兰花切小朵焯水2分钟；2. 虾仁用料酒腌5分钟；3. 热锅炒香蒜末，下虾仁炒变色；4. 加西兰花翻炒，加盐调味。',
+            nutrition: ['高蛋白', '高纤维', '低热量']
+        },
+        {
+            name: '🍚 南瓜小米粥',
+            tags: ['tired', 'sad'],
+            body: ['肠胃弱', '血糖高', '通用'],
+            reason: '情绪低落时，一碗甜甜的南瓜小米粥能暖到心里，小米安神，南瓜养胃。',
+            ingredients: '小米 100g、南瓜 200g、枸杞 10粒',
+            steps: '1. 小米淘洗干净；2. 南瓜去皮切小块；3. 一起加水煮开转小火熬25分钟；4. 出锅前加枸杞再煮2分钟。',
+            nutrition: ['养胃', '安神', '易消化']
+        },
+        {
+            name: '🍗 香菇蒸滑鸡',
+            tags: ['happy', 'tired'],
+            body: ['通用'],
+            reason: '今天辛苦了，奖励自己一份鲜嫩的香菇蒸滑鸡吧，不用爆炒也很入味，吃着满足。',
+            ingredients: '鸡腿肉 300g、干香菇 6朵、姜丝适量、生抽 1勺、淀粉少许',
+            steps: '1. 鸡腿肉切块，用生抽淀粉腌15分钟；2. 香菇泡发铺底；3. 鸡肉铺上面，撒姜丝；4. 水开后蒸15分钟即可。',
+            nutrition: ['高蛋白', '补气血', '低脂']
+        },
+        {
+            name: '🥕 胡萝卜玉米排骨汤',
+            tags: ['tired', 'calm'],
+            body: ['通用'],
+            reason: '需要补补的时候，经典的胡萝卜玉米排骨汤最靠谱，清甜不腻，喝完整个人都舒服。',
+            ingredients: '排骨 300g、玉米 1根、胡萝卜 1根、姜片适量',
+            steps: '1. 排骨焯水洗净；2. 加姜片和水炖30分钟；3. 加玉米胡萝卜再炖20分钟；4. 加盐调味即可。',
+            nutrition: ['补钙', '护眼', '滋补']
+        },
+        {
+            name: '🥬 蒜蓉菠菜',
+            tags: ['happy', 'anxious'],
+            body: ['血压高', '血脂高', '通用'],
+            reason: '简单清爽的蒜蓉菠菜，几分钟就做好，补铁又健康，吃完身体轻盈。',
+            ingredients: '菠菜 300g、蒜末 3瓣、盐少许',
+            steps: '1. 菠菜洗净焯水30秒捞出；2. 热锅炒香蒜末；3. 下菠菜快速翻炒；4. 加盐调味出锅。',
+            nutrition: ['补铁', '低卡', '高纤维']
+        },
+        {
+            name: '🍠 紫薯山药糕',
+            tags: ['happy', 'calm', 'anxious'],
+            body: ['血糖高', '通用'],
+            reason: '想吃点甜的又怕胖？紫薯山药糕就是最好的选择，天然香甜，健康无负担。',
+            ingredients: '紫薯 2个、山药 200g、蜂蜜少许（可选）',
+            steps: '1. 紫薯和山药分别蒸熟；2. 压成泥，加少许蜂蜜拌匀；3. 用模具压成喜欢的形状；4. 冷藏后口感更好。',
+            nutrition: ['低GI', '粗粮', '通便']
+        },
+        {
+            name: '🥩 冬瓜海带汤',
+            tags: ['anxious', 'tired'],
+            body: ['血压高', '血脂高', '通用'],
+            reason: '觉得身体沉重时，来一碗冬瓜海带汤，清爽去油腻，喝完整个人都轻松了。',
+            ingredients: '冬瓜 300g、海带结 10个、虾皮少许、姜片适量',
+            steps: '1. 冬瓜去皮切块，海带洗净；2. 锅烧开水放姜；3. 下冬瓜海带煮15分钟；4. 加虾皮和盐调味。',
+            nutrition: ['低卡', '消水肿', '补碘']
+        }
+    ];
+
+    var todayRecipeIndex = -1;
+
+    function getTodayMood() {
+        try {
+            var records = getMoodRecords();
+            var today = new Date().toISOString().split('T')[0];
+            for(var i = 0; i < records.length; i++) {
+                if(records[i].date === today) return records[i].mood;
+            }
+            return 'calm';
+        } catch(e) { return 'calm'; }
+    }
+
+    function getBodyCondition() {
+        try {
+            var rs = getReminders();
+            var types = rs.map(function(r) { return r.type; });
+            if(types.indexOf('测血压') !== -1) return '血压高';
+            if(types.indexOf('吃药') !== -1) return '通用';
+            return '通用';
+        } catch(e) { return '通用'; }
+    }
+
+    function recommendRecipe() {
+        try {
+            var mood = getTodayMood();
+            var body = getBodyCondition();
+
+            var matched = recipeLibrary.filter(function(r) {
+                var moodMatch = r.tags.indexOf(mood) !== -1;
+                var bodyMatch = r.body.indexOf(body) !== -1 || r.body.indexOf('通用') !== -1;
+                return moodMatch && bodyMatch;
+            });
+
+            if(matched.length === 0) matched = recipeLibrary;
+
+            var today = new Date().toDateString();
+            var savedDate = safeGetItem('recipe_date');
+            var savedIdx = safeGetItem('recipe_index');
+
+            if(savedDate === today && savedIdx !== null) {
+                todayRecipeIndex = parseInt(savedIdx);
+            } else {
+                todayRecipeIndex = Math.floor(Math.random() * matched.length);
+                safeSetItem('recipe_date', today);
+                safeSetItem('recipe_index', todayRecipeIndex);
+            }
+
+            var recipe = matched[todayRecipeIndex % matched.length];
+            renderRecipe(recipe);
+        } catch(e) {}
+    }
+
+    function renderRecipe(recipe) {
+        try {
+            document.getElementById('recipe-name').textContent = recipe.name;
+            document.getElementById('recipe-reason').textContent = recipe.reason;
+            document.getElementById('recipe-ingredients').textContent = recipe.ingredients;
+            document.getElementById('recipe-steps').textContent = recipe.steps;
+            document.getElementById('nutrition-tag1').textContent = recipe.nutrition[0] || '';
+            document.getElementById('nutrition-tag2').textContent = recipe.nutrition[1] || '';
+            document.getElementById('nutrition-tag3').textContent = recipe.nutrition[2] || '';
+        } catch(e) {}
+    }
+
+    function refreshRecipe() {
+        try {
+            var mood = getTodayMood();
+            var body = getBodyCondition();
+
+            var matched = recipeLibrary.filter(function(r) {
+                var moodMatch = r.tags.indexOf(mood) !== -1;
+                var bodyMatch = r.body.indexOf(body) !== -1 || r.body.indexOf('通用') !== -1;
+                return moodMatch && bodyMatch;
+            });
+
+            if(matched.length === 0) matched = recipeLibrary;
+
+            var newIdx;
+            do {
+                newIdx = Math.floor(Math.random() * matched.length);
+            } while(newIdx === todayRecipeIndex && matched.length > 1);
+
+            todayRecipeIndex = newIdx;
+            safeSetItem('recipe_index', newIdx);
+            renderRecipe(matched[newIdx]);
+            showToast('已为你换新食谱～');
+        } catch(e) { showToast('换一个失败，请重试'); }
+    }
+
+    var audioContext = null;
+    var alarmInterval = null;
+    var vibrationInterval = null;
+
+    function initAudio() { try { if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+
+    function playAlarmSound() {
+        try {
+            if(!audioContext) initAudio();
+            if(!audioContext) return;
+            if(audioContext.state === 'suspended') audioContext.resume();
+            var osc = audioContext.createOscillator();
+            var gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioContext.currentTime);
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.5);
+            setTimeout(function() { if(document.getElementById('alarm-modal').classList.contains('show')) playAlarmSound(); }, 600);
+        } catch(e) {}
+    }
+
+    function startVibration() {
+        try {
+            if(!navigator.vibrate) return;
+            navigator.vibrate([200,100,200,100,200]);
+            vibrationInterval = setInterval(function() { try { if(document.getElementById('alarm-modal').classList.contains('show')) navigator.vibrate([200,100,200,100,200]); else clearInterval(vibrationInterval); } catch(e) { clearInterval(vibrationInterval); } }, 1000);
+        } catch(e) {}
+    }
+
+    function showAlarmModal(reminder) {
+        try {
+            var icon = typeIcons[reminder.type] || '📝';
+            document.getElementById('alarm-modal-title').textContent = icon + ' ' + reminder.type;
+            document.getElementById('alarm-modal-desc').textContent = reminder.desc;
+            document.getElementById('alarm-modal').classList.add('show');
+            if(reminder.sound) playAlarmSound();
+            if(reminder.vibration) startVibration();
+        } catch(e) {}
+    }
+
+    function stopAlarm() {
+        try {
+            document.getElementById('alarm-modal').classList.remove('show');
+            if(audioContext) audioContext.close();
+            audioContext = null;
+            if(vibrationInterval) { clearInterval(vibrationInterval); vibrationInterval = null; }
+            if(navigator.vibrate) navigator.vibrate(0);
+        } catch(e) {}
+    }
+
+    function checkAlarms() {
+        try {
+            var now = new Date();
+            var currentTime = now.toTimeString().substring(0,5);
+            var rs = getReminders();
+            rs.forEach(function(r) {
+                if(!r.completed && r.alarmTime === currentTime) { showAlarmModal(r); }
+            });
+        } catch(e) {}
+    }
+
+    function showToast(msg) {
+        try {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 2000);
+        } catch(e) {}
+    }
+
+    function initAudioOnFirstClick() {
+        try {
+            initAudio();
+            document.body.removeEventListener('click', initAudioOnFirstClick);
+            document.body.removeEventListener('touchstart', initAudioOnFirstClick);
+        } catch(e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            initStorage();
+            renderHome();
+            renderMoodWeek();
+            renderDailyQuote();
+            recommendRecipe();
+            setInterval(checkAlarms, 1000);
+            document.body.addEventListener('click', initAudioOnFirstClick);
+            document.body.addEventListener('touchstart', initAudioOnFirstClick);
+        } catch(e) {}
+    });
+</script>
+</body>
+</html>

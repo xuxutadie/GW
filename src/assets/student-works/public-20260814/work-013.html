@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自然灾害应急场景模拟系统</title>
+<style>
+/* ===== CSS变量 ===== */
+:root {
+  --safe-green:#38a169;
+  --danger-red:#e53e3e;
+  --warn-yellow:#ecc94b;
+  --primary-blue:#1a365d;
+  --bg-white:#ffffff;
+  --text-dark:#1a202c;
+  --text-gray:#4a5568;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  background:#f7fafc;
+  height:100%;
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ===== 分区标题通用样式 ===== */
+.zone-label {
+  background:var(--bg-white);
+  border-bottom:3px solid var(--primary-blue);
+  padding:8px 16px;
+  font-size:17px;
+  font-weight:900;
+  color:var(--primary-blue);
+  letter-spacing:1px;
+}
+
+/* ===== 1. 顶部导航区 ===== */
+.nav-zone {
+  background:var(--primary-blue);
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+}
+.nav-buttons {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  padding:10px 16px;
+  justify-content:center;
+}
+.nav-btn {
+  padding:10px 18px;
+  border:none;
+  border-radius:8px;
+  background:rgba(255,255,255,0.15);
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+}
+.nav-btn:hover { background:var(--safe-green); transform:translateY(-2px); }
+.nav-btn.active { background:var(--safe-green); box-shadow:0 0 0 3px rgba(56,161,105,.4); }
+
+/* ===== 主内容区（中+右） ===== */
+.main-wrap { flex:1; display:flex; overflow:hidden; }
+
+/* ===== 2. 中部主交互区 ===== */
+.scene-zone {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:#edf2f7;
+  border-right:3px solid #e2e8f0;
+  overflow:hidden;
+}
+.scene-body {
+  flex:1;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:auto;
+}
+#sceneCanvas {
+  width:100%;
+  height:100%;
+  max-height:520px;
+  background:#fff;
+  border-radius:8px;
+  border:2px solid #e2e8f0;
+}
+.scene-footer {
+  padding:10px 16px;
+  background:#fff;
+  border-top:2px solid #e2e8f0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.step-text { font-size:15px; color:var(--text-dark); font-weight:700; }
+.step-text .num { color:var(--warn-yellow); background:var(--primary-blue); padding:2px 8px; border-radius:4px; margin:0 4px; }
+.ctrl-btn {
+  padding:8px 20px;
+  border:none;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+}
+.btn-back { background:var(--warn-yellow); color:var(--text-dark); }
+.btn-back:hover { background:#d69e2e; }
+.btn-reset { background:#4a5568; color:#fff; }
+.btn-reset:hover { background:#718096; }
+.btn-hint { background:var(--safe-green); color:#fff; }
+.btn-hint:hover { background:#2f855a; }
+.arrow-btn {
+  width:40px;
+  height:40px;
+  border:none;
+  border-radius:8px;
+  background:#1a365d;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  transition:all .15s;
+}
+.arrow-btn:hover { background:#2c5282; transform:scale(1.1); }
+.arrow-btn:active { transform:scale(0.95); }
+.btn-hint:hover { background:#2f855a; }
+
+/* ===== 3. 右侧侧边区 ===== */
+.sidebar-zone {
+  width:300px;
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  background:#fff;
+  overflow:hidden;
+}
+.sidebar-body {
+  flex:1;
+  padding:12px;
+  overflow-y:auto;
+}
+.tip-card {
+  background:#f7fafc;
+  border-left:4px solid var(--safe-green);
+  border-radius:6px;
+  padding:10px 12px;
+  margin-bottom:10px;
+}
+.tip-title { font-size:14px; font-weight:800; color:var(--primary-blue); margin-bottom:4px; }
+.tip-content { font-size:13px; color:var(--text-gray); line-height:1.6; }
+
+/* ===== 4. 底部说明区 ===== */
+.guide-zone {
+  background:var(--bg-white);
+  border-top:3px solid var(--primary-blue);
+  flex-shrink:0;
+}
+.guide-body {
+  padding:10px 16px;
+  font-size:13px;
+  color:var(--text-gray);
+  line-height:1.8;
+}
+.guide-body strong { color:var(--primary-blue); }
+
+/* ===== 弹窗 ===== */
+.modal-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.65);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+.modal-overlay.active { display:flex; }
+.modal-box {
+  background:#fff;
+  border-radius:16px;
+  padding:28px 32px;
+  max-width:480px;
+  width:90%;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  animation:pop .3s ease;
+}
+@keyframes pop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+.modal-box .tag {
+  display:inline-block;
+  padding:6px 18px;
+  border-radius:20px;
+  font-size:18px;
+  font-weight:900;
+  color:#fff;
+  margin-bottom:12px;
+}
+.modal-box.success .tag { background:var(--safe-green); }
+.modal-box.error .tag { background:var(--danger-red); }
+.modal-box h3 { font-size:20px; font-weight:800; margin-bottom:8px; }
+.modal-box.success h3 { color:var(--safe-green); }
+.modal-box.error h3 { color:var(--danger-red); }
+.modal-box p { font-size:15px; color:var(--text-gray); line-height:1.7; margin-bottom:20px; }
+.modal-btn {
+  padding:12px 40px;
+  border:none;
+  border-radius:8px;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  color:#fff;
+}
+
+/* ===== SVG 文字标注样式 ===== */
+.safe-label { fill:var(--safe-green); font-size:14px; font-weight:900; pointer-events:none; }
+.danger-label { fill:var(--danger-red); font-size:14px; font-weight:900; pointer-events:none; }
+.item-label { fill:#4a5568; font-size:11px; font-weight:700; pointer-events:none; }
+.char-label { fill:var(--primary-blue); font-size:11px; font-weight:700; pointer-events:none; }
+
+/* ===== 动画 ===== */
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+@keyframes swing { 0%,100%{transform:rotate(-6deg)} 50%{transform:rotate(6deg)} }
+@keyframes flow { 0%{transform:translateX(0)} 100%{transform:translateX(18px)} }
+@keyframes flash { 0%,100%{opacity:0} 50%{opacity:1} }
+@keyframes smokeRise { 0%{opacity:.8;transform:translateY(0)scale(1)} 100%{opacity:0;transform:translateY(-80px)scale(1.8)} }
+@keyframes firePulse { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.25)} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+.a-shake { animation:shake .4s infinite; }
+.a-swing { animation:swing 1.2s infinite ease-in-out; transform-origin:top center; }
+.a-flow { animation:flow 2.5s infinite linear; }
+.a-flash { animation:flash .8s infinite; }
+.a-smoke { animation:smokeRise 3s infinite ease-out; }
+.a-fire { animation:firePulse .35s infinite alternate; }
+.a-float { animation:float 2.2s infinite ease-in-out; }
+
+.safe-zone { fill:rgba(56,161,105,.22); stroke:var(--safe-green); stroke-width:2.5; stroke-dasharray:6,4; }
+.danger-zone { fill:rgba(229,62,62,.22); stroke:var(--danger-red); stroke-width:2.5; stroke-dasharray:6,4; }
+.safe-solid { fill:rgba(56,161,105,.35); stroke:var(--safe-green); stroke-width:2; }
+.danger-solid { fill:rgba(229,62,62,.35); stroke:var(--danger-red); stroke-width:2; }
+.interactive { cursor:pointer; }
+.interactive:hover { filter:brightness(1.2); stroke-width:4; }
+
+/* ===== 响应式 ===== */
+@media (max-width:768px) {
+  .main-wrap { flex-direction:column; }
+  .sidebar-zone { width:100%; height:220px; border-left:none; border-top:3px solid #e2e8f0; }
+  .nav-buttons { justify-content:center; }
+  .scene-footer { flex-direction:column; text-align:center; }
+}
+
+[data-char] { cursor:grab; }
+[data-char]:hover { filter:brightness(1.1); }
+[data-char]:active { cursor:grabbing; }
+</style>
+</head>
+<body style="display:flex;flex-direction:column;height:100vh;">
+
+<!-- ===== 1. 顶部导航区 ===== -->
+<div class="nav-zone">
+  <div class="zone-label">【顶部导航区｜灾害场景选择】</div>
+  <div class="nav-buttons">
+    <button class="nav-btn active" onclick="switchScene('earthquake',this)">🏠 地震模拟</button>
+    <button class="nav-btn" onclick="switchScene('floodTyphoon',this)">🌊 洪水台风模拟</button>
+    <button class="nav-btn" onclick="switchScene('fire',this)">🔥 火灾逃生模拟</button>
+    <button class="nav-btn" onclick="switchScene('landslide',this)">⛰️ 泥石流滑坡模拟</button>
+    <button class="nav-btn" onclick="switchScene('lightning',this)">⚡ 雷电避险模拟</button>
+    <button class="nav-btn" onclick="switchScene('heatCold',this)">🌡️ 高温寒潮模拟</button>
+  </div>
+</div>
+
+<!-- ===== 中+右 主内容 ===== -->
+<div class="main-wrap">
+
+  <!-- 2. 中部主交互区 -->
+  <div class="scene-zone">
+    <div class="zone-label">【中部主交互区｜灾难虚拟推演沙盘】</div>
+    <div class="scene-body">
+      <svg id="sceneCanvas" viewBox="0 0 840 520" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div class="scene-footer">
+      <div class="step-text" id="stepDisplay">步骤 <span class="num">1</span> / <span class="num" id="totalStep">5</span> ：<span id="stepDesc">加载中…</span></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+          <button class="arrow-btn" onclick="moveChar(0,-30)" title="向上移动">↑</button>
+          <div style="display:flex;gap:2px;">
+            <button class="arrow-btn" onclick="moveChar(-30,0)" title="向左移动">←</button>
+            <button class="arrow-btn" onclick="moveChar(0,30)" title="向下移动">↓</button>
+            <button class="arrow-btn" onclick="moveChar(30,0)" title="向右移动">→</button>
+          </div>
+        </div>
+        <span style="font-size:12px;color:#4a5568;font-weight:700;margin-right:4px;">移动小人</span>
+        <button class="ctrl-btn btn-back" onclick="prevStep()">⏮ 上一步</button>
+        <button class="ctrl-btn btn-reset" onclick="resetScene()">🔄 重置场景</button>
+        <button class="ctrl-btn btn-hint" onclick="showHint()">💡 提示</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 右侧侧边区 -->
+  <div class="sidebar-zone">
+    <div class="zone-label">【右侧侧边区｜科普知识点提示板】</div>
+    <div class="sidebar-body" id="tipsPanel"></div>
+  </div>
+
+</div>
+
+<!-- ===== 4. 底部说明区 ===== -->
+<div class="guide-zone">
+  <div class="zone-label">【底部说明区｜作品操作指引】</div>
+  <div class="guide-body">
+    <strong>操作步骤：</strong>① 点击顶部按钮切换不同灾害模拟沙盘；② 在沙盘画布中点击<strong style="color:var(--safe-green)">绿色安全区</strong>或<strong style="color:var(--danger-red)">红色危险区</strong>以及标注的交互道具进行选择；③ 选错会弹出红色警示说明风险后果，选对弹出绿色提示并进入下一步；④ 推演完可点击「重置场景」重新演练，点击「上一步」回退操作。
+  </div>
+</div>
+
+<!-- ===== 弹窗 ===== -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box" id="modalBox">
+    <div class="tag" id="modalTag">标签</div>
+    <h3 id="modalTitle">标题</h3>
+    <p id="modalText">内容说明</p>
+    <button class="modal-btn" id="modalBtn" onclick="closeModal()">确定</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  自然灾害应急推演沙盘系统 - 数据配置
+// ============================================================
+const SCENES = {
+  earthquake: {
+    name: '室内地震应急推演',
+    steps: [
+      {
+        desc: '【灾害发生】地震突然发生，室内剧烈晃动！请选择就地避险位置',
+        options: [
+          { id:'desk',   text:'躲到实木书桌下方', correct:true,  next:1, feedback:'【正确操作】书桌可形成"生命三角区"，为头部和躯干提供支撑保护，防止坠落物砸伤。' },
+          { id:'window', text:'靠近落地窗',       correct:false, next:-1, feedback:'【错误操作】玻璃易碎裂飞溅，且窗框可能变形挤压，极易造成严重割伤或坠落。' },
+          { id:'closet', text:'躲进衣柜',         correct:false, next:-1, feedback:'【错误操作】衣柜重心高、稳定性差，地震中极易倾倒，会将人困在内部造成二次伤害。' },
+          { id:'door',   text:'站在房门口',       correct:false, next:-1, feedback:'【错误操作】门框在震动中可能变形挤压，且门口无遮挡，无法防护坠物。' }
+        ]
+      },
+      {
+        desc: '【就地避险】震动稍停，需要撤离！请选择正确撤离姿势',
+        options: [
+          { id:'crawl', text:'护住头部，弯腰低姿前进', correct:true,  next:2, feedback:'【正确操作】单手护住头颈，弯腰降低重心，既能防坠物又能在余震中保持平衡。' },
+          { id:'run',   text:'快速奔跑冲向门口',       correct:false, next:-1, feedback:'【错误操作】奔跑时重心不稳，余震来袭极易摔倒，且无法防护上方坠物。' }
+        ]
+      },
+      {
+        desc: '【紧急撤离】到达楼梯口，请选择撤离方式',
+        options: [
+          { id:'stair',    text:'沿楼梯步行下楼', correct:true,  next:3, feedback:'【正确操作】地震时电梯可能断电停运或轿厢卡死，楼梯是最可靠的逃生通道。' },
+          { id:'elevator', text:'乘坐电梯快速下楼', correct:false, next:-1, feedback:'【错误操作】地震极易导致断电，电梯会困人；且井道可能变形，极度危险。' }
+        ]
+      },
+      {
+        desc: '【灾后自救】已到达室外，请选择安全停留位置',
+        options: [
+          { id:'open',     text:'空旷地带蹲下避险', correct:true,  next:4, feedback:'【正确操作】恭喜完成推演！空旷地带无坠物风险，蹲下降低重心，远离建筑物。' },
+          { id:'building', text:'靠近建筑物外墙',   correct:false, next:-1, feedback:'【错误操作】建筑物外墙可能有瓷砖、玻璃、广告牌等坠落物，极其危险。' }
+        ]
+      },
+      { desc: '【推演完成】地震避险全流程已通关！点击"重置场景"可再次演练。', options: [] }
+    ],
+    tips: [
+      { title:'地震避险口诀', content:'伏地、遮挡、手抓牢。第一时间趴下，寻找坚固遮挡物，牢牢抓住固定物。' },
+      { title:'生命三角区', content:'桌子、床等坚固家具旁侧形成的三角空间，能在坍塌时提供生存空间。' },
+      { title:'切勿乘电梯', content:'地震时电梯井道变形、断电风险极高，必须走楼梯撤离。' },
+      { title:'室外避险要点', content:'远离高楼、广告牌、电线杆、立交桥，前往空旷广场蹲下。' }
+    ]
+  },
+
+  floodTyphoon: {
+    name: '城市洪水台风应急推演',
+    steps: [
+      {
+        desc: '【灾害发生】台风登陆+暴雨倾盆，城市积水迅速上涨！请选择避险位置',
+        options: [
+          { id:'high',    text:'前往高处广场/稳固楼道', correct:true,  next:1, feedback:'【正确操作】高处广场和稳固楼道海拔高、结构牢，可避免洪水淹没和强风侵袭。' },
+          { id:'basement',text:'躲进地下车库/地下室',   correct:false, next:-1, feedback:'【错误操作】地下空间是积水最严重区域，一旦进水极难逃生，曾发生多人溺亡悲剧。' },
+          { id:'street',  text:'站在低洼街道',          correct:false, next:-1, feedback:'【错误操作】低洼街道积水最快最深，且可能有漏电、漩涡等致命风险。' }
+        ]
+      },
+      {
+        desc: '【就地避险】洪水涌入室内，准备防御！请选择正确措施',
+        options: [
+          { id:'sandbag', text:'用沙袋封堵门口缝隙', correct:true,  next:2, feedback:'【正确操作】沙袋可层层堆叠形成挡水墙，有效延缓洪水涌入，为撤离争取时间。' },
+          { id:'ignore',  text:'不做任何防护等待',   correct:false, next:-1, feedback:'【错误操作】洪水涌入速度极快，不防护会迅速被困，且可能遭遇漏电和激流。' }
+        ]
+      },
+      {
+        desc: '【紧急撤离】发现有人被困水中，请选择施救方式',
+        options: [
+          { id:'lifering',text:'抛投救生圈/绳索', correct:true,  next:3, feedback:'【正确操作】保持安全距离，利用漂浮物延长救援距离，避免自身被水流卷走。' },
+          { id:'jump',    text:'直接跳入水中救人', correct:false, next:-1, feedback:'【错误操作】洪水中暗流、漩涡、杂物极多，无保护下水极易双双遇险。' }
+        ]
+      },
+      { desc: '【推演完成】洪水台风避险全流程已通关！点击"重置场景"可再次演练。', options: [] }
+    ],
+    tips: [
+      { title:'台风预警信号', content:'蓝色→黄色→橙色→红色，级别越高风力越强，红色预警需停工停课。' },
+      { title:'洪水逃生原则', content:'向高处转移，不要涉水过河，远离高压线和地下设施。' },
+      { title:'断电处理', content:'洪水来临前切断总电源，防止触电；远离路灯杆、变压器。' },
+      { title:'车内逃生', content:'若车被淹，在水位没过车门一半前迅速弃车逃生，不要贪恋财物。' }
+    ]
+  },
+
+  fire: {
+    name: '楼道火灾逃生推演',
+    steps: [
+      {
+        desc: '【灾害发生】厨房起火，浓烟迅速蔓延！请选择逃生姿势',
+        options: [
+          { id:'crawl',    text:'弯腰低姿沿楼道逃生', correct:true,  next:1, feedback:'【正确操作】烟雾上升，贴近地面处空气相对清新、能见度更高，利于快速撤离。' },
+          { id:'stand',    text:'直立奔跑冲出楼道',   correct:false, next:-1, feedback:'【错误操作】烟雾含大量有毒气体，高处浓度极高，直立行走极易窒息昏迷。' },
+          { id:'elevator', text:'乘坐电梯下楼',       correct:false, next:-1, feedback:'【错误操作】火灾时电梯井道形成烟囱效应，且可能断电卡死，极度危险。' }
+        ]
+      },
+      {
+        desc: '【就地避险】逃生前需要做防护准备',
+        options: [
+          { id:'towel', text:'用湿毛巾捂住口鼻', correct:true,  next:2, feedback:'【正确操作】湿毛巾可过滤部分烟尘颗粒和有毒气体，大幅降低吸入性损伤风险。' },
+          { id:'nothing',text:'不做防护直接逃生', correct:false, next:-1, feedback:'【错误操作】浓烟中一氧化碳浓度高，数口即可致人昏迷，必须做呼吸防护。' }
+        ]
+      },
+      {
+        desc: '【紧急撤离】遇到初期小火，请选择灭火方式',
+        options: [
+          { id:'extinguisher', text:'使用干粉灭火器', correct:true,  next:3, feedback:'【正确操作】拔销→握管→压把→扫射根部，四字口诀"提拔握压"，对准火焰根部灭火。' },
+          { id:'water',        text:'用水直接浇灭',   correct:false, next:-1, feedback:'【错误操作】油类、电器火灾遇水会爆溅或导电，必须使用对应灭火器材。' }
+        ]
+      },
+      { desc: '【推演完成】火灾逃生全流程已通关！点击"重置场景"可再次演练。', options: [] }
+    ],
+    tips: [
+      { title:'火灾逃生口诀', content:'湿巾捂口鼻，贴地弯下腰，不乘电梯走楼梯，关门阻烟火。' },
+      { title:'灭火器使用', content:'提（提起灭火器）、拔（拔掉保险销）、握（握喷管）、压（压下压把）。' },
+      { title:'关门重要性', content:'逃生时关闭房门可延缓火势蔓延，为其他人争取宝贵逃生时间。' },
+      { title:'高层逃生', content:'超过3层不要盲目跳楼，利用落水管、阳台等转移到安全楼层等待救援。' }
+    ]
+  },
+
+  landslide: {
+    name: '泥石流滑坡应急推演',
+    steps: [
+      {
+        desc: '【灾害发生】山谷传来轰鸣，泥石流来袭！请选择逃生方向',
+        options: [
+          { id:'left',  text:'向左侧高地山坡撤离', correct:true,  next:1, feedback:'【正确操作】向垂直于泥石流流动方向的两侧高地快速撤离，切勿顺沟方向逃跑。' },
+          { id:'right', text:'向右侧高地山坡撤离', correct:true,  next:1, feedback:'【正确操作】向垂直于泥石流流动方向的两侧高地快速撤离，速度是第一生命。' },
+          { id:'down',  text:'顺山谷往下游跑',     correct:false, next:-1, feedback:'【错误操作】泥石流流速可达每秒数米，人类奔跑速度远不及，顺沟跑必被吞噬。' },
+          { id:'river', text:'跳进河道躲避',       correct:false, next:-1, feedback:'【错误操作】河道正是泥石流通道，且洪水湍急，进去绝无生还可能。' }
+        ]
+      },
+      {
+        desc: '【紧急撤离】撤离途中负重，请选择正确做法',
+        options: [
+          { id:'drop', text:'丢弃重物轻装快跑', correct:true,  next:2, feedback:'【正确操作】生命第一！丢弃行李可大幅提升奔跑速度，每一秒都关乎生死。' },
+          { id:'keep', text:'背着行李撤离',     correct:false, next:-1, feedback:'【错误操作】重物严重拖累奔跑速度，泥石流不给你犹豫的时间，必须轻装。' }
+        ]
+      },
+      {
+        desc: '【灾后自救】到达安全高地，后续怎么做',
+        options: [
+          { id:'stay',   text:'原地等待救援',   correct:true,  next:3, feedback:'【正确操作】恭喜完成推演！到达高地后切勿返回查看，等待专业救援队伍。' },
+          { id:'return', text:'返回查看房屋',   correct:false, next:-1, feedback:'【错误操作】泥石流常伴随多次滑坡，返回查看极易遭遇二次灾害，必须远离。' }
+        ]
+      },
+      { desc: '【推演完成】泥石流滑坡避险全流程已通关！点击"重置场景"可再次演练。', options: [] }
+    ],
+    tips: [
+      { title:'泥石流前兆', content:'河水突然变浑浊、流量骤增、山谷传来轰鸣声、地面轻微震动。' },
+      { title:'逃生方向', content:'垂直于泥石流流动方向，向两侧高地山坡撤离，切忌顺沟跑。' },
+      { title:'避开危险区', content:'雨季不要在沟谷底部、河道弯道内侧、陡坡下方露营或建房。' },
+      { title:'被埋自救', content:'被掩埋时双手抱头保护要害，尽量扩大呼吸空间，听到人声时敲击求救。' }
+    ]
+  },
+
+  lightning: {
+    name: '雷电户外避险推演',
+    steps: [
+      {
+        desc: '【灾害发生】雷电交加，户外无处可藏！请选择避险位置',
+        options: [
+          { id:'car',   text:'进入密闭汽车内', correct:true,  next:1, feedback:'【正确操作】汽车金属车身形成"法拉第笼"效应，能将雷电电流导入地面，车内安全。' },
+          { id:'tree',  text:'躲在大树下',     correct:false, next:-1, feedback:'【错误操作】大树是地面突出物，极易成为雷击目标，树下避雨死亡率极高。' },
+          { id:'tower', text:'靠近铁塔/电线杆',correct:false, next:-1, feedback:'【错误操作】金属塔架是天然引雷体，且可能漏电，靠近等于主动引雷上身。' },
+          { id:'water', text:'站在水塘边',     correct:false, next:-1, feedback:'【错误操作】水是优良导体，水面附近电场强度大，雷击水面的电流会扩散至岸边。' }
+        ]
+      },
+      {
+        desc: '【紧急避险】四周无遮蔽物，请选择正确姿势',
+        options: [
+          { id:'crouch', text:'双脚并拢蹲下', correct:true,  next:2, feedback:'【正确操作】双脚并拢减少跨步电压伤害，低头抱膝降低身体高度，减少被击概率。' },
+          { id:'lie',    text:'平躺地面',     correct:false, next:-1, feedback:'【错误操作】平躺增大身体与地面接触面积，跨步电压和接触电压都会大幅增加。' }
+        ]
+      },
+      { desc: '【推演完成】雷电避险全流程已通关！点击"重置场景"可再次演练。', options: [] }
+    ],
+    tips: [
+      { title:'雷电预警', content:'听到雷声时雷电已在10公里范围内，看到闪电后数秒听到雷声说明距离很近。' },
+      { title:'安全场所', content:'有防雷设施的建筑物、密闭金属车辆是最安全的避雷场所。' },
+      { title:'户外避雷', content:'远离大树、铁塔、水域、高地，双脚并拢蹲下，不要撑伞或使用手机。' },
+      { title:'室内避雷', content:'关闭门窗，远离金属水管、电线、电器，不要洗澡和打电话。' }
+    ]
+  },
+
+  heatCold: {
+    name: '高温寒潮双场景推演',
+    steps: [
+      {
+        desc: '【左侧·高温】烈日暴晒，户外酷热难耐！请选择正确应对',
+        options: [
+          { id:'shade', text:'到树荫/遮阳棚下休息', correct:true,  next:1, feedback:'【正确操作】树荫和遮阳棚可阻挡直射阳光，降低体感温度，是高温天最佳临时避暑点。' },
+          { id:'sun',   text:'在空旷烈日下继续活动',correct:false, next:-1, feedback:'【错误操作】持续暴晒会导致体温调节失衡，引发中暑、热射病，严重可致命。' }
+        ]
+      },
+      {
+        desc: '【左侧·高温】防暑物资准备',
+        options: [
+          { id:'hat',   text:'戴上遮阳帽并喝水', correct:true,  next:2, feedback:'【正确操作】遮阳帽保护头部免受直射，少量多次饮水补充体液，防止脱水。' },
+          { id:'noHat', text:'什么都不戴干晒',   correct:false, next:-1, feedback:'【错误操作】头部是人体散热主要部位，暴晒头部会加速中暑，必须遮阳防护。' }
+        ]
+      },
+      {
+        desc: '【右侧·寒潮】气温骤降，路面结冰！请选择避险位置',
+        options: [
+          { id:'house', text:'进入室内保暖房屋', correct:true,  next:3, feedback:'【正确操作】密闭房屋可隔绝寒风，多层衣物+室内供暖能有效防止体温过低和冻伤。' },
+          { id:'wind',  text:'站在风口吹冷风',   correct:false, next:-1, feedback:'【错误操作】风寒效应会让体感温度比实际更低，持续吹风会加速失温。' },
+          { id:'ice',   text:'在结冰路面上行走', correct:false, next:-1, feedback:'【错误操作】结冰路面摩擦系数极低，极易滑倒骨折，老年人尤其危险。' }
+        ]
+      },
+      {
+        desc: '【右侧·寒潮】防寒防滑准备',
+        options: [
+          { id:'coat', text:'穿上厚外套+铺设防滑垫', correct:true,  next:4, feedback:'【正确操作】多层穿衣锁住空气保暖，防滑垫增加摩擦力，有效降低跌倒风险。' },
+          { id:'thin', text:'穿单衣直接出门',         correct:false, next:-1, feedback:'【错误操作】单薄衣物无法抵御低温，极易冻伤手脚耳鼻，且滑倒风险大增。' }
+        ]
+      },
+      { desc: '【推演完成】高温寒潮避险全流程已通关！点击"重置场景"可再次演练。', options: [] }
+    ],
+    tips: [
+      { title:'高温预警分级', content:'黄色35℃+、橙色37℃+、红色40℃+，红色预警需停止户外作业。' },
+      { title:'中暑急救', content:'移至阴凉处，解开衣物，用湿毛巾冷敷腋下和颈部，补充淡盐水。' },
+      { title:'寒潮预警', content:'24小时内降温10℃以上且最低温低于4℃，需启动应急响应。' },
+      { title:'冻伤处理', content:'冻伤部位用37℃左右温水缓慢复温，严禁揉搓、火烤或雪搓。' }
+    ]
+  }
+};
+
+// ============================================================
+//  状态管理
+// ============================================================
+let currentScene = 'earthquake';
+let currentStep  = 0;
+let stepHistory  = [];
+
+function init() {
+  renderScene();
+  cacheZones();
+  renderTips();
+  updateStepBar();
+}
+
+function switchScene(id, btn) {
+  currentScene = id;
+  currentStep  = 0;
+  stepHistory  = [];
+  lastHitZoneId = null;
+  zoneCache = null;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderScene();
+  cacheZones();
+  renderTips();
+  updateStepBar();
+}
+
+function updateStepBar() {
+  const scene = SCENES[currentScene];
+  const step  = scene.steps[currentStep];
+  document.getElementById('stepDisplay').innerHTML =
+    '步骤 <span class="num">' + (currentStep+1) + '</span> / <span class="num">' + scene.steps.length + '</span> ：' +
+    '<span id="stepDesc">' + step.desc + '</span>';
+}
+
+function renderTips() {
+  const panel = document.getElementById('tipsPanel');
+  const tips  = SCENES[currentScene].tips;
+  panel.innerHTML = tips.map(t =>
+    '<div class="tip-card">' +
+      '<div class="tip-title">📌 ' + t.title + '</div>' +
+      '<div class="tip-content">' + t.content + '</div>' +
+    '</div>'
+  ).join('');
+}
+
+// ============================================================
+//  场景渲染（6套沙盘）
+// ============================================================
+function renderScene() {
+  const svg = document.getElementById('sceneCanvas');
+  svg.innerHTML = '';
+  switch(currentScene) {
+    case 'earthquake':    renderEarthquake(svg); break;
+    case 'floodTyphoon':  renderFloodTyphoon(svg); break;
+    case 'fire':          renderFire(svg); break;
+    case 'landslide':     renderLandslide(svg); break;
+    case 'lightning':     renderLightning(svg); break;
+    case 'heatCold':      renderHeatCold(svg); break;
+  }
+}
+
+/* ===== ① 室内地震沙盘 ===== */
+function renderEarthquake(svg) {
+  svg.innerHTML = `
+    <defs>
+      <pattern id="brick" patternUnits="userSpaceOnUse" width="40" height="30">
+        <rect width="40" height="30" fill="#f7fafc"/>
+        <path d="M0 15h40 M20 0v15 M0 15v15 M20 15v15" stroke="#e2e8f0" stroke-width="1" fill="none"/>
+      </pattern>
+    </defs>
+    <rect x="20" y="20" width="800" height="480" fill="url(#brick)" stroke="#cbd5e0" stroke-width="2"/>
+    <rect x="20" y="380" width="800" height="120" fill="#e2e8f0"/>
+
+    <!-- 安全区：实木书桌下方 -->
+    <rect x="580" y="320" width="120" height="90" class="safe-zone interactive" data-opt="desk"/>
+    <rect x="585" y="325" width="110" height="15" fill="#805ad5"/>
+    <rect x="585" y="345" width="110" height="60" fill="#48bb78" opacity="0.3"/>
+    <text x="590" y="315" class="safe-label">安全区</text>
+    <text x="590" y="400" class="item-label">实木书桌下方（可躲避）</text>
+
+    <!-- 危险区：落地窗 -->
+    <rect x="60" y="280" width="140" height="120" class="danger-zone interactive" data-opt="window"/>
+    <rect x="70" y="290" width="120" height="100" fill="#90cdf4" opacity="0.5"/>
+    <line x1="60" y1="340" x2="200" y2="340" stroke="#63b3ed" stroke-width="1"/>
+    <line x1="130" y1="280" x2="130" y2="400" stroke="#63b3ed" stroke-width="1"/>
+    <text x="70" y="275" class="danger-label">危险区</text>
+    <text x="70" y="415" class="item-label">落地窗（玻璃易碎坠落）</text>
+
+    <!-- 危险区：衣柜 -->
+    <rect x="340" y="290" width="100" height="110" class="danger-zone interactive" data-opt="closet"/>
+    <rect x="350" y="300" width="80" height="50" fill="#ed8936"/>
+    <rect x="350" y="355" width="80" height="40" fill="#dd6b20"/>
+    <text x="350" y="285" class="danger-label">危险区</text>
+    <text x="345" y="415" class="item-label">衣柜（重心高易倾倒）</text>
+
+    <!-- 危险区：阳台 -->
+    <circle cx="740" cy="150" r="50" class="danger-zone interactive" data-opt="window"/>
+    <rect x="710" y="120" width="60" height="60" fill="#a0aec0" rx="4"/>
+    <text x="705" y="100" class="danger-label">危险区</text>
+    <text x="695" y="220" class="item-label">阳台（无遮挡+坠物）</text>
+
+    <!-- 房门口 -->
+    <rect x="260" y="340" width="60" height="80" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2" class="interactive" data-opt="door"/>
+    <circle cx="310" cy="380" r="4" fill="#ed8936"/>
+    <text x="255" y="435" class="item-label">房门口（不推荐停留）</text>
+
+    <!-- 吊灯摇晃 -->
+    <line x1="420" y1="20" x2="420" y2="70" stroke="#718096" stroke-width="3"/>
+    <g class="a-swing" style="transform-origin:420px 70px">
+      <ellipse cx="420" cy="100" rx="45" ry="25" fill="#ecc94b" stroke="#d69e2e" stroke-width="2"/>
+      <rect x="400" y="75" width="40" height="10" fill="#d69e2e"/>
+    </g>
+    <text x="385" y="140" class="item-label">吊灯（正在摇晃）</text>
+
+    <!-- 墙面裂纹 -->
+    <path d="M650 80 L670 110 L660 120 L680 150" stroke="#e53e3e" stroke-width="3" fill="none" stroke-dasharray="8,4"/>
+    <path d="M280 200 L300 220 L290 240" stroke="#e53e3e" stroke-width="2" fill="none" stroke-dasharray="6,3"/>
+    <text x="650" y="75" class="danger-label" style="font-size:12px">墙面裂纹</text>
+
+    <!-- 人物 -->
+    <g data-char="1" transform="translate(480,390)">
+      <circle cx="15" cy="10" r="10" fill="#fbd38d"/>
+      <rect x="8" y="22" width="14" height="26" fill="#4299e1" rx="3"/>
+      <rect x="5" y="48" width="8" height="16" fill="#2d3748" rx="2"/>
+      <rect x="17" y="48" width="8" height="16" fill="#2d3748" rx="2"/>
+      <circle cx="15" cy="8" r="2" fill="#2d3748"/>
+    </g>
+    <text x="465" y="430" class="char-label">人物小人（可点击避险）</text>
+  `;
+}
+
+/* ===== ② 城市洪水台风沙盘 ===== */
+function renderFloodTyphoon(svg) {
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="floodWater" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#63b3ed" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="#2b6cb0" stop-opacity="0.9"/>
+      </linearGradient>
+    </defs>
+    <rect x="20" y="20" width="800" height="480" fill="#f0f4f8" stroke="#cbd5e0" stroke-width="2"/>
+
+    <!-- 积水上涨 -->
+    <rect x="20" y="320" width="800" height="180" fill="url(#floodWater)" class="a-flow"/>
+    <rect x="20" y="320" width="800" height="10" fill="#4299e1" opacity="0.6"/>
+    <text x="30" y="345" fill="#fff" font-size="13" font-weight="900">积水上涨中</text>
+
+    <!-- 危险区：地下车库 -->
+    <rect x="180" y="250" width="140" height="80" class="danger-zone interactive" data-opt="basement"/>
+    <rect x="190" y="260" width="60" height="30" fill="#a0aec0"/>
+    <rect x="260" y="260" width="50" height="30" fill="#a0aec0"/>
+    <text x="195" y="245" class="danger-label">危险区</text>
+    <text x="185" y="345" class="item-label">地下车库/地下室（易淹没）</text>
+
+    <!-- 危险区：低洼街道 -->
+    <rect x="480" y="360" width="160" height="50" class="danger-zone interactive" data-opt="street"/>
+    <text x="490" y="355" class="danger-label">危险区</text>
+    <text x="485" y="425" class="item-label">低洼街道（积水最深+漏电）</text>
+
+    <!-- 晃动广告牌 -->
+    <g class="a-swing" style="transform-origin:650px 110px">
+      <rect x="620" y="60" width="120" height="40" fill="#e53e3e" stroke="#c53030" stroke-width="2" rx="3" class="interactive" data-opt="basement"/>
+      <text x="645" y="85" fill="#fff" font-size="12" font-weight="900">广告牌</text>
+    </g>
+    <text x="625" y="115" class="danger-label" style="font-size:12px">晃动中</text>
+
+    <!-- 倾斜大树 -->
+    <path d="M80 320 Q 75 220 85 130" fill="none" stroke="#2f855a" stroke-width="8" stroke-linecap="round" class="a-swing" style="transform-origin:80px 320px"/>
+    <ellipse cx="80" cy="120" rx="35" ry="45" fill="#48bb78"/>
+    <text x="50" y="100" class="danger-label" style="font-size:12px">大树倾斜</text>
+
+    <!-- 安全区：高处广场 -->
+    <circle cx="720" cy="200" r="55" class="safe-zone interactive" data-opt="high"/>
+    <text x="695" y="195" class="safe-label" style="font-size:13px">安全区</text>
+    <text x="675" y="220" class="item-label">高处广场（海拔高+开阔）</text>
+
+    <!-- 安全区：稳固楼道 -->
+    <rect x="320" y="180" width="100" height="120" class="safe-solid"/>
+    <rect x="330" y="190" width="80" height="30" fill="#68d391"/>
+    <rect x="330" y="230" width="80" height="30" fill="#68d391"/>
+    <rect x="330" y="270" width="80" height="20" fill="#48bb78"/>
+    <text x="330" y="175" class="safe-label" style="font-size:12px">安全区</text>
+    <text x="320" y="315" class="item-label">稳固楼道（结构牢固）</text>
+
+    <!-- 沙袋 -->
+    <rect x="200" y="290" width="50" height="18" fill="#805ad5" rx="3" class="interactive" data-opt="sandbag"/>
+    <text x="205" y="304" fill="#fff" font-size="10" font-weight="900">沙袋</text>
+    <text x="195" y="325" class="item-label">沙袋（可封堵门口）</text>
+
+    <!-- 救生圈 -->
+    <circle cx="420" cy="400" r="18" fill="none" stroke="#ecc94b" stroke-width="6" class="interactive" data-opt="lifering"/>
+    <circle cx="420" cy="400" r="18" fill="none" stroke="#d69e2e" stroke-width="2"/>
+    <text x="400" y="435" class="item-label">救生圈（可抛投救援）</text>
+
+    <!-- 人物 -->
+    <g data-char="1" transform="translate(520,360)">
+      <circle cx="10" cy="8" r="8" fill="#fbd38d"/>
+      <rect x="5" y="16" width="10" height="20" fill="#4299e1" rx="2"/>
+      <rect x="3" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+      <rect x="12" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+    </g>
+    <text x="505" y="385" class="char-label">人物（需撤离到高处）</text>
+  `;
+}
+
+/* ===== ③ 楼道火灾沙盘 ===== */
+function renderFire(svg) {
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="smokeGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#4a5568" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#4a5568" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect x="20" y="20" width="800" height="480" fill="#f0f4f8" stroke="#cbd5e0" stroke-width="2"/>
+
+    <!-- 厨房起火 -->
+    <rect x="60" y="80" width="160" height="200" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2"/>
+    <rect x="70" y="90" width="65" height="75" fill="#ed8936" stroke="#dd6b20" stroke-width="1"/>
+    <rect x="145" y="90" width="65" height="75" fill="#ed8936" stroke="#dd6b20" stroke-width="1"/>
+
+    <!-- 火焰 -->
+    <rect x="95" y="180" width="90" height="75" fill="#e53e3e" opacity="0.85" class="a-fire"/>
+    <polygon points="95,180 140,155 185,180" fill="#fc8181" class="a-fire"/>
+    <polygon points="105,180 140,165 175,180" fill="#f6ad55" class="a-fire"/>
+    <text x="100" y="275" class="danger-label" style="font-size:12px">厨房火焰</text>
+
+    <!-- 危险区：电梯 -->
+    <rect x="400" y="80" width="90" height="300" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2"/>
+    <rect x="410" y="90" width="70" height="45" fill="#4299e1"/>
+    <rect x="410" y="145" width="70" height="45" fill="#4299e1"/>
+    <rect x="410" y="200" width="70" height="45" fill="#4299e1"/>
+    <rect x="410" y="255" width="70" height="45" fill="#4299e1"/>
+    <rect x="410" y="320" width="70" height="50" fill="#e53e3e" class="danger-zone interactive" data-opt="elevator"/>
+    <text x="420" y="350" fill="#fff" font-size="12" font-weight="900">电梯</text>
+    <text x="405" y="75" class="danger-label">危险区</text>
+    <text x="400" y="390" class="item-label">电梯（断电+烟囱效应）</text>
+
+    <!-- 危险区：直立行走通道 -->
+    <rect x="300" y="80" width="40" height="300" fill="#e53e3e" opacity="0.3" class="danger-zone interactive" data-opt="stand"/>
+    <text x="295" y="220" fill="#e53e3e" font-size="11" font-weight="900" transform="rotate(90,295,220)">直立通道·危险</text>
+
+    <!-- 安全区：弯腰低姿楼道 -->
+    <path d="M600 380 Q 580 280 600 180 Q 620 100 600 40" fill="none" stroke="#38a169" stroke-width="10" stroke-linecap="round" class="safe-solid interactive" data-opt="crawl"/>
+    <text x="575" y="300" fill="#38a169" font-size="11" font-weight="900" transform="rotate(-35,575,300)">弯腰低姿·逃生路线</text>
+
+    <!-- 安全出口 -->
+    <rect x="580" y="30" width="50" height="22" fill="#48bb78" stroke="#38a169" stroke-width="2" rx="3"/>
+    <text x="585" y="46" fill="#fff" font-size="10" font-weight="900">安全出口</text>
+    <text x="570" y="65" class="safe-label" style="font-size:12px">安全区</text>
+
+    <!-- 浓烟扩散 -->
+    <circle cx="500" cy="120" r="35" fill="url(#smokeGrad)" class="a-smoke"/>
+    <circle cx="470" cy="160" r="30" fill="url(#smokeGrad)" class="a-smoke" style="animation-delay:0.6s"/>
+    <circle cx="530" cy="190" r="25" fill="url(#smokeGrad)" class="a-smoke" style="animation-delay:1.2s"/>
+    <text x="450" y="110" fill="#4a5568" font-size="11" font-weight="900">浓烟扩散</text>
+
+    <!-- 湿毛巾 -->
+    <rect x="230" y="320" width="45" height="35" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2" rx="4" class="interactive" data-opt="towel"/>
+    <text x="235" y="342" fill="#4299e1" font-size="10" font-weight="900">湿毛巾</text>
+    <text x="225" y="370" class="item-label">湿毛巾（捂口鼻过滤烟雾）</text>
+
+    <!-- 灭火器 -->
+    <rect x="340" y="340" width="24" height="48" fill="#ecc94b" stroke="#d69e2e" stroke-width="2" rx="4" class="interactive" data-opt="extinguisher"/>
+    <rect x="346" y="348" width="12" height="32" fill="#f6e05e"/>
+    <line x1="352" y1="340" x2="352" y2="332" stroke="#718096" stroke-width="3"/>
+    <text x="325" y="405" class="item-label">灭火器（初期灭火）</text>
+
+    <!-- 人物 -->
+    <g data-char="1" transform="translate(260,380)">
+      <circle cx="10" cy="8" r="8" fill="#fbd38d"/>
+      <rect x="5" y="16" width="10" height="20" fill="#4299e1" rx="2"/>
+      <rect x="3" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+      <rect x="12" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+    </g>
+    <text x="245" y="415" class="char-label">人物（弯腰低姿撤离）</text>
+  `;
+}
+
+/* ===== ④ 泥石流滑坡沙盘 ===== */
+function renderLandslide(svg) {
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="mudGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#8d6e63"/>
+        <stop offset="50%" stop-color="#a1887f"/>
+        <stop offset="100%" stop-color="#8d6e63"/>
+      </linearGradient>
+      <linearGradient id="riverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#4299e1"/>
+        <stop offset="100%" stop-color="#2b6cb0"/>
+      </linearGradient>
+    </defs>
+    <rect x="20" y="20" width="800" height="480" fill="#e2e8f0" stroke="#cbd5e0" stroke-width="2"/>
+
+    <!-- 山体 -->
+    <polygon points="20,500 160,120 400,60 640,120 820,500" fill="#8d6e63" stroke="#5d4037" stroke-width="2"/>
+    <polygon points="20,500 200,220 420,170 620,220 820,500" fill="#a1887f" stroke="#5d4037" stroke-width="2"/>
+
+    <!-- 河道 -->
+    <path d="M420 170 Q 460 280 420 400 Q 380 280 420 170" fill="url(#riverGrad)" class="a-flow"/>
+    <text x="395" y="300" fill="#fff" font-size="12" font-weight="900">浑浊河水</text>
+
+    <!-- 危险区：山谷河道 -->
+    <polygon points="360,170 420,100 480,170 440,250 400,250" fill="rgba(229,62,62,.25)" stroke="#e53e3e" stroke-width="2" stroke-dasharray="6,4" class="danger-zone"/>
+    <text x="380" y="150" class="danger-label">危险区</text>
+    <text x="360" y="265" class="item-label">山谷河道（泥石流通道）</text>
+
+    <!-- 危险区：松散陡坡 -->
+    <polygon points="640,120 720,80 780,140 700,200" fill="rgba(229,62,62,.25)" stroke="#e53e3e" stroke-width="2" stroke-dasharray="6,4" class="danger-zone"/>
+    <text x="680" y="110" class="danger-label" style="font-size:12px">危险区</text>
+    <text x="660" y="215" class="item-label">松散陡坡（易崩塌）</text>
+
+    <!-- 泥土下滑 -->
+    <path d="M500 120 L 530 180 L 510 190 L 540 240" fill="#8d6e63" opacity="0.8" class="a-float"/>
+    <text x="510" y="260" class="danger-label" style="font-size:12px">泥土下滑</text>
+
+    <!-- 安全区：左侧高地 -->
+    <circle cx="100" cy="100" r="50" class="safe-zone interactive" data-opt="left"/>
+    <text x="75" y="95" class="safe-label" style="font-size:13px">安全区</text>
+    <text x="55" y="120" class="item-label">左侧高地山坡（撤离点）</text>
+
+    <!-- 安全区：右侧高地 -->
+    <circle cx="740" cy="90" r="50" class="safe-zone interactive" data-opt="right"/>
+    <text x="715" y="85" class="safe-label" style="font-size:13px">安全区</text>
+    <text x="695" y="110" class="item-label">右侧高地山坡（撤离点）</text>
+
+    <!-- 木屋 -->
+    <rect x="370" y="380" width="50" height="35" fill="#dd6b20" stroke="#c05621" stroke-width="2" class="interactive" data-opt="drop"/>
+    <polygon points="370,380 395,360 420,380" fill="#c05621"/>
+    <text x="370" y="430" class="item-label">木屋（需丢弃重物撤离）</text>
+
+    <!-- 山路 -->
+    <path d="M250 420 Q 300 380 350 400" fill="none" stroke="#718096" stroke-width="4" stroke-dasharray="8,4"/>
+    <text x="260" y="410" class="item-label">山路</text>
+
+    <!-- 人物 -->
+    <g data-char="1" transform="translate(420,330)">
+      <circle cx="10" cy="8" r="8" fill="#fbd38d"/>
+      <rect x="5" y="16" width="10" height="20" fill="#e53e3e" rx="2"/>
+      <line x1="3" y1="20" x2="-6" y2="26" stroke="#2d3748" stroke-width="2"/>
+      <line x1="17" y1="20" x2="26" y2="26" stroke="#2d3748" stroke-width="2"/>
+      <rect x="3" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+      <rect x="12" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+    </g>
+    <text x="400" y="365" class="char-label">人物（向两侧高地撤离）</text>
+  `;
+}
+
+/* ===== ⑤ 雷电户外沙盘 ===== */
+function renderLightning(svg) {
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#2c5282"/>
+        <stop offset="100%" stop-color="#1a365d"/>
+      </linearGradient>
+    </defs>
+    <rect x="20" y="20" width="800" height="480" fill="url(#skyGrad)" stroke="#cbd5e0" stroke-width="2"/>
+
+    <!-- 闪电闪光 -->
+    <path d="M420 60 L 390 160 L 430 160 L 400 260 L 440 260" stroke="#faf089" stroke-width="4" fill="none" class="a-flash"/>
+    <circle cx="160" cy="140" r="3" fill="#fff" class="a-flash" style="animation-delay:0.3s"/>
+    <circle cx="680" cy="100" r="2" fill="#fff" class="a-flash" style="animation-delay:0.6s"/>
+    <circle cx="320" cy="80" r="2" fill="#fff" class="a-flash" style="animation-delay:0.9s"/>
+    <text x="380" y="290" fill="#faf089" font-size="12" font-weight="900">闪电闪光特效</text>
+
+    <!-- 危险区：大树 -->
+    <path d="M120 450 Q 115 320 125 180" fill="none" stroke="#2f855a" stroke-width="8" stroke-linecap="round"/>
+    <ellipse cx="120" cy="160" rx="40" ry="55" fill="#48bb78"/>
+    <circle cx="120" cy="240" r="40" fill="rgba(229,62,62,.28)" stroke="#e53e3e" stroke-width="2" stroke-dasharray="6,4" class="danger-zone interactive" data-opt="tree"/>
+    <text x="95" y="235" class="danger-label">危险区</text>
+    <text x="80" y="295" class="item-label">大树（地面突出物易遭雷击）</text>
+
+    <!-- 危险区：铁塔 -->
+    <rect x="520" y="160" width="12" height="280" fill="#4a5568"/>
+    <rect x="514" y="148" width="24" height="16" fill="#4a5568"/>
+    <rect x="508" y="132" width="36" height="20" fill="#4a5568"/>
+    <circle cx="526" cy="280" r="38" fill="rgba(229,62,62,.28)" stroke="#e53e3e" stroke-width="2" stroke-dasharray="6,4" class="danger-zone interactive" data-opt="tower"/>
+    <text x="500" y="245" class="danger-label">危险区</text>
+    <text x="485" y="340" class="item-label">铁塔/电线杆（天然引雷体）</text>
+
+    <!-- 危险区：水塘 -->
+    <ellipse cx="720" cy="420" rx="90" ry="25" fill="#4299e1" opacity="0.5"/>
+    <circle cx="720" cy="405" r="32" fill="rgba(229,62,62,.28)" stroke="#e53e3e" stroke-width="2" stroke-dasharray="6,4" class="danger-zone interactive" data-opt="water"/>
+    <text x="700" y="400" class="danger-label">危险区</text>
+    <text x="675" y="460" class="item-label">水塘（水导电+电流扩散）</text>
+
+    <!-- 安全区：密闭汽车 -->
+    <rect x="340" y="360" width="130" height="55" fill="#718096" stroke="#4a5568" stroke-width="2" rx="6"/>
+    <rect x="350" y="370" width="35" height="35" fill="#4299e1" rx="3"/>
+    <rect x="395" y="370" width="65" height="35" fill="#a0aec0" rx="3"/>
+    <circle cx="385" cy="400" r="28" fill="rgba(56,161,105,.3)" stroke="#38a169" stroke-width="2" stroke-dasharray="6,4" class="safe-zone interactive" data-opt="car"/>
+    <text x="355" y="395" class="safe-label" style="font-size:12px">安全</text>
+    <text x="345" y="440" class="item-label">密闭汽车（法拉第笼效应）</text>
+
+    <!-- 安全区：低矮洼地蹲下 -->
+    <circle cx="240" cy="390" r="25" fill="rgba(56,161,105,.3)" stroke="#38a169" stroke-width="2" stroke-dasharray="6,4" class="safe-zone interactive" data-opt="crouch"/>
+    <text x="220" y="385" class="safe-label" style="font-size:11px">安全</text>
+    <text x="200" y="435" class="item-label">低矮洼地（双脚并拢蹲下）</text>
+
+    <!-- 人物 -->
+    <g data-char="1" transform="translate(260,340)">
+      <circle cx="10" cy="8" r="8" fill="#fbd38d"/>
+      <rect x="5" y="16" width="10" height="20" fill="#4299e1" rx="2"/>
+      <rect x="3" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+      <rect x="12" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+    </g>
+    <text x="245" y="375" class="char-label">人物（远离高危点）</text>
+  `;
+}
+
+/* ===== ⑥ 高温寒潮双分栏沙盘 ===== */
+function renderHeatCold(svg) {
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#faf089"/>
+        <stop offset="100%" stop-color="#f6ad55"/>
+      </radialGradient>
+      <linearGradient id="heatGround" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#f6e05e"/>
+        <stop offset="100%" stop-color="#ed8936"/>
+      </linearGradient>
+      <linearGradient id="coldGround" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#e2e8f0"/>
+        <stop offset="100%" stop-color="#a0aec0"/>
+      </linearGradient>
+    </defs>
+    <rect x="20" y="20" width="800" height="480" fill="#f0f4f8" stroke="#cbd5e0" stroke-width="2"/>
+
+    <!-- ===== 左侧：高温栏 ===== -->
+    <rect x="25" y="25" width="390" height="470" fill="#fff5e6" stroke="#f6ad55" stroke-width="2" rx="6"/>
+    <text x="35" y="50" fill="#c05621" font-size="15" font-weight="900">☀️ 高温热浪场景</text>
+
+    <!-- 烈日 -->
+    <circle cx="350" cy="80" r="45" fill="url(#sunGrad)" class="a-float"/>
+    <line x1="400" y1="80" x2="420" y2="80" stroke="#faf089" stroke-width="3"/>
+    <line x1="300" y1="80" x2="280" y2="80" stroke="#faf089" stroke-width="3"/>
+    <line x1="350" y1="30" x2="350" y2="10" stroke="#faf089" stroke-width="3"/>
+    <line x1="350" y1="130" x2="350" y2="150" stroke="#faf089" stroke-width="3"/>
+    <text x="320" y="145" fill="#c05621" font-size="11" font-weight="900">烈日暴晒</text>
+
+    <!-- 地面 -->
+    <rect x="30" y="360" width="380" height="130" fill="url(#heatGround)"/>
+
+    <!-- 危险区：暴晒空地 -->
+    <rect x="50" y="320" width="120" height="60" fill="#e53e3e" opacity="0.35" class="danger-zone interactive" data-opt="sun"/>
+    <text x="60" y="315" class="danger-label">危险区</text>
+    <text x="55" y="400" class="item-label">暴晒空地（易中暑）</text>
+
+    <!-- 安全区：树荫 -->
+    <path d="M80 360 Q 110 250 140 360" fill="#2f855a"/>
+    <ellipse cx="110" cy="250" rx="55" ry="70" fill="#48bb78"/>
+    <circle cx="110" cy="310" r="55" fill="rgba(56,161,105,.3)" stroke="#38a169" stroke-width="2" stroke-dasharray="6,4" class="safe-zone interactive" data-opt="shade"/>
+    <text x="90" y="305" class="safe-label">安全区</text>
+    <text x="70" y="380" class="item-label">树荫（阻挡直射阳光）</text>
+
+    <!-- 安全区：遮阳棚 -->
+    <ellipse cx="280" cy="330" rx="70" ry="20" fill="#4a5568" stroke="#2d3748" stroke-width="2"/>
+    <rect x="250" y="330" width="10" height="35" fill="#4a5568"/>
+    <rect x="300" y="330" width="10" height="35" fill="#4a5568"/>
+    <circle cx="280" cy="345" r="35" fill="rgba(56,161,105,.3)" stroke="#38a169" stroke-width="2" stroke-dasharray="6,4" class="safe-zone interactive" data-opt="shade"/>
+    <text x="260" y="340" class="safe-label" style="font-size:12px">安全</text>
+    <text x="245" y="385" class="item-label">遮阳棚（人工避暑点）</text>
+
+    <!-- 遮阳帽 -->
+    <ellipse cx="200" cy="410" rx="35" ry="8" fill="#805ad5" class="interactive" data-opt="hat"/>
+    <text x="185" y="430" class="item-label">遮阳帽（防暑物资）</text>
+
+    <!-- 饮用水 -->
+    <rect x="340" y="395" width="30" height="42" fill="#63b3ed" rx="5" class="interactive" data-opt="hat"/>
+    <rect x="345" y="400" width="20" height="32" fill="#90cdf4" rx="3"/>
+    <text x="330" y="450" class="item-label">饮用水（补水物资）</text>
+
+    <!-- 人物 -->
+    <g data-char="1" transform="translate(180,350)">
+      <circle cx="10" cy="8" r="8" fill="#fbd38d"/>
+      <rect x="5" y="16" width="10" height="20" fill="#ed8936" rx="2"/>
+      <rect x="3" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+      <rect x="12" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+    </g>
+    <text x="165" y="385" class="char-label">人物（需避暑）</text>
+
+    <!-- ===== 右侧：寒潮栏 ===== -->
+    <rect x="425" y="25" width="390" height="470" fill="#f0f7ff" stroke="#63b3ed" stroke-width="2" rx="6"/>
+    <text x="435" y="50" fill="#2b6cb0" font-size="15" font-weight="900">❄️ 寒潮低温场景</text>
+
+    <!-- 地面 -->
+    <rect x="430" y="360" width="380" height="130" fill="url(#coldGround)"/>
+
+    <!-- 危险区：结冰路面 -->
+    <rect x="520" y="370" width="110" height="45" fill="#cbd5e0" opacity="0.7" class="danger-zone interactive" data-opt="ice"/>
+    <text x="530" y="365" class="danger-label">危险区</text>
+    <text x="525" y="435" class="item-label">结冰路面（摩擦极低易滑倒）</text>
+
+    <!-- 危险区：风口 -->
+    <rect x="450" y="140" width="90" height="55" fill="#e53e3e" opacity="0.3" class="danger-zone interactive" data-opt="wind"/>
+    <text x="460" y="135" class="danger-label">危险区</text>
+    <text x="450" y="210" class="item-label">风口（风寒效应加剧失温）</text>
+
+    <!-- 冰棱 -->
+    <line x1="600" y1="360" x2="600" y2="310" stroke="#cbd5e0" stroke-width="5"/>
+    <polygon points="596,310 600,285 604,310" fill="#cbd5e0"/>
+    <line x1="640" y1="360" x2="640" y2="290" stroke="#cbd5e0" stroke-width="4"/>
+    <polygon points="636,290 640,265 644,290" fill="#cbd5e0"/>
+    <text x="580" y="280" fill="#4a5568" font-size="11" font-weight="900">屋檐冰棱</text>
+
+    <!-- 安全区：室内保暖房屋 -->
+    <rect x="660" y="160" width="130" height="130" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2"/>
+    <rect x="670" y="170" width="55" height="45" fill="#4299e1" rx="3"/>
+    <rect x="735" y="170" width="50" height="45" fill="#63b3ed" rx="3"/>
+    <rect x="670" y="225" width="110" height="55" fill="#f7fafc" rx="3"/>
+    <rect x="715" y="225" width="20" height="55" fill="#ed8936" rx="2"/>
+    <circle cx="725" cy="260" r="7" fill="#4a5568"/>
+    <circle cx="725" cy="220" r="40" fill="rgba(56,161,105,.3)" stroke="#38a169" stroke-width="2" stroke-dasharray="6,4" class="safe-zone interactive" data-opt="house"/>
+    <text x="700" y="215" class="safe-label" style="font-size:12px">安全区</text>
+    <text x="675" y="305" class="item-label">室内保暖房屋（隔绝寒风）</text>
+
+    <!-- 厚外套 -->
+    <rect x="480" y="410" width="55" height="15" fill="#805ad5" rx="3" class="interactive" data-opt="coat"/>
+    <text x="480" y="440" class="item-label">厚外套（保暖物资）</text>
+
+    <!-- 防滑垫 -->
+    <rect x="670" y="410" width="55" height="15" fill="#48bb78" rx="3" class="interactive" data-opt="coat"/>
+    <text x="665" y="440" class="item-label">防滑垫（防滑物资）</text>
+
+    <!-- 人物 -->
+    <g data-char="1" transform="translate(570,330)">
+      <circle cx="10" cy="8" r="8" fill="#fbd38d"/>
+      <rect x="5" y="16" width="10" height="20" fill="#4299e1" rx="2"/>
+      <rect x="3" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+      <rect x="12" y="36" width="5" height="12" fill="#2d3748" rx="1"/>
+    </g>
+    <text x="555" y="365" class="char-label">人物（需防寒防滑）</text>
+  `;
+}
+
+// ============================================================
+//  交互逻辑 - 使用事件代理，解决SVG元素被遮挡点不动的问题
+// ============================================================
+
+let isDragging = false;
+let dragChar = null;
+let dragOffset = { x: 0, y: 0 };
+
+// 在SVG上使用事件代理，点击任何元素都向上查找带data-opt的祖先
+function setupSVGClick() {
+  const svg = document.getElementById('sceneCanvas');
+  
+  svg.addEventListener('mousedown', function(e) {
+    let target = e.target;
+    while (target && target !== svg) {
+      if (target.hasAttribute && target.hasAttribute('data-char')) {
+        startDrag(target, e);
+        return;
+      }
+      target = target.parentElement;
+    }
+    
+    let optEl = e.target.closest('[data-opt]');
+    if (optEl) {
+      handleOption(optEl.getAttribute('data-opt'));
+    }
+  });
+  
+  svg.addEventListener('mousemove', function(e) {
+    if (isDragging && dragChar) {
+      doDrag(e);
+    }
+  });
+  
+  svg.addEventListener('mouseup', function(e) {
+    if (isDragging && dragChar) {
+      endDrag(e);
+    }
+  });
+  
+  svg.addEventListener('mouseleave', function() {
+    if (isDragging && dragChar) {
+      endDrag();
+    }
+  });
+  
+  svg.addEventListener('touchstart', function(e) {
+    let touch = e.touches[0];
+    let target = touch.target;
+    while (target && target !== svg) {
+      if (target.hasAttribute && target.hasAttribute('data-char')) {
+        startDrag(target, touch);
+        e.preventDefault();
+        return;
+      }
+      target = target.parentElement;
+    }
+  });
+  
+  svg.addEventListener('touchmove', function(e) {
+    if (isDragging && dragChar) {
+      let touch = e.touches[0];
+      doDrag(touch);
+      e.preventDefault();
+    }
+  });
+  
+  svg.addEventListener('touchend', function(e) {
+    if (isDragging && dragChar) {
+      endDrag();
+    }
+  });
+}
+
+function startDrag(el, e) {
+  dragChar = el;
+  isDragging = true;
+  
+  const svg = document.getElementById('sceneCanvas');
+  const rect = svg.getBoundingClientRect();
+  const scaleX = svg.viewBox.baseVal.width / rect.width;
+  const scaleY = svg.viewBox.baseVal.height / rect.height;
+  
+  const mouseX = (e.clientX - rect.left) * scaleX;
+  const mouseY = (e.clientY - rect.top) * scaleY;
+  
+  const transform = el.getAttribute('transform');
+  const match = transform && transform.match(/translate\(([^,]+),([^)]+)\)/);
+  const charX = match ? parseFloat(match[1]) : 0;
+  const charY = match ? parseFloat(match[2]) : 0;
+  
+  dragOffset.x = mouseX - charX;
+  dragOffset.y = mouseY - charY;
+  
+  el.style.cursor = 'grabbing';
+  el.style.opacity = '0.7';
+}
+
+function doDrag(e) {
+  const svg = document.getElementById('sceneCanvas');
+  const rect = svg.getBoundingClientRect();
+  const scaleX = svg.viewBox.baseVal.width / rect.width;
+  const scaleY = svg.viewBox.baseVal.height / rect.height;
+  
+  const mouseX = (e.clientX - rect.left) * scaleX;
+  const mouseY = (e.clientY - rect.top) * scaleY;
+  
+  const newX = mouseX - dragOffset.x;
+  const newY = mouseY - dragOffset.y;
+  
+  dragChar.setAttribute('transform', `translate(${newX},${newY})`);
+}
+
+function endDrag(e) {
+  isDragging = false;
+  dragChar.style.cursor = 'grab';
+  dragChar.style.opacity = '1';
+  
+  const transform = dragChar.getAttribute('transform');
+  const match = transform && transform.match(/translate\(([^,]+),([^)]+)\)/);
+  const charX = match ? parseFloat(match[1]) + 15 : 0;
+  const charY = match ? parseFloat(match[2]) + 20 : 0;
+  
+  const svg = document.getElementById('sceneCanvas');
+  const zones = svg.querySelectorAll('[data-opt]');
+  
+  let hitZone = null;
+  for (let zone of zones) {
+    const zoneRect = zone.getBBox();
+    if (charX >= zoneRect.x && charX <= zoneRect.x + zoneRect.width &&
+        charY >= zoneRect.y && charY <= zoneRect.y + zoneRect.height) {
+      hitZone = zone;
+      break;
+    }
+  }
+  
+  if (hitZone) {
+    handleOption(hitZone.getAttribute('data-opt'));
+  }
+  
+  dragChar = null;
+}
+
+function moveChar(dx, dy) {
+  const svg = document.getElementById('sceneCanvas');
+  const charEl = svg.querySelector('[data-char]');
+  if (!charEl) return;
+  
+  const transform = charEl.getAttribute('transform');
+  const match = transform && transform.match(/translate\(([^,]+),([^)]+)\)/);
+  let x = match ? parseFloat(match[1]) : 0;
+  let y = match ? parseFloat(match[2]) : 0;
+  
+  x += dx;
+  y += dy;
+  
+  x = Math.max(20, Math.min(800, x));
+  y = Math.max(20, Math.min(480, y));
+  
+  charEl.setAttribute('transform', `translate(${x},${y})`);
+  
+  checkHitZone(x + 10, y + 15);
+}
+
+let lastHitZoneId = null;
+let zoneCache = null;
+
+function cacheZones() {
+  const svg = document.getElementById('sceneCanvas');
+  const zones = svg.querySelectorAll('[data-opt]');
+  zoneCache = [];
+  zones.forEach(zone => {
+    const bbox = zone.getBBox();
+    zoneCache.push({
+      id: zone.getAttribute('data-opt'),
+      x: bbox.x,
+      y: bbox.y,
+      width: bbox.width,
+      height: bbox.height
+    });
+  });
+}
+
+function checkHitZone(charX, charY) {
+  if (!zoneCache) cacheZones();
+  
+  let currentHit = null;
+  for (let zone of zoneCache) {
+    if (charX >= zone.x && charX <= zone.x + zone.width &&
+        charY >= zone.y && charY <= zone.y + zone.height) {
+      currentHit = zone.id;
+      break;
+    }
+  }
+  
+  if (currentHit && currentHit !== lastHitZoneId) {
+    lastHitZoneId = currentHit;
+    handleOption(currentHit);
+  } else if (!currentHit) {
+    lastHitZoneId = null;
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  switch(e.key) {
+    case 'ArrowUp':
+    case 'w':
+    case 'W':
+      e.preventDefault();
+      moveChar(0, -30);
+      break;
+    case 'ArrowDown':
+    case 's':
+    case 'S':
+      e.preventDefault();
+      moveChar(0, 30);
+      break;
+    case 'ArrowLeft':
+    case 'a':
+    case 'A':
+      e.preventDefault();
+      moveChar(-30, 0);
+      break;
+    case 'ArrowRight':
+    case 'd':
+    case 'D':
+      e.preventDefault();
+      moveChar(30, 0);
+      break;
+  }
+});
+
+function handleOption(optionId) {
+  const scene = SCENES[currentScene];
+  const step  = scene.steps[currentStep];
+  const opt   = step.options.find(o => o.id === optionId);
+  
+  if (!opt) {
+    showModal('error', '当前步骤暂不需要此操作，请按照下方步骤提示操作。');
+    return;
+  }
+
+  if (opt.correct) {
+    showModal('success', '【正确操作】' + opt.feedback.replace('【正确操作】',''));
+    stepHistory.push(currentStep);
+    if (opt.next >= 0 && opt.next < scene.steps.length) {
+      currentStep = opt.next;
+      updateStepBar();
+    }
+  } else {
+    showModal('error', '【错误操作】' + opt.feedback.replace('【错误操作】',''));
+  }
+}
+
+function showModal(type, text) {
+  const modal = document.getElementById('modal');
+  const box   = document.getElementById('modalBox');
+  const tag   = document.getElementById('modalTag');
+  const title = document.getElementById('modalTitle');
+  const body  = document.getElementById('modalText');
+  const btn   = document.getElementById('modalBtn');
+
+  box.className = 'modal-box ' + type;
+  if (type === 'success') {
+    tag.textContent = '✅ 正确操作';
+    title.textContent = '操作正确，进入下一步';
+    btn.style.background = '#38a169';
+  } else {
+    tag.textContent = '❌ 错误操作';
+    title.textContent = '危险！请重新选择';
+    btn.style.background = '#e53e3e';
+  }
+  body.textContent = text;
+  modal.classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+function prevStep() {
+  if (stepHistory.length > 0) {
+    currentStep = stepHistory.pop();
+    lastHitZoneId = null;
+    zoneCache = null;
+    updateStepBar();
+    renderScene();
+    cacheZones();
+  }
+}
+
+function resetScene() {
+  currentStep = 0;
+  stepHistory = [];
+  lastHitZoneId = null;
+  updateStepBar();
+  renderScene();
+}
+
+function showHint() {
+  const scene = SCENES[currentScene];
+  const step  = scene.steps[currentStep];
+  const correct = step.options.find(o => o.correct);
+  if (correct) {
+    showModal('success', '💡 提示：请选择 "' + correct.text + '"');
+  }
+}
+
+window.onload = function() {
+  setupSVGClick();
+  init();
+};
+</script>
+</body>
+</html>

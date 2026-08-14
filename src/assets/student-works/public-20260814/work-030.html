@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消防安全科普网 - 公益安全宣传教育平台</title>
+    <style>
+:root {
+    --color-danger: #D32F2F;
+    --color-danger-light: #EF5350;
+    --color-danger-dark: #B71C1C;
+    --color-warning: #FF6F00;
+    --color-warning-light: #FFA726;
+    --color-safe: #00897B;
+    --color-safe-light: #26A69A;
+    --color-safe-dark: #00695C;
+    --color-bg: #FFFFFF;
+    --color-bg-gray: #F5F5F5;
+    --color-bg-dark: #263238;
+    --color-text: #212121;
+    --color-text-light: #757575;
+    --color-text-white: #FFFFFF;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-full: 9999px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --nav-height: 70px;
+    --container-width: 1200px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    line-height: 1.7;
+    padding-top: var(--nav-height);
+}
+@keyframes pulse-warning {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); transform: scale(1); }
+    50% { box-shadow: 0 0 0 15px rgba(211, 47, 47, 0); transform: scale(1.02); }
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+@keyframes bounce-in { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); } 70% { transform: scale(0.9); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes flame-flicker {
+    0%, 100% { transform: scaleY(1) scaleX(1); }
+    25% { transform: scaleY(1.1) scaleX(0.95); }
+    50% { transform: scaleY(0.95) scaleX(1.05); }
+    75% { transform: scaleY(1.05) scaleX(0.98); }
+}
+.reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.container { max-width: var(--container-width); margin: 0 auto; padding: 0 24px; }
+.navbar {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height);
+    background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%);
+    box-shadow: var(--shadow-md); z-index: 1000;
+}
+.navbar .container { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { display: flex; align-items: center; gap: 10px; color: var(--color-text-white); text-decoration: none; font-size: 1.5rem; font-weight: 700; transition: var(--transition); cursor: pointer; }
+.nav-logo:hover { transform: scale(1.03); }
+.logo-icon { font-size: 2rem; animation: flame-flicker 2s ease-in-out infinite; display: inline-block; }
+.nav-links { display: flex; gap: 8px; list-style: none; }
+.nav-links a {
+    color: var(--color-text-white); text-decoration: none; padding: 8px 16px; border-radius: var(--radius-sm);
+    font-weight: 500; position: relative; transition: var(--transition); cursor: pointer;
+}
+.nav-links a::after {
+    content: ''; position: absolute; bottom: 4px; left: 50%; width: 0; height: 2px;
+    background: var(--color-text-white); transition: var(--transition); transform: translateX(-50%);
+}
+.nav-links a:hover::after, .nav-links a.active::after { width: calc(100% - 32px); }
+.nav-links a:hover, .nav-links a.active { background: rgba(255,255,255,0.15); }
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+.hamburger span { width: 28px; height: 3px; background: var(--color-text-white); border-radius: 2px; transition: var(--transition); }
+.hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+.footer { background: var(--color-bg-dark); color: var(--color-text-white); padding: 40px 0 24px; margin-top: 80px; }
+.footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px; margin-bottom: 32px; }
+.footer-section h3 { font-size: 1.2rem; margin-bottom: 16px; color: var(--color-warning-light); }
+.footer-section p, .footer-section a { color: rgba(255,255,255,0.7); text-decoration: none; line-height: 2; transition: var(--transition); cursor: pointer; }
+.footer-section a:hover { color: var(--color-text-white); }
+.footer-bottom { text-align: center; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); font-size: 0.9rem; }
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 28px; border: none; border-radius: var(--radius-md); font-size: 1rem;
+    font-weight: 600; cursor: pointer; text-decoration: none; transition: var(--transition); font-family: inherit;
+}
+.btn-primary { background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%); color: var(--color-text-white); animation: pulse-warning 2s infinite; }
+.btn-primary:hover { transform: scale(1.05); box-shadow: var(--shadow-lg); animation: none; }
+.btn-secondary { background: linear-gradient(135deg, var(--color-safe) 0%, var(--color-safe-dark) 100%); color: var(--color-text-white); }
+.btn-secondary:hover { transform: scale(1.05); box-shadow: var(--shadow-lg); }
+.btn-outline { background: transparent; border: 2px solid var(--color-danger); color: var(--color-danger); }
+.btn-outline:hover { background: var(--color-danger); color: var(--color-text-white); }
+.page-header { background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-warning) 100%); color: var(--color-text-white); padding: 60px 0; text-align: center; position: relative; overflow: hidden; }
+.page-header::before { content: '🔥'; position: absolute; font-size: 200px; opacity: 0.1; top: -40px; right: -20px; animation: flame-flicker 3s ease-in-out infinite; }
+.page-header h1 { font-size: 2.5rem; margin-bottom: 12px; position: relative; z-index: 1; }
+.page-header p { font-size: 1.1rem; opacity: 0.9; position: relative; z-index: 1; }
+.card { background: var(--color-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 28px; transition: var(--transition); border: 1px solid rgba(0,0,0,0.05); }
+.card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px) scale(1.01); }
+.card-danger { border-left: 4px solid var(--color-danger); }
+.card-safe { border-left: 4px solid var(--color-safe); }
+.card-warning { border-left: 4px solid var(--color-warning); }
+.section { padding: 60px 0; }
+.section-gray { background: var(--color-bg-gray); }
+.section-title { text-align: center; font-size: 2rem; margin-bottom: 12px; color: var(--color-text); }
+.section-subtitle { text-align: center; color: var(--color-text-light); margin-bottom: 48px; font-size: 1.05rem; }
+.section-title .highlight { color: var(--color-danger); }
+.grid { display: grid; gap: 24px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.hero {
+    background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 50%, var(--color-warning) 100%);
+    color: var(--color-text-white); padding: 100px 0 80px; position: relative; overflow: hidden;
+    min-height: 500px; display: flex; align-items: center;
+}
+.hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); animation: pulse-warning 4s ease-in-out infinite; }
+.hero-content { position: relative; z-index: 1; max-width: 700px; }
+.hero h1 { font-size: 3.2rem; line-height: 1.2; margin-bottom: 20px; font-weight: 800; }
+.hero h1 .alert-blink { display: inline-block; animation: blink 1s ease-in-out infinite; }
+.hero p { font-size: 1.2rem; margin-bottom: 32px; opacity: 0.95; line-height: 1.8; }
+.hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+.hero-icon { position: absolute; right: 5%; top: 50%; transform: translateY(-50%); font-size: 200px; opacity: 0.2; animation: flame-flicker 2s ease-in-out infinite; z-index: 0; }
+.quick-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: -50px; position: relative; z-index: 10; }
+.quick-link-card { background: var(--color-bg); border-radius: var(--radius-lg); padding: 32px 20px; text-align: center; box-shadow: var(--shadow-md); text-decoration: none; color: var(--color-text); transition: var(--transition); cursor: pointer; }
+.quick-link-card:hover { transform: translateY(-8px) scale(1.03); box-shadow: var(--shadow-lg); }
+.quick-link-icon { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 16px; color: var(--color-text-white); }
+.quick-link-card:nth-child(1) .quick-link-icon { background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%); }
+.quick-link-card:nth-child(2) .quick-link-icon { background: linear-gradient(135deg, var(--color-warning) 0%, #E65100 100%); }
+.quick-link-card:nth-child(3) .quick-link-icon { background: linear-gradient(135deg, var(--color-safe) 0%, var(--color-safe-dark) 100%); }
+.quick-link-card:nth-child(4) .quick-link-icon { background: linear-gradient(135deg, #5C6BC0 0%, #283593 100%); }
+.quick-link-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+.quick-link-card p { font-size: 0.9rem; color: var(--color-text-light); }
+.carousel { position: relative; overflow: hidden; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--color-warning-light) 0%, var(--color-warning) 100%); min-height: 150px; }
+.carousel-track { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.carousel-slide { min-width: 100%; padding: 40px; color: var(--color-text-white); display: flex; align-items: center; gap: 24px; }
+.carousel-icon { font-size: 4rem; flex-shrink: 0; animation: blink 2s ease-in-out infinite; }
+.carousel-text h3 { font-size: 1.4rem; margin-bottom: 8px; }
+.carousel-text p { font-size: 1rem; opacity: 0.95; }
+.carousel-dots { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.carousel-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: var(--transition); border: none; }
+.carousel-dot.active { background: var(--color-text-white); width: 28px; border-radius: 5px; }
+.faq-list { display: flex; flex-direction: column; gap: 16px; max-width: 900px; margin: 0 auto; }
+.faq-item { background: var(--color-bg); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); overflow: hidden; transition: var(--transition); }
+.faq-item:hover { box-shadow: var(--shadow-md); }
+.faq-question {
+    width: 100%; padding: 20px 24px; background: linear-gradient(135deg, rgba(211,47,47,0.05) 0%, rgba(255,111,0,0.05) 100%);
+    border: none; text-align: left; font-size: 1.1rem; font-weight: 600; color: var(--color-text); cursor: pointer;
+    display: flex; align-items: center; gap: 16px; font-family: inherit; transition: var(--transition);
+}
+.faq-question:hover { background: linear-gradient(135deg, rgba(211,47,47,0.1) 0%, rgba(255,111,0,0.1) 100%); }
+.faq-icon { font-size: 1.5rem; flex-shrink: 0; }
+.faq-toggle { margin-left: auto; width: 28px; height: 28px; border-radius: 50%; background: var(--color-danger); color: var(--color-text-white); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; transition: var(--transition); flex-shrink: 0; }
+.faq-item.active .faq-toggle { transform: rotate(45deg); background: var(--color-safe); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; }
+.faq-item.active .faq-answer { max-height: 2000px; }
+.faq-answer-content { padding: 20px 24px; border-top: 1px solid rgba(0,0,0,0.05); }
+.faq-answer-content p { margin-bottom: 12px; line-height: 1.8; }
+.faq-answer-content p:last-child { margin-bottom: 0; }
+.faq-highlight { background: linear-gradient(135deg, rgba(255,111,0,0.1) 0%, rgba(211,47,47,0.1) 100%); padding: 16px; border-radius: var(--radius-sm); border-left: 3px solid var(--color-warning); margin-top: 12px; }
+.case-card { background: var(--color-bg); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); }
+.case-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: var(--shadow-lg); }
+.case-header { background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%); color: var(--color-text-white); padding: 24px; position: relative; }
+.case-header::after { content: '⚠️'; position: absolute; top: 16px; right: 20px; font-size: 2rem; opacity: 0.3; }
+.case-date { font-size: 0.9rem; opacity: 0.8; margin-bottom: 8px; }
+.case-title { font-size: 1.3rem; font-weight: 700; }
+.case-body { padding: 24px; }
+.case-section { margin-bottom: 20px; }
+.case-section:last-child { margin-bottom: 0; }
+.case-label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; padding: 4px 12px; border-radius: var(--radius-full); }
+.case-label.danger { background: rgba(211,47,47,0.1); color: var(--color-danger); }
+.case-label.warning { background: rgba(255,111,0,0.1); color: var(--color-warning); }
+.case-label.safe { background: rgba(0,137,123,0.1); color: var(--color-safe); }
+.case-section p { color: var(--color-text); line-height: 1.8; padding-left: 4px; }
+.quiz-container { max-width: 800px; margin: 0 auto; }
+.quiz-progress { background: var(--color-bg-gray); border-radius: var(--radius-full); height: 12px; margin-bottom: 32px; overflow: hidden; }
+.quiz-progress-bar { height: 100%; background: linear-gradient(90deg, var(--color-safe) 0%, var(--color-safe-light) 100%); border-radius: var(--radius-full); transition: width 0.5s ease-out; }
+.quiz-card { background: var(--color-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 40px; }
+.quiz-question-number { display: inline-block; background: var(--color-safe); color: var(--color-text-white); padding: 6px 16px; border-radius: var(--radius-full); font-weight: 600; font-size: 0.9rem; margin-bottom: 20px; }
+.quiz-question { font-size: 1.3rem; font-weight: 600; margin-bottom: 28px; line-height: 1.6; }
+.quiz-options { display: flex; flex-direction: column; gap: 12px; }
+.quiz-option {
+    padding: 16px 20px; border: 2px solid #E0E0E0; border-radius: var(--radius-md); background: var(--color-bg);
+    cursor: pointer; font-size: 1rem; text-align: left; font-family: inherit; transition: var(--transition);
+    display: flex; align-items: center; gap: 12px;
+}
+.quiz-option:hover:not(.disabled) { border-color: var(--color-safe); background: rgba(0,137,123,0.05); transform: translateX(4px); }
+.quiz-option.correct { border-color: var(--color-safe); background: rgba(0,137,123,0.1); color: var(--color-safe-dark); }
+.quiz-option.wrong { border-color: var(--color-danger); background: rgba(211,47,47,0.1); color: var(--color-danger-dark); }
+.quiz-option.disabled { cursor: not-allowed; opacity: 0.7; }
+.option-letter { width: 32px; height: 32px; border-radius: 50%; background: var(--color-bg-gray); display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; transition: var(--transition); }
+.quiz-option.correct .option-letter { background: var(--color-safe); color: white; }
+.quiz-option.wrong .option-letter { background: var(--color-danger); color: white; }
+.quiz-explanation { margin-top: 24px; padding: 20px; border-radius: var(--radius-md); background: var(--color-bg-gray); border-left: 4px solid var(--color-safe); animation: slide-up 0.4s ease-out; }
+.quiz-explanation h4 { color: var(--color-safe); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.quiz-next-btn { margin-top: 24px; width: 100%; }
+.quiz-result { text-align: center; padding: 20px 0; }
+.result-score-circle { width: 180px; height: 180px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; animation: bounce-in 0.6s ease-out; }
+.result-score-circle.excellent { background: linear-gradient(135deg, var(--color-safe) 0%, var(--color-safe-light) 100%); color: white; }
+.result-score-circle.good { background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-light) 100%); color: white; }
+.result-score-circle.need-work { background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-light) 100%); color: white; }
+.result-score { font-size: 3.5rem; font-weight: 800; line-height: 1; }
+.result-score-label { font-size: 1rem; opacity: 0.9; }
+.result-title { font-size: 1.8rem; margin-bottom: 12px; }
+.result-message { color: var(--color-text-light); font-size: 1.1rem; margin-bottom: 32px; }
+.result-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.steps-container { max-width: 800px; margin: 0 auto; position: relative; }
+.steps-container::before { content: ''; position: absolute; left: 35px; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--color-danger) 0%, var(--color-warning) 50%, var(--color-safe) 100%); border-radius: 2px; }
+.step-item { display: flex; gap: 24px; margin-bottom: 32px; position: relative; }
+.step-item:last-child { margin-bottom: 0; }
+.step-number { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; color: white; flex-shrink: 0; position: relative; z-index: 1; }
+.step-item:nth-child(1) .step-number { background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%); animation: pulse-warning 2s infinite; }
+.step-item:nth-child(2) .step-number, .step-item:nth-child(3) .step-number { background: linear-gradient(135deg, var(--color-warning) 0%, #E65100 100%); }
+.step-item:nth-child(4) .step-number, .step-item:nth-child(5) .step-number { background: linear-gradient(135deg, var(--color-safe) 0%, var(--color-safe-dark) 100%); }
+.step-content { flex: 1; background: var(--color-bg); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-top: 8px; transition: var(--transition); }
+.step-content:hover { box-shadow: var(--shadow-md); transform: translateX(4px); }
+.step-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.step-desc { color: var(--color-text); line-height: 1.8; }
+.step-desc ul { margin-top: 8px; padding-left: 20px; }
+.step-desc li { margin-bottom: 6px; }
+.step-warning { background: rgba(211,47,47,0.08); border-left: 3px solid var(--color-danger); padding: 12px 16px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-top: 12px; font-size: 0.95rem; }
+.flowchart { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 40px auto; max-width: 500px; }
+.flow-node { padding: 16px 32px; border-radius: var(--radius-md); font-weight: 600; text-align: center; min-width: 240px; box-shadow: var(--shadow-sm); position: relative; }
+.flow-node.danger { background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-light) 100%); color: white; }
+.flow-node.decision { background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-light) 100%); color: white; transform: rotate(0deg); border-radius: var(--radius-sm); }
+.flow-node.safe { background: linear-gradient(135deg, var(--color-safe) 0%, var(--color-safe-light) 100%); color: white; }
+.flow-arrow { width: 3px; height: 30px; background: var(--color-text-light); position: relative; }
+.flow-arrow::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid var(--color-text-light); }
+.flow-branches { display: flex; gap: 40px; position: relative; width: 100%; justify-content: center; }
+.flow-branch { display: flex; flex-direction: column; align-items: center; }
+.flow-label { font-size: 0.9rem; color: var(--color-text-light); font-weight: 600; margin-bottom: 8px; background: var(--color-bg); padding: 4px 12px; border-radius: var(--radius-full); }
+.infographic { background: linear-gradient(135deg, var(--color-bg-gray) 0%, #ECEFF1 100%); border-radius: var(--radius-lg); padding: 40px; margin-top: 48px; }
+.infographic-title { text-align: center; font-size: 1.5rem; margin-bottom: 32px; color: var(--color-danger-dark); }
+.infographic-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; text-align: center; }
+.infographic-item { background: white; padding: 24px 12px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); transition: var(--transition); }
+.infographic-item:hover { transform: translateY(-6px) scale(1.03); box-shadow: var(--shadow-md); }
+.infographic-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+.infographic-text { font-weight: 600; font-size: 0.95rem; color: var(--color-text); }
+.about-content { max-width: 800px; margin: 0 auto; }
+.about-card { text-align: center; padding: 48px; }
+.about-logo { font-size: 5rem; margin-bottom: 16px; animation: flame-flicker 2s ease-in-out infinite; display: inline-block; }
+.about-card h2 { font-size: 2rem; margin-bottom: 16px; }
+.about-card p { color: var(--color-text-light); font-size: 1.05rem; line-height: 1.8; margin-bottom: 16px; }
+.feedback-form { max-width: 600px; margin: 32px auto 0; text-align: left; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-text); }
+.form-group input, .form-group textarea { width: 100%; padding: 12px 16px; border: 2px solid #E0E0E0; border-radius: var(--radius-md); font-size: 1rem; font-family: inherit; transition: var(--transition); }
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--color-safe); box-shadow: 0 0 0 3px rgba(0,137,123,0.1); }
+.form-group textarea { resize: vertical; min-height: 120px; }
+.back-to-top {
+    position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%);
+    color: white; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: var(--shadow-md);
+    opacity: 0; visibility: hidden; transform: translateY(20px); transition: var(--transition); z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+}
+.back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+.back-to-top:hover { transform: translateY(-4px) scale(1.1); box-shadow: var(--shadow-lg); }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+.stat-item { padding: 24px; }
+.stat-number { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-warning) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat-label { color: var(--color-text-light); font-size: 0.95rem; margin-top: 4px; }
+@media (max-width: 1024px) {
+    .quick-links { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 2.5rem; }
+    .hero-icon { font-size: 120px; right: 20px; }
+    .infographic-grid { grid-template-columns: repeat(3, 1fr); }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+    .nav-links { position: fixed; top: var(--nav-height); left: 0; right: 0; background: linear-gradient(135deg, var(--color-danger-dark) 0%, var(--color-danger) 100%); flex-direction: column; padding: 20px; gap: 4px; transform: translateX(-100%); transition: var(--transition); box-shadow: var(--shadow-lg); }
+    .nav-links.open { transform: translateX(0); }
+    .nav-links a { padding: 14px 20px; border-radius: var(--radius-sm); }
+    .hamburger { display: flex; }
+    .hero { padding: 60px 0 100px; min-height: auto; }
+    .hero h1 { font-size: 2rem; }
+    .hero p { font-size: 1rem; }
+    .hero-icon { display: none; }
+    .hero-buttons { flex-direction: column; }
+    .btn { width: 100%; }
+    .quick-links { grid-template-columns: 1fr; margin-top: -30px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: 1fr; }
+    .page-header { padding: 40px 0; }
+    .page-header h1 { font-size: 1.8rem; }
+    .section { padding: 40px 0; }
+    .section-title { font-size: 1.5rem; }
+    .quiz-card { padding: 24px; }
+    .quiz-question { font-size: 1.1rem; }
+    .carousel-slide { flex-direction: column; text-align: center; padding: 32px 20px; }
+    .steps-container::before { left: 25px; }
+    .step-number { width: 52px; height: 52px; font-size: 1.3rem; }
+    .step-content { padding: 16px; }
+    .infographic-grid { grid-template-columns: repeat(2, 1fr); }
+    .infographic { padding: 24px; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .stat-number { font-size: 2rem; }
+    .flow-branches { flex-direction: column; gap: 20px; align-items: center; }
+    .about-card { padding: 28px 20px; }
+    .back-to-top { bottom: 20px; right: 20px; width: 44px; height: 44px; font-size: 1.2rem; }
+    .container { padding: 0 16px; }
+}
+@media (max-width: 480px) {
+    .hero h1 { font-size: 1.6rem; }
+    .nav-logo { font-size: 1.2rem; }
+    .logo-icon { font-size: 1.5rem; }
+}
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a class="nav-logo" href="index.html">
+                <span class="logo-icon">🔥</span>
+                <span>消防安全科普网</span>
+            </a>
+            <button class="hamburger" aria-label="菜单">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">首页</a></li>
+                <li><a href="knowledge.html">知识科普</a></li>
+                <li><a href="cases.html">案例警示</a></li>
+                <li><a href="quiz.html">互动问答</a></li>
+                <li><a href="guide.html">应急指南</a></li>
+                <li><a href="about.html">关于我们</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-icon">🧯</div>
+            <div class="container">
+                <div class="hero-content">
+                    <h1>
+                        <span class="alert-blink">⚠️</span>
+                        消防安全<br>生命至上
+                    </h1>
+                    <p>普及消防知识，增强防火意识，掌握逃生技能。<br>让每一个人都成为自己和家人的「安全守护者」。</p>
+                    <div class="hero-buttons">
+                        <a href="knowledge.html" class="btn btn-primary">开始学习 📚</a>
+                        <a href="quiz.html" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.5);">参与测试 🎯</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="container" style="margin-top: -40px; position: relative; z-index: 10;">
+            <div class="quick-links">
+                <a href="knowledge.html" class="quick-link-card">
+                    <div class="quick-link-icon">📖</div>
+                    <h3>消防知识</h3>
+                    <p>学习防火、灭火基础常识</p>
+                </a>
+                <a href="cases.html" class="quick-link-card">
+                    <div class="quick-link-icon">⚠️</div>
+                    <h3>案例警示</h3>
+                    <p>真实火灾案例深度分析</p>
+                </a>
+                <a href="quiz.html" class="quick-link-card">
+                    <div class="quick-link-icon">🧠</div>
+                    <h3>互动问答</h3>
+                    <p>答题测试你的消防知识</p>
+                </a>
+                <a href="guide.html" class="quick-link-card">
+                    <div class="quick-link-icon">🚨</div>
+                    <h3>应急指南</h3>
+                    <p>火灾逃生正确操作流程</p>
+                </a>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">火灾<span class="highlight">警示数据</span></h2>
+                <p class="section-subtitle">数据来自国家消防救援局公开统计</p>
+                <div class="stats reveal">
+                    <div class="stat-item">
+                        <div class="stat-number">70+</div>
+                        <div class="stat-label">万起/年 火灾报告</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">2000+</div>
+                        <div class="stat-label">人/年 因火伤亡</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">119</div>
+                        <div class="stat-label">火警电话请牢记</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">80%</div>
+                        <div class="stat-label">人为因素引发火灾</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section section-gray">
+            <div class="container">
+                <h2 class="section-title">安全<span class="highlight">提示轮播</span></h2>
+                <p class="section-subtitle">这些安全知识关键时刻能救命</p>
+                <div class="carousel reveal">
+                    <div class="carousel-track">
+                        <div class="carousel-slide">
+                            <div class="carousel-icon">🚪</div>
+                            <div class="carousel-text">
+                                <h3>保持通道畅通</h3>
+                                <p>消防通道是生命通道，严禁占用、堵塞、封闭疏散通道、安全出口和消防车通道。</p>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="carousel-icon">🔌</div>
+                            <div class="carousel-text">
+                                <h3>安全用电用气</h3>
+                                <p>离家前检查电源、气源是否关闭；不私拉乱接电线，不超负荷用电，及时更换老化线路。</p>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="carousel-icon">🧯</div>
+                            <div class="carousel-text">
+                                <h3>配备消防器材</h3>
+                                <p>家中建议配备灭火器、独立烟感报警器、逃生面罩、手电筒等消防器材，并定期检查。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-dots"></div>
+                </div>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">消防<span class="highlight">四懂四会</span></h2>
+                <p class="section-subtitle">每个公民都应掌握的消防安全基本能力</p>
+                <div class="grid grid-2" style="max-width: 900px; margin: 0 auto;">
+                    <div class="card card-danger reveal">
+                        <h3 style="color: #D32F2F; margin-bottom: 16px;">📋 四懂</h3>
+                        <ul style="padding-left: 20px; line-height: 2.2;">
+                            <li><strong>懂本岗位的火灾危险性</strong></li>
+                            <li><strong>懂预防火灾的措施</strong></li>
+                            <li><strong>懂扑救火灾的方法</strong></li>
+                            <li><strong>懂逃生疏散的方法</strong></li>
+                        </ul>
+                    </div>
+                    <div class="card card-safe reveal">
+                        <h3 style="color: #00897B; margin-bottom: 16px;">🎯 四会</h3>
+                        <ul style="padding-left: 20px; line-height: 2.2;">
+                            <li><strong>会使用消防器材</strong></li>
+                            <li><strong>会报火警（拨打119）</strong></li>
+                            <li><strong>会扑救初起火灾</strong></li>
+                            <li><strong>会组织疏散逃生</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section section-gray">
+            <div class="container" style="text-align: center;">
+                <h2 class="section-title">准备好开始学习了吗？</h2>
+                <p class="section-subtitle">花10分钟学习，可能在关键时刻挽救生命</p>
+                <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                    <a href="knowledge.html" class="btn btn-primary">进入知识科普 📖</a>
+                    <a href="guide.html" class="btn btn-secondary">查看应急指南 🚨</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🔥 消防安全科普网</h3>
+                    <p>普及消防知识，共建平安家园。<br>让安全意识深入每一个人的心中。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速导航</h3>
+                    <p><a href="index.html">首页</a></p>
+                    <p><a href="knowledge.html">知识科普</a></p>
+                    <p><a href="cases.html">案例警示</a></p>
+                    <p><a href="quiz.html">互动问答</a></p>
+                </div>
+                <div class="footer-section">
+                    <h3>紧急联系</h3>
+                    <p>🚒 火警电话：<strong style="color: #FF6F00; font-size: 1.3rem;">119</strong></p>
+                    <p>🚑 急救电话：120</p>
+                    <p>🚔 报警电话：110</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 消防安全科普网 | 公益安全宣传教育平台 | 火警电话：119</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" aria-label="返回顶部">🚀</button>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    initNavigation();
+    initBackToTop();
+    initCarousel();
+    initScrollReveal();
+});
+
+function initNavigation() {
+    var hamburger = document.querySelector('.hamburger');
+    var navLinks = document.querySelector('.nav-links');
+    if (hamburger && navLinks) {
+        hamburger.addEventListener('click', function() {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+    }
+}
+
+function initBackToTop() {
+    var btn = document.querySelector('.back-to-top');
+    if (!btn) return;
+    window.addEventListener('scroll', function() {
+        btn.classList.toggle('visible', window.scrollY > 300);
+    });
+    btn.addEventListener('click', function() { window.scrollTo({top:0,behavior:'smooth'}); });
+}
+
+function initCarousel() {
+    var carousel = document.querySelector('.carousel');
+    if (!carousel) return;
+    var track = carousel.querySelector('.carousel-track');
+    var slides = carousel.querySelectorAll('.carousel-slide');
+    var dotsContainer = carousel.querySelector('.carousel-dots');
+    if (!track || slides.length === 0) return;
+    var currentIndex = 0;
+    var totalSlides = slides.length;
+    var autoPlayInterval;
+    if (dotsContainer) {
+        dotsContainer.innerHTML = '';
+        for (var i = 0; i < totalSlides; i++) {
+            var dot = document.createElement('button');
+            dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+            (function(idx) {
+                dot.addEventListener('click', function() { goToSlide(idx); resetAutoPlay(); });
+            })(i);
+            dotsContainer.appendChild(dot);
+        }
+    }
+    function goToSlide(index) {
+        currentIndex = index;
+        track.style.transform = 'translateX(-' + (currentIndex * 100) + '%)';
+        var dots = carousel.querySelectorAll('.carousel-dot');
+        dots.forEach(function(d, i) { d.classList.toggle('active', i === currentIndex); });
+    }
+    function nextSlide() { goToSlide((currentIndex + 1) % totalSlides); }
+    function startAutoPlay() { autoPlayInterval = setInterval(nextSlide, 4000); }
+    function resetAutoPlay() { clearInterval(autoPlayInterval); startAutoPlay(); }
+    carousel.addEventListener('mouseenter', function() { clearInterval(autoPlayInterval); });
+    carousel.addEventListener('mouseleave', startAutoPlay);
+    startAutoPlay();
+}
+
+function initScrollReveal() {
+    var revealElements = document.querySelectorAll('.reveal');
+    if (revealElements.length === 0) {
+        document.querySelectorAll('.card, .case-card, .quick-link-card, .step-item, .faq-item, .infographic-item, .stat-item').forEach(function(el) { el.classList.add('reveal'); });
+    }
+    revealElements = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry, idx) {
+                if (entry.isIntersecting) {
+                    setTimeout(function() { entry.target.classList.add('active'); }, idx * 60);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        revealElements.forEach(function(el) { observer.observe(el); });
+    } else {
+        revealElements.forEach(function(el) { el.classList.add('active'); });
+    }
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+{
+  "brand": {
+    "fullName": "新起点青少年人工智能",
+    "shortName": "新起点",
+    "serviceArea": "贵阳",
+    "domain": "https://www.xqd-ai.top/",
+    "coreService": "青少年人工智能应用培训及AI赛事相关培训与指导",
+    "description": "新起点青少年人工智能面向贵阳青少年提供AI应用学习、创作实践和AI赛事相关培训服务，涵盖AI认知、AI绘本、AI视频、AI智能体、Vibe Coding、机器学习、强化学习、计算机视觉等方向，展示真实课堂、学生作品、赛事信息与家长常见问题。"
+  },
+  "contact": {
+    "phones": ["18685447407"],
+    "wechatIds": [],
+    "wechatQrCode": "/assets/images/contact/wechat-qr.jpg",
+    "address": "南明区-花果园M区4号楼0813；云岩区-未来方舟友邻路中天中学楼下；观山湖区-印象城负一楼",
+    "campuses": [
+      { "area": "南明区", "address": "花果园M区4号楼0813" },
+      { "area": "云岩区", "address": "未来方舟友邻路中天中学楼下" },
+      { "area": "观山湖区", "address": "印象城负一楼" }
+    ],
+    "consultingHours": "",
+    "douyinId": "189843886",
+    "douyinUrl": "",
+    "douyinQrCode": "/assets/images/contact/douyin-qr.jpg",
+    "otherPlatforms": [],
+    "icpNumber": "",
+    "psbNumber": "",
+    "mapCoordinates": null
+  },
+  "seo": {
+    "homeTitle": "新起点青少年人工智能｜贵阳青少年AI应用培训与赛事指导",
+    "homeDescription": "新起点青少年人工智能面向贵阳青少年提供AI应用学习、创作实践和AI赛事相关培训服务，涵盖AI认知、AI绘本、AI视频、AI智能体、Vibe Coding、机器学习等方向，展示真实课堂、学生作品、赛事信息与家长常见问题。"
+  },
+  "navigation": [
+    { "text": "首页", "href": "/" },
+    { "text": "课程体系", "href": "/courses/" },
+    { "text": "真实案例", "href": "/cases/" },
+    { "text": "赛事指导", "href": "/competitions/" },
+    { "text": "学生作品", "href": "/works/" },
+    { "text": "荣誉与活动", "href": "/honors/" },
+    { "text": "贵阳AI问答", "href": "/questions/" },
+    { "text": "关于我们", "href": "/about/" }
+  ],
+  "courses": [
+    {
+      "id": "ai-creative",
+      "title": "AI 创意与表达",
+      "summary": "从AI认知到AI绘本、AI视频创作，在创意表达中理解AI能力边界",
+      "suitableFor": "对AI创作感兴趣，希望用AI进行创意表达的青少年",
+      "outcomes": ["AI认知理解", "AI绘本作品", "AI视频作品", "创意思维能力"]
+    },
+    {
+      "id": "ai-agent-vibe",
+      "title": "AI 智能体与 Vibe Coding",
+      "summary": "学习搭建AI智能体，掌握Vibe Coding全新创作范式，用自然语言驱动AI构建应用",
+      "suitableFor": "希望深入AI应用、想把自己的想法变成可运行应用的青少年",
+      "outcomes": ["AI智能体作品", "Vibe Coding能力", "应用创作经验", "问题解决能力"]
+    },
+    {
+      "id": "ai-advanced",
+      "title": "AI 技术进阶与赛事",
+      "summary": "深入机器学习、强化学习、计算机视觉方向，结合白名单赛事进行项目实战",
+      "suitableFor": "对AI技术有浓厚兴趣、希望参加AI相关竞赛的青少年",
+      "outcomes": ["AI技术理解", "赛事作品", "表达展示能力", "项目迭代经验"]
+    }
+  ],
+  "learningPath": [
+    { "step": 1, "title": "AI认知与创意体验", "description": "认识AI能力边界，通过趣味创作建立对AI的直观理解" },
+    { "step": 2, "title": "AI工具与创作实践", "description": "掌握AI绘本、AI视频等工具，在真实创作中学会与AI协作" },
+    { "step": 3, "title": "智能体与Vibe Coding", "description": "搭建AI智能体，用自然语言驱动AI构建应用实现想法" },
+    { "step": 4, "title": "项目迭代与作品表达", "description": "完整参与项目从构思到打磨的过程，学会展示讲解作品" },
+    { "step": 5, "title": "技术进阶或赛事训练", "description": "深入机器学习/计算机视觉方向，或选择赛事项目实战" }
+  ],
+  "faqHome": [
+    {
+      "question": "AI应用学习和传统电脑培训有什么区别？",
+      "answer": "传统电脑培训多侧重于软件操作或代码语法学习；而AI应用学习更注重理解AI能力边界、掌握与AI协作的方法、运用AI工具进行创意表达和问题解决。我们的课程以项目制创作为核心，让孩子在'用AI做东西'的过程中建立AI时代的思维方式。"
+    },
+    {
+      "question": "零基础能否开始学习？",
+      "answer": "完全可以。我们的课程体系从AI认知和趣味创作开始，不要求孩子有任何技术基础。老师会根据每个孩子的年龄和实际情况进行引导，从简单有趣的项目入手，让孩子在动手实践中逐步建立信心和能力。"
+    },
+    {
+      "question": "试听时家长应该观察什么？",
+      "answer": "建议家长观察：孩子是否真正参与到提问、制作、检查和修改的过程中；孩子是否对项目内容表现出兴趣；老师是否关注每个孩子的参与度；课堂氛围是否轻松而有秩序；项目是否适合孩子的当前水平。"
+    },
+    {
+      "question": "AI赛事指导包含哪些内容？",
+      "answer": "我们提供赛事信息整理、规则理解、选题指导、作品制作辅导、表达训练等服务。但需要说明的是：赛事时间、名单和要求以当期官方信息为准，我们不承诺参赛、获奖或升学结果。"
+    },
+    {
+      "question": "如何核验白名单赛事信息？",
+      "answer": "白名单赛事信息以教育部官网发布的当期《面向中小学生的全国性竞赛活动名单》为准。家长可以通过教育部官网查询，我们也会在赛事页面提供核验方法和信息来源说明。"
+    },
+    {
+      "question": "如何预约咨询和试听？",
+      "answer": "您可以拨打联系电话18685447407，或通过官网展示的抖音、微信二维码联系我们。咨询时请说明孩子的年龄、基础和兴趣方向，我们会根据实际情况沟通试听安排。"
+    }
+  ],
+  "cases": [],
+  "works": [],
+  "competitions": [],
+  "honors": []
+}

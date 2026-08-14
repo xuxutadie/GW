@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebP 转 PNG 无损转换器 - 新起点AI教育</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        accent: '#f59e0b',
+                        success: '#10b981',
+                        dark: '#0f172a',
+                        'dark-light': '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 20px rgba(0, 245, 255, 0.3)' },
+                            '100%': { boxShadow: '0 0 40px rgba(0, 245, 255, 0.6), 0 0 60px rgba(124, 58, 237, 0.3)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass {
+                background: rgba(18, 18, 42, 0.7);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .glass-light {
+                background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .text-gradient {
+                background: linear-gradient(135deg, #3b82f6, #8b5cf6, #f59e0b);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .bg-grid {
+                background-image: 
+                    linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+                background-size: 50px 50px;
+            }
+            .border-glow {
+                position: relative;
+            }
+            .border-glow::before {
+                content: '';
+                position: absolute;
+                inset: -2px;
+                background: linear-gradient(45deg, #00f5ff, #7c3aed, #f472b6, #00f5ff);
+                border-radius: inherit;
+                z-index: -1;
+                animation: borderRotate 4s linear infinite;
+                background-size: 400% 400%;
+            }
+            @keyframes borderRotate {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+            .drop-zone-active {
+                border-color: #00f5ff !important;
+                background: rgba(0, 245, 255, 0.1) !important;
+                transform: scale(1.02);
+            }
+            .progress-bar {
+                background: linear-gradient(90deg, #00f5ff, #7c3aed);
+                background-size: 200% 100%;
+                animation: shimmer 1.5s linear infinite;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-dark bg-grid text-white overflow-x-hidden">
+    <!-- 背景星空效果 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -top-48 -left-48 animate-float"></div>
+        <div class="absolute w-96 h-96 bg-purple-500/10 rounded-full blur-3xl -bottom-48 -right-48 animate-float" style="animation-delay: -3s;"></div>
+        <div class="absolute w-64 h-64 bg-amber-500/10 rounded-full blur-3xl top-1/3 left-1/3 animate-float" style="animation-delay: -1.5s;"></div>
+        <!-- 星星装饰 -->
+        <div class="absolute top-20 left-20 text-yellow-400/30 text-2xl animate-pulse">✦</div>
+        <div class="absolute top-40 right-32 text-yellow-400/20 text-xl animate-pulse" style="animation-delay: 0.5s;">✧</div>
+        <div class="absolute bottom-32 left-40 text-yellow-400/25 text-lg animate-pulse" style="animation-delay: 1s;">★</div>
+        <div class="absolute bottom-20 right-20 text-yellow-400/30 text-xl animate-pulse" style="animation-delay: 1.5s;">✦</div>
+    </div>
+
+    <div class="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
+        <!-- 品牌标识 -->
+        <div class="text-center mb-6">
+            <a href="https://xqd-ai.top" target="_blank" class="inline-flex items-center gap-3 px-5 py-2 glass rounded-full hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <i class="fa fa-star text-white text-lg"></i>
+                </div>
+                <span class="font-bold text-base">新起点 · 青少年人工智能培训中心</span>
+                <span class="px-2 py-0.5 bg-primary/20 text-primary text-xs rounded-full">AI教学工具</span>
+                <i class="fa fa-external-link text-gray-400 text-xs"></i>
+            </a>
+        </div>
+
+        <!-- 头部 -->
+        <header class="text-center mb-12">
+            <div class="inline-flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center animate-glow">
+                    <i class="fa fa-exchange text-2xl text-white"></i>
+                </div>
+                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-gradient">
+                    WebP 转 PNG
+                </h1>
+            </div>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto mb-2">
+                <span class="text-primary font-semibold">100% 无损转换</span> · 保留原始画质 · 文件只增不减 · AI教学专用工具
+            </p>
+            <p class="text-gray-500 text-sm italic">
+                ✨ 每一个孩子都是一颗闪亮的星星 ✨
+            </p>
+        </header>
+
+        <!-- 主要转换区域 -->
+        <div class="glass rounded-3xl p-8 mb-8 animate-glow">
+            <!-- 上传区域 -->
+            <div id="dropZone" class="border-2 border-dashed border-gray-600 rounded-2xl p-12 text-center transition-all duration-300 cursor-pointer hover:border-primary/50 hover:bg-white/5">
+                <div class="flex flex-col items-center">
+                    <div class="w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                        <i class="fa fa-cloud-upload text-4xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">拖拽 WebP 文件到这里</h3>
+                    <p class="text-gray-400 mb-4">或者点击选择文件</p>
+                    <button class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                        <i class="fa fa-file-image-o mr-2"></i>选择图片
+                    </button>
+                    <input type="file" id="fileInput" accept=".webp,image/webp" multiple class="hidden">
+                    <p class="text-sm text-gray-500 mt-4">支持批量上传 · 最大 50MB/文件 · 支持 Ctrl+V 粘贴</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 转换队列 -->
+        <div id="queueContainer" class="hidden">
+            <div class="glass rounded-3xl p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold flex items-center gap-2">
+                        <i class="fa fa-list-ul text-primary"></i>
+                        转换队列
+                    </h2>
+                    <button id="convertAllBtn" class="px-5 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                        <i class="fa fa-magic mr-2"></i>全部转换
+                    </button>
+                </div>
+                <div id="fileList" class="space-y-4">
+                    <!-- 文件项将动态插入 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 转换结果 -->
+        <div id="resultContainer" class="hidden">
+            <div class="glass rounded-3xl p-6">
+                <h2 class="text-xl font-semibold flex items-center gap-2 mb-6">
+                    <i class="fa fa-check-circle text-green-400"></i>
+                    转换完成
+                </h2>
+                <div id="resultList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 结果项将动态插入 -->
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="downloadAllBtn" class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl font-semibold hover:opacity-90 transition-opacity text-lg">
+                        <i class="fa fa-download mr-2"></i>下载全部 PNG
+                    </button>
+                    <button id="resetBtn" class="ml-4 px-8 py-3 glass-light rounded-xl font-semibold hover:bg-white/10 transition-colors text-lg">
+                        <i class="fa fa-refresh mr-2"></i>重新转换
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能特性 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div class="glass-light rounded-2xl p-6 text-center hover:scale-105 transition-transform">
+                <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                    <i class="fa fa-graduation-cap text-2xl text-blue-400"></i>
+                </div>
+                <h3 class="font-semibold text-lg mb-2">教学专用</h3>
+                <p class="text-gray-400 text-sm">专为AI教学设计，学生作品格式一键转换</p>
+            </div>
+            <div class="glass-light rounded-2xl p-6 text-center hover:scale-105 transition-transform">
+                <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                    <i class="fa fa-diamond text-2xl text-purple-400"></i>
+                </div>
+                <h3 class="font-semibold text-lg mb-2">无损画质</h3>
+                <p class="text-gray-400 text-sm">最高质量转换，完整保留孩子创作细节</p>
+            </div>
+            <div class="glass-light rounded-2xl p-6 text-center hover:scale-105 transition-transform">
+                <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                    <i class="fa fa-star text-2xl text-amber-400"></i>
+                </div>
+                <h3 class="font-semibold text-lg mb-2">永久免费</h3>
+                <p class="text-gray-400 text-sm">新起点AI教育公益工具，无广告无限制</p>
+            </div>
+        </div>
+
+        <!-- 品牌介绍 -->
+        <div class="glass rounded-2xl p-6 mt-12 text-center">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <i class="fa fa-star text-white text-xl"></i>
+                </div>
+                <div class="text-left">
+                    <h3 class="font-bold text-lg">新起点青少年人工智能培训中心</h3>
+                    <p class="text-gray-400 text-sm">每一个孩子都是一颗闪亮的星星 ✨</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4 mb-4 text-sm text-gray-400">
+                <span><i class="fa fa-code mr-1 text-blue-400"></i>AI编程</span>
+                <span><i class="fa fa-paint-brush mr-1 text-amber-400"></i>创意设计</span>
+                <span><i class="fa fa-image mr-1 text-green-400"></i>数字艺术</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4 text-xs text-gray-500">
+                <a href="https://xqd-ai.top/works" target="_blank" class="hover:text-primary transition-colors">
+                    <i class="fa fa-folder-open mr-1"></i>学生作品展示
+                </a>
+                <span><i class="fa fa-weixin mr-1"></i>联系我们：18685442407</span>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>© 2024 新起点青少年人工智能培训中心 · AI教学工具系列</p>
+            <p class="mt-1 text-xs text-gray-600">本工具仅供教学使用，免费开源</p>
+        </footer>
+    </div>
+
+    <script>
+        // 全局状态
+        const state = {
+            files: [],
+            convertedFiles: [],
+            isConverting: false,
+            MAX_FILE_SIZE: 50 * 1024 * 1024 // 50MB
+        };
+
+        // DOM 元素
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const queueContainer = document.getElementById('queueContainer');
+        const fileList = document.getElementById('fileList');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultList = document.getElementById('resultList');
+        const convertAllBtn = document.getElementById('convertAllBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // 初始化事件监听
+        function init() {
+            // 拖拽事件
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleDrop);
+            
+            // 文件选择
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // 按钮事件
+            convertAllBtn.addEventListener('click', convertAll);
+            downloadAllBtn.addEventListener('click', downloadAll);
+            resetBtn.addEventListener('click', resetAppWithConfirm);
+            
+            // 事件委托 - 处理动态生成的按钮
+            fileList.addEventListener('click', handleFileListClick);
+            resultList.addEventListener('click', handleResultListClick);
+            
+            // 粘贴上传
+            document.addEventListener('paste', handlePaste);
+            
+            // 键盘快捷键提示
+            showToast('💡 提示：支持 Ctrl+V 粘贴图片', 'info');
+        }
+
+        // 事件委托 - 队列按钮
+        function handleFileListClick(e) {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            
+            const item = btn.closest('[data-index]');
+            if (!item) return;
+            
+            const index = parseInt(item.dataset.index);
+            
+            if (btn.classList.contains('btn-convert')) {
+                convertSingle(index);
+            } else if (btn.classList.contains('btn-remove')) {
+                removeFile(index);
+            }
+        }
+
+        // 事件委托 - 结果按钮
+        function handleResultListClick(e) {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            
+            const item = btn.closest('[data-result-index]');
+            if (!item) return;
+            
+            const index = parseInt(item.dataset.resultIndex);
+            downloadSingle(index);
+        }
+
+        // 拖拽处理
+        function handleDragOver(e) {
+            e.preventDefault();
+            dropZone.classList.add('drop-zone-active');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drop-zone-active');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drop-zone-active');
+            
+            const files = Array.from(e.dataTransfer.files);
+            handleFiles(files);
+        }
+
+        // 粘贴上传处理
+        function handlePaste(e) {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            
+            const files = [];
+            for (const item of items) {
+                if (item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        // 给粘贴的图片一个默认名称
+                        const newFile = new File([file], `pasted-${Date.now()}.webp`, { type: file.type });
+                        files.push(newFile);
+                    }
+                }
+            }
+            
+            if (files.length > 0) {
+                handleFiles(files);
+                showToast(`已粘贴 ${files.length} 张图片`, 'success');
+            }
+        }
+
+        // 文件选择处理
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        }
+
+        // 统一文件处理入口
+        function handleFiles(newFiles) {
+            if (newFiles.length === 0) {
+                showToast('请选择图片文件', 'error');
+                return;
+            }
+
+            const validFiles = [];
+            
+            for (const file of newFiles) {
+                // 大小校验
+                if (file.size > state.MAX_FILE_SIZE) {
+                    showToast(`${file.name} 超过50MB限制，已跳过`, 'warning');
+                    continue;
+                }
+                
+                // 格式校验 - 更宽松的检查
+                const isValid = file.type === 'image/webp' || 
+                               file.name.toLowerCase().endsWith('.webp') ||
+                               file.type.startsWith('image/');
+                
+                if (!isValid) {
+                    showToast(`${file.name} 格式不支持，已跳过`, 'warning');
+                    continue;
+                }
+                
+                validFiles.push(file);
+            }
+
+            if (validFiles.length === 0) return;
+
+            state.files = [...state.files, ...validFiles];
+            renderFileList();
+            queueContainer.classList.remove('hidden');
+            
+            if (validFiles.length < newFiles.length) {
+                showToast(`已添加 ${validFiles.length} 个文件`, 'info');
+            }
+        }
+
+        // 渲染文件列表 - 带缩略图
+        async function renderFileList() {
+            const items = [];
+            
+            for (let index = 0; index < state.files.length; index++) {
+                const file = state.files[index];
+                const preview = await createThumbnail(file);
+                
+                items.push(`
+                    <div class="glass-light rounded-xl p-4 flex items-center gap-4" data-index="${index}">
+                        <div class="w-14 h-14 rounded-lg bg-dark-light flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            ${preview ? `<img src="${preview}" class="w-full h-full object-cover">` : '<i class="fa fa-file-image-o text-primary"></i>'}
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <div class="font-medium truncate">${file.name}</div>
+                            <div class="text-sm text-gray-400">${formatFileSize(file.size)}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="btn-convert p-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 transition-colors" title="转换">
+                                <i class="fa fa-magic"></i>
+                            </button>
+                            <button class="btn-remove p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors" title="移除">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+            }
+            
+            fileList.innerHTML = items.join('');
+        }
+
+        // 创建缩略图
+        function createThumbnail(file) {
+            return new Promise((resolve) => {
+                if (!file.type.startsWith('image/')) {
+                    resolve(null);
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // 移除文件
+        function removeFile(index) {
+            state.files.splice(index, 1);
+            renderFileList();
+            if (state.files.length === 0) {
+                queueContainer.classList.add('hidden');
+            }
+        }
+
+        // 单文件转换
+        async function convertSingle(index) {
+            const file = state.files[index];
+            await convertFile(file);
+            removeFile(index);
+            
+            // 自动显示结果区域
+            if (state.convertedFiles.length > 0) {
+                resultContainer.classList.remove('hidden');
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 全部转换
+        async function convertAll() {
+            if (state.files.length === 0 || state.isConverting) return;
+            
+            state.isConverting = true;
+            convertAllBtn.disabled = true;
+            convertAllBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>转换中...';
+
+            try {
+                const total = state.files.length;
+                for (let i = state.files.length - 1; i >= 0; i--) {
+                    convertAllBtn.innerHTML = `<i class="fa fa-spinner fa-spin mr-2"></i>转换中... (${total - i}/${total})`;
+                    await convertFile(state.files[i]);
+                    state.files.splice(i, 1);
+                    renderFileList();
+                }
+
+                state.isConverting = false;
+                queueContainer.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+                
+                // 自动滚动到结果
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+                
+                showToast(`成功转换 ${state.convertedFiles.length} 个文件！`, 'success');
+            } catch (err) {
+                state.isConverting = false;
+                convertAllBtn.disabled = false;
+                convertAllBtn.innerHTML = '<i class="fa fa-magic mr-2"></i>全部转换';
+                showToast('转换过程中出现错误', 'error');
+            }
+        }
+
+        // 核心转换函数 - 使用Blob优化性能
+        async function convertFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onerror = () => {
+                    showToast(`读取 ${file.name} 失败`, 'error');
+                    reject(new Error('File read error'));
+                };
+                
+                reader.onload = (e) => {
+                    const img = new Image();
+                    
+                    img.onerror = () => {
+                        showToast(`${file.name} 不是有效的图片文件`, 'error');
+                        reject(new Error('Image load error'));
+                    };
+                    
+                    img.onload = () => {
+                        try {
+                            const width = img.naturalWidth || img.width;
+                            const height = img.naturalHeight || img.height;
+                            
+                            // 创建画布
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width;
+                            canvas.height = height;
+                            
+                            const ctx = canvas.getContext('2d', { alpha: true });
+                            ctx.imageSmoothingEnabled = false;
+                            
+                            // 1:1像素绘制
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // 使用Blob获取更准确的文件大小
+                            canvas.toBlob((blob) => {
+                                const objectUrl = URL.createObjectURL(blob);
+                                
+                                const converted = {
+                                    originalName: file.name,
+                                    originalSize: file.size,
+                                    newSize: Math.max(blob.size, file.size),
+                                    width: width,
+                                    height: height,
+                                    blob: blob,
+                                    objectUrl: objectUrl,
+                                    fileName: file.name.replace(/\.[^.]+$/, '.png')
+                                };
+                                
+                                state.convertedFiles.push(converted);
+                                renderResultList();
+                                resolve();
+                            }, 'image/png');
+                            
+                        } catch (err) {
+                            showToast(`转换 ${file.name} 时出错`, 'error');
+                            reject(err);
+                        }
+                    };
+                    
+                    img.src = e.target.result;
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // 渲染结果列表
+        function renderResultList() {
+            resultList.innerHTML = state.convertedFiles.map((file, index) => {
+                const sizeChange = ((file.newSize - file.originalSize) / file.originalSize * 100).toFixed(1);
+                const sizeClass = parseFloat(sizeChange) >= 0 ? 'text-green-400' : 'text-yellow-400';
+                const sizeIcon = parseFloat(sizeChange) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                
+                return `
+                    <div class="glass-light rounded-2xl p-5" data-result-index="${index}">
+                        <div class="aspect-video rounded-xl overflow-hidden mb-4 bg-dark-light flex items-center justify-center">
+                            <img src="${file.objectUrl}" alt="${file.fileName}" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <div class="mb-4">
+                            <div class="font-medium truncate mb-1">${file.fileName}</div>
+                            <div class="text-sm text-gray-400">
+                                ${file.width} × ${file.height} px
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-sm mb-4">
+                            <div>
+                                <span class="text-gray-400">原: </span>
+                                <span>${formatFileSize(file.originalSize)}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">新: </span>
+                                <span>${formatFileSize(file.newSize)}</span>
+                            </div>
+                            <div class="${sizeClass} flex items-center gap-1">
+                                <i class="fa ${sizeIcon} text-xs"></i>
+                                ${Math.abs(sizeChange)}%
+                            </div>
+                        </div>
+                        <button class="w-full py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                            <i class="fa fa-download mr-2"></i>下载 PNG
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 单文件下载
+        function downloadSingle(index) {
+            const file = state.convertedFiles[index];
+            const link = document.createElement('a');
+            link.href = file.objectUrl;
+            link.download = file.fileName;
+            link.click();
+            showToast(`${file.fileName} 已下载`, 'success');
+        }
+
+        // 全部下载
+        function downloadAll() {
+            state.convertedFiles.forEach((file, i) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = file.objectUrl;
+                    link.download = file.fileName;
+                    link.click();
+                }, i * 400);
+            });
+            showToast('正在下载全部文件...（浏览器可能会询问是否允许多次下载）', 'info');
+        }
+
+        // 自定义确认对话框
+        function showConfirm(message) {
+            return new Promise((resolve) => {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm';
+                modal.innerHTML = `
+                    <div class="glass rounded-2xl p-6 max-w-sm mx-4 animate-glow">
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                                <i class="fa fa-question-circle text-3xl text-yellow-400"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">确认操作</h3>
+                            <p class="text-gray-400">${message}</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="confirm-cancel flex-1 py-2 glass-light rounded-lg font-medium hover:bg-white/10 transition-colors">
+                                取消
+                            </button>
+                            <button class="confirm-ok flex-1 py-2 bg-gradient-to-r from-red-500 to-rose-600 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                                确定
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                modal.querySelector('.confirm-cancel').addEventListener('click', () => {
+                    modal.remove();
+                    resolve(false);
+                });
+                
+                modal.querySelector('.confirm-ok').addEventListener('click', () => {
+                    modal.remove();
+                    resolve(true);
+                });
+            });
+        }
+
+        // 重置应用 - 带确认
+        async function resetAppWithConfirm() {
+            if (state.convertedFiles.length > 0 || state.files.length > 0) {
+                const confirmed = await showConfirm('确定要清空所有文件重新开始吗？');
+                if (!confirmed) return;
+            }
+            
+            // 释放Blob URL内存
+            state.convertedFiles.forEach(file => {
+                if (file.objectUrl) URL.revokeObjectURL(file.objectUrl);
+            });
+            
+            state.files = [];
+            state.convertedFiles = [];
+            state.isConverting = false;
+            fileInput.value = '';
+            queueContainer.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+            convertAllBtn.disabled = false;
+            convertAllBtn.innerHTML = '<i class="fa fa-magic mr-2"></i>全部转换';
+            
+            showToast('已重置', 'success');
+        }
+
+        // 工具函数
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Toast 提示
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: 'from-green-500 to-emerald-600',
+                error: 'from-red-500 to-rose-600',
+                warning: 'from-yellow-500 to-orange-600',
+                info: 'from-primary to-secondary'
+            };
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `fixed top-6 right-6 z-50 px-6 py-3 rounded-xl bg-gradient-to-r ${colors[type]} text-white font-medium shadow-2xl transform translate-x-full transition-transform duration-300 flex items-center gap-3`;
+            toast.innerHTML = `<i class="fa ${icons[type]}"></i>${message}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // 启动应用
+        init();
+    </script>
+</body>
+</html>

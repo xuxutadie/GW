@@ -1,0 +1,2476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>地球病历本 · 行星医院 Planet Hospital</title>
+  <meta name="description" content="把地球当作一位患者：挂号 → 问诊 → 检查 → 诊断 → 处方 → 手术，自然灾害科普互动网站。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='%231E88E5'/%3E%3Cpath d='M22 46q10-6 18 0t16 0t16 0' stroke='%2300E5A0' stroke-width='3' fill='none'/%3E%3Ccircle cx='40' cy='42' r='3' fill='%230A1929'/%3E%3Ccircle cx='60' cy='42' r='3' fill='%230A1929'/%3E%3Cpath d='M40 60q10 6 20 0' stroke='%230A1929' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <style>
+    /* ============================================================
+       tokens.css · 设计变量
+       ============================================================ */
+    :root {
+      --bg: #F5F7FA;
+      --bg-soft: #ECEFF5;
+      --bg-paper: #FAF8F1;
+      --bg-deep: #0A1929;
+      --bg-deep-2: #0F2440;
+      --bg-deep-3: #122E54;
+      --ink: #0F172A;
+      --ink-2: #1E293B;
+      --ink-mute: #475569;
+      --ink-soft: #64748B;
+      --ink-on-deep: #E2E8F0;
+      --ink-on-deep-mute: #94A3B8;
+      --line: #E2E8F0;
+      --line-strong: #CBD5E1;
+      --primary: #1E88E5;
+      --primary-700: #1565C0;
+      --primary-300: #60A5FA;
+      --primary-100: #DBEAFE;
+      --accent: #00D9FF;
+      --accent-soft: #67E8F9;
+      --success: #00E5A0;
+      --success-soft: #6EE7B7;
+      --amber: #FFB300;
+      --warning: #FF5722;
+      --warning-soft: #FFAB91;
+      --danger: #DC2626;
+      --danger-soft: #FCA5A5;
+      --c-volcano: #FF5722;
+      --c-earthquake: #FFB300;
+      --c-typhoon: #1E88E5;
+      --c-flood: #00B8D4;
+      --c-heat: #DC2626;
+      --font-display: "Noto Serif SC", "Songti SC", "STSong", serif;
+      --font-body: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --fs-12: 12px; --fs-13: 13px; --fs-14: 14px; --fs-15: 15px;
+      --fs-16: 16px; --fs-18: 18px; --fs-20: 20px; --fs-24: 24px;
+      --fs-28: 28px; --fs-32: 32px; --fs-40: 40px; --fs-48: 48px; --fs-64: 64px;
+      --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px;
+      --sp-6: 24px; --sp-7: 32px; --sp-8: 40px; --sp-9: 48px; --sp-10: 64px; --sp-11: 80px;
+      --r-1: 4px; --r-2: 8px; --r-3: 12px; --r-4: 16px; --r-5: 20px; --r-6: 28px;
+      --r-pill: 999px;
+      --sh-1: 0 1px 2px rgba(15,23,42,.06);
+      --sh-2: 0 2px 8px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+      --sh-3: 0 8px 24px rgba(15,23,42,.08), 0 2px 6px rgba(15,23,42,.04);
+      --sh-4: 0 16px 48px rgba(15,23,42,.12), 0 4px 12px rgba(15,23,42,.06);
+      --sh-glow: 0 0 0 1px rgba(0,217,255,.4), 0 0 24px rgba(0,217,255,.18);
+      --sh-glow-warn: 0 0 0 1px rgba(255,87,34,.45), 0 0 24px rgba(255,87,34,.18);
+      --container: 1200px;
+      --gutter: 24px;
+      --ease: cubic-bezier(.2, .7, .2, 1);
+      --t-fast: 160ms;
+      --t-mid: 320ms;
+      --t-slow: 600ms;
+      --z-header: 50;
+      --z-overlay: 100;
+      --z-toast: 200;
+    }
+
+    /* ============================================================
+       base.css · 基础排版
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body {
+      font-family: var(--font-body);
+      font-size: var(--fs-15);
+      line-height: 1.6;
+      color: var(--ink);
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(15,23,42,.045) 1px, transparent 0),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+      background-size: 24px 24px, 100% 100%;
+      background-attachment: fixed;
+    }
+    main { flex: 1 0 auto; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    img, svg { display: block; max-width: 100%; }
+    ::selection { background: var(--primary); color: #fff; }
+    h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; color: var(--ink); line-height: 1.25; margin: 0; }
+    h1 { font-size: var(--fs-40); letter-spacing: -0.01em; }
+    h2 { font-size: var(--fs-28); letter-spacing: -0.01em; }
+    h3 { font-size: var(--fs-20); }
+    h4 { font-size: var(--fs-18); }
+    p { margin: 0; }
+
+    /* —— 顶部栏 —— */
+    .topbar {
+      position: sticky; top: 0; z-index: var(--z-header);
+      display: flex; justify-content: space-between; align-items: center;
+      gap: var(--sp-4);
+      padding: var(--sp-3) var(--gutter);
+      background: rgba(245, 247, 250, .85);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: var(--sp-3); color: var(--primary-700); }
+    .brand__mark {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border-radius: 10px;
+      background: var(--primary-100);
+      color: var(--primary-700);
+      box-shadow: inset 0 0 0 1px rgba(30,136,229,.18);
+    }
+    .brand__text { display: flex; flex-direction: column; line-height: 1.1; }
+    .brand__text strong { font-family: var(--font-display); font-size: var(--fs-16); color: var(--ink); }
+    .brand__text em { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); font-style: normal; letter-spacing: .04em; }
+    .topbar__right { display: flex; align-items: center; gap: var(--sp-3); }
+    .ecg-strip { width: 160px; height: 28px; opacity: .55; }
+    .ecg-strip svg { width: 100%; height: 100%; stroke: var(--primary); stroke-width: 1.4; fill: none; }
+    .status-pill {
+      font-family: var(--font-mono);
+      font-size: var(--fs-12);
+      letter-spacing: .04em;
+      padding: 6px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-pill);
+      color: var(--ink-2);
+      background: #fff;
+    }
+    .status-pill--link { background: var(--ink); color: #fff; border-color: var(--ink); transition: transform var(--t-fast) var(--ease); }
+    .status-pill--link:hover { transform: translateY(-1px); }
+
+    .view {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: var(--sp-7) var(--gutter) var(--sp-10);
+      animation: viewIn var(--t-mid) var(--ease) both;
+    }
+    .view--no-pad { padding-top: 0; }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+    .footer__inner {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: var(--sp-5) var(--gutter);
+      display: flex; justify-content: space-between; gap: var(--sp-4);
+      font-size: var(--fs-12); color: var(--ink-soft);
+    }
+    .footer__ids { font-family: var(--font-mono); letter-spacing: .04em; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--primary-700);
+    }
+    .muted { color: var(--ink-soft); }
+    .mono { font-family: var(--font-mono); }
+
+    /* ============================================================
+       components.css · 组件样式
+       ============================================================ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 22px;
+      border-radius: var(--r-pill);
+      font-weight: 500;
+      font-size: var(--fs-15);
+      border: 1px solid transparent;
+      transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+      white-space: nowrap;
+    }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .btn:active { transform: translateY(1px); }
+    .btn--primary { background: var(--primary); color: #fff; box-shadow: 0 6px 18px rgba(30,136,229,.32); }
+    .btn--primary:hover { background: var(--primary-700); transform: translateY(-1px); }
+    .btn--ghost { background: #fff; color: var(--ink-2); border-color: var(--line-strong); }
+    .btn--ghost:hover { background: var(--bg-soft); transform: translateY(-1px); }
+    .btn--danger { background: var(--warning); color: #fff; box-shadow: 0 6px 18px rgba(255,87,34,.32); }
+    .btn--danger:hover { background: #E64A19; transform: translateY(-1px); }
+    .btn--success { background: var(--success); color: var(--bg-deep); box-shadow: 0 6px 18px rgba(0,229,160,.32); }
+    .btn--success:hover { transform: translateY(-1px); }
+    .btn--sm { padding: 8px 14px; font-size: var(--fs-13); }
+    .btn--lg { padding: 16px 28px; font-size: var(--fs-16); }
+    .btn--block { width: 100%; }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--r-4);
+      box-shadow: var(--sh-2);
+      padding: var(--sp-6);
+    }
+    .card--deep {
+      background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+      color: var(--ink-on-deep);
+      border-color: rgba(0,217,255,.18);
+      box-shadow: var(--sh-glow);
+    }
+    .card--deep h1, .card--deep h2, .card--deep h3 { color: #fff; }
+    .card--paper {
+      background:
+        repeating-linear-gradient(0deg, transparent 0 27px, rgba(15,23,42,.04) 27px 28px),
+        var(--bg-paper);
+      color: var(--ink);
+      border: 1px solid #E8DFC8;
+      box-shadow: var(--sh-2);
+    }
+
+    .section { margin: var(--sp-9) 0; }
+    .section__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-4); margin-bottom: var(--sp-5); }
+    .section__head h2 { display: flex; align-items: center; gap: 10px; }
+    .section__head h2::before {
+      content: ""; width: 6px; height: 22px; background: var(--primary); border-radius: 3px;
+      box-shadow: 0 0 12px rgba(30,136,229,.45);
+    }
+    .section__head .meta { font-family: var(--font-mono); font-size: var(--fs-12); color: var(--ink-soft); letter-spacing: .04em; }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px; letter-spacing: .08em;
+      padding: 4px 10px;
+      border-radius: var(--r-pill);
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: var(--ink-2);
+      text-transform: uppercase;
+    }
+    .chip--warn { color: var(--warning); border-color: rgba(255,87,34,.4); background: rgba(255,87,34,.08); }
+    .chip--danger { color: var(--danger); border-color: rgba(220,38,38,.4); background: rgba(220,38,38,.08); }
+    .chip--success { color: #047857; border-color: rgba(0,229,160,.5); background: rgba(0,229,160,.12); }
+    .chip--info { color: var(--primary-700); border-color: rgba(30,136,229,.4); background: rgba(30,136,229,.08); }
+
+    .steps {
+      display: flex; gap: var(--sp-2);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--r-pill);
+      padding: 6px;
+      box-shadow: var(--sh-1);
+      width: fit-content;
+      margin: 0 auto;
+    }
+    .steps__item {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--r-pill);
+      font-size: var(--fs-13);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all var(--t-fast) var(--ease);
+    }
+    .steps__item .num {
+      font-family: var(--font-mono); font-size: 11px;
+      width: 22px; height: 22px; display: grid; place-items: center;
+      border-radius: 50%; background: var(--bg-soft); color: var(--ink-mute);
+    }
+    .steps__item:hover { background: var(--bg-soft); color: var(--ink); }
+    .steps__item.is-active { background: var(--ink); color: #fff; }
+    .steps__item.is-active .num { background: var(--accent); color: var(--bg-deep); }
+    .steps__item.is-done .num { background: var(--success); color: var(--bg-deep); }
+    .steps__item.is-done .num::before { content: "✓"; }
+
+    .cursor::after {
+      content: "▍"; display: inline-block; margin-left: 2px;
+      color: var(--accent); animation: blink 1s steps(2, start) infinite;
+    }
+
+    .stamp {
+      display: inline-block;
+      padding: 8px 18px;
+      border: 2px solid var(--warning);
+      color: var(--warning);
+      font-family: var(--font-display);
+      font-weight: 700;
+      letter-spacing: .25em;
+      border-radius: 6px;
+      transform: rotate(-8deg);
+      opacity: .9;
+      text-transform: uppercase;
+      font-size: var(--fs-13);
+      position: relative;
+      background: rgba(255,87,34,.04);
+      box-shadow: inset 0 0 0 4px transparent, inset 0 0 0 5px rgba(255,87,34,.12);
+    }
+    .stamp--success { color: var(--success); border-color: var(--success); background: rgba(0,229,160,.06); box-shadow: inset 0 0 0 4px transparent, inset 0 0 0 5px rgba(0,229,160,.12); }
+    .stamp--primary { color: var(--primary); border-color: var(--primary); background: rgba(30,136,229,.06); box-shadow: inset 0 0 0 4px transparent, inset 0 0 0 5px rgba(30,136,229,.12); }
+
+    .rx-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+    .rx {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--r-4);
+      padding: 0;
+      overflow: hidden;
+      transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+    }
+    .rx:hover { transform: translateY(-2px); box-shadow: var(--sh-3); }
+    .rx__head {
+      display: flex; align-items: center; gap: 12px;
+      padding: var(--sp-4) var(--sp-5);
+      background: linear-gradient(180deg, var(--bg-paper) 0%, #fff 100%);
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      user-select: none;
+    }
+    .rx__icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--primary-100); color: var(--primary-700);
+      font-size: 20px;
+    }
+    .rx__title { flex: 1; }
+    .rx__title h4 { font-family: var(--font-display); }
+    .rx__title em { font-style: normal; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); letter-spacing: .08em; }
+    .rx__caret { color: var(--ink-soft); transition: transform var(--t-fast) var(--ease); }
+    .rx.is-open .rx__caret { transform: rotate(180deg); }
+    .rx__body { max-height: 0; overflow: hidden; transition: max-height var(--t-mid) var(--ease); padding: 0 var(--sp-5); }
+    .rx.is-open .rx__body { max-height: 600px; padding: var(--sp-4) var(--sp-5) var(--sp-5); }
+    .rx__body ul { margin: 0; padding: 0; list-style: none; }
+    .rx__body li {
+      position: relative; padding: 8px 0 8px 22px;
+      font-size: var(--fs-14); color: var(--ink-2);
+      border-top: 1px dashed var(--line);
+    }
+    .rx__body li:first-child { border-top: none; }
+    .rx__body li::before {
+      content: "℞"; position: absolute; left: 0; top: 8px;
+      color: var(--primary); font-weight: 700;
+    }
+
+    .timeline { position: relative; padding: 8px 0 8px 32px; }
+    .timeline::before {
+      content: ""; position: absolute; left: 12px; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
+      border-radius: 2px;
+    }
+    .timeline__item { position: relative; padding-bottom: var(--sp-6); }
+    .timeline__item::before {
+      content: ""; position: absolute; left: -27px; top: 6px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #fff; border: 3px solid var(--primary);
+      box-shadow: 0 0 0 4px rgba(30,136,229,.12);
+    }
+    .timeline__year {
+      font-family: var(--font-mono); font-size: var(--fs-13);
+      color: var(--primary-700); letter-spacing: .04em; font-weight: 700;
+    }
+    .timeline__title { font-family: var(--font-display); font-size: var(--fs-18); margin: 2px 0 6px; }
+    .timeline__meta { font-size: var(--fs-13); color: var(--ink-soft); margin-bottom: 8px; }
+    .timeline__data {
+      display: inline-flex; flex-wrap: wrap; gap: 8px;
+      font-family: var(--font-mono); font-size: var(--fs-12);
+      margin-bottom: 6px;
+    }
+    .timeline__data span {
+      background: var(--primary-100); color: var(--primary-700);
+      padding: 4px 8px; border-radius: var(--r-2);
+    }
+    .timeline__lesson { color: var(--ink-2); font-size: var(--fs-14); }
+
+    .medal-overlay {
+      position: fixed; inset: 0; z-index: var(--z-overlay);
+      display: none; align-items: center; justify-content: center;
+    }
+    .medal-overlay.is-open { display: flex; }
+    .medal-overlay__backdrop {
+      position: absolute; inset: 0;
+      background: rgba(10,25,41,.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      animation: fadeIn var(--t-mid) var(--ease);
+    }
+    .medal-overlay__panel {
+      position: relative;
+      background: linear-gradient(180deg, #fff 0%, var(--bg-paper) 100%);
+      border: 1px solid rgba(0,217,255,.4);
+      border-radius: var(--r-5);
+      padding: var(--sp-9) var(--sp-8);
+      text-align: center;
+      width: min(420px, calc(100% - 32px));
+      box-shadow: 0 30px 80px rgba(10,25,41,.4), 0 0 0 1px rgba(0,217,255,.2);
+      animation: panelIn var(--t-slow) var(--ease) both;
+    }
+    .medal {
+      position: relative;
+      width: 120px; height: 120px;
+      margin: 0 auto var(--sp-5);
+      animation: medalSpin 900ms var(--ease) both;
+    }
+    .medal__ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--accent) 0deg, var(--primary) 90deg, var(--accent) 180deg, var(--primary) 270deg, var(--accent) 360deg);
+      box-shadow: 0 0 24px rgba(0,217,255,.55);
+      animation: spin 4s linear infinite;
+    }
+    .medal__core {
+      position: absolute; inset: 12px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #1E88E5 0%, #0A1929 80%);
+      color: #fff; display: grid; place-items: center;
+      font-size: 40px;
+      box-shadow: inset 0 0 0 4px rgba(0,217,255,.35), inset 0 -8px 16px rgba(0,0,0,.4);
+    }
+    .medal__shine {
+      position: absolute; inset: 18px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,.5) 0%, transparent 40%);
+      pointer-events: none;
+    }
+    .medal__title { font-family: var(--font-display); font-size: var(--fs-24); margin-bottom: 8px; }
+    .medal__desc { color: var(--ink-soft); margin-bottom: var(--sp-5); }
+
+    .certificate-host {
+      position: fixed; left: -10000px; top: 0;
+      width: 1120px; height: 794px;
+      pointer-events: none;
+    }
+    .cert {
+      position: relative;
+      width: 1120px; height: 794px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(0,217,255,.08) 0, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(30,136,229,.08) 0, transparent 40%),
+        linear-gradient(180deg, #fff 0%, #FAFBFD 100%);
+      border: 6px double var(--primary);
+      border-radius: 8px;
+      padding: 56px 64px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(10,25,41,.18);
+    }
+    .cert__corner { position: absolute; width: 80px; height: 80px; border: 2px solid var(--accent); }
+    .cert__corner--tl { top: 18px; left: 18px; border-right: 0; border-bottom: 0; }
+    .cert__corner--tr { top: 18px; right: 18px; border-left: 0; border-bottom: 0; }
+    .cert__corner--bl { bottom: 18px; left: 18px; border-right: 0; border-top: 0; }
+    .cert__corner--br { bottom: 18px; right: 18px; border-left: 0; border-top: 0; }
+    .cert__head { display: flex; justify-content: space-between; align-items: flex-start; }
+    .cert__brand { display: flex; align-items: center; gap: 12px; color: var(--primary-700); }
+    .cert__brand h3 { font-size: var(--fs-20); }
+    .cert__id { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+    .cert__title { text-align: center; margin-top: 24px; }
+    .cert__title small { font-family: var(--font-mono); font-size: 12px; letter-spacing: .4em; color: var(--ink-soft); }
+    .cert__title h1 { font-size: 56px; margin-top: 6px; letter-spacing: .04em; }
+    .cert__title em { display: block; font-style: normal; font-family: var(--font-mono); font-size: 13px; color: var(--primary-700); margin-top: 6px; letter-spacing: .12em; }
+    .cert__body { text-align: center; margin: 28px 0 12px; }
+    .cert__body p { font-size: var(--fs-18); color: var(--ink-2); }
+    .cert__name { font-family: var(--font-display); font-size: 48px; color: var(--primary-700); margin: 12px 0 6px; letter-spacing: .04em; border-bottom: 2px solid var(--line); display: inline-block; padding: 0 32px 8px; }
+    .cert__rank { font-family: var(--font-display); font-size: 28px; color: var(--warning); margin-top: 8px; }
+    .cert__stats { display: flex; justify-content: center; gap: 32px; margin: 18px 0 8px; font-family: var(--font-mono); }
+    .cert__stats div { padding: 10px 18px; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+    .cert__stats strong { display: block; font-size: 22px; color: var(--primary-700); }
+    .cert__stats span { font-size: 11px; color: var(--ink-soft); letter-spacing: .12em; }
+    .cert__footer { position: absolute; left: 64px; right: 64px; bottom: 56px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .cert__sign { text-align: center; font-family: var(--font-display); }
+    .cert__sign .name { font-size: 22px; color: var(--ink); border-top: 1px solid var(--line); padding-top: 6px; min-width: 200px; }
+    .cert__sign small { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); letter-spacing: .12em; margin-top: 2px; }
+    .cert__seal { width: 110px; height: 110px; border: 3px double var(--warning); border-radius: 50%; display: grid; place-items: center; color: var(--warning); font-family: var(--font-display); text-align: center; transform: rotate(-6deg); background: rgba(255,87,34,.04); }
+    .cert__seal strong { display: block; font-size: 18px; }
+    .cert__seal small { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; }
+    .cert__date { font-family: var(--font-mono); font-size: 13px; color: var(--ink-mute); letter-spacing: .12em; }
+
+    .radar { width: 100%; max-width: 360px; aspect-ratio: 1; margin: 0 auto; }
+
+    .hall {
+      display: grid; grid-template-columns: 1fr 360px; gap: var(--sp-7);
+    }
+    .hall__main {
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(0,217,255,.05) 0%, transparent 60%),
+        repeating-linear-gradient(0deg, transparent 0 39px, rgba(15,23,42,.04) 39px 40px),
+        #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--r-5);
+      box-shadow: var(--sh-3);
+      padding: var(--sp-6);
+      min-height: 560px;
+      overflow: hidden;
+    }
+    .hall__main::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, transparent 0, rgba(0,217,255,.04) 100%);
+    }
+    .hall__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); }
+    .hall__head h2 { font-size: var(--fs-20); }
+    .hall__live { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--success); letter-spacing: .12em; }
+    .hall__live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 0 rgba(0,229,160,.6); animation: livePulse 1.6s var(--ease) infinite; }
+
+    .earth-stage { position: relative; height: 460px; display: grid; place-items: center; }
+    .earth-svg { width: 360px; height: 360px; }
+    .earth-svg .breath { transform-origin: 50% 50%; animation: breath 3.2s var(--ease) infinite; }
+    .earth-svg .hotspot { cursor: pointer; }
+    .earth-svg .hotspot__pulse { transform-origin: center; transform-box: fill-box; animation: hotspotPulse 2.2s var(--ease) infinite; }
+    .earth-svg .hotspot__core { transition: transform var(--t-fast) var(--ease); }
+    .earth-svg .hotspot:hover .hotspot__core { transform: scale(1.15); }
+    .earth-svg .hotspot__label {
+      font-family: var(--font-mono);
+      font-size: 10px; fill: var(--ink);
+      letter-spacing: .08em; text-anchor: middle;
+      pointer-events: none; opacity: 0;
+      transition: opacity var(--t-fast) var(--ease);
+    }
+    .earth-svg .hotspot:hover .hotspot__label { opacity: 1; }
+
+    .hall__legend {
+      position: absolute; left: var(--sp-6); bottom: var(--sp-6);
+      display: flex; flex-direction: column; gap: 8px;
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--ink-mute); letter-spacing: .08em;
+    }
+    .hall__legend .row { display: flex; align-items: center; gap: 8px; }
+    .hall__legend .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .hall__ticker {
+      position: absolute; right: var(--sp-6); top: var(--sp-6);
+      width: 200px; max-height: 200px; overflow: hidden;
+      background: var(--bg-deep); color: var(--ink-on-deep);
+      border-radius: var(--r-3); padding: 10px 12px;
+      font-family: var(--font-mono); font-size: 11px;
+      border: 1px solid rgba(0,217,255,.25);
+      box-shadow: var(--sh-glow);
+    }
+    .hall__ticker h5 { margin: 0 0 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; color: var(--accent); }
+    .hall__ticker ul { list-style: none; margin: 0; padding: 0; }
+    .hall__ticker li { padding: 3px 0; border-top: 1px dashed rgba(0,217,255,.18); display: flex; justify-content: space-between; gap: 8px; }
+    .hall__ticker li:first-child { border-top: none; }
+    .hall__ticker .tag { color: var(--accent-soft); }
+    .hall__ticker .num { color: #fff; }
+
+    .hall__side { display: flex; flex-direction: column; gap: var(--sp-4); }
+    .patient-card {
+      background: #fff; border: 1px solid var(--line);
+      border-radius: var(--r-4); padding: var(--sp-5);
+      box-shadow: var(--sh-2);
+      position: relative; overflow: hidden;
+    }
+    .patient-card::before {
+      content: ""; position: absolute; top: 0; right: 0;
+      width: 100px; height: 100px;
+      background: radial-gradient(circle, var(--primary-100) 0, transparent 60%);
+    }
+    .patient-card h3 { font-size: var(--fs-18); }
+    .patient-card dl { margin: var(--sp-3) 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+    .patient-card dt { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); letter-spacing: .08em; }
+    .patient-card dd { margin: 0; font-weight: 500; color: var(--ink); }
+    .patient-card__barcode {
+      margin-top: var(--sp-4);
+      display: flex; align-items: end; gap: 2px;
+      height: 28px;
+      background-image: repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 3px, var(--ink) 3px 4px, transparent 4px 7px, var(--ink) 7px 9px, transparent 9px 11px, var(--ink) 11px 12px, transparent 12px 16px);
+    }
+    .patient-card__barcode small { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); margin-top: 4px; letter-spacing: .12em; }
+
+    .visits { background: #fff; border: 1px solid var(--line); border-radius: var(--r-4); padding: var(--sp-5); box-shadow: var(--sh-2); }
+    .visits h4 { display: flex; align-items: center; justify-content: space-between; font-size: var(--fs-15); font-family: var(--font-body); font-weight: 700; }
+    .visits__list { margin-top: var(--sp-3); display: grid; gap: 8px; }
+    .visits__item { display: flex; align-items: center; gap: 10px; font-size: var(--fs-13); }
+    .visits__item .swatch { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+    .visits__item.is-on .swatch { background: var(--success); box-shadow: 0 0 8px var(--success-soft); }
+    .visits__item .name { flex: 1; color: var(--ink-mute); }
+    .visits__item.is-on .name { color: var(--ink); }
+    .visits__item .badge { font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); letter-spacing: .08em; }
+
+    .clinic { display: flex; flex-direction: column; gap: var(--sp-7); }
+    .clinic__hero {
+      display: grid; grid-template-columns: 200px 1fr; gap: var(--sp-6);
+      align-items: center;
+      background: linear-gradient(135deg, #fff 0%, var(--bg-paper) 100%);
+      border: 1px solid var(--line); border-radius: var(--r-4);
+      padding: var(--sp-6);
+      box-shadow: var(--sh-2);
+    }
+    .clinic__hero .avatar { width: 160px; height: 160px; }
+    .clinic__hero h1 { font-size: var(--fs-32); }
+    .clinic__hero .eyebrow { margin-bottom: 6px; display: block; }
+    .clinic__hero .meta { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .bubble {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--r-4);
+      border-top-left-radius: 0;
+      padding: var(--sp-5) var(--sp-6);
+      position: relative;
+      box-shadow: var(--sh-2);
+      font-size: var(--fs-16);
+      color: var(--ink-2);
+      min-height: 84px;
+    }
+
+    .exam-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: var(--sp-5); align-items: stretch; }
+    .exam-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .exam-card__head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(0,217,255,.06);
+      border-bottom: 1px solid rgba(0,217,255,.2);
+      color: var(--accent);
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em;
+    }
+    .exam-card__head .blip { display: inline-flex; align-items: center; gap: 6px; }
+    .exam-card__head .blip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .exam-card__body { padding: var(--sp-5); flex: 1; display: flex; flex-direction: column; gap: 12px; color: var(--ink-on-deep); }
+    .exam-card__body h4 { color: #fff; font-size: var(--fs-16); }
+    .exam-card__body p { color: var(--ink-on-deep-mute); font-size: var(--fs-14); }
+    .exam-card__body .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-on-deep); }
+    .exam-card__body .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .exam-card__body .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+    .diagram { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--r-3); background: var(--bg-deep-3); border: 1px dashed rgba(0,217,255,.2); padding: var(--sp-3); display: flex; align-items: center; justify-content: center; }
+    .diagram svg { width: 100%; height: 100%; }
+
+    .diagnosis-doc {
+      position: relative;
+      padding: var(--sp-7);
+      background:
+        repeating-linear-gradient(0deg, transparent 0 27px, rgba(15,23,42,.04) 27px 28px),
+        var(--bg-paper);
+      color: var(--ink);
+      border: 1px solid #E8DFC8;
+      border-radius: var(--r-4);
+      box-shadow: var(--sh-2);
+      font-family: var(--font-body);
+    }
+    .diagnosis-doc h3 { font-family: var(--font-display); font-size: var(--fs-24); border-bottom: 1px solid #C9BFA6; padding-bottom: 8px; }
+    .diagnosis-doc dl { margin: var(--sp-4) 0; display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; font-size: var(--fs-14); }
+    .diagnosis-doc dt { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); letter-spacing: .08em; align-self: center; }
+    .diagnosis-doc dd { margin: 0; }
+    .diagnosis-doc .stamp { position: absolute; right: 28px; bottom: 28px; }
+    .diagnosis-doc .doc-no { position: absolute; right: 28px; top: 28px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); letter-spacing: .12em; }
+
+    .surgery { display: flex; flex-direction: column; gap: var(--sp-6); }
+    .surgery__top {
+      display: grid; grid-template-columns: 1fr 220px; gap: var(--sp-5);
+      align-items: center;
+    }
+    .surgery__brief { padding: var(--sp-5); }
+    .surgery__brief h2 { font-size: var(--fs-24); margin-bottom: 6px; }
+    .surgery__brief p { color: var(--ink-2); font-size: var(--fs-14); }
+    .surgery__timer {
+      background: var(--bg-deep); color: #fff;
+      border-radius: var(--r-3); padding: var(--sp-5);
+      text-align: center;
+      border: 1px solid rgba(0,217,255,.25);
+      box-shadow: var(--sh-glow);
+    }
+    .surgery__timer small { font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; color: var(--accent); }
+    .surgery__timer .num {
+      font-family: var(--font-mono); font-weight: 700;
+      font-size: 56px; line-height: 1; margin-top: 6px;
+      color: #fff; transition: color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+      display: inline-block;
+    }
+    .surgery__timer.is-warn .num { color: var(--amber); }
+    .surgery__timer.is-danger .num { color: var(--warning); animation: scalePulse 1s infinite; }
+    .surgery__bar { height: 6px; background: rgba(255,255,255,.1); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+    .surgery__bar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--accent) 0%, var(--success) 100%); transition: width 100ms linear; }
+
+    .surgery__stage {
+      position: relative;
+      background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+      color: var(--ink-on-deep);
+      border: 1px solid rgba(0,217,255,.18);
+      border-radius: var(--r-4);
+      padding: var(--sp-7);
+      min-height: 280px;
+      display: grid; place-items: center;
+      box-shadow: var(--sh-glow);
+      overflow: hidden;
+    }
+    .surgery__stage .stage-svg { width: min(520px, 100%); }
+    .surgery__stage.is-success { box-shadow: 0 0 0 2px var(--success), 0 0 60px rgba(0,229,160,.4); }
+    .surgery__stage.is-fail { animation: shakeX .5s var(--ease); }
+    .surgery__overlay {
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      background: rgba(10,25,41,.78);
+      color: #fff; text-align: center;
+      padding: var(--sp-6);
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--t-mid) var(--ease);
+    }
+    .surgery__stage.is-success .surgery__overlay, .surgery__stage.is-fail .surgery__overlay { opacity: 1; pointer-events: auto; }
+    .surgery__overlay h3 { color: #fff; font-size: var(--fs-24); margin-bottom: 6px; }
+    .surgery__overlay p { color: var(--ink-on-deep-mute); margin-bottom: var(--sp-4); }
+
+    .surgery__tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+    .tool {
+      background: #fff; border: 1px solid var(--line);
+      border-radius: var(--r-4); padding: var(--sp-5);
+      text-align: center;
+      transition: transform var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+      cursor: pointer;
+    }
+    .tool:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--primary); box-shadow: var(--sh-3); }
+    .tool:disabled { cursor: not-allowed; opacity: .6; }
+    .tool__icon { font-size: 36px; margin-bottom: 8px; }
+    .tool h4 { font-family: var(--font-display); font-size: var(--fs-18); margin-bottom: 4px; }
+    .tool p { color: var(--ink-soft); font-size: var(--fs-13); }
+    .tool.is-correct { border-color: var(--success); background: rgba(0,229,160,.08); box-shadow: 0 0 0 2px var(--success); }
+    .tool.is-wrong { border-color: var(--warning); background: rgba(255,87,34,.08); box-shadow: 0 0 0 2px var(--warning); animation: shakeX .4s var(--ease); }
+
+    .report { display: flex; flex-direction: column; gap: var(--sp-7); }
+    .report__hero { display: grid; grid-template-columns: 1.2fr .8fr; gap: var(--sp-6); align-items: stretch; }
+    .report__hero .left, .report__hero .right { background: #fff; border: 1px solid var(--line); border-radius: var(--r-4); padding: var(--sp-6); box-shadow: var(--sh-2); }
+    .report__hero h2 { font-size: var(--fs-24); margin-bottom: 6px; }
+    .report__hero .summary { color: var(--ink-2); font-size: var(--fs-14); margin: var(--sp-3) 0; }
+    .report__progress { display: flex; align-items: end; gap: var(--sp-3); margin: var(--sp-4) 0; }
+    .report__progress .num { font-family: var(--font-mono); font-size: 56px; font-weight: 700; color: var(--primary-700); line-height: 1; }
+    .report__progress small { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); letter-spacing: .12em; }
+    .report__bar { height: 8px; background: var(--bg-soft); border-radius: 4px; overflow: hidden; }
+    .report__bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); transition: width .8s var(--ease); }
+    .report__medals { display: flex; gap: 6px; margin-top: 12px; }
+    .report__medals i { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%); color: var(--bg-deep); font-size: 14px; box-shadow: 0 0 12px rgba(0,217,255,.45); }
+    .report__medals i.empty { background: var(--bg-soft); color: var(--ink-soft); box-shadow: none; }
+
+    .report__right { display: flex; flex-direction: column; gap: 12px; }
+    .report__right h3 { font-size: var(--fs-18); }
+    .report__right .rank-line { display: flex; align-items: center; gap: 10px; }
+    .report__right .rank-line .v { font-family: var(--font-display); font-size: var(--fs-24); color: var(--warning); }
+
+    .report__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-5); }
+    .report__chart { background: #fff; border: 1px solid var(--line); border-radius: var(--r-4); padding: var(--sp-5); box-shadow: var(--sh-2); }
+    .report__chart h3 { margin-bottom: 6px; font-size: var(--fs-18); }
+    .report__chart .sub { color: var(--ink-soft); font-size: var(--fs-13); margin-bottom: var(--sp-3); }
+
+    .cert-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; margin-top: var(--sp-4); }
+    .cert-form label { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); letter-spacing: .12em; }
+    .cert-form input {
+      width: 100%; padding: 10px 14px; font-size: var(--fs-15);
+      border: 1px solid var(--line-strong); border-radius: var(--r-3);
+      font-family: var(--font-body);
+    }
+    .cert-form input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* ============================================================
+       animations.css · 关键帧动画
+       ============================================================ */
+    @keyframes viewIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes panelIn { from { opacity: 0; transform: scale(.92) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    @keyframes breath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+    @keyframes hotspotPulse { 0%, 100% { opacity: .55; transform: scale(1); } 50% { opacity: 0; transform: scale(2.4); } }
+    @keyframes blink { to { visibility: hidden; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes livePulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,160,.5); } 70% { box-shadow: 0 0 0 10px rgba(0,229,160,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,160,0); } }
+    @keyframes shakeX { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    @keyframes scalePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    @keyframes medalSpin { 0% { transform: rotate(-180deg) scale(0); } 60% { transform: rotate(20deg) scale(1.08); } 100% { transform: rotate(0) scale(1); } }
+    @keyframes typingReveal { from { width: 0; } to { width: 100%; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes tickerScroll { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+    @keyframes scenarioQuake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-3px, 1px); } 40% { transform: translate(3px, -1px); } 60% { transform: translate(-2px, 2px); } 80% { transform: translate(2px, -2px); } }
+    @keyframes waveDrift { 0% { transform: translateX(0); } 100% { transform: translateX(-40px); } }
+    @keyframes lavaRise { 0%, 100% { transform: translateY(0); opacity: .8; } 50% { transform: translateY(-6px); opacity: 1; } }
+    @keyframes flicker { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    .fadeUp { animation: fadeUp var(--t-mid) var(--ease) both; }
+    .float { animation: float 3s var(--ease) infinite; }
+    .flicker { animation: flicker 1.4s var(--ease) infinite; }
+
+    /* ============================================================
+       responsive.css · 响应式
+       ============================================================ */
+    @media (max-width: 1023px) {
+      .hall { grid-template-columns: 1fr; }
+      .hall__ticker { position: static; width: auto; max-height: none; margin-top: var(--sp-4); }
+      .earth-stage { height: 380px; }
+      .earth-svg { width: 300px; height: 300px; }
+      .clinic__hero { grid-template-columns: 120px 1fr; }
+      .clinic__hero .avatar { width: 100px; height: 100px; }
+      .exam-grid { grid-template-columns: 1fr; }
+      .rx-grid { grid-template-columns: 1fr 1fr; }
+      .report__hero { grid-template-columns: 1fr; }
+      .report__grid { grid-template-columns: 1fr; }
+      .surgery__top { grid-template-columns: 1fr; }
+      .surgery__tools { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 767px) {
+      :root {
+        --gutter: 16px;
+        --fs-40: 28px; --fs-32: 24px; --fs-28: 22px; --fs-24: 20px;
+      }
+      .topbar { flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
+      .brand__text em { display: none; }
+      .ecg-strip { display: none; }
+      .topbar__right { width: 100%; justify-content: space-between; }
+      .view { padding: var(--sp-5) var(--gutter) var(--sp-9); }
+      .hall__main { padding: var(--sp-4); min-height: auto; }
+      .earth-stage { height: 320px; }
+      .earth-svg { width: 260px; height: 260px; }
+      .hall__legend { position: static; margin-top: var(--sp-3); flex-direction: row; flex-wrap: wrap; }
+      .clinic__hero { grid-template-columns: 1fr; text-align: center; }
+      .clinic__hero .avatar { margin: 0 auto; }
+      .clinic__hero .meta { justify-content: center; }
+      .rx-grid { grid-template-columns: 1fr; }
+      .diagnosis-doc { padding: var(--sp-5); }
+      .diagnosis-doc .stamp { position: static; display: inline-block; margin-top: var(--sp-4); }
+      .diagnosis-doc .doc-no { position: static; display: block; margin-bottom: 8px; }
+      .steps { width: 100%; overflow-x: auto; }
+      .steps__item { padding: 6px 12px; font-size: 12px; }
+      .footer__inner { flex-direction: column; gap: 4px; align-items: flex-start; }
+      .surgery__stage { padding: var(--sp-5); min-height: 200px; }
+      .cert { width: 100vw; height: auto; min-height: 100vh; }
+      .cert__title h1 { font-size: 32px; }
+      .cert__name { font-size: 32px; }
+      .cert-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__left">
+      <a class="brand" href="#/hall" aria-label="返回挂号大厅">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="1.6" />
+            <path d="M16 3v26M3 16h26" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3" />
+            <circle cx="16" cy="16" r="4" fill="currentColor" opacity=".18" />
+          </svg>
+        </span>
+        <span class="brand__text">
+          <strong>行星医院</strong>
+          <em>PLANET HOSPITAL · 地球病历本</em>
+        </span>
+      </a>
+    </div>
+    <div class="topbar__right">
+      <div class="ecg-strip" aria-hidden="true">
+        <svg viewBox="0 0 220 28" preserveAspectRatio="none">
+          <polyline points="0,14 30,14 38,4 46,24 54,14 80,14 88,2 96,26 104,14 140,14 148,8 156,20 164,14 220,14" />
+        </svg>
+      </div>
+      <div class="status-pill" id="realtimeClock" aria-live="off">--:--:--</div>
+      <a class="status-pill status-pill--link" href="#/report">体检报告 →</a>
+    </div>
+  </header>
+
+  <main id="view" class="view" aria-live="polite"></main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <span>© 行星医院 · 地球病历本 · 普及即良药</span>
+      <span class="footer__ids">PH-001 · CASE 2026.07 · 仅供科普教育</span>
+    </div>
+  </footer>
+
+  <div id="medalOverlay" class="medal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="medal-overlay__backdrop"></div>
+    <div class="medal-overlay__panel">
+      <div class="medal">
+        <div class="medal__ring"></div>
+        <div class="medal__core">🌍</div>
+        <div class="medal__shine"></div>
+      </div>
+      <h3 class="medal__title">地球守护者勋章</h3>
+      <p class="medal__desc">成功完成一次手术模拟！地球的病痛正在缓解。</p>
+      <button class="btn btn--primary" data-medal-close>收下勋章</button>
+    </div>
+  </div>
+
+  <div id="certificateHost" class="certificate-host" aria-hidden="true"></div>
+
+  <script>
+  /* ============================================================
+     data.js · 5 个灾害 + 3 个手术模拟的静态数据
+     ============================================================ */
+  window.DISASTERS = [
+    {
+      id: 'volcano', name: '火山喷发', enName: 'VOLCANO', color: '#FF5722', icon: '🌋',
+      patient: '胸口灼热、涌出赤红岩浆、伴浓烟与震动',
+      hotspot: { x: 180, y: 130, label: '胸口' },
+      selfReport: [
+        '「咳……咳咳……我胸口发烫，呼吸都带着硫磺味。」',
+        '「岩浆在我的身体深处涌动，像烧开的水壶，顶得我喘不过气。」',
+        '「地下的压力越来越大，再不排出，我会从裂缝里爆开……」',
+        '「帮帮我，先让我把压力释放一点，再给我降温。」'
+      ],
+      formation: [
+        { title: '地壳深处', body: '地壳下 30–100 公里处存在「岩浆房」，温度 800–1200°C。' },
+        { title: '板块挤压', body: '板块俯冲或张裂，让岩浆沿裂隙向上寻找出口。' },
+        { title: '气体增压', body: '溶解的水蒸气与二氧化碳形成高压，相当于「摇晃的汽水」。' },
+        { title: '冲破火山口', body: '压力超过岩石承受极限，岩浆、火山弹、毒气一起喷出。' }
+      ],
+      diagnosis: {
+        grade: '烈性 — Vesuvius 级别（VEI 4–6）',
+        range: '方圆 30 km 内的城镇、火山灰飘散可影响上千公里航空',
+        summary: '岩浆高温（>800°C）、有毒气体（SO₂、CO₂）、碎屑流与火山灰是主要杀手。周边 30 km 应进入戒备，V 级以上还会扰动全球气候。'
+      },
+      prescription: {
+        personal: [
+          '远离火山口至少 30 km，留意「火山灰雨」戴 N95 口罩护眼',
+          '听应急广播，切勿进入封闭低洼地——CO₂ 等重气体会把人闷倒',
+          '提前打包「应急包」：水、食物、手电、证件、口罩，收到撤离令立即走',
+          '屋顶及时清扫火山灰——湿灰重达 500 kg/m²，塌顶风险极高'
+        ],
+        community: [
+          '在火山周边 30/100 km 设「红—黄—绿」三色警戒圈并广而告之',
+          '组建社区撤离车队与老弱优先通道，每户张贴撤离路线图',
+          '储备 72 小时饮用水与口罩，开展火山灰清扫志愿演练',
+          '协调学校临时停课、牲畜圈舍加固、机房密封防灰'
+        ],
+        national: [
+          '气象与地震局联合发布火山活动指数（VUI），与航空局联动调整航线',
+          '建立火山监测网：GPS、地倾斜、SO₂ 卫星遥感、火山微震台阵',
+          '制定国家级火山应急救援预案，调派武警、消防、医疗三支力量',
+          '对历史火山周边城市做「火山安全」规划——限制高密度居住'
+        ]
+      },
+      cases: [
+        { year: 79,   name: '庞贝末日', place: '意大利维苏威火山', data: ['瞬时温度 300°C', '1600+ 人遇难', '灰埋 6 米'], lesson: '城市建于火山脚下，预警缺失造成文明级别灾难。' },
+        { year: 1991, name: '皮纳图博喷发', place: '菲律宾吕宋岛', data: ['VEI 6', '全球降温 0.5°C', '200 万人撤离'], lesson: '提前疏散与气候联动监测是关键。' },
+        { year: 2010, name: '冰岛埃亚菲亚特拉', place: '冰岛', data: ['火山灰云 9000 米', '欧洲航空瘫痪 6 天', '损失 17 亿美元'], lesson: '一座火山能让整个大洲的航班停摆——地球是连体的。' }
+      ],
+      surgery: {
+        id: 'volcano', title: '火山危机 · 喷发前 90 秒',
+        scenario: '火山口冒出白烟，气体浓度陡升，地面出现 2 cm/h 隆起。你要做的第一件事是？',
+        countdown: 12,
+        tools: [
+          { icon: '🏃', title: '撤离周边 5 km 居民', desc: '在喷发前完成' },
+          { icon: '🎥', title: '架设摄像机记录',   desc: '留下资料更重要' },
+          { icon: '🧪', title: '采集火山气体样本', desc: '用于科研与监测' }
+        ],
+        correctIndex: 0,
+        success: '✅ 疏散人群 5400 人，5 小时后火山发生 VEI 4 喷发，无一人伤亡。',
+        fail: '❌ 错失黄金 90 秒撤离窗口，喷发造成多人失踪。记住：人命永远优先于数据。'
+      }
+    },
+    {
+      id: 'earthquake', name: '地震', enName: 'EARTHQUAKE', color: '#FFB300', icon: '🌍',
+      patient: '身体剧烈颤抖、地表撕裂、房屋摇晃',
+      hotspot: { x: 175, y: 200, label: '躯干' },
+      selfReport: [
+        '「啊……我整个身体都在抖！骨头都要散架了！」',
+        '「地下的板块突然错动，把我的身体拧了一下。」',
+        '「我的皮肤被撕开一道道裂缝，房屋和道路都被压坏了……」',
+        '「快让我停下来！先别让房子塌，先把出口留出来！」'
+      ],
+      formation: [
+        { title: '板块边界', body: '全球 90% 地震发生在板块边界——环太平洋地震带最密集。' },
+        { title: '应力积累', body: '板块相互挤压，岩层像被慢慢弯折的钢尺，能量在断层中累积。' },
+        { title: '断层错动', body: '岩层突然断裂释放能量，等于「折断钢尺的瞬间」——这就是地震。' },
+        { title: '地震波传播', body: 'P 波（纵波）最快，先到；S 波（横波）随后，破坏性最强；面波最慢但持续最久。' }
+      ],
+      diagnosis: {
+        grade: 'M 6.0+ 为烈性；M 7.0 释放能量 ≈ 32 颗广岛原子弹',
+        range: '震中 100 km 内重灾；强震可影响数千公里的高层建筑',
+        summary: '主震 + 余震 + 建筑倒塌 + 次生火灾/堰塞湖/海啸是地震四重威胁。灾后 72 小时是救援黄金期。'
+      },
+      prescription: {
+        personal: [
+          '「伏地、遮挡、手抓牢」——躲在结实的桌子下，护住头颈',
+          '绝不可乘电梯；远离窗户、书架、悬挂物',
+          '户外时远离建筑物、桥、陡坡、电线杆，开车应靠边停',
+          '备好应急包：水、食物、手电、哨子、简易医疗包、固定亲人走失预案'
+        ],
+        community: [
+          '学校/商场每季度一次「1 分钟紧急疏散」演练',
+          '社区储备 3 天物资，标记空旷避难所，志愿者分片包干',
+          '对老旧房屋做抗震加固（重点是 2008 年前的砌体结构）',
+          '建立邻里「黄金 10 分钟」互救小组——消防车常被堵在路上'
+        ],
+        national: [
+          '建设全国烈度速报网与地震预警系统（利用 P 波抢在 S 波前发警报）',
+          '把抗震设防纳入城乡规划强制标准，重大工程做地震安全性评价',
+          '巨灾保险与灾后重建基金常备化',
+          '中小学将应急避险纳入必修课，每年至少 2 次实战演练'
+        ]
+      },
+      cases: [
+        { year: 1976, name: '唐山大地震', place: '中国河北唐山', data: ['M 7.6', '24.2 万人遇难', '百年工业城市瞬间夷平'], lesson: '在断层带建城是最大的教训，必须做活断层探测。' },
+        { year: 2008, name: '汶川大地震', place: '中国四川汶川', data: ['M 8.0', '8.7 万人遇难', '直接损失 8451 亿'], lesson: '山区地震引发滑坡堰塞湖，次生灾害同样致命。' },
+        { year: 2025, name: '西藏定日地震', place: '中国西藏日喀则', data: ['M 6.8', '高海拔极寒救援', '4 万余人受灾'], lesson: '高原地震叠加低温与交通中断，空中救援是生命线。' }
+      ],
+      surgery: {
+        id: 'earthquake', title: '地震救援 · 余震前 15 秒',
+        scenario: '一栋 6 层民房半塌，缝隙里传来呼救声。倒塌的楼板可能再次下坠。你先做什么？',
+        countdown: 10,
+        tools: [
+          { icon: '🦺', title: '先评估结构与呼叫 119', desc: '专业救援 5 分钟可达' },
+          { icon: '🪜', title: '立刻冲进去徒手挖人', desc: '趁被困者还清醒' },
+          { icon: '📣', title: '对缝隙大声呼答应答', desc: '确认位置与人数' }
+        ],
+        correctIndex: 2,
+        success: '✅ 第一时间确认被困者位置与人数，119 抵达后 18 分钟内救出 3 人，无二次伤害。',
+        fail: '❌ 盲目进入可能引发二次坍塌。永远先「侦察」再「行动」——救人是技术活。'
+      }
+    },
+    {
+      id: 'typhoon', name: '台风海啸', enName: 'TYPHOON & TSUNAMI', color: '#1E88E5', icon: '🌀',
+      patient: '表面卷起螺旋、巨浪冲向海岸',
+      hotspot: { x: 240, y: 200, label: '海面' },
+      selfReport: [
+        '「呜……海面上有一个巨大的螺旋在转，我转得好晕。」',
+        '「海水被卷上了天，又重重地摔回岸边，房屋像纸片一样被卷走。」',
+        '「海底下还在动——地震又把整片海推了起来，浪墙一堵接一堵。」',
+        '「先让大家远离海岸，告诉我什么时候浪会退……」'
+      ],
+      formation: [
+        { title: '热带海洋孕育', body: '海温 > 26.5°C、纬度 5°–20° 之间的洋面，给台风提供「燃料」。' },
+        { title: '水汽上升成云', body: '温暖海水蒸发上升，遇冷凝结释放潜热，成为台风的「发动机」。' },
+        { title: '螺旋与风眼', body: '受科里奥利力影响，气流逆时针旋转（北半球）形成螺旋，中间平静的「风眼」。' },
+        { title: '登陆 + 风暴潮', body: '强风 + 暴雨 + 气压骤降把海水「吸」向岸边，叠加天文大潮，破坏力倍增。' }
+      ],
+      diagnosis: {
+        grade: '超强台风（中心风力 ≥ 16 级）影响沿海 500–1000 km',
+        range: '狂风摧毁建筑、暴雨引发内涝、风暴潮漫堤 5–10 米',
+        summary: '风、雨、潮「三碰头」是台风最大威胁；海啸则源于海底地震，由整列海水传递，每小时 700–900 km。'
+      },
+      prescription: {
+        personal: [
+          '关注气象台发布的「台风蓝—黄—橙—红」四色预警，逐级升级应对',
+          '储备 3 天物资 + 充电宝 + 移动电源；玻璃窗贴「米」字胶带防碎',
+          '远离临时建筑、塔吊、广告牌；不要在「风眼」过境时出门',
+          '沿海低洼居民应提前 24 小时撤离至避难所'
+        ],
+        community: [
+          '组织老旧房屋、地下车库、低洼地居民提前转移',
+          '社区医院、超市、加油站组成「抗风联盟」轮值',
+          '沿海堤坝、闸门、电排站 24 小时值守',
+          '灾后 72 小时内严防疫病与饮用水消毒'
+        ],
+        national: [
+          '国家卫星 + 雷达 + 浮标 + 飞机探测构成立体监测网',
+          '完善海堤、防波堤、红树林等「生态海防线」',
+          '建立跨省台风应急联动与「橙色以上」人员强制撤离机制',
+          '对海啸建立 DART 浮标 + 6 分钟速报 + 沿海广播自动接入'
+        ]
+      },
+      cases: [
+        { year: 2011, name: '日本东北地震海啸', place: '日本东北沿海', data: ['浪高 40 米', '近 2 万人遇难', '福岛核事故'], lesson: '海啸叠加核电站——人类必须敬畏海洋。' },
+        { year: 2013, name: '台风海燕', place: '菲律宾莱特湾', data: ['中心风速 315 km/h', '6300 人遇难', '180 万人无家可归'], lesson: '超强台风足以抹平一座城市。' },
+        { year: 2017, name: '台风天鸽', place: '中国珠海澳门', data: ['中心风力 16 级', '澳门 10 小时停电', '损失 380 亿'], lesson: '沿海超大城市必须为「百年一遇」重设防线。' }
+      ],
+      surgery: {
+        id: 'typhoon', title: '台风登陆 · 风暴潮前 60 秒',
+        scenario: '沿海小镇 3 公里外一道 4 米高的浪墙正快速逼近，警报已经响起。你优先？',
+        countdown: 8,
+        tools: [
+          { icon: '📢', title: '广播通知所有人向高处撤离', desc: '剩余时间极短' },
+          { icon: '🛻', title: '派车去接几个走不动的老人', desc: '不能落下任何一个人' },
+          { icon: '🪵', title: '用沙袋堵住家门口', desc: '挡住一些水就好' }
+        ],
+        correctIndex: 0,
+        success: '✅ 广播直达 1.2 万人，95% 在浪墙抵达前撤至高处，零伤亡。',
+        fail: '❌ 时间不够逐家逐户，广播的覆盖速度永远比车轮快。'
+      }
+    },
+    {
+      id: 'flood', name: '暴雨洪涝', enName: 'FLOOD', color: '#00B8D4', icon: '🌧',
+      patient: '皮肤泛红肿胀、内涝成河',
+      hotspot: { x: 150, y: 240, label: '皮肤' },
+      selfReport: [
+        '「我的皮肤在肿！雨水下个不停，地下都喝饱了。」',
+        '「路面变成了河，车子像玩具一样漂起来……」',
+        '「下水道在倒灌，地铁站进水了！」',
+        '「先别往地下走——上面再难受也比水坑里安全。」'
+      ],
+      formation: [
+        { title: '极端降雨', body: '1 小时 100 mm + 的短时强降雨超过城市排水设计标准。' },
+        { title: '地表径流', body: '硬化路面（沥青、水泥）让雨水无法下渗，汇成「地表洪水」。' },
+        { title: '河流超警', body: '上游来水超过河道过水能力，河水漫堤、溃堤。' },
+        { title: '城市内涝', body: '地下空间（地铁、地下车库、商场）一旦倒灌，30 分钟水位可达 1.5 米。' }
+      ],
+      diagnosis: {
+        grade: '24 小时 250 mm 以上为「特大暴雨」，常伴雷暴大风',
+        range: '城市低洼地、地铁、地下车库、立交桥下是高危区',
+        summary: '雨大 + 排水弱 + 地形低 + 预警延迟 = 城市洪涝。雷击、断电、触电、流行病是次生威胁。'
+      },
+      prescription: {
+        personal: [
+          '看气象「暴雨蓝/黄/橙/红」预警，红色预警下非必要不外出',
+          '避开低洼、涵洞、地下通道、临河道路；涉水深度 > 30 cm 立即折返',
+          '车辆熄火被困时立刻弃车，往高处转移，敲碎车窗求生',
+          '触电风险：积水中的路灯、公交站、配电箱——保持 3 米以上距离'
+        ],
+        community: [
+          '物业提前检查排水泵、应急电源、挡水板',
+          '建立 24 小时值班的「内涝点」清单与责任人公示牌',
+          '组织志愿者对独居老人、伤残人士提前转移',
+          '灾后第一周严防肠道传染病，饮用水必须煮沸'
+        ],
+        national: [
+          '修订城市排水设计标准，推广「海绵城市」——渗、滞、蓄、净、用、排',
+          '气象-水文-应急-消防联合发布「小时级」短临预报',
+          '对城市地铁、立交、地下商业做防洪评估与改造',
+          '建设国家级洪涝巨灾保险和救灾物资储备库'
+        ]
+      },
+      cases: [
+        { year: 1998, name: '长江特大洪水', place: '中国长江中下游', data: ['死亡 4150 人', '直接损失 2551 亿', '3.18 亿人受灾'], lesson: '人类必须给洪水让路——退耕还湖、移民建镇是长远之策。' },
+        { year: 2012, name: '北京 7·21 特大暴雨', place: '中国北京', data: ['最大小时雨量 100.3 mm', '79 人遇难', '1.6 万房屋倒塌'], lesson: '现代化大都市也会被「一小时 100 毫米」击穿。' },
+        { year: 2021, name: '郑州 7·20 特大暴雨', place: '中国河南郑州', data: ['1 小时 201.9 mm', '380 人遇难', '地铁 5 号线灌水'], lesson: '极端降水已突破工程设计标准，预警必须「宁听骂声不听哭声」。' }
+      ],
+      surgery: {
+        id: 'flood', title: '地铁灌水 · 水位涨至腰部',
+        scenario: '地铁站内突然涌入黄浊泥水，地面湿滑，部分扶梯已停运。你该先做什么？',
+        countdown: 10,
+        tools: [
+          { icon: '⛔', title: '立即关闭所有入口、阻止乘客进站', desc: '已不够时间疏散' },
+          { icon: '🪜', title: '组织站内人员向最高层转移', desc: '水可能继续上涨' },
+          { icon: '🔌', title: '拉下电闸断电防触电', desc: '先保命再保设备' }
+        ],
+        correctIndex: 1,
+        success: '✅ 站内 230 人在 8 分钟内撤至站厅层，水位再涨 1.2 米也未造成伤亡。',
+        fail: '❌ 站厅层才是生命线，人比闸刀重要。'
+      }
+    },
+    {
+      id: 'heat', name: '极端高温干旱', enName: 'EXTREME HEAT & DROUGHT', color: '#DC2626', icon: '☀️',
+      patient: '持续高烧、皮肤干裂、河流萎缩',
+      hotspot: { x: 200, y: 160, label: '额头' },
+      selfReport: [
+        '「好烫……我像被架在火上烤，水汽在天空蒸成云又不下回来。」',
+        '「我的皮肤裂开，河床见底，庄稼低下头……人也快撑不住了。」',
+        '「夜里都 30 多度，老人和孩子最先倒下。」',
+        '「先给我降温，先保住水——再想办法让雨回来。」'
+      ],
+      formation: [
+        { title: '高压控制', body: '副热带高压长期盘踞使气流下沉、增温，热量在地表堆积。' },
+        { title: '全球变暖', body: '气候变暖让极端高温的频率和强度都显著上升——「百年一遇」变成「十年一遇」。' },
+        { title: '干旱耦合', body: '持续无雨 + 强蒸发 → 土壤失水、河流萎缩、森林火险陡增。' },
+        { title: '人体暴露', body: '热浪期间，老人、孩子、慢性病人是「热射病」最高危群体。' }
+      ],
+      diagnosis: {
+        grade: '日最高气温 ≥ 40°C 持续 3 天以上为「极端高温事件」',
+        range: '影响农业、能源（水电、空调）、人体健康与生态系统',
+        summary: '热浪是中暑、心脑血管疾病、火灾、粮食减产的复合杀手。干旱叠加高温，让水资源、农业、生态链断裂。'
+      },
+      prescription: {
+        personal: [
+          '尽量避开 10:00–16:00 户外活动，外出打伞、戴帽、涂 SPF 30+',
+          '少量多次饮水（不要等渴了再喝），避开冰水与高糖饮料',
+          '家中常备藿香正气水、风油精；识别头晕、抽筋等中暑先兆',
+          '老人、孩子、慢性病人开空调至 26°C 以上，避免室内外温差过大'
+        ],
+        community: [
+          '开放社区避暑中心、图书馆、地铁站，配置饮水点',
+          '对独居老人每日 2 次上门探访，监测健康',
+          '调整户外作业时间至清晨与傍晚',
+          '消防加密巡查高压线、电动自行车充电点'
+        ],
+        national: [
+          '将「极端高温」纳入气象灾害应急预案并设国家级热健康预警',
+          '推动能源结构转型，限制煤电尖峰，发展储能与可再生能源',
+          '建设国家级水资源调度系统与战略储备水库',
+          '植树造林、退耕还林、湿地修复——把「绿」还给地球'
+        ]
+      },
+      cases: [
+        { year: 2003, name: '欧洲热浪', place: '西欧', data: ['夏季均温创纪录', '7 万 + 人遇难', '水电骤减'], lesson: '发达国家同样会被热浪击穿——高温是最公平的杀手。' },
+        { year: 2022, name: '北半球极端高温', place: '中国/欧洲/北美', data: ['多地破 40°C', '长江水位历史同期最低', '川渝限电'], lesson: '气候系统是连体的，热浪与干旱从不孤立。' },
+        { year: 2023, name: '全球史上最热年', place: '全球', data: ['7 月最热单月', '全球均温首次破 1.5°C', '极端事件频发'], lesson: '1.5°C 不是抽象数字，而是我们和地球共同的体温。' }
+      ],
+      surgery: {
+        id: 'heat', title: '城市限电 · 数百万人空调告急',
+        scenario: '连续 7 天 40°C 高温，水电告急，电网逼近极限。你现在最关键的决策是？',
+        countdown: 9,
+        tools: [
+          { icon: '🏥', title: '医院、地铁、通讯基站优先保电', desc: '关乎生命线' },
+          { icon: '🏠', title: '号召居民把空调调到 28°C', desc: '每人省一点' },
+          { icon: '🏭', title: '让工厂轮流停产', desc: '工业用电占比大' }
+        ],
+        correctIndex: 0,
+        success: '✅ 生命线工程不断电，市民通过调温 26–28°C 共克时艰，3 天后等来降雨。',
+        fail: '❌ 顺序错了。先保人，再节能。'
+      }
+    }
+  ];
+
+  window.HALL_TICKER = [
+    { tag: 'EARTH-QUAKE', num: 'M 6.2 · 印尼苏门答腊' },
+    { tag: 'VOLCANO',     num: 'VUI 3 · 日本樱岛' },
+    { tag: 'TYPHOON',     num: 'TY 09 · 西太平洋' },
+    { tag: 'FLOOD',       num: '橙色 · 孟加拉国' },
+    { tag: 'HEAT',        num: '红色 · 印度北部' },
+    { tag: 'ICU',         num: '今日接诊 12,847 例' },
+    { tag: 'SURGERY',     num: '已开展 86 台' },
+    { tag: 'RECOVERED',   num: '缓解出院 11,933 例' }
+  ];
+
+  /* ============================================================
+     state.js · 状态管理 + localStorage 持久化
+     ============================================================ */
+  (function () {
+    const KEY = 'earth_medical_state_v1';
+    const initial = { visited: [], meds: [], surgeryLog: [], certificateName: '' };
+    const state = load();
+    function load() {
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (!raw) return { ...initial };
+        return { ...initial, ...JSON.parse(raw) };
+      } catch { return { ...initial }; }
+    }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} }
+    const Store = {
+      get state() { return state; },
+      subscribe(fn) {
+        this._subs = this._subs || new Set();
+        this._subs.add(fn);
+        return () => this._subs.delete(fn);
+      },
+      _emit() { (this._subs || []).forEach(fn => { try { fn(state); } catch {} }); },
+      visitClinic(id) {
+        if (!state.visited.includes(id)) { state.visited.push(id); save(); this._emit(); }
+      },
+      recordSurgery(id, success) {
+        const exists = state.surgeryLog.find(s => s.id === id);
+        if (!exists) {
+          state.surgeryLog.push({ id, success, ts: Date.now() });
+          if (success) state.meds.push(id);
+          save(); this._emit();
+        }
+      },
+      reset() { Object.assign(state, initial); save(); this._emit(); },
+      setCertificateName(name) { state.certificateName = (name || '').slice(0, 16); save(); },
+      get medalCount() { return state.meds.length; },
+      get progress() { return state.visited.length / window.DISASTERS.length; },
+      get rank() {
+        const m = this.medalCount, v = state.visited.length;
+        if (v >= 5 && m >= 3) return { title: '主任医师', short: 'AR', desc: '您已走完所有诊室，地球医院的「年度最佳医生」。' };
+        if (m >= 3)         return { title: '主治医师', short: 'AT', desc: '已熟练完成多台手术，可以独立坐诊。' };
+        if (m >= 1 || v >= 3) return { title: '住院医生', short: 'R2', desc: '基础扎实，正在积累临床经验。' };
+        return { title: '见习医生', short: 'R1', desc: '欢迎来到行星医院，让我们从「挂号」开始。' };
+      },
+      get mostIgnored() {
+        const visitedSet = new Set(state.visited);
+        const missing = window.DISASTERS.filter(d => !visitedSet.has(d.id));
+        return missing[0] || null;
+      }
+    };
+    window.Store = Store;
+  })();
+
+  /* ============================================================
+     utils.js · 通用工具
+     ============================================================ */
+  (function () {
+    function typeText(el, text, speed = 40) {
+      return new Promise(resolve => {
+        el.classList.add('cursor');
+        el.textContent = '';
+        let i = 0;
+        const tick = () => {
+          if (i >= text.length) { el.classList.remove('cursor'); return resolve(); }
+          el.textContent += text[i++];
+          setTimeout(tick, speed);
+        };
+        tick();
+      });
+    }
+    async function typeSequence(targets, gap = 350) {
+      for (const { el, text, speed } of targets) {
+        await typeText(el, text, speed || 40);
+        await wait(gap);
+      }
+    }
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function h(tag, attrs = {}, children = []) {
+      const el = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'class') el.className = v;
+        else if (k === 'html') el.innerHTML = v;
+        else if (k === 'text') el.textContent = v;
+        else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+        else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
+        else if (k === 'dataset' && typeof v === 'object') Object.assign(el.dataset, v);
+        else if (v !== false && v != null) el.setAttribute(k, v);
+      }
+      (Array.isArray(children) ? children : [children]).forEach(c => {
+        if (c == null || c === false) return;
+        el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+      });
+      return el;
+    }
+    function nowStr() {
+      const d = new Date();
+      const p = n => String(n).padStart(2, '0');
+      return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    }
+    function shake(el) { el.classList.remove('shake-x'); void el.offsetWidth; el.classList.add('shake-x'); }
+    function debounce(fn, ms = 200) {
+      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    }
+    function fadeInView(view) { view.classList.remove('view--in'); void view.offsetWidth; view.classList.add('view--in'); }
+    function nfmt(n) { return n.toLocaleString('zh-CN'); }
+    function dateStr(d = new Date()) {
+      return `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+    }
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    }
+    window.U = { typeText, typeSequence, wait, h, nowStr, shake, debounce, fadeInView, nfmt, dateStr, escapeHtml };
+  })();
+
+  /* ============================================================
+     earth.js · 拟人化地球 SVG + 5 个热点
+     ============================================================ */
+  (function () {
+    function renderEarth(mood = 'normal') {
+      const face = {
+        normal:   { eyeY: 152, mouth: 'M 162 200 Q 180 215 198 200' },
+        pain:     { eyeY: 156, mouth: 'M 160 208 Q 180 188 200 208' },
+        relieved: { eyeY: 152, mouth: 'M 160 198 Q 180 220 200 198' }
+      }[mood];
+      const disasters = window.DISASTERS;
+      const hotspots = disasters.map((d, i) => {
+        const { x, y, label } = d.hotspot;
+        const delay = (i * 0.35).toFixed(2);
+        const labelDy = i % 2 === 0 ? -22 : 22;
+        return `
+          <g class="hotspot" data-id="${d.id}" tabindex="0" role="button" aria-label="${d.name} 诊室">
+            <circle class="hotspot__pulse" cx="${x}" cy="${y}" r="14" fill="${d.color}" style="animation-delay: ${delay}s" />
+            <circle class="hotspot__core" cx="${x}" cy="${y}" r="9" fill="${d.color}" stroke="#fff" stroke-width="2" />
+            <circle cx="${x}" cy="${y}" r="3" fill="#fff" />
+            <text class="hotspot__label" x="${x}" y="${y + labelDy}">${d.icon} ${label}</text>
+          </g>`;
+      }).join('');
+      return `
+<svg class="earth-svg" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg" aria-label="拟人化地球">
+  <defs>
+    <radialGradient id="ocean" cx="40%" cy="35%" r="80%">
+      <stop offset="0%"  stop-color="#3FA9F5"/>
+      <stop offset="55%" stop-color="#1E88E5"/>
+      <stop offset="100%" stop-color="#0A4F8A"/>
+    </radialGradient>
+    <radialGradient id="oceanShine" cx="35%" cy="30%" r="40%">
+      <stop offset="0%"  stop-color="rgba(255,255,255,.55)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+    <radialGradient id="atmosphere" cx="50%" cy="50%" r="55%">
+      <stop offset="78%" stop-color="rgba(0,217,255,0)"/>
+      <stop offset="95%" stop-color="rgba(0,217,255,.35)"/>
+      <stop offset="100%" stop-color="rgba(0,217,255,0)"/>
+    </radialGradient>
+    <clipPath id="earthClip"><circle cx="180" cy="180" r="140"/></clipPath>
+  </defs>
+  <circle cx="180" cy="180" r="172" fill="url(#atmosphere)" />
+  <g class="breath">
+    <circle cx="180" cy="180" r="140" fill="url(#ocean)"/>
+    <g clip-path="url(#earthClip)" fill="#00C896" opacity=".92">
+      <path d="M 90 130 Q 110 110 140 120 T 195 130 Q 220 138 225 165 Q 215 188 195 200 Q 165 210 140 198 Q 110 188 95 165 Q 80 148 90 130 Z"/>
+      <path d="M 220 100 Q 245 95 270 115 Q 280 145 268 170 Q 250 195 230 188 Q 215 165 220 100 Z"/>
+      <path d="M 110 215 Q 145 210 180 225 Q 220 240 230 270 Q 220 290 195 295 Q 150 290 120 270 Q 100 250 110 215 Z"/>
+      <path d="M 245 230 Q 270 225 285 245 Q 285 270 268 285 Q 248 285 240 260 Q 238 245 245 230 Z"/>
+    </g>
+    <g clip-path="url(#earthClip)" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1">
+      <ellipse cx="180" cy="180" rx="140" ry="50"/>
+      <ellipse cx="180" cy="180" rx="140" ry="100"/>
+      <ellipse cx="180" cy="180" rx="50"  ry="140"/>
+      <ellipse cx="180" cy="180" rx="100" ry="140"/>
+      <line x1="40"  y1="180" x2="320" y2="180"/>
+      <line x1="180" y1="40"  x2="180" y2="320"/>
+    </g>
+    <ellipse cx="135" cy="120" rx="55" ry="30" fill="url(#oceanShine)" clip-path="url(#earthClip)"/>
+    <g class="face" data-mood="${mood}">
+      <ellipse cx="158" cy="${face.eyeY}" rx="6" ry="8" fill="#0A1929"/>
+      <ellipse cx="160" cy="${face.eyeY - 2}" rx="2" ry="2.5" fill="#fff"/>
+      <ellipse cx="202" cy="${face.eyeY}" rx="6" ry="8" fill="#0A1929"/>
+      <ellipse cx="204" cy="${face.eyeY - 2}" rx="2" ry="2.5" fill="#fff"/>
+      <path d="${face.mouth}" stroke="#0A1929" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(255 200) rotate(28)">
+      <rect x="0" y="0" width="40" height="14" rx="3" fill="#fff" stroke="#1E88E5" stroke-width="1.4"/>
+      <text x="6" y="10" font-family="JetBrains Mono, monospace" font-size="8" fill="#1E88E5" letter-spacing="0.5">PH-PT</text>
+    </g>
+  </g>
+  <g class="hotspots">
+    ${hotspots}
+  </g>
+</svg>`;
+    }
+    function bindEarth(view) {
+      const svg = view.querySelector('.earth-svg');
+      if (!svg) return;
+      svg.querySelectorAll('.hotspot').forEach(g => {
+        const go = () => { location.hash = `#/clinic/${g.dataset.id}`; };
+        g.addEventListener('click', go);
+        g.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+        });
+      });
+    }
+    function setMood(mood) {
+      const face = document.querySelector('.earth-svg .face');
+      if (face) face.dataset.mood = mood;
+    }
+    window.Earth = { renderEarth, bindEarth, setMood };
+  })();
+
+  /* ============================================================
+     views/hall.js · 挂号大厅
+     ============================================================ */
+  (function () {
+    function render(view) {
+      const state = window.Store.state;
+      const visited = new Set(state.visited);
+      const rank = window.Store.rank;
+      const tickerItems = window.HALL_TICKER.concat(window.HALL_TICKER).map(t => `
+        <li><span class="tag">${t.tag}</span><span class="num">${t.num}</span></li>
+      `).join('');
+      view.innerHTML = `
+<section class="hall">
+  <div class="hall__main">
+    <header class="hall__head">
+      <div>
+        <div class="eyebrow">RECEPTION · 挂号大厅</div>
+        <h2>请为「地球」挂急诊</h2>
+      </div>
+      <div class="hall__live">LIVE · 24h EMERGENCY</div>
+    </header>
+    <div class="earth-stage">
+      ${window.Earth.renderEarth('pain')}
+    </div>
+    <div class="hall__legend">
+      <div class="row"><span class="dot" style="background:#FF5722"></span> 火山喷发</div>
+      <div class="row"><span class="dot" style="background:#FFB300"></span> 地震</div>
+      <div class="row"><span class="dot" style="background:#1E88E5"></span> 台风海啸</div>
+      <div class="row"><span class="dot" style="background:#00B8D4"></span> 暴雨洪涝</div>
+      <div class="row"><span class="dot" style="background:#DC2626"></span> 极端高温</div>
+    </div>
+    <aside class="hall__ticker" aria-label="急诊实时数据">
+      <h5>EMERGENCY FEED</h5>
+      <ul>${tickerItems}</ul>
+    </aside>
+  </div>
+  <aside class="hall__side">
+    <div class="patient-card">
+      <div class="eyebrow">PATIENT · 病人</div>
+      <h3>🌍 地球（Earth）</h3>
+      <dl>
+        <dt>性别</dt><dd>未填写</dd>
+        <dt>年龄</dt><dd>约 45 亿岁</dd>
+        <dt>编号</dt><dd>PH-PT-001</dd>
+        <dt>主诉</dt><dd>浑身酸痛 · 体表滚烫</dd>
+        <dt>诊室</dt><dd>行星医院 1F–5F</dd>
+        <dt>医师</dt><dd>${rank.title}（您）</dd>
+      </dl>
+      <div class="patient-card__barcode"></div>
+      <small>ID: PH-PT-001-EARTH-2026</small>
+    </div>
+    <div class="visits">
+      <h4>探索进度 <span class="mono" style="font-size:11px;color:var(--ink-soft)">${state.visited.length}/${window.DISASTERS.length}</span></h4>
+      <div class="visits__list">
+        ${window.DISASTERS.map(d => `
+          <a class="visits__item ${visited.has(d.id) ? 'is-on' : ''}" href="#/clinic/${d.id}">
+            <span class="swatch"></span>
+            <span class="name">${d.icon} ${d.name}</span>
+            <span class="badge">${visited.has(d.id) ? '已问诊' : '未问诊'}</span>
+          </a>`).join('')}
+      </div>
+    </div>
+    <a class="btn btn--primary btn--block" href="#/report">查看我的体检报告 →</a>
+  </aside>
+</section>`;
+      window.Earth.bindEarth(view);
+      const clock = document.getElementById('realtimeClock');
+      if (clock) {
+        clock.textContent = window.U.nowStr();
+        clearInterval(window.__hallClock);
+        window.__hallClock = setInterval(() => { clock.textContent = window.U.nowStr(); }, 1000);
+      }
+    }
+    window.HallView = { render };
+  })();
+
+  /* ============================================================
+     views/clinic.js · 通用诊室（5 个灾害共用）
+     ============================================================ */
+  (function () {
+    const STEPS = [
+      { id: 'consult',  label: '问诊' },
+      { id: 'exam',     label: '检查报告' },
+      { id: 'diag',     label: '诊断书' },
+      { id: 'rx',       label: '处方' },
+      { id: 'archive',  label: '病例档案' }
+    ];
+
+    const DIAGRAMS = {
+      volcano: `<svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" class="diagram-svg">
+  <defs>
+    <linearGradient id="lava" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#FFD180"/><stop offset="40%" stop-color="#FF7043"/><stop offset="100%" stop-color="#BF360C"/>
+    </linearGradient>
+    <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#5D4037"/><stop offset="100%" stop-color="#3E2723"/>
+    </linearGradient>
+    <radialGradient id="smoke" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="rgba(120,120,120,.7)"/><stop offset="100%" stop-color="rgba(120,120,120,0)"/>
+    </radialGradient>
+  </defs>
+  <rect x="0" y="0" width="600" height="340" fill="#0F2440"/>
+  <line x1="0" y1="240" x2="600" y2="240" stroke="#00D9FF" stroke-width="0.6" stroke-dasharray="2 4" opacity=".5"/>
+  <path d="M 0 240 L 200 240 L 250 180 L 300 90 L 350 180 L 400 240 L 600 240 Z" fill="url(#rock)"/>
+  <ellipse cx="300" cy="280" rx="120" ry="36" fill="url(#lava)"/>
+  <text x="300" y="318" fill="#FFD180" font-family="JetBrains Mono" font-size="11" text-anchor="middle" letter-spacing="2">岩 浆 房 · MAGMA CHAMBER · 800–1200°C</text>
+  <path d="M 295 270 L 300 100 L 305 270 Z" fill="url(#lava)"/>
+  <path d="M 295 100 Q 280 50 260 30 M 305 100 Q 320 50 340 30 M 300 95 Q 300 40 300 10" stroke="#FFAB91" stroke-width="3" fill="none" opacity=".85"/>
+  <circle cx="260" cy="30" r="22" fill="url(#smoke)"/>
+  <circle cx="340" cy="30" r="22" fill="url(#smoke)"/>
+  <circle cx="300" cy="14" r="26" fill="url(#smoke)"/>
+  <circle cx="276" cy="60" r="3" fill="#FF5722"/>
+  <circle cx="324" cy="68" r="2" fill="#FF5722"/>
+  <circle cx="290" cy="44" r="2.5" fill="#FF8A65"/>
+  <g font-family="JetBrains Mono" font-size="10" fill="#67E8F9" letter-spacing="1">
+    <line x1="300" y1="30"  x2="430" y2="30"  stroke="#67E8F9" stroke-width=".6"/><text x="436" y="33">喷 发 柱</text>
+    <line x1="300" y1="100" x2="430" y2="100" stroke="#67E8F9" stroke-width=".6"/><text x="436" y="103">火 山 口</text>
+    <line x1="180" y1="200" x2="60"  y2="200" stroke="#67E8F9" stroke-width=".6"/><text x="56"  y="203" text-anchor="end">地 壳</text>
+  </g>
+  <g font-family="JetBrains Mono" font-size="10" fill="#94A3B8">
+    <text x="10" y="20">SECTION · A–A'</text>
+    <text x="10" y="34">SCALE · 1 : 200k</text>
+    <text x="500" y="20" text-anchor="end">PH-XR-001</text>
+  </g>
+</svg>`,
+
+      earthquake: `<svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" class="diagram-svg">
+  <rect x="0" y="0" width="600" height="340" fill="#0F2440"/>
+  <path d="M 80 320 L 220 220 L 280 230 L 360 160 L 440 200 L 520 130" stroke="#FFB300" stroke-width="2" fill="none"/>
+  <g fill="#FFB300" font-family="JetBrains Mono" font-size="10" letter-spacing="1"><text x="240" y="212">断 层 · FAULT</text></g>
+  <g fill="none" stroke="#00D9FF" stroke-width="1" opacity=".9">
+    <circle cx="300" cy="200" r="60"/>
+    <circle cx="300" cy="200" r="110" opacity=".7"/>
+    <circle cx="300" cy="200" r="160" opacity=".45"/>
+    <circle cx="300" cy="200" r="210" opacity=".25"/>
+  </g>
+  <g fill="#67E8F9" font-family="JetBrains Mono" font-size="10">
+    <text x="356" y="170">P 波 · 纵波 · 5–8 km/s</text>
+    <text x="356" y="186" opacity=".75">S 波 · 横波 · 3–5 km/s</text>
+    <text x="356" y="202" opacity=".5">面 波 · 2–3 km/s</text>
+  </g>
+  <circle cx="300" cy="200" r="6" fill="#FF5722"/>
+  <text x="300" y="226" fill="#FF8A65" font-family="JetBrains Mono" font-size="10" text-anchor="middle" letter-spacing="1">震 中 · EPICENTER</text>
+  <g fill="#94A3B8" font-family="JetBrains Mono" font-size="10" letter-spacing="1">
+    <rect x="90"  y="262" width="22" height="34"/>
+    <rect x="130" y="252" width="22" height="44"/>
+    <rect x="170" y="268" width="22" height="28"/>
+    <text x="155" y="316" text-anchor="middle">受 灾 建 筑</text>
+  </g>
+  <g transform="translate(460 250)" stroke="#00D9FF" fill="none">
+    <rect x="0" y="0" width="100" height="60" rx="4" stroke-width="1"/>
+    <polyline points="4,30 14,30 18,12 22,46 26,30 40,30 44,18 48,42 52,30 96,30" stroke="#00D9FF" stroke-width="1.2" fill="none"/>
+  </g>
+  <text x="510" y="326" fill="#67E8F9" font-family="JetBrains Mono" font-size="10" text-anchor="middle">地 震 仪 · SEISMOGRAPH</text>
+  <g font-family="JetBrains Mono" font-size="10" fill="#94A3B8">
+    <text x="10" y="20">SEISMIC WAVE PROPAGATION</text>
+    <text x="10" y="34">M ≥ 6.0 · DEPTH 10 km</text>
+    <text x="590" y="20" text-anchor="end">PH-XR-002</text>
+  </g>
+</svg>`,
+
+      typhoon: `<svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" class="diagram-svg">
+  <rect x="0" y="0" width="600" height="340" fill="#0F2440"/>
+  <circle cx="300" cy="170" r="22" fill="#0A1929" stroke="#67E8F9" stroke-width="1.2"/>
+  <text x="300" y="173" fill="#67E8F9" font-family="JetBrains Mono" font-size="10" text-anchor="middle" letter-spacing="1">EYE</text>
+  <g fill="none" stroke="#1E88E5" stroke-width="1.4" opacity=".85">
+    <path d="M 60 80 Q 200 100 280 160"/>
+    <path d="M 540 90 Q 400 110 320 160"/>
+    <path d="M 70 270 Q 220 250 290 180"/>
+    <path d="M 540 260 Q 400 240 310 180"/>
+    <path d="M 300 30  Q 300 90  300 150"/>
+    <path d="M 300 320 Q 300 240 300 200"/>
+  </g>
+  <g fill="none" stroke="#00D9FF" stroke-width="1" opacity=".65">
+    <path d="M 120 60  Q 260 90  290 160"/>
+    <path d="M 480 80  Q 340 100 310 160"/>
+    <path d="M 130 290 Q 250 270 290 180"/>
+    <path d="M 480 280 Q 350 250 310 180"/>
+  </g>
+  <circle cx="300" cy="170" r="55" fill="none" stroke="#FF5722" stroke-dasharray="3 3" opacity=".75"/>
+  <text x="300" y="100" fill="#FF8A65" font-family="JetBrains Mono" font-size="10" text-anchor="middle" letter-spacing="1">EYE WALL · 风 眼 墙</text>
+  <path d="M 0 320 L 200 320 L 240 305 L 360 305 L 400 320 L 600 320" stroke="#94A3B8" stroke-width="1" fill="none"/>
+  <text x="20" y="316" fill="#94A3B8" font-family="JetBrains Mono" font-size="10">COAST</text>
+  <path d="M 200 320 L 200 290 L 240 282 L 360 282 L 400 290 L 400 320 Z" fill="rgba(30,136,229,.4)"/>
+  <text x="300" y="312" fill="#BBDEFB" font-family="JetBrains Mono" font-size="10" text-anchor="middle" letter-spacing="1">STORM SURGE</text>
+  <g font-family="JetBrains Mono" font-size="10" fill="#67E8F9">
+    <text x="100" y="60">SPIRAL BAND</text>
+    <text x="430" y="60">SPIRAL BAND</text>
+  </g>
+  <g font-family="JetBrains Mono" font-size="10" fill="#94A3B8">
+    <text x="10" y="20">TYPHOON STRUCTURE · 北半球逆时针</text>
+    <text x="10" y="34">PRESSURE 920 hPa · WIND 16 级</text>
+    <text x="590" y="20" text-anchor="end">PH-XR-003</text>
+  </g>
+</svg>`,
+
+      flood: `<svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" class="diagram-svg">
+  <rect x="0" y="0" width="600" height="340" fill="#0F2440"/>
+  <circle cx="520" cy="60" r="22" fill="#FFB300" opacity=".75"/>
+  <g stroke="#FFB300" stroke-width="1" opacity=".55">
+    <line x1="520" y1="22" x2="520" y2="6"/>
+    <line x1="488" y1="60" x2="472" y2="60"/>
+    <line x1="552" y1="60" x2="568" y2="60"/>
+    <line x1="498" y1="38" x2="486" y2="26"/>
+    <line x1="542" y1="38" x2="554" y2="26"/>
+  </g>
+  <g fill="#90A4AE" opacity=".85">
+    <ellipse cx="180" cy="80" rx="60" ry="22"/>
+    <ellipse cx="240" cy="70" rx="50" ry="20"/>
+    <ellipse cx="290" cy="86" rx="70" ry="24"/>
+  </g>
+  <g stroke="#00D9FF" stroke-width="1.2" stroke-linecap="round">
+    <line x1="160" y1="100" x2="152" y2="130"/><line x1="180" y1="104" x2="172" y2="138"/>
+    <line x1="200" y1="100" x2="192" y2="130"/><line x1="220" y1="106" x2="212" y2="140"/>
+    <line x1="240" y1="100" x2="232" y2="130"/><line x1="260" y1="104" x2="252" y2="138"/>
+    <line x1="280" y1="100" x2="272" y2="130"/><line x1="300" y1="106" x2="292" y2="140"/>
+    <line x1="320" y1="100" x2="312" y2="130"/><line x1="340" y1="104" x2="332" y2="138"/>
+  </g>
+  <path d="M 0 180 L 120 130 L 220 160 L 360 120 L 500 170 L 600 150 L 600 200 L 0 200 Z" fill="#1B5E20" opacity=".75"/>
+  <path d="M 60 200 Q 200 220 320 200 T 600 220 L 600 260 L 60 260 Z" fill="#0288D1" opacity=".8"/>
+  <g fill="#FF5722" opacity=".9">
+    <circle cx="150" cy="245" r="6"/><circle cx="180" cy="252" r="5"/><circle cx="210" cy="240" r="6"/>
+  </g>
+  <text x="180" y="280" fill="#FF8A65" font-family="JetBrains Mono" font-size="10" letter-spacing="1">URBAN INUNDATION · 城市内涝点</text>
+  <g fill="none" stroke="#67E8F9" stroke-width="1" stroke-dasharray="3 4" opacity=".75">
+    <path d="M 520 90 Q 460 130 320 90"/>
+    <path d="M 200 88 Q 140 150 80 220"/>
+  </g>
+  <g font-family="JetBrains Mono" font-size="10" fill="#67E8F9">
+    <text x="400" y="60">蒸 发</text><text x="60"  y="200">径 流</text>
+  </g>
+  <g font-family="JetBrains Mono" font-size="10" fill="#94A3B8">
+    <text x="10" y="20">URBAN FLOOD CYCLE</text>
+    <text x="10" y="34">RAIN ≥ 100 mm/h · URBAN LOW-LYING</text>
+    <text x="590" y="20" text-anchor="end">PH-XR-004</text>
+  </g>
+</svg>`,
+
+      heat: `<svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" class="diagram-svg">
+  <rect x="0" y="0" width="600" height="340" fill="#0F2440"/>
+  <ellipse cx="300" cy="100" rx="180" ry="50" fill="rgba(220,38,38,.25)" stroke="#DC2626" stroke-dasharray="4 4"/>
+  <text x="300" y="106" fill="#FCA5A5" font-family="JetBrains Mono" font-size="11" text-anchor="middle" letter-spacing="2">副 热 带 高 压 · SUBTROPICAL HIGH</text>
+  <circle cx="120" cy="60" r="24" fill="#FFB300"/>
+  <g stroke="#FFB300" stroke-width="1.2" opacity=".75">
+    <line x1="120" y1="20" x2="120" y2="4"/>
+    <line x1="80"  y1="60" x2="64"  y2="60"/>
+    <line x1="160" y1="60" x2="176" y2="60"/>
+    <line x1="92"  y1="32" x2="80"  y2="20"/>
+    <line x1="148" y1="32" x2="160" y2="20"/>
+  </g>
+  <g stroke="#FF8A65" stroke-width="1" stroke-dasharray="2 3" opacity=".7">
+    <line x1="120" y1="90"  x2="120" y2="220"/><line x1="160" y1="90"  x2="160" y2="220"/>
+    <line x1="200" y1="90"  x2="200" y2="220"/><line x1="240" y1="90"  x2="240" y2="220"/>
+    <line x1="280" y1="90"  x2="280" y2="220"/><line x1="320" y1="90"  x2="320" y2="220"/>
+    <line x1="360" y1="90"  x2="360" y2="220"/><line x1="400" y1="90"  x2="400" y2="220"/>
+    <line x1="440" y1="90"  x2="440" y2="220"/><line x1="480" y1="90"  x2="480" y2="220"/>
+  </g>
+  <path d="M 0 240 L 600 240 L 600 320 L 0 320 Z" fill="#6D4C41"/>
+  <g stroke="#3E2723" stroke-width="1.2" fill="none">
+    <path d="M 80  240 L 110 270 L 70  300"/>
+    <path d="M 180 240 L 150 280 L 200 320"/>
+    <path d="M 300 240 L 330 270 L 290 310"/>
+    <path d="M 420 240 L 400 280 L 450 320"/>
+    <path d="M 520 240 L 560 280 L 510 320"/>
+  </g>
+  <g stroke="#5D4037" stroke-width="2" fill="none">
+    <path d="M 100 240 L 100 200 M 100 220 L 80 200 M 100 220 L 120 200 M 100 210 L 90 190 M 100 210 L 110 190"/>
+    <path d="M 500 240 L 500 200 M 500 220 L 480 200 M 500 220 L 520 200 M 500 210 L 490 190 M 500 210 L 510 190"/>
+  </g>
+  <g fill="none" stroke="#FF8A65" stroke-width="1" opacity=".8">
+    <path d="M 200 230 Q 220 200 200 170"/>
+    <path d="M 400 230 Q 380 200 400 170"/>
+  </g>
+  <g font-family="JetBrains Mono" font-size="10" fill="#FFB74D">
+    <text x="200" y="160">蒸 发</text><text x="400" y="160">蒸 发</text>
+  </g>
+  <g font-family="JetBrains Mono" font-size="10" fill="#94A3B8">
+    <text x="10" y="20">EXTREME HEAT · DROUGHT</text>
+    <text x="10" y="34">T ≥ 40°C · 3+ DAYS · 副高盘踞</text>
+    <text x="590" y="20" text-anchor="end">PH-XR-005</text>
+  </g>
+</svg>`
+    };
+
+    function render(view, id) {
+      const d = window.DISASTERS.find(x => x.id === id);
+      if (!d) { view.innerHTML = '<p>未找到该诊室</p>'; return; }
+      window.Store.visitClinic(d.id);
+      view.innerHTML = `
+<section class="clinic">
+  <nav class="steps" aria-label="诊室步骤">
+    ${STEPS.map((s, i) => `
+      <a class="steps__item" data-step="${s.id}" href="#/clinic/${d.id}#${s.id}">
+        <span class="num">${i + 1}</span>${s.label}
+      </a>`).join('')}
+  </nav>
+  <div class="clinic__hero">
+    <div class="avatar">${window.Earth.renderEarth('pain')}</div>
+    <div>
+      <span class="eyebrow">CASE № ${d.enName} · ${d.id.toUpperCase()}-001</span>
+      <h1>${d.icon} ${d.name} 诊室</h1>
+      <p class="muted" style="margin-top:8px;font-size:15px;">${d.patient}</p>
+      <div class="meta">
+        <span class="chip chip--danger">烈性</span>
+        <span class="chip">VEI / M / 级</span>
+        <span class="chip chip--info">建议会诊</span>
+      </div>
+    </div>
+  </div>
+  <article id="consult" class="card section">
+    <header class="section__head"><h2>① 问诊 · 地球自述</h2><span class="meta">CONSULT</span></header>
+    <div class="bubble" id="bubble" data-end="0">「 …… 」</div>
+  </article>
+  <article id="exam" class="card card--deep section">
+    <header class="section__head"><h2 style="color:#fff">② 检查报告 · X 光影像</h2><span class="meta" style="color:var(--ink-on-deep-mute)">EXAMINATION</span></header>
+    <div class="exam-grid">
+      <div class="exam-card">
+        <div class="exam-card__head">
+          <span class="blip">SCAN</span>
+          <span>${d.enName} · 形成原理</span>
+        </div>
+        <div class="exam-card__body">
+          <div class="diagram">${DIAGRAMS[d.id]}</div>
+          <p style="font-size:11px">图示仅为示意。具体数据请结合当地监测台网发布的信息。</p>
+        </div>
+      </div>
+      <div class="exam-card">
+        <div class="exam-card__head">
+          <span class="blip">PATHOLOGY</span>
+          <span>形成步骤 · STEP-BY-STEP</span>
+        </div>
+        <div class="exam-card__body">
+          <ol style="margin:0;padding:0 0 0 0;list-style:none;display:flex;flex-direction:column;gap:10px">
+            ${d.formation.map((f, i) => `
+              <li style="display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start">
+                <span style="font-family:var(--font-mono);color:var(--accent);border:1px solid rgba(0,217,255,.3);border-radius:6px;padding:4px 0;text-align:center;font-size:12px">${String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <h4 style="color:#fff;font-size:14px;margin:0 0 4px">${f.title}</h4>
+                  <p style="color:var(--ink-on-deep-mute);font-size:13px;margin:0">${f.body}</p>
+                </div>
+              </li>
+            `).join('')}
+          </ol>
+        </div>
+      </div>
+    </div>
+  </article>
+  <article id="diag" class="section">
+    <header class="section__head"><h2>③ 诊断书 · 行星医院</h2><span class="meta">DIAGNOSIS</span></header>
+    <div class="diagnosis-doc">
+      <small class="doc-no">DOC № PH-DX-${d.id.toUpperCase()}-2026</small>
+      <h3>${d.name} · 病情评估</h3>
+      <dl>
+        <dt>症状</dt><dd>${d.patient}</dd>
+        <dt>等级</dt><dd>${d.diagnosis.grade}</dd>
+        <dt>影响范围</dt><dd>${d.diagnosis.range}</dd>
+        <dt>会诊意见</dt><dd>${d.diagnosis.summary}</dd>
+        <dt>主治医师</dt><dd>${window.Store.rank.title}（您）</dd>
+        <dt>日期</dt><dd>${window.U.dateStr()}</dd>
+      </dl>
+      <p class="mono" style="font-size:11px;color:var(--ink-soft);margin-top:24px;letter-spacing:.08em">PH-PT-001-EARTH-2026 · 仅供科普教育</p>
+      <span class="stamp">行星医院 · 急诊</span>
+    </div>
+  </article>
+  <article id="rx" class="section">
+    <header class="section__head"><h2>④ 处方 · 三级响应</h2><span class="meta">PRESCRIPTION</span></header>
+    <div class="rx-grid">
+      ${rxCard('个人', 'PERSONAL', '🧍', d.prescription.personal)}
+      ${rxCard('社区', 'COMMUNITY', '🏘', d.prescription.community)}
+      ${rxCard('国家', 'NATIONAL', '🏛', d.prescription.national)}
+    </div>
+    <div style="margin-top:24px;text-align:center">
+      <a class="btn btn--danger" href="#/surgery/${d.surgery.id}">→ 前往手术模拟室</a>
+    </div>
+  </article>
+  <article id="archive" class="section">
+    <header class="section__head"><h2>⑤ 病例档案 · 历史回看</h2><span class="meta">ARCHIVE</span></header>
+    <div class="timeline">
+      ${d.cases.map(c => `
+        <div class="timeline__item">
+          <div class="timeline__year">${c.year} 年</div>
+          <h3 class="timeline__title">${c.name}</h3>
+          <div class="timeline__meta">${c.place}</div>
+          <div class="timeline__data">${c.data.map(t => `<span>${t}</span>`).join('')}</div>
+          <p class="timeline__lesson">教训：${c.lesson}</p>
+        </div>
+      `).join('')}
+    </div>
+  </article>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:32px">
+    <a class="btn btn--ghost" href="#/hall">← 返回挂号大厅</a>
+    <div style="display:flex;gap:8px">
+      <a class="btn btn--ghost" href="#/report">查看体检报告</a>
+      <a class="btn btn--primary" href="#/surgery/${d.surgery.id}">前往手术模拟 →</a>
+    </div>
+  </div>
+</section>`;
+      runConsult(d);
+      view.querySelectorAll('.rx__head').forEach(h => {
+        h.addEventListener('click', () => h.parentElement.classList.toggle('is-open'));
+      });
+      if (location.hash.includes('#')) {
+        const anchor = location.hash.split('#')[2];
+        if (anchor) {
+          const el = view.querySelector('#' + anchor);
+          if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+        }
+      }
+    }
+
+    function rxCard(title, en, icon, items) {
+      return `
+        <div class="rx">
+          <div class="rx__head">
+            <div class="rx__icon">${icon}</div>
+            <div class="rx__title">
+              <h4>${title} 处方</h4>
+              <em>${en} · CLICK TO OPEN</em>
+            </div>
+            <span class="rx__caret">▾</span>
+          </div>
+          <div class="rx__body">
+            <ul>${items.map(i => `<li>${i}</li>`).join('')}</ul>
+          </div>
+        </div>`;
+    }
+
+    async function runConsult(d) {
+      const bubble = document.getElementById('bubble');
+      if (!bubble) return;
+      const moods = ['normal', 'pain', 'pain', 'relieved'];
+      for (let i = 0; i < d.selfReport.length; i++) {
+        await window.U.typeText(bubble, d.selfReport[i], 38);
+        const mood = moods[i] || 'normal';
+        const eyes = document.querySelectorAll('.earth-svg .face');
+        eyes.forEach(f => f.dataset.mood = mood);
+        await window.U.wait(550);
+      }
+    }
+
+    window.ClinicView = { render };
+  })();
+
+  /* ============================================================
+     views/surgery.js · 手术模拟室
+     ============================================================ */
+  (function () {
+    const STAGE = {
+      earthquake: `<svg class="stage-svg" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%"  stop-color="#0F2440"/><stop offset="100%" stop-color="#1E3A5F"/></linearGradient></defs>
+  <rect width="600" height="260" fill="url(#sky)"/>
+  <path d="M 0 180 L 90 130 L 160 160 L 240 110 L 320 150 L 400 120 L 480 150 L 600 130 L 600 220 L 0 220 Z" fill="#0A1929"/>
+  <rect x="0" y="220" width="600" height="40" fill="#3E2723"/>
+  <g class="quake-crack" stroke="#FFB300" stroke-width="2.4" fill="none" stroke-linecap="round">
+    <path d="M 280 220 L 300 200 L 295 180 L 310 160 L 305 140 L 320 130"/>
+    <path d="M 305 140 L 330 145"/><path d="M 300 200 L 280 195"/>
+  </g>
+  <g class="quake-house" fill="#94A3B8">
+    <rect x="120" y="160" width="60" height="60"/><polygon points="115,160 150,130 185,160"/>
+    <rect x="190" y="170" width="50" height="50"/><polygon points="185,170 215,140 245,170"/>
+    <rect x="400" y="160" width="60" height="60"/><polygon points="395,160 430,130 465,160"/>
+  </g>
+  <g class="quake-waves" fill="none" stroke="#00D9FF" opacity=".7">
+    <circle cx="300" cy="170" r="60" stroke-width="1"/>
+    <circle cx="300" cy="170" r="100" stroke-width="1" opacity=".55"/>
+    <circle cx="300" cy="170" r="140" stroke-width="1" opacity=".3"/>
+  </g>
+  <text x="10" y="22" fill="#67E8F9" font-family="JetBrains Mono" font-size="11" letter-spacing="2">PH-SUR-002 · LIVE FEED</text>
+</svg>`,
+      flood: `<svg class="stage-svg" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="mud" x1="0" y1="0" x2="0" y2="1"><stop offset="0%"  stop-color="#5D4037" stop-opacity=".8"/><stop offset="100%" stop-color="#3E2723"/></linearGradient></defs>
+  <rect width="600" height="260" fill="#0F2440"/>
+  <rect x="60" y="80" width="480" height="100" fill="#263238" stroke="#455A64"/>
+  <g fill="#455A64">
+    <polygon points="80,80 100,80 130,180 110,180"/>
+    <polygon points="500,80 520,80 490,180 470,180"/>
+  </g>
+  <g class="flood-water" fill="url(#mud)"><path d="M 60 150 Q 200 140 300 150 T 540 150 L 540 180 L 60 180 Z"/></g>
+  <g class="flood-waves" stroke="#00B8D4" stroke-width="1" fill="none" opacity=".85"><path d="M 60 150 Q 200 140 300 150 T 540 150"/></g>
+  <g stroke="#FF5722" stroke-width="2" stroke-dasharray="6 4"><line x1="60" y1="100" x2="540" y2="100"/></g>
+  <text x="64" y="96" fill="#FF8A65" font-family="JetBrains Mono" font-size="11" letter-spacing="2">WATER LINE · 警戒</text>
+  <g fill="#00E5A0"><text x="280" y="240" font-family="JetBrains Mono" font-size="12" letter-spacing="2">→  撤 离 至 站 厅 层  →</text></g>
+  <text x="10" y="22" fill="#67E8F9" font-family="JetBrains Mono" font-size="11" letter-spacing="2">PH-SUR-004 · LIVE FEED</text>
+</svg>`,
+      volcano: `<svg class="stage-svg" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="vSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%"  stop-color="#0F2440"/><stop offset="100%" stop-color="#1E3A5F"/></linearGradient>
+    <linearGradient id="vRock" x1="0" y1="0" x2="0" y2="1"><stop offset="0%"  stop-color="#5D4037"/><stop offset="100%" stop-color="#3E2723"/></linearGradient>
+    <linearGradient id="vLava" x1="0" y1="0" x2="0" y2="1"><stop offset="0%"  stop-color="#FFD180"/><stop offset="100%" stop-color="#FF5722"/></linearGradient>
+    <radialGradient id="vSmoke" cx="50%" cy="50%" r="50%"><stop offset="0%"  stop-color="rgba(150,150,150,.7)"/><stop offset="100%" stop-color="rgba(150,150,150,0)"/></radialGradient>
+  </defs>
+  <rect width="600" height="260" fill="url(#vSky)"/>
+  <path d="M 0 240 L 200 240 L 270 160 L 300 80 L 330 160 L 400 240 L 600 240 Z" fill="url(#vRock)"/>
+  <ellipse cx="300" cy="86" rx="22" ry="6" fill="url(#vLava)"/>
+  <g class="vErupt">
+    <path d="M 290 86 Q 270 30 240 10" stroke="#FF8A65" stroke-width="3" fill="none" opacity=".8"/>
+    <path d="M 310 86 Q 330 30 360 10" stroke="#FF8A65" stroke-width="3" fill="none" opacity=".8"/>
+    <path d="M 300 80 Q 300 30 300 0"  stroke="#FFB74D" stroke-width="3" fill="none" opacity=".9"/>
+  </g>
+  <circle cx="240" cy="10" r="18" fill="url(#vSmoke)"/>
+  <circle cx="360" cy="10" r="18" fill="url(#vSmoke)"/>
+  <circle cx="300" cy="0"  r="22" fill="url(#vSmoke)"/>
+  <g fill="#90A4AE">
+    <rect x="100" y="220" width="20" height="20"/>
+    <rect x="130" y="210" width="20" height="30"/>
+    <rect x="470" y="210" width="20" height="30"/>
+    <rect x="500" y="220" width="20" height="20"/>
+  </g>
+  <g fill="#00E5A0">
+    <text x="80"  y="200" font-family="JetBrains Mono" font-size="11" letter-spacing="2">← 撤 离</text>
+    <text x="490" y="200" font-family="JetBrains Mono" font-size="11" letter-spacing="2">撤 离 →</text>
+  </g>
+  <text x="10" y="22" fill="#67E8F9" font-family="JetBrains Mono" font-size="11" letter-spacing="2">PH-SUR-001 · LIVE FEED</text>
+</svg>`,
+      typhoon: `<svg class="stage-svg" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="260" fill="#0F2440"/>
+  <circle cx="300" cy="120" r="18" fill="#0A1929" stroke="#67E8F9"/>
+  <g fill="none" stroke="#1E88E5" stroke-width="1.4" opacity=".8">
+    <path d="M 80 60 Q 200 80 280 110"/>
+    <path d="M 520 60 Q 400 80 320 110"/>
+    <path d="M 80 200 Q 220 180 290 130"/>
+    <path d="M 520 200 Q 400 180 310 130"/>
+  </g>
+  <path d="M 0 220 L 600 220 L 600 260 L 0 260 Z" fill="#1B5E20" opacity=".7"/>
+  <path d="M 0 220 L 600 220" stroke="#90A4AE"/>
+  <text x="10" y="22" fill="#67E8F9" font-family="JetBrains Mono" font-size="11" letter-spacing="2">PH-SUR-003 · LIVE FEED</text>
+</svg>`,
+      heat: `<svg class="stage-svg" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="260" fill="#0F2440"/>
+  <circle cx="100" cy="50" r="22" fill="#FFB300"/>
+  <g stroke="#FFB300" stroke-width="1.2" opacity=".75">
+    <line x1="100" y1="14" x2="100" y2="2"/>
+    <line x1="60"  y1="50" x2="46"  y2="50"/>
+    <line x1="140" y1="50" x2="154" y2="50"/>
+  </g>
+  <g stroke="#FF8A65" stroke-width="1" stroke-dasharray="2 3" opacity=".7">
+    <line x1="100" y1="76"  x2="100" y2="220"/><line x1="140" y1="76"  x2="140" y2="220"/>
+    <line x1="180" y1="76"  x2="180" y2="220"/><line x1="220" y1="76"  x2="220" y2="220"/>
+    <line x1="260" y1="76"  x2="260" y2="220"/><line x1="300" y1="76"  x2="300" y2="220"/>
+    <line x1="340" y1="76"  x2="340" y2="220"/><line x1="380" y1="76"  x2="380" y2="220"/>
+    <line x1="420" y1="76"  x2="420" y2="220"/><line x1="460" y1="76"  x2="460" y2="220"/>
+    <line x1="500" y1="76"  x2="500" y2="220"/>
+  </g>
+  <path d="M 0 200 L 600 200 L 600 260 L 0 260 Z" fill="#6D4C41"/>
+  <g stroke="#3E2723" stroke-width="1.2" fill="none">
+    <path d="M 80  200 L 110 230 L 70  260"/>
+    <path d="M 200 200 L 170 240 L 220 260"/>
+    <path d="M 360 200 L 390 230 L 350 260"/>
+    <path d="M 500 200 L 470 240 L 520 260"/>
+  </g>
+  <text x="10" y="22" fill="#67E8F9" font-family="JetBrains Mono" font-size="11" letter-spacing="2">PH-SUR-005 · LIVE FEED</text>
+</svg>`
+    };
+
+    let timerHandle = null;
+
+    function render(view, id) {
+      if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+      const d = window.DISASTERS.find(x => x.surgery && x.surgery.id === id);
+      if (!d) { view.innerHTML = '<p>该手术暂未开放，请先完成对应诊室的诊断。</p>'; return; }
+      const s = d.surgery;
+      const stage = STAGE[id] || STAGE.earthquake;
+      view.innerHTML = `
+<section class="surgery">
+  <header class="surgery__top">
+    <div class="card surgery__brief">
+      <span class="eyebrow">SURGERY · 急诊手术</span>
+      <h2>${s.title}</h2>
+      <p>${s.scenario}</p>
+      <p class="muted" style="margin-top:8px;font-size:13px">提示：在限定时间内选择正确操作。每完成一台手术将获得 1 枚「地球守护者勋章」。</p>
+    </div>
+    <div class="surgery__timer" id="timer">
+      <small>COUNTDOWN</small>
+      <div class="num" id="timerNum">${s.countdown}</div>
+      <div class="surgery__bar"><i id="timerBar" style="width:100%"></i></div>
+    </div>
+  </header>
+  <div class="surgery__stage" id="stage">
+    ${stage}
+    <div class="surgery__overlay" id="overlay">
+      <h3 id="overlayTitle">操作完成</h3>
+      <p id="overlayDesc">…</p>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn--ghost" id="retry">再试一次</button>
+        <a class="btn btn--primary" href="#/hall">回挂号大厅</a>
+      </div>
+    </div>
+  </div>
+  <div class="surgery__tools" id="tools">
+    ${s.tools.map((t, i) => `
+      <button class="tool" data-idx="${i}">
+        <div class="tool__icon">${t.icon}</div>
+        <h4>${t.title}</h4>
+        <p>${t.desc}</p>
+      </button>
+    `).join('')}
+  </div>
+  <p style="text-align:center;color:var(--ink-soft);font-size:13px">
+    已完成手术：<b style="color:var(--ink)">${window.Store.medalCount}</b> / 3 ·
+    <a class="mono" style="color:var(--primary)" href="#/hall">返回大厅</a>
+  </p>
+</section>`;
+      startCountdown(view, s);
+    }
+
+    function startCountdown(view, s) {
+      const total = s.countdown;
+      let left = total;
+      const numEl = view.querySelector('#timerNum');
+      const barEl = view.querySelector('#timerBar');
+      const timerEl = view.querySelector('#timer');
+      const stageEl = view.querySelector('#stage');
+      const toolsEl = view.querySelector('#tools');
+      const overlayEl = view.querySelector('#overlay');
+      const overlayTitle = view.querySelector('#overlayTitle');
+      const overlayDesc = view.querySelector('#overlayDesc');
+
+      function tick() {
+        numEl.textContent = String(left);
+        barEl.style.width = (left / total * 100) + '%';
+        timerEl.classList.toggle('is-warn', left <= total * 0.5);
+        timerEl.classList.toggle('is-danger', left <= 3);
+        if (left <= 0) {
+          clearInterval(timerHandle); timerHandle = null;
+          finish(false);
+          return;
+        }
+        left -= 1;
+      }
+      tick();
+      timerHandle = setInterval(tick, 1000);
+
+      toolsEl.querySelectorAll('.tool').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.idx);
+          const correct = idx === s.correctIndex;
+          toolsEl.querySelectorAll('.tool').forEach(b => b.disabled = true);
+          btn.classList.add(correct ? 'is-correct' : 'is-wrong');
+          if (!correct) toolsEl.querySelector('.tool[data-idx="' + s.correctIndex + '"]').classList.add('is-correct');
+          finish(correct);
+        });
+      });
+
+      function finish(success) {
+        clearInterval(timerHandle); timerHandle = null;
+        stageEl.classList.add(success ? 'is-success' : 'is-fail');
+        overlayTitle.textContent = success ? '✅ 手术成功' : '❌ 手术失败';
+        overlayDesc.textContent = success ? s.success : s.fail;
+        overlayEl.querySelector('#retry').onclick = () => {
+          stageEl.classList.remove('is-success', 'is-fail');
+          toolsEl.querySelectorAll('.tool').forEach(b => {
+            b.classList.remove('is-correct', 'is-wrong');
+            b.disabled = false;
+          });
+          startCountdown(view, s);
+        };
+        window.Store.recordSurgery(s.id, success);
+        if (success) showMedal();
+      }
+    }
+
+    function showMedal() {
+      const overlay = document.getElementById('medalOverlay');
+      overlay.classList.add('is-open');
+      overlay.setAttribute('aria-hidden', 'false');
+      const close = () => {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.removeEventListener('click', onBg);
+        overlay.querySelector('[data-medal-close]').removeEventListener('click', close);
+      };
+      const onBg = (e) => { if (e.target.classList.contains('medal-overlay__backdrop')) close(); };
+      overlay.addEventListener('click', onBg);
+      overlay.querySelector('[data-medal-close]').addEventListener('click', close);
+    }
+
+    window.SurgeryView = { render };
+  })();
+
+  /* ============================================================
+     views/report.js · 地球体检报告 + 证书生成（纯 SVG 实现）
+     ============================================================ */
+  (function () {
+    function render(view) {
+      const s = window.Store.state;
+      const rank = window.Store.rank;
+      const visited = new Set(s.visited);
+      const ignored = window.Store.mostIgnored;
+      const totalVisits = s.visited.length;
+      const totalDisasters = window.DISASTERS.length;
+      const totalSurgery = window.DISASTERS.filter(d => d.surgery).length;
+      const medalCount = window.Store.medalCount;
+      const progressPct = Math.round(window.Store.progress * 100);
+
+      view.innerHTML = `
+<section class="report">
+  <header class="report__hero">
+    <div class="left">
+      <span class="eyebrow">EARTH MEDICAL REPORT</span>
+      <h2>${window.U.dateStr()}</h2>
+      <p class="summary">地球作为患者，已完成 ${totalVisits} / ${totalDisasters} 项诊室问诊与 ${medalCount} / ${totalSurgery} 台手术模拟。下方的雷达图展示了各灾害的「掌握度」。</p>
+      <div class="report__progress">
+        <span class="num">${progressPct}<small style="font-size:24px">%</small></span>
+        <div>
+          <small>问诊进度</small>
+          <div class="report__bar" style="width:240px"><i style="width:${progressPct}%"></i></div>
+        </div>
+      </div>
+      <div class="report__medals">
+        ${Array.from({ length: 3 }).map((_, i) => `<i class="${i < medalCount ? '' : 'empty'}">${i < medalCount ? '★' : '·'}</i>`).join('')}
+        <span class="mono" style="font-size:11px;color:var(--ink-soft);margin-left:6px;letter-spacing:.12em">EARTH GUARDIAN MEDALS</span>
+      </div>
+      ${ignored ? `
+      <div class="card" style="margin-top:18px;background:rgba(255,179,0,.08);border-color:rgba(255,179,0,.4)">
+        <div class="eyebrow" style="color:var(--amber)">⚠ 易忽视</div>
+        <p style="margin-top:6px;color:var(--ink-2)">您还未曾进入 <a class="mono" style="color:var(--primary);text-decoration:underline" href="#/clinic/${ignored.id}">${ignored.icon} ${ignored.name} 诊室</a>。建议补上这一课。</p>
+      </div>` : `
+      <div class="card" style="margin-top:18px;background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.4)">
+        <div class="eyebrow" style="color:#047857">✓ 满分</div>
+        <p style="margin-top:6px;color:var(--ink-2)">您已遍历所有诊室，地球很安心。</p>
+      </div>`}
+    </div>
+    <div class="right report__right">
+      <div>
+        <span class="eyebrow">MEDICAL RANK</span>
+        <div class="rank-line">
+          <span class="v">${rank.title}</span>
+          <span class="chip">${rank.short}</span>
+        </div>
+        <p class="muted" style="margin-top:8px;font-size:13px">${rank.desc}</p>
+      </div>
+      <hr style="border:none;border-top:1px dashed var(--line);margin:8px 0">
+      <div>
+        <span class="eyebrow">QUICK ACTIONS</span>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <a class="btn btn--ghost btn--sm" href="#/hall">回到挂号大厅</a>
+          <button class="btn btn--danger btn--sm" id="resetBtn">重置全部进度</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="report__grid">
+    <div class="report__chart">
+      <h3>五大灾害掌握度</h3>
+      <p class="sub">Radar · 访问过 / 访问过+手术成功 = 0% / 100%</p>
+      <div class="radar" id="radar">${radarSvg()}</div>
+      <ul style="margin:18px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:13px;color:var(--ink-2)">
+        ${window.DISASTERS.map(d => `
+          <li style="display:flex;align-items:center;gap:6px">
+            <span style="width:8px;height:8px;border-radius:50%;background:${d.color}"></span>
+            ${d.icon} ${d.name}
+            <span class="mono" style="margin-left:auto;font-size:11px;color:var(--ink-soft);letter-spacing:.08em">
+              ${visited.has(d.id) ? '已问诊' : '未问诊'}
+            </span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+    <div class="report__chart">
+      <h3>生成「地球医生」资格证书</h3>
+      <p class="sub">填写姓名 → 实时预览 → 一键保存为 PNG 海报</p>
+      <div class="cert-form">
+        <div>
+          <label for="certName">医师姓名（最多 16 字）</label>
+          <input id="certName" maxlength="16" placeholder="例如：林一" value="${window.U.escapeHtml(s.certificateName || '')}"/>
+        </div>
+        <button class="btn btn--primary" id="saveCert">保存证书</button>
+      </div>
+      <p class="muted" style="margin-top:10px;font-size:12px">提示：保存时会将证书导出为高清 PNG，可分享到社交平台或打印装裱。</p>
+    </div>
+  </div>
+</section>`;
+      const nameInput = view.querySelector('#certName');
+      nameInput.addEventListener('input', e => {
+        window.Store.setCertificateName(e.target.value.trim());
+        renderCertificate();
+      });
+      view.querySelector('#saveCert').addEventListener('click', saveCertificate);
+      view.querySelector('#resetBtn').addEventListener('click', () => {
+        if (confirm('确定要清空所有问诊、勋章与证书姓名吗？')) {
+          window.Store.reset();
+          location.hash = '#/hall';
+        }
+      });
+      renderCertificate();
+    }
+
+    function radarSvg() {
+      const N = window.DISASTERS.length;
+      const cx = 180, cy = 180, R = 130;
+      const angle = i => -Math.PI / 2 + (i * 2 * Math.PI / N);
+      const visited = new Set(window.Store.state.visited);
+      const med = new Set(window.Store.state.meds);
+      let grid = '';
+      for (let k = 1; k <= 4; k++) {
+        const r = R * k / 4;
+        grid += `<polygon points="${window.DISASTERS.map((_, i) => {
+          const a = angle(i); return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+        }).join(' ')}" fill="none" stroke="#E2E8F0" stroke-width="1"/>`;
+      }
+      let axes = '';
+      window.DISASTERS.forEach((d, i) => {
+        const a = angle(i);
+        axes += `<line x1="${cx}" y1="${cy}" x2="${(cx + R * Math.cos(a)).toFixed(1)}" y2="${(cy + R * Math.sin(a)).toFixed(1)}" stroke="#E2E8F0" stroke-width="1"/>`;
+      });
+      const points = window.DISASTERS.map((d, i) => {
+        const a = angle(i);
+        const score = med.has(d.surgery && d.surgery.id) ? 1 : (visited.has(d.id) ? 0.5 : 0);
+        const r = R * Math.max(0.05, score);
+        return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+      });
+      const data = `<polygon points="${points.join(' ')}" fill="rgba(30,136,229,.22)" stroke="#1E88E5" stroke-width="2"/>`;
+      const dots = points.map((p, i) => {
+        const [x, y] = p.split(',');
+        return `<circle cx="${x}" cy="${y}" r="4" fill="${window.DISASTERS[i].color}" stroke="#fff" stroke-width="1.5"/>`;
+      }).join('');
+      const labels = window.DISASTERS.map((d, i) => {
+        const a = angle(i);
+        const lx = cx + (R + 18) * Math.cos(a);
+        const ly = cy + (R + 18) * Math.sin(a);
+        return `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="12" font-family="Noto Serif SC" fill="#0F172A" text-anchor="middle" dominant-baseline="middle">${d.icon}</text>`;
+      }).join('');
+      return `<svg viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">${grid}${axes}${data}${dots}${labels}</svg>`;
+    }
+
+    // 生成证书 SVG 字符串
+    function buildCertificateSvg() {
+      const s = window.Store.state;
+      const rank = window.Store.rank;
+      const name = s.certificateName || '未署名医师';
+      const visitedCount = s.visited.length;
+      const medCount = window.Store.medalCount;
+      const certId = 'PH-CERT-' + Date.now().toString().slice(-6);
+      const safeName = window.U.escapeHtml(name);
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 794" width="1120" height="794">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#FAFBFD"/>
+    </linearGradient>
+    <radialGradient id="r1" cx="20%" cy="20%" r="40%">
+      <stop offset="0%" stop-color="rgba(0,217,255,0.12)"/><stop offset="100%" stop-color="rgba(0,217,255,0)"/>
+    </radialGradient>
+    <radialGradient id="r2" cx="80%" cy="80%" r="40%">
+      <stop offset="0%" stop-color="rgba(30,136,229,0.12)"/><stop offset="100%" stop-color="rgba(30,136,229,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="1120" height="794" fill="url(#bg)"/>
+  <rect width="1120" height="794" fill="url(#r1)"/>
+  <rect width="1120" height="794" fill="url(#r2)"/>
+  <rect x="14" y="14" width="1092" height="766" fill="none" stroke="#1E88E5" stroke-width="3" rx="6"/>
+  <rect x="24" y="24" width="1072" height="746" fill="none" stroke="#1E88E5" stroke-width="1" rx="4"/>
+  <path d="M 40 40 L 110 40 L 110 110 L 40 110" fill="none" stroke="#00D9FF" stroke-width="2"/>
+  <path d="M 1080 40 L 1010 40 L 1010 110 L 1080 110" fill="none" stroke="#00D9FF" stroke-width="2"/>
+  <path d="M 40 754 L 110 754 L 110 684 L 40 684" fill="none" stroke="#00D9FF" stroke-width="2"/>
+  <path d="M 1080 754 L 1010 754 L 1010 684 L 1080 684" fill="none" stroke="#00D9FF" stroke-width="2"/>
+  <g transform="translate(80 70)">
+    <circle cx="22" cy="22" r="20" fill="none" stroke="#1E88E5" stroke-width="2"/>
+    <line x1="22" y1="2" x2="22" y2="42" stroke="#1E88E5" stroke-width="1.4" stroke-dasharray="2 3"/>
+    <line x1="2" y1="22" x2="42" y2="22" stroke="#1E88E5" stroke-width="1.4" stroke-dasharray="2 3"/>
+    <circle cx="22" cy="22" r="6" fill="#1E88E5" opacity=".3"/>
+    <text x="56" y="18" font-family="Noto Serif SC, serif" font-size="22" font-weight="700" fill="#1E88E5">行星医院 · PLANET HOSPITAL</text>
+    <text x="56" y="40" font-family="JetBrains Mono, monospace" font-size="12" fill="#64748B" letter-spacing="2">CERT № ${certId}</text>
+  </g>
+  <g transform="translate(900 70)" font-family="JetBrains Mono, monospace" font-size="13" fill="#64748B" letter-spacing="2">
+    <text x="140" y="0" text-anchor="end">${window.U.dateStr()}</text>
+    <text x="140" y="22" text-anchor="end">EARTH · 2026</text>
+  </g>
+  <g text-anchor="middle">
+    <text x="560" y="180" font-family="JetBrains Mono, monospace" font-size="14" letter-spacing="6" fill="#64748B">CERTIFICATE</text>
+    <text x="560" y="250" font-family="Noto Serif SC, serif" font-size="56" font-weight="900" fill="#0F172A" letter-spacing="4">地 球 医 生 资 格 证 书</text>
+    <text x="560" y="290" font-family="JetBrains Mono, monospace" font-size="14" letter-spacing="3" fill="#1E88E5">EARTH MEDICAL PRACTITIONER CERTIFICATION</text>
+  </g>
+  <g text-anchor="middle">
+    <text x="560" y="370" font-family="Noto Sans SC, sans-serif" font-size="20" fill="#1E293B">兹 证 明</text>
+    <text x="560" y="430" font-family="Noto Serif SC, serif" font-size="48" font-weight="700" fill="#1E88E5" letter-spacing="6">${safeName}</text>
+    <line x1="380" y1="450" x2="740" y2="450" stroke="#CBD5E1" stroke-width="2"/>
+    <text x="560" y="490" font-family="Noto Sans SC, sans-serif" font-size="20" fill="#1E293B">已完成行星医院 · 地球病历本见习课程，授予</text>
+    <text x="560" y="540" font-family="Noto Serif SC, serif" font-size="32" font-weight="700" fill="#FF5722">「${rank.title}」</text>
+  </g>
+  <g font-family="JetBrains Mono, monospace" text-anchor="middle">
+    <rect x="280" y="585" width="160" height="70" fill="#ffffff" stroke="#E2E8F0" stroke-width="1" rx="6"/>
+    <text x="360" y="620" font-size="26" font-weight="700" fill="#1E88E5">${visitedCount}/${window.DISASTERS.length}</text>
+    <text x="360" y="643" font-size="11" fill="#64748B" letter-spacing="2">诊 室 问 诊</text>
+    <rect x="480" y="585" width="160" height="70" fill="#ffffff" stroke="#E2E8F0" stroke-width="1" rx="6"/>
+    <text x="560" y="620" font-size="26" font-weight="700" fill="#1E88E5">${medCount}/3</text>
+    <text x="560" y="643" font-size="11" fill="#64748B" letter-spacing="2">手 术 勋 章</text>
+    <rect x="680" y="585" width="160" height="70" fill="#ffffff" stroke="#E2E8F0" stroke-width="1" rx="6"/>
+    <text x="760" y="620" font-size="26" font-weight="700" fill="#1E88E5">5</text>
+    <text x="760" y="643" font-size="11" fill="#64748B" letter-spacing="2">灾 害 掌 握</text>
+  </g>
+  <g transform="translate(80 720)" font-family="Noto Serif SC, serif" text-anchor="middle">
+    <text x="100" y="0" font-size="22" fill="#0F172A">${rank.title} ${safeName}</text>
+    <line x1="0" y1="6" x2="200" y2="6" stroke="#E2E8F0" stroke-width="1"/>
+    <text x="100" y="26" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748B" letter-spacing="2">持 证 人 签 名</text>
+  </g>
+  <g transform="translate(560 720)">
+    <circle cx="0" cy="0" r="55" fill="none" stroke="#FF5722" stroke-width="3" stroke-dasharray="2 1" transform="rotate(-6)"/>
+    <text x="0" y="-6" text-anchor="middle" font-family="Noto Serif SC, serif" font-size="16" font-weight="700" fill="#FF5722" transform="rotate(-6)">行星医院</text>
+    <text x="0" y="16" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#FF5722" letter-spacing="2" transform="rotate(-6)">PH · SEAL</text>
+  </g>
+  <g transform="translate(840 720)" font-family="Noto Serif SC, serif" text-anchor="middle">
+    <text x="100" y="0" font-size="22" fill="#0F172A">Dr. Earth</text>
+    <line x1="0" y1="6" x2="200" y2="6" stroke="#E2E8F0" stroke-width="1"/>
+    <text x="100" y="26" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748B" letter-spacing="2">院 长 签 发</text>
+  </g>
+  <text x="560" y="780" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#94A3B8" letter-spacing="3">PH-PT-001-EARTH-2026 · 仅供科普教育</text>
+</svg>`;
+    }
+
+    // 屏外渲染一份 DOM 证书（用于预览），保留原结构
+    function renderCertificate() {
+      const host = document.getElementById('certificateHost');
+      if (!host) return;
+      const s = window.Store.state;
+      const rank = window.Store.rank;
+      const name = s.certificateName || '未署名医师';
+      const visitedCount = s.visited.length;
+      const medCount = window.Store.medalCount;
+      host.innerHTML = `
+<div class="cert">
+  <span class="cert__corner cert__corner--tl"></span>
+  <span class="cert__corner cert__corner--tr"></span>
+  <span class="cert__corner cert__corner--bl"></span>
+  <span class="cert__corner cert__corner--br"></span>
+  <header class="cert__head">
+    <div class="cert__brand">
+      <svg viewBox="0 0 32 32" width="36" height="36">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="#1E88E5" stroke-width="1.6"/>
+        <path d="M16 3v26M3 16h26" stroke="#1E88E5" stroke-width="1" stroke-dasharray="2 3"/>
+        <circle cx="16" cy="16" r="4" fill="#1E88E5" opacity=".3"/>
+      </svg>
+      <div>
+        <h3>行星医院 · PLANET HOSPITAL</h3>
+        <span class="cert__id">CERT № PH-CERT-${Date.now().toString().slice(-6)}</span>
+      </div>
+    </div>
+    <div class="cert__id" style="text-align:right">
+      <div>${window.U.dateStr()}</div>
+      <div>EARTH · 2026</div>
+    </div>
+  </header>
+  <div class="cert__title">
+    <small>CERTIFICATE</small>
+    <h1>地 球 医 生 资 格 证 书</h1>
+    <em>EARTH MEDICAL PRACTITIONER CERTIFICATION</em>
+  </div>
+  <div class="cert__body">
+    <p>兹证明</p>
+    <div class="cert__name">${window.U.escapeHtml(name)}</div>
+    <p>已完成行星医院 · 地球病历本见习课程，授予</p>
+    <div class="cert__rank">「${rank.title}」</div>
+  </div>
+  <div class="cert__stats">
+    <div><strong>${visitedCount}/${window.DISASTERS.length}</strong><span>诊室问诊</span></div>
+    <div><strong>${medCount}/3</strong><span>手术勋章</span></div>
+    <div><strong>5</strong><span>灾害掌握</span></div>
+  </div>
+  <div class="cert__footer">
+    <div class="cert__sign">
+      <div class="name">${rank.title} ${window.U.escapeHtml(name)}</div>
+      <small>持证人签名</small>
+    </div>
+    <div class="cert__seal">
+      <strong>行星医院</strong>
+      <small>PH · SEAL</small>
+    </div>
+    <div class="cert__sign">
+      <div class="name">Dr. Earth</div>
+      <small>院长签发</small>
+    </div>
+  </div>
+</div>`;
+    }
+
+    // 将证书 SVG 转为 PNG 并下载（无外部依赖）
+    async function saveCertificate() {
+      const svg = buildCertificateSvg();
+      const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const name = window.Store.state.certificateName || '未署名';
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = () => reject(new Error('证书图片加载失败'));
+          img.src = url;
+        });
+        const canvas = document.createElement('canvas');
+        canvas.width = 1120 * 2;
+        canvas.height = 794 * 2;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const png = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = png;
+        a.download = `地球医生证书_${name}_${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (e) {
+        alert('证书生成失败：' + (e && e.message ? e.message : e));
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    window.ReportView = { render };
+  })();
+
+  /* ============================================================
+     router.js · 极简 hash 路由
+     ============================================================ */
+  (function () {
+    const routes = [
+      { pattern: /^\/?$/,                          view: (view) => window.HallView.render(view) },
+      { pattern: /^\/hall$/,                       view: (view) => window.HallView.render(view) },
+      { pattern: /^\/clinic\/([a-z]+)$/,           view: (view, m) => window.ClinicView.render(view, m[1]) },
+      { pattern: /^\/surgery\/([a-z]+)$/,          view: (view, m) => window.SurgeryView.render(view, m[1]) },
+      { pattern: /^\/report$/,                     view: (view) => window.ReportView.render(view) }
+    ];
+    function dispatch() {
+      const view = document.getElementById('view');
+      if (!view) return;
+      const hash = location.hash.replace(/^#/, '') || '/';
+      for (const r of routes) {
+        const m = hash.match(r.pattern);
+        if (m) {
+          try { r.view(view, m); }
+          catch (e) { console.error(e); view.innerHTML = '<p class="muted">页面渲染失败，请刷新重试。</p>'; }
+          view.style.animation = 'none'; void view.offsetWidth;
+          view.style.animation = '';
+          return;
+        }
+      }
+      location.hash = '#/hall';
+    }
+    window.addEventListener('hashchange', dispatch);
+    window.Router = { dispatch };
+  })();
+
+  /* ============================================================
+     app.js · 启动入口
+     ============================================================ */
+  (function () {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!location.hash) location.hash = '#/hall';
+      else window.Router.dispatch();
+    });
+  })();
+  </script>
+</body>
+</html>

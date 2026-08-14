@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 500" width="300" height="500">
+  <defs>
+    <filter id="blurL"><feGaussianBlur stdDeviation="1.2"/></filter>
+  </defs>
+  <!-- 兰叶 飘逸长线 -->
+  <g stroke="#3a3a3a" fill="none" stroke-linecap="round" opacity="0.1" filter="url(#blurL)">
+    <path d="M280,500 Q265,380 230,280 Q190,170 150,70 Q135,30 125,-10" stroke-width="3.5"/>
+    <path d="M260,500 Q268,390 245,290 Q215,180 180,90 Q165,50 155,10" stroke-width="2.5"/>
+    <path d="M240,500 Q210,400 180,300 Q140,180 115,90 Q105,50 110,10" stroke-width="3"/>
+    <path d="M220,500 Q235,410 215,320 Q185,220 155,130 Q140,90 150,30" stroke-width="2"/>
+    <path d="M300,480 Q270,390 240,300 Q210,200 195,120" stroke-width="2.5"/>
+    <path d="M200,500 Q185,420 200,330 Q225,230 255,150" stroke-width="1.8"/>
+    <path d="M280,500 Q290,430 270,350 Q240,250 220,170" stroke-width="2"/>
+  </g>
+  <!-- 兰花 点缀 -->
+  <g fill="#5a4a3a" opacity="0.08" filter="url(#blurL)">
+    <ellipse cx="140" cy="40" rx="5" ry="10" transform="rotate(-20,140,40)"/>
+    <ellipse cx="152" cy="35" rx="4" ry="9" transform="rotate(15,152,35)"/>
+    <ellipse cx="133" cy="28" rx="4" ry="8" transform="rotate(-40,133,28)"/>
+    <ellipse cx="160" cy="60" rx="4" ry="8" transform="rotate(25,160,60)"/>
+    <ellipse cx="148" cy="15" rx="3" ry="7" transform="rotate(-10,148,15)"/>
+  </g>
+</svg>

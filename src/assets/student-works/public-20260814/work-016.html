@@ -1,0 +1,3401 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>多灾害应急科普 · 知识挑战系统</title>
+<style>
+/* ============================================================
+   CSS 变量与主题色
+   ============================================================ */
+:root{
+  --bg-deep:#0a0e17;
+  --bg-elev-1:#0f1626;
+  --bg-elev-2:#141d33;
+  --text-primary:#e8eef9;
+  --text-secondary:#9aa8c2;
+  --text-mute:#5d6a86;
+  --border-glass:rgba(255,255,255,.08);
+  --glass-bg:rgba(20,29,51,.55);
+  --glass-bg-strong:rgba(20,29,51,.78);
+  --shadow-soft:0 8px 30px rgba(0,0,0,.45);
+  --shadow-glow:0 0 40px rgba(80,140,255,.18);
+  --eq:#ff6b3d;
+  --ty:#4cc9f0;
+  --fl:#2a6f97;
+  --fi:#ff4d4d;
+  --ok:#3ddc97;
+  --bad:#ff5470;
+  --warn:#ffd166;
+  --purple:#8338ec;
+  --cyan:#00b4d8;
+  --theme-color:#4cc9f0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","HarmonyOS Sans SC",sans-serif;
+  color:var(--text-primary);
+  background:var(--bg-deep);
+  background-image:
+    radial-gradient(ellipse at 12% 8%, rgba(76,201,240,.10), transparent 40%),
+    radial-gradient(ellipse at 88% 22%, rgba(255,107,61,.08), transparent 40%),
+    radial-gradient(ellipse at 50% 90%, rgba(131,56,236,.10), transparent 50%);
+  min-height:100vh;overflow-x:hidden;position:relative;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse at center, #000 30%, transparent 80%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(circle at 30% 110%, rgba(120,80,200,.06), transparent 50%);
+  mix-blend-mode:screen;
+}
+
+/* ============================================================
+   顶部导航栏
+   ============================================================ */
+.topnav{
+  position:sticky;top:0;left:0;right:0;z-index:50;
+  height:64px;display:flex;align-items:center;padding:0 24px;
+  background:linear-gradient(180deg, rgba(10,14,23,.85), rgba(10,14,23,.6));
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border-bottom:1px solid var(--border-glass);
+}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:.5px;font-size:15px;cursor:pointer}
+.brand-logo{
+  width:34px;height:34px;border-radius:10px;position:relative;
+  background:conic-gradient(from 0deg, var(--eq), var(--ty), var(--purple), var(--fi), var(--eq));
+  box-shadow:0 0 18px rgba(120,160,255,.35), inset 0 0 8px rgba(0,0,0,.4);
+  animation:logoSpin 12s linear infinite;
+}
+@keyframes logoSpin{to{transform:rotate(360deg)}}
+.brand-logo::after{content:"";position:absolute;inset:6px;border-radius:6px;background:var(--bg-deep)}
+.brand-logo::before{
+  content:"盾";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:16px;z-index:2;text-shadow:0 0 8px rgba(255,255,255,.6);
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.15}
+.brand-text small{color:var(--text-mute);font-weight:400;font-size:11px;letter-spacing:1.5px}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:18px}
+.status-pill{
+  display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;
+  background:rgba(61,220,151,.08);border:1px solid rgba(61,220,151,.25);
+  font-size:12px;color:#9ff5cb;
+}
+.status-dot{
+  width:8px;height:8px;border-radius:50%;background:#3ddc97;box-shadow:0 0 8px #3ddc97;
+  animation:pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.8)}}
+.clock{
+  font-family:"SF Mono","JetBrains Mono",monospace;font-size:13px;color:var(--text-secondary);
+  letter-spacing:1px;padding:6px 12px;border-radius:8px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border-glass);
+  min-width:120px;text-align:center;
+}
+
+/* ============================================================
+   主区域
+   ============================================================ */
+main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:24px 24px 80px}
+.page{display:none;animation:fadeUp .5s ease both}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============================================================
+   首页 Hero
+   ============================================================ */
+.hero{
+  text-align:center;padding:40px 20px 30px;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;border-radius:99px;
+  background:linear-gradient(135deg, rgba(76,201,240,.15), rgba(131,56,236,.15));
+  border:1px solid rgba(76,201,240,.3);
+  font-size:12px;font-weight:500;letter-spacing:1px;
+  color:#a8e0ff;margin-bottom:20px;
+}
+.hero-title{
+  font-size:42px;font-weight:800;line-height:1.2;margin-bottom:14px;
+  background:linear-gradient(135deg, #fff 0%, #7df0ff 40%, #c8a8ff 70%, #fff 100%);
+  background-size:200% 200%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:titleShine 4s ease-in-out infinite;
+}
+@keyframes titleShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-sub{
+  font-size:15px;color:var(--text-secondary);line-height:1.8;max-width:560px;margin:0 auto 28px;
+}
+.hero-stats{
+  display:flex;justify-content:center;gap:32px;margin-bottom:10px;
+}
+.hero-stat{text-align:center}
+.hero-stat-num{
+  font-size:28px;font-weight:700;font-family:"SF Mono",monospace;
+  background:linear-gradient(135deg, var(--ty), var(--purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero-stat-label{font-size:11px;color:var(--text-mute);margin-top:2px;letter-spacing:1px}
+
+/* ============================================================
+   模式选择卡片
+   ============================================================ */
+.section-title{
+  font-size:18px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.section-title::before{
+  content:"";width:4px;height:18px;border-radius:2px;
+  background:linear-gradient(180deg, var(--ty), var(--purple));
+  box-shadow:0 0 10px var(--ty);
+}
+.mode-grid{
+  display:grid;grid-template-columns:repeat(4, 1fr);gap:14px;margin-bottom:36px;
+}
+.mode-card{
+  position:relative;padding:20px 16px;border-radius:16px;cursor:pointer;
+  background:var(--glass-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);
+  transition:all .35s cubic-bezier(.2,.8,.2,1);overflow:hidden;
+}
+.mode-card::before{
+  content:"";position:absolute;inset:0;opacity:0;transition:opacity .35s ease;
+  background:linear-gradient(135deg, var(--accent, var(--ty)) 0%, transparent 60%);
+}
+.mode-card:hover{
+  transform:translateY(-6px);
+  border-color:color-mix(in srgb, var(--accent, var(--ty)) 50%, transparent);
+  box-shadow:0 12px 40px color-mix(in srgb, var(--accent, var(--ty)) 20%, transparent);
+}
+.mode-card:hover::before{opacity:.12}
+.mode-icon{
+  width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  background:color-mix(in srgb, var(--accent, var(--ty)) 18%, transparent);
+  border:1px solid color-mix(in srgb, var(--accent, var(--ty)) 35%, transparent);
+  margin-bottom:12px;position:relative;z-index:1;
+}
+.mode-name{font-size:15px;font-weight:600;margin-bottom:4px;position:relative;z-index:1}
+.mode-desc{font-size:11px;color:var(--text-mute);line-height:1.6;position:relative;z-index:1}
+.mode-meta{
+  margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;position:relative;z-index:1;
+}
+.mode-tag{
+  font-size:10px;padding:2px 8px;border-radius:99px;
+  background:rgba(255,255,255,.05);color:var(--text-secondary);border:1px solid var(--border-glass);
+}
+
+/* ============================================================
+   分类选择
+   ============================================================ */
+.category-section{margin-bottom:36px}
+.cat-grid{
+  display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;
+}
+.cat-item{
+  position:relative;padding:14px 12px;border-radius:12px;cursor:pointer;
+  background:rgba(255,255,255,.03);border:1px solid var(--border-glass);
+  transition:all .25s ease;display:flex;align-items:center;gap:10px;
+}
+.cat-item:hover{
+  background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);
+  transform:translateY(-2px);
+}
+.cat-item.active{
+  background:color-mix(in srgb, var(--cat-color, var(--ty)) 15%, transparent);
+  border-color:color-mix(in srgb, var(--cat-color, var(--ty)) 50%, transparent);
+  box-shadow:0 0 16px color-mix(in srgb, var(--cat-color, var(--ty)) 25%, transparent);
+}
+.cat-item.active .cat-name{color:#fff}
+.cat-icon{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  background:color-mix(in srgb, var(--cat-color, var(--ty)) 20%, transparent);
+}
+.cat-info{flex:1;min-width:0}
+.cat-name{font-size:13px;font-weight:500;margin-bottom:2px}
+.cat-count{font-size:10px;color:var(--text-mute)}
+.cat-check{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:transparent;transition:all .2s ease;
+}
+.cat-item.active .cat-check{
+  background:var(--cat-color, var(--ty));border-color:var(--cat-color, var(--ty));
+  color:#04261a;font-weight:800;
+}
+
+/* ============================================================
+   难度选择
+   ============================================================ */
+.difficulty-section{margin-bottom:36px}
+.diff-row{display:flex;gap:10px}
+.diff-btn{
+  flex:1;padding:12px 16px;border-radius:12px;cursor:pointer;
+  background:rgba(255,255,255,.03);border:1px solid var(--border-glass);
+  text-align:center;transition:all .25s ease;
+}
+.diff-btn:hover{background:rgba(255,255,255,.06);transform:translateY(-2px)}
+.diff-btn.active{
+  background:color-mix(in srgb, var(--diff-color, var(--ok)) 18%, transparent);
+  border-color:color-mix(in srgb, var(--diff-color, var(--ok)) 50%, transparent);
+  box-shadow:0 0 16px color-mix(in srgb, var(--diff-color, var(--ok)) 25%, transparent);
+}
+.diff-icon{font-size:20px;margin-bottom:4px}
+.diff-name{font-size:13px;font-weight:600}
+.diff-desc{font-size:10px;color:var(--text-mute);margin-top:2px}
+
+/* ============================================================
+   开始按钮
+   ============================================================ */
+.start-btn-wrap{text-align:center;margin-top:20px}
+.btn-start{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 48px;border-radius:14px;cursor:pointer;
+  font-size:17px;font-weight:700;color:#fff;font-family:inherit;
+  background:linear-gradient(135deg, var(--ty), var(--purple));
+  border:none;
+  box-shadow:0 8px 30px rgba(76,201,240,.35), 0 0 60px rgba(131,56,236,.25);
+  transition:all .3s cubic-bezier(.2,.8,.2,1);
+  position:relative;overflow:hidden;
+}
+.btn-start:hover{
+  transform:translateY(-3px) scale(1.02);
+  box-shadow:0 12px 40px rgba(76,201,240,.45), 0 0 80px rgba(131,56,236,.35);
+}
+.btn-start:active{transform:translateY(-1px) scale(.98)}
+.btn-start::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.2), transparent 50%);
+  opacity:0;transition:opacity .3s ease;
+}
+.btn-start:hover::after{opacity:1}
+
+/* ============================================================
+   答题界面
+   ============================================================ */
+.quiz-wrap{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+/* 顶部信息栏 */
+.quiz-topbar{
+  display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;
+  background:var(--glass-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);
+}
+.quiz-back{
+  width:36px;height:36px;border-radius:10px;cursor:pointer;
+  background:rgba(255,255,255,.05);border:1px solid var(--border-glass);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--text-secondary);transition:all .2s ease;flex-shrink:0;
+}
+.quiz-back:hover{background:rgba(255,255,255,.1);color:#fff}
+.quiz-progress{flex:1;display:flex;flex-direction:column;gap:6px}
+.quiz-progress-top{display:flex;justify-content:space-between;align-items:center}
+.quiz-progress-text{font-size:12px;color:var(--text-secondary)}
+.quiz-progress-text b{color:var(--text-primary);font-size:14px}
+.quiz-progress-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+.quiz-progress-fill{
+  height:100%;background:linear-gradient(90deg, var(--ty), #7df0ff, var(--purple));
+  border-radius:3px;transition:width .4s ease;box-shadow:0 0 8px var(--ty);
+  background-size:200% 100%;animation:progressShine 2s linear infinite;
+}
+@keyframes progressShine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.quiz-stats{display:flex;align-items:center;gap:12px}
+.quiz-score-box{
+  text-align:center;padding:4px 12px;border-radius:10px;
+  background:linear-gradient(135deg, rgba(255,209,102,.12), rgba(255,77,77,.12));
+  border:1px solid rgba(255,209,102,.25);
+}
+.quiz-score-label{font-size:9px;color:var(--text-mute);letter-spacing:1px}
+.quiz-score-val{
+  font-size:20px;font-weight:700;line-height:1.2;font-family:"SF Mono",monospace;
+  background:linear-gradient(135deg, var(--warn), var(--fi));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.quiz-timer-box{
+  text-align:center;padding:4px 12px;border-radius:10px;
+  background:rgba(76,201,240,.08);border:1px solid rgba(76,201,240,.25);
+  min-width:60px;
+}
+.quiz-timer-label{font-size:9px;color:var(--text-mute);letter-spacing:1px}
+.quiz-timer-val{
+  font-size:20px;font-weight:700;line-height:1.2;font-family:"SF Mono",monospace;
+  color:var(--ty);
+}
+.quiz-timer-box.warning .quiz-timer-val{color:var(--warn);animation:timerBlink .5s ease-in-out infinite}
+.quiz-timer-box.danger .quiz-timer-val{color:var(--bad);animation:timerBlink .3s ease-in-out infinite}
+@keyframes timerBlink{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* 连击显示 */
+.combo-float{
+  position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);
+  font-size:48px;font-weight:900;pointer-events:none;z-index:100;
+  background:linear-gradient(135deg, var(--warn), var(--fi));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 30px rgba(255,200,87,.5);
+  opacity:0;animation:comboPop 1s ease-out forwards;
+}
+@keyframes comboPop{
+  0%{opacity:0;transform:translate(-50%, -50%) scale(.5)}
+  30%{opacity:1;transform:translate(-50%, -50%) scale(1.2)}
+  100%{opacity:0;transform:translate(-50%, -80%) scale(1)}
+}
+
+/* 答题卡片 */
+.quiz-card{
+  position:relative;padding:32px;border-radius:20px;min-height:420px;
+  background:var(--glass-bg-strong);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-glass);box-shadow:var(--shadow-soft), var(--shadow-glow);
+  animation:cardIn .6s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes cardIn{
+  0%{transform:perspective(1000px) rotateY(20deg) translateY(30px);opacity:0}
+  100%{transform:perspective(1000px) rotateY(0) translateY(0);opacity:1}
+}
+.quiz-card.flip{animation:cardFlip .5s ease}
+@keyframes cardFlip{
+  0%{transform:rotateY(0)}
+  50%{transform:rotateY(90deg);opacity:.3}
+  100%{transform:rotateY(0);opacity:1}
+}
+
+.quiz-meta-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.quiz-cat-tag{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;
+  font-size:11px;font-weight:600;letter-spacing:.5px;
+  background:color-mix(in srgb, var(--cat-color, var(--ty)) 15%, transparent);
+  border:1px solid color-mix(in srgb, var(--cat-color, var(--ty)) 40%, transparent);
+  color:color-mix(in srgb, var(--cat-color, var(--ty)) 80%, #fff);
+}
+.quiz-type-tag{
+  padding:4px 12px;border-radius:99px;font-size:11px;font-weight:500;
+  background:rgba(131,56,236,.12);border:1px solid rgba(131,56,236,.3);
+  color:#c8a8ff;
+}
+.quiz-diff-tag{
+  padding:4px 12px;border-radius:99px;font-size:11px;font-weight:500;
+}
+.quiz-diff-tag.easy{background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.3);color:#7de8bc}
+.quiz-diff-tag.medium{background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:#ffdd8a}
+.quiz-diff-tag.hard{background:rgba(255,84,112,.1);border:1px solid rgba(255,84,112,.3);color:#ff8fa3}
+
+.quiz-question{
+  font-size:19px;font-weight:500;line-height:1.8;margin-bottom:26px;color:var(--text-primary);
+}
+.quiz-question-num{
+  display:inline-block;margin-right:8px;
+  font-family:"SF Mono",monospace;font-weight:700;
+  background:linear-gradient(135deg, var(--ty), var(--purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+
+/* 选项 */
+.quiz-options{display:flex;flex-direction:column;gap:10px}
+.quiz-option{
+  position:relative;padding:14px 20px 14px 56px;border-radius:14px;cursor:pointer;
+  font-size:14px;line-height:1.6;background:rgba(255,255,255,.03);
+  border:1px solid var(--border-glass);color:var(--text-primary);
+  transition:all .25s cubic-bezier(.2,.8,.2,1);text-align:left;user-select:none;overflow:hidden;
+  display:flex;align-items:center;gap:12px;
+}
+.opt-text{flex:1}
+
+/* 单选按钮样式 */
+.opt-radio{
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.2);
+  background:transparent;
+  transition:all .25s ease;
+  flex-shrink:0;
+}
+.opt-radio::after{
+  content:"";position:absolute;inset:3px;border-radius:50%;
+  background:var(--ty);
+  transform:scale(0);transition:transform .2s ease;
+  box-shadow:0 0 8px var(--ty);
+}
+.single-option:hover .opt-radio{border-color:var(--ty)}
+.single-option.correct .opt-radio{border-color:var(--ok)}
+.single-option.correct .opt-radio::after{background:var(--ok);box-shadow:0 0 8px var(--ok);transform:scale(1)}
+.single-option.wrong .opt-radio{border-color:var(--bad)}
+.single-option.wrong .opt-radio::after{background:var(--bad);box-shadow:0 0 8px var(--bad);transform:scale(1)}
+
+/* 复选框样式 */
+.opt-checkbox{
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  width:22px;height:22px;border-radius:6px;
+  border:2px solid rgba(255,255,255,.2);
+  background:transparent;
+  transition:all .25s ease;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.opt-checkmark{
+  color:#fff;font-size:12px;font-weight:800;
+  opacity:0;transform:scale(.5);transition:all .2s ease;
+}
+.multi-option:hover .opt-checkbox{border-color:var(--ty)}
+.multi-option.multi-selected .opt-checkbox{
+  background:var(--purple);border-color:var(--purple);
+  box-shadow:0 0 12px rgba(131,56,236,.5);
+}
+.multi-option.multi-selected .opt-checkmark{opacity:1;transform:scale(1)}
+.multi-option.correct .opt-checkbox{background:var(--ok);border-color:var(--ok);box-shadow:0 0 8px var(--ok)}
+.multi-option.correct .opt-checkmark{opacity:1;transform:scale(1)}
+.multi-option.wrong .opt-checkbox{background:var(--bad);border-color:var(--bad);box-shadow:0 0 8px var(--bad)}
+.multi-option.wrong .opt-checkmark{opacity:1;transform:scale(1)}
+
+/* 选项hover和状态 */
+.quiz-option:hover{
+  background:rgba(76,201,240,.08);border-color:rgba(76,201,240,.35);transform:translateX(6px);
+}
+.quiz-option.correct{
+  background:rgba(61,220,151,.15);border-color:rgba(61,220,151,.5);
+  color:#9ff5cb;box-shadow:0 0 20px rgba(61,220,151,.2);
+}
+.quiz-option.wrong{
+  background:rgba(255,84,112,.15);border-color:rgba(255,84,112,.5);
+  color:#ffb1c0;box-shadow:0 0 20px rgba(255,84,112,.2);
+}
+.quiz-option.disabled{pointer-events:none}
+.quiz-option.disabled.correct,.quiz-option.disabled.wrong{opacity:1}
+.quiz-option.multi-selected{
+  background:rgba(131,56,236,.15);border-color:rgba(131,56,236,.45);
+}
+
+/* 填空输入框 */
+.quiz-blank-input{
+  width:100%;padding:16px 20px;border-radius:14px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border-glass);
+  color:var(--text-primary);font-size:16px;font-family:inherit;
+  outline:none;transition:all .25s ease;
+}
+.quiz-blank-input:focus{
+  border-color:rgba(76,201,240,.5);
+  box-shadow:0 0 20px rgba(76,201,240,.2);
+  background:rgba(76,201,240,.04);
+}
+.quiz-blank-hint{font-size:12px;color:var(--text-mute);margin-top:8px}
+.quiz-blank-submit{
+  margin-top:14px;padding:12px 28px;border-radius:12px;cursor:pointer;
+  background:linear-gradient(135deg, var(--ty), var(--purple));
+  border:none;color:#fff;font-size:14px;font-weight:600;font-family:inherit;
+  transition:all .25s ease;
+}
+.quiz-blank-submit:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(76,201,240,.3)}
+
+/* 判断题 */
+.quiz-tf-row{display:flex;gap:14px}
+.quiz-tf-btn{
+  flex:1;padding:20px;border-radius:14px;cursor:pointer;text-align:center;
+  background:rgba(255,255,255,.03);border:1px solid var(--border-glass);
+  transition:all .25s ease;
+}
+.quiz-tf-btn:hover{transform:translateY(-3px)}
+.quiz-tf-btn.true:hover{background:rgba(61,220,151,.1);border-color:rgba(61,220,151,.4)}
+.quiz-tf-btn.false:hover{background:rgba(255,84,112,.1);border-color:rgba(255,84,112,.4)}
+.quiz-tf-icon{font-size:32px;margin-bottom:6px}
+.quiz-tf-text{font-size:16px;font-weight:600}
+.quiz-tf-btn.selected.true{background:rgba(61,220,151,.15);border-color:rgba(61,220,151,.5);color:#9ff5cb}
+.quiz-tf-btn.selected.false{background:rgba(255,84,112,.15);border-color:rgba(255,84,112,.5);color:#ffb1c0}
+.quiz-tf-btn.disabled{pointer-events:none;opacity:.7}
+
+/* 解析 */
+.quiz-explain{
+  margin-top:22px;padding:18px 20px;border-radius:14px;
+  background:linear-gradient(135deg, rgba(76,201,240,.08), rgba(131,56,236,.08));
+  border-left:4px solid var(--ty);
+  font-size:13px;line-height:1.9;color:var(--text-secondary);
+  display:none;animation:slideIn .4s ease;
+}
+.quiz-explain.show{display:block}
+.quiz-explain strong{color:var(--text-primary)}
+.quiz-explain .explain-title{
+  font-size:13px;font-weight:600;color:var(--ty);margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.quiz-explain .ref{
+  display:block;margin-top:12px;padding-top:10px;
+  border-top:1px solid var(--border-glass);
+  font-size:11px;color:var(--text-mute);font-style:italic;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.quiz-next{margin-top:20px;display:none;justify-content:space-between;align-items:center;gap:10px}
+.quiz-next.show{display:flex}
+.quiz-next-left{font-size:12px;color:var(--text-mute)}
+.quiz-next-right{display:flex;gap:10px}
+.btn{
+  padding:10px 22px;border-radius:11px;cursor:pointer;font-size:13px;font-weight:500;
+  background:rgba(255,255,255,.05);border:1px solid var(--border-glass);
+  color:var(--text-primary);transition:all .2s ease;user-select:none;font-family:inherit;
+  position:relative;overflow:hidden;
+}
+.btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);transform:translateY(-1px)}
+.btn-primary{
+  background:linear-gradient(135deg, var(--ty), var(--purple));
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 16px rgba(76,201,240,.3);
+}
+.btn-primary:hover{box-shadow:0 8px 24px rgba(76,201,240,.4)}
+.btn-ghost{background:transparent;border:1px solid var(--border-glass)}
+
+/* 粒子特效 canvas */
+.fx-canvas{
+  position:fixed;inset:0;pointer-events:none;z-index:90;
+}
+
+/* ============================================================
+   结果页
+   ============================================================ */
+.result-wrap{max-width:820px;margin:0 auto}
+.result-hero{
+  text-align:center;padding:40px 30px 30px;border-radius:24px;
+  background:var(--glass-bg-strong);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-glass);box-shadow:var(--shadow-soft);
+  margin-bottom:20px;position:relative;overflow:hidden;
+}
+.result-hero::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(76,201,240,.15), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(131,56,236,.15), transparent 40%);
+  pointer-events:none;
+}
+.result-rank-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 20px;border-radius:99px;
+  font-size:14px;font-weight:700;letter-spacing:2px;
+  margin-bottom:16px;position:relative;z-index:1;
+}
+.result-rank-badge.S{background:linear-gradient(135deg, #ffd700, #ff8c00);color:#3a2000;box-shadow:0 0 30px rgba(255,215,0,.4)}
+.result-rank-badge.A{background:linear-gradient(135deg, #4cc9f0, #00b4d8);color:#003040;box-shadow:0 0 30px rgba(76,201,240,.4)}
+.result-rank-badge.B{background:linear-gradient(135deg, #3ddc97, #00c896);color:#003020;box-shadow:0 0 30px rgba(61,220,151,.4)}
+.result-rank-badge.C{background:linear-gradient(135deg, #ffd166, #ff9f1c);color:#3a2000;box-shadow:0 0 30px rgba(255,209,102,.4)}
+.result-rank-badge.D{background:linear-gradient(135deg, #ff5470, #ff006e);color:#3a0010;box-shadow:0 0 30px rgba(255,84,112,.4)}
+
+.result-title{font-size:28px;font-weight:700;margin-bottom:8px;position:relative;z-index:1}
+.result-subtitle{font-size:14px;color:var(--text-secondary);margin-bottom:24px;position:relative;z-index:1}
+
+.result-score-ring{
+  position:relative;width:180px;height:180px;margin:0 auto 24px;
+}
+.result-score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.result-score-ring .score-bg{stroke:rgba(255,255,255,.08)}
+.result-score-ring .score-fill{
+  stroke:url(#scoreGrad);stroke-linecap:round;
+  transition:stroke-dashoffset 1.5s cubic-bezier(.2,.8,.2,1);
+  filter:drop-shadow(0 0 8px rgba(76,201,240,.5));
+}
+.result-score-text{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.result-score-num{
+  font-size:52px;font-weight:800;font-family:"SF Mono",monospace;line-height:1;
+  background:linear-gradient(135deg, var(--ty), var(--purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.result-score-unit{font-size:14px;color:var(--text-mute);margin-top:4px}
+
+.result-stats{
+  display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;
+  margin-bottom:24px;position:relative;z-index:1;
+}
+.result-stat{
+  padding:16px 12px;border-radius:14px;text-align:center;
+  background:rgba(255,255,255,.03);border:1px solid var(--border-glass);
+}
+.result-stat-num{
+  font-size:24px;font-weight:700;font-family:"SF Mono",monospace;
+  margin-bottom:2px;
+}
+.result-stat-num.ok{color:var(--ok)}
+.result-stat-num.bad{color:var(--bad)}
+.result-stat-num.warn{color:var(--warn)}
+.result-stat-num.purple{color:#c8a8ff}
+.result-stat-label{font-size:11px;color:var(--text-mute)}
+
+/* 成就徽章 */
+.achievements-section{
+  background:var(--glass-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);border-radius:18px;padding:20px;
+  margin-bottom:20px;
+}
+.ach-grid{
+  display:grid;grid-template-columns:repeat(5, 1fr);gap:10px;margin-top:14px;
+}
+.ach-item{
+  text-align:center;padding:14px 8px;border-radius:12px;
+  background:rgba(255,255,255,.02);border:1px solid var(--border-glass);
+  transition:all .3s ease;
+}
+.ach-item.unlocked{
+  background:linear-gradient(135deg, rgba(255,209,102,.12), rgba(255,140,0,.08));
+  border-color:rgba(255,209,102,.35);
+  box-shadow:0 0 16px rgba(255,209,102,.15);
+}
+.ach-item.locked{opacity:.4}
+.ach-icon{font-size:28px;margin-bottom:6px}
+.ach-item.unlocked .ach-icon{animation:achBounce 1s ease}
+@keyframes achBounce{
+  0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}
+}
+.ach-name{font-size:11px;font-weight:500;margin-bottom:2px}
+.ach-desc{font-size:10px;color:var(--text-mute);line-height:1.4}
+
+/* 分类正确率 */
+.cat-stats-section{
+  background:var(--glass-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);border-radius:18px;padding:20px;
+  margin-bottom:20px;
+}
+.cat-stat-row{
+  display:flex;align-items:center;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--border-glass);
+}
+.cat-stat-row:last-child{border-bottom:none}
+.cat-stat-icon{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  background:color-mix(in srgb, var(--cat-color, var(--ty)) 20%, transparent);
+}
+.cat-stat-name{font-size:13px;font-weight:500;flex:0 0 70px}
+.cat-stat-bar{
+  flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;
+}
+.cat-stat-fill{
+  height:100%;border-radius:4px;
+  background:linear-gradient(90deg, var(--cat-color, var(--ty)), color-mix(in srgb, var(--cat-color, var(--ty)) 50%, #fff));
+  transition:width 1s ease;
+}
+.cat-stat-num{
+  font-size:13px;font-weight:600;font-family:"SF Mono",monospace;
+  min-width:60px;text-align:right;
+}
+
+/* 错题列表 */
+.wrong-section{
+  background:var(--glass-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);border-radius:18px;padding:20px;
+  margin-bottom:20px;
+}
+.wrong-list{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.wrong-item{
+  padding:14px 16px;border-radius:12px;
+  background:rgba(255,84,112,.06);border:1px solid rgba(255,84,112,.2);
+}
+.wrong-q{font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text-primary)}
+.wrong-ans{font-size:12px;color:var(--text-secondary);line-height:1.6}
+.wrong-ans b{color:var(--ok)}
+.wrong-ans .wrong-ans-text{color:var(--bad)}
+
+/* 操作按钮 */
+.result-actions{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;
+}
+.result-actions .btn{padding:14px 28px;font-size:14px;font-weight:600}
+
+/* ============================================================
+   错题本 / 历史记录 页面
+   ============================================================ */
+.page-header{
+  display:flex;align-items:center;gap:16px;margin-bottom:24px;
+}
+.page-header h2{font-size:22px;font-weight:700}
+.page-header-desc{font-size:13px;color:var(--text-secondary);margin-top:2px}
+.back-btn{
+  width:40px;height:40px;border-radius:12px;cursor:pointer;
+  background:var(--glass-bg);backdrop-filter:blur(10px);
+  border:1px solid var(--border-glass);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--text-secondary);transition:all .2s ease;flex-shrink:0;
+}
+.back-btn:hover{background:rgba(255,255,255,.08);color:#fff;transform:translateX(-3px)}
+
+.empty-state{
+  text-align:center;padding:60px 20px;
+  background:var(--glass-bg);backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);border-radius:18px;
+}
+.empty-icon{font-size:48px;opacity:.3;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:500;margin-bottom:6px;color:var(--text-secondary)}
+.empty-desc{font-size:12px;color:var(--text-mute)}
+
+.record-list{display:flex;flex-direction:column;gap:10px}
+.record-item{
+  display:flex;align-items:center;gap:16px;padding:16px 20px;
+  background:var(--glass-bg);backdrop-filter:blur(10px);
+  border:1px solid var(--border-glass);border-radius:14px;
+  cursor:pointer;transition:all .25s ease;
+}
+.record-item:hover{background:rgba(255,255,255,.06);transform:translateX(4px)}
+.record-date{
+  font-family:"SF Mono",monospace;font-size:12px;color:var(--text-mute);
+  flex:0 0 110px;
+}
+.record-mode{
+  padding:4px 10px;border-radius:8px;font-size:11px;font-weight:500;
+  background:rgba(131,56,236,.12);border:1px solid rgba(131,56,236,.3);
+  color:#c8a8ff;flex:0 0 80px;text-align:center;
+}
+.record-score{
+  font-size:20px;font-weight:700;font-family:"SF Mono",monospace;
+  background:linear-gradient(135deg, var(--ty), var(--purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  flex:0 0 70px;text-align:right;
+}
+.record-detail{
+  flex:1;font-size:12px;color:var(--text-mute);
+  display:flex;gap:14px;justify-content:flex-end;
+}
+.record-detail span b{color:var(--text-primary);font-weight:600}
+
+/* 底部导航 */
+.bottom-nav{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;padding:8px;z-index:40;
+  background:rgba(10,14,23,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-glass);border-radius:16px;
+  box-shadow:0 10px 40px rgba(0,0,0,.5);
+}
+.bnav-item{
+  padding:10px 18px;border-radius:11px;cursor:pointer;
+  font-size:12px;font-weight:500;color:var(--text-secondary);
+  display:flex;align-items:center;gap:6px;transition:all .25s ease;
+}
+.bnav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.bnav-item.active{
+  color:#fff;
+  background:linear-gradient(135deg, rgba(76,201,240,.2), rgba(131,56,236,.2));
+  box-shadow:0 0 16px rgba(76,201,240,.2);
+}
+.bnav-icon{font-size:16px}
+
+/* ============================================================
+   Toast 通知
+   ============================================================ */
+.toast{
+  position:fixed;top:80px;left:50%;
+  transform:translateX(-50%) translateY(-20px);
+  padding:12px 28px;border-radius:99px;font-size:14px;font-weight:600;
+  opacity:0;pointer-events:none;z-index:200;white-space:nowrap;
+  transition:all .4s cubic-bezier(.2,.9,.2,1);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{
+  background:rgba(61,220,151,.15);color:#9ff5cb;
+  border:1px solid rgba(61,220,151,.5);box-shadow:0 0 20px rgba(61,220,151,.3);
+}
+.toast.bad{
+  background:rgba(255,84,112,.15);color:#ffb1c0;
+  border:1px solid rgba(255,84,112,.5);box-shadow:0 0 20px rgba(255,84,112,.3);
+}
+.toast.info{
+  background:rgba(76,201,240,.15);color:#a8e0ff;
+  border:1px solid rgba(76,201,240,.5);box-shadow:0 0 20px rgba(76,201,240,.3);
+}
+
+/* ============================================================
+   灾害知识图谱
+   ============================================================ */
+.kg-wrap{display:flex;gap:16px;align-items:flex-start}
+.kg-canvas-wrap{
+  flex:1;position:relative;border-radius:18px;overflow:hidden;
+  background:var(--glass-bg);backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);min-height:520px;
+}
+.kg-canvas-wrap svg{display:block;width:100%;height:520px;cursor:grab}
+.kg-canvas-wrap svg:active{cursor:grabbing}
+.kg-controls{
+  position:absolute;top:12px;right:12px;z-index:5;
+  display:flex;gap:6px;
+}
+.kg-ctrl-btn{
+  width:32px;height:32px;border-radius:8px;cursor:pointer;
+  background:rgba(20,29,51,.7);backdrop-filter:blur(10px);
+  border:1px solid var(--border-glass);color:#fff;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:all .2s ease;
+}
+.kg-ctrl-btn:hover{background:rgba(76,201,240,.2);border-color:rgba(76,201,240,.4)}
+.kg-search{
+  position:absolute;top:12px;left:12px;z-index:5;
+  width:200px;padding:8px 12px;border-radius:10px;
+  background:rgba(20,29,51,.7);backdrop-filter:blur(10px);
+  border:1px solid var(--border-glass);color:#fff;
+  font-size:12px;font-family:inherit;outline:none;
+  transition:all .25s ease;
+}
+.kg-search:focus{border-color:rgba(76,201,240,.5);box-shadow:0 0 12px rgba(76,201,240,.2)}
+.kg-search::placeholder{color:var(--text-mute)}
+.kg-side{
+  flex:0 0 280px;display:flex;flex-direction:column;gap:12px;
+}
+.kg-info-card{
+  padding:18px;border-radius:16px;
+  background:var(--glass-bg);backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);
+  min-height:200px;transition:all .3s ease;
+}
+.kg-info-card h3{font-size:16px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.kg-info-card .kg-desc{font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:12px}
+.kg-info-card .kg-stats{display:flex;flex-wrap:wrap;gap:8px}
+.kg-info-card .kg-stat-tag{
+  font-size:11px;padding:4px 10px;border-radius:99px;
+  background:rgba(255,255,255,.05);border:1px solid var(--border-glass);
+}
+.kg-legend{
+  padding:14px 16px;border-radius:14px;
+  background:var(--glass-bg);backdrop-filter:blur(10px);
+  border:1px solid var(--border-glass);
+}
+.kg-legend-title{font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text-secondary)}
+.kg-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:6px;color:var(--text-secondary)}
+.kg-legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.kg-node-circle{cursor:pointer;transition:all .2s ease}
+.kg-node-circle:hover{filter:brightness(1.4)}
+.kg-node-label{font-size:13px;font-weight:600;pointer-events:none;user-select:none}
+.kg-edge{stroke:rgba(255,255,255,.15);stroke-width:2;fill:none;transition:all .2s ease}
+.kg-edge.highlight{stroke:rgba(76,201,240,.6);stroke-width:3}
+.kg-node-circle.selected{filter:drop-shadow(0 0 12px currentColor) brightness(1.3)}
+.kg-pulse-ring{
+  fill:none;stroke-width:2;opacity:0;pointer-events:none;
+  transform-origin:center;
+}
+@keyframes kgPulse{
+  0%{opacity:.6;r:30px}
+  100%{opacity:0;r:60px}
+}
+
+/* ============================================================
+   应急包生成器
+   ============================================================ */
+.kit-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.kit-form{
+  padding:24px;border-radius:18px;
+  background:var(--glass-bg);backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);
+}
+.kit-form h3{font-size:15px;margin-bottom:16px}
+.kit-input-group{margin-bottom:18px}
+.kit-input-label{font-size:12px;color:var(--text-secondary);margin-bottom:6px;display:block}
+.kit-input{
+  width:100%;padding:12px 16px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border-glass);
+  color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;
+  transition:all .25s ease;
+}
+.kit-input:focus{border-color:rgba(76,201,240,.5);box-shadow:0 0 16px rgba(76,201,240,.15)}
+.kit-chips{display:flex;flex-wrap:wrap;gap:8px}
+.kit-chip{
+  padding:8px 14px;border-radius:99px;cursor:pointer;font-size:12px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border-glass);
+  color:var(--text-secondary);transition:all .2s ease;user-select:none;
+}
+.kit-chip:hover{background:rgba(255,255,255,.08)}
+.kit-chip.active{
+  background:color-mix(in srgb, var(--chip-color, var(--ty)) 18%, transparent);
+  border-color:color-mix(in srgb, var(--chip-color, var(--ty)) 50%, transparent);
+  color:#fff;
+}
+.kit-btn-generate{
+  width:100%;padding:14px;border-radius:14px;cursor:pointer;
+  background:linear-gradient(135deg, var(--ty), var(--purple));
+  border:none;color:#fff;font-size:15px;font-weight:600;font-family:inherit;
+  margin-top:8px;transition:all .25s ease;
+}
+.kit-btn-generate:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(76,201,240,.3)}
+.kit-result{
+  padding:24px;border-radius:18px;
+  background:var(--glass-bg);backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);
+  max-height:600px;overflow-y:auto;
+}
+.kit-result-empty{
+  text-align:center;padding:60px 20px;color:var(--text-mute);
+}
+.kit-result-empty .icon{font-size:48px;opacity:.3;margin-bottom:12px}
+.kit-cat-title{
+  font-size:13px;font-weight:600;margin:16px 0 8px;
+  display:flex;align-items:center;gap:6px;color:var(--text-secondary);
+}
+.kit-cat-title:first-child{margin-top:0}
+.kit-cat-toggle{
+  margin-left:auto;font-size:11px;padding:3px 10px;border-radius:99px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border-glass);
+  cursor:pointer;color:var(--text-secondary);transition:all .2s ease;
+}
+.kit-cat-toggle:hover{background:rgba(76,201,240,.2);color:#fff}
+.kit-item{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;
+  border-radius:10px;margin-bottom:4px;font-size:13px;
+  background:rgba(255,255,255,.02);border:1px solid transparent;
+  transition:all .2s ease;cursor:pointer;
+}
+.kit-item:hover{background:rgba(255,255,255,.05)}
+.kit-item.checked{
+  background:rgba(61,220,151,.08);border-color:rgba(61,220,151,.25);
+}
+.kit-checkbox{
+  width:18px;height:18px;border-radius:6px;flex-shrink:0;
+  border:2px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:transparent;transition:all .2s ease;
+}
+.kit-item.checked .kit-checkbox{background:var(--ok);border-color:var(--ok);color:#04261a}
+.kit-item-name{flex:1}
+.kit-item-qty{font-size:11px;color:var(--text-mute)}
+.kit-progress{
+  margin-bottom:14px;padding:12px 16px;border-radius:12px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border-glass);
+}
+.kit-progress-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:6px}
+.kit-progress-fill{height:100%;background:linear-gradient(90deg, var(--ok), #7de8bc);border-radius:3px;transition:width .5s ease}
+.kit-progress-text{font-size:12px;color:var(--text-secondary)}
+
+/* ============================================================
+   灾害时间线
+   ============================================================ */
+.tl-wrap{position:relative;padding:20px 0}
+.tl-filters{
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+  margin-bottom:24px;padding:12px 16px;border-radius:14px;
+  background:var(--glass-bg);backdrop-filter:blur(10px);
+  border:1px solid var(--border-glass);
+}
+.tl-filter-chip{
+  padding:6px 14px;border-radius:99px;cursor:pointer;font-size:12px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border-glass);
+  color:var(--text-secondary);transition:all .2s ease;user-select:none;
+}
+.tl-filter-chip:hover{background:rgba(255,255,255,.08)}
+.tl-filter-chip.active{background:rgba(76,201,240,.18);border-color:rgba(76,201,240,.5);color:#fff}
+.tl-line{
+  position:absolute;left:50%;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg, transparent, var(--ty), var(--purple), transparent);
+  transform:translateX(-50%);border-radius:2px;
+}
+.tl-item{
+  position:relative;margin-bottom:32px;display:flex;
+  align-items:flex-start;gap:0;width:100%;
+}
+.tl-item:nth-child(odd){flex-direction:row-reverse}
+.tl-card-wrap{flex:1;padding:0 30px}
+.tl-dot{
+  position:absolute;left:50%;top:20px;transform:translateX(-50%);
+  width:16px;height:16px;border-radius:50%;flex-shrink:0;z-index:2;
+  border:3px solid var(--bg-deep);
+  box-shadow:0 0 12px var(--tl-color, var(--ty));
+}
+.tl-card{
+  padding:18px 20px;border-radius:16px;cursor:pointer;
+  background:var(--glass-bg);backdrop-filter:blur(14px);
+  border:1px solid var(--border-glass);
+  transition:all .3s ease;
+}
+.tl-card:hover{
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb, var(--tl-color, var(--ty)) 40%, transparent);
+  box-shadow:0 8px 30px color-mix(in srgb, var(--tl-color, var(--ty)) 15%, transparent);
+}
+.tl-year{
+  font-size:22px;font-weight:800;font-family:"SF Mono",monospace;
+  background:linear-gradient(135deg, var(--tl-color, var(--ty)), var(--purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin-bottom:4px;
+}
+.tl-name{font-size:15px;font-weight:600;margin-bottom:6px}
+.tl-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.tl-tag{
+  font-size:10px;padding:2px 8px;border-radius:99px;
+  background:rgba(255,255,255,.05);border:1px solid var(--border-glass);
+  color:var(--text-secondary);
+}
+.tl-tag.cat{background:color-mix(in srgb, var(--tl-color, var(--ty)) 15%, transparent);color:#fff;border-color:color-mix(in srgb, var(--tl-color, var(--ty)) 40%, transparent)}
+.tl-summary{font-size:12px;color:var(--text-secondary);line-height:1.7}
+.tl-detail{
+  max-height:0;overflow:hidden;transition:max-height .4s ease;
+}
+.tl-detail.show{max-height:500px}
+.tl-detail-inner{padding-top:12px;margin-top:12px;border-top:1px solid var(--border-glass)}
+.tl-detail-row{font-size:12px;color:var(--text-secondary);line-height:1.8;margin-bottom:4px}
+.tl-detail-row b{color:var(--text-primary)}
+
+/* ============================================================
+   滚动条
+   ============================================================ */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.18)}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width:900px){
+  .mode-grid{grid-template-columns:repeat(2, 1fr)}
+  .cat-grid{grid-template-columns:repeat(2, 1fr)}
+  .hero-title{font-size:30px}
+  .result-stats{grid-template-columns:repeat(2, 1fr)}
+  .ach-grid{grid-template-columns:repeat(3, 1fr)}
+  .quiz-options{grid-template-columns:1fr}
+  .bottom-nav{bottom:10px;padding:6px}
+  .bnav-item{padding:8px 12px;font-size:11px}
+  .bnav-text{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- 粒子特效层 -->
+<canvas class="fx-canvas" id="fxC"></canvas>
+
+<!-- 顶部导航 -->
+<nav class="topnav">
+  <div class="brand" onclick="goHome()">
+    <div class="brand-logo"></div>
+    <div class="brand-text">
+      <span>应急科普挑战系统</span>
+      <small>DISASTER · EDUCATION</small>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      <span>题库就绪</span>
+    </div>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ===== 首页 ===== -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-badge">✨ 多灾害应急科普知识挑战</div>
+      <h1 class="hero-title">掌握防灾知识<br/>守护生命安全</h1>
+      <p class="hero-sub">涵盖地震、台风、洪水、火灾、海啸、龙卷风、冰雹等多种自然灾害的应急科普知识，通过趣味答题提升你的防灾避险能力。</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num" id="totalQ">50</div>
+          <div class="hero-stat-label">题库总量</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num" id="totalCat">7</div>
+          <div class="hero-stat-label">灾害分类</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num" id="totalType">4</div>
+          <div class="hero-stat-label">题型种类</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">选择挑战模式</div>
+    <div class="mode-grid" id="modeGrid">
+      <div class="mode-card" data-mode="normal" style="--accent:#4cc9f0">
+        <div class="mode-icon">📝</div>
+        <div class="mode-name">常规挑战</div>
+        <div class="mode-desc">10道随机题目，无时间限制，轻松学习</div>
+        <div class="mode-meta">
+          <span class="mode-tag">10题</span>
+          <span class="mode-tag">不限时</span>
+        </div>
+      </div>
+      <div class="mode-card" data-mode="timed" style="--accent:#ff6b3d">
+        <div class="mode-icon">⏱️</div>
+        <div class="mode-name">限时挑战</div>
+        <div class="mode-desc">每题15秒倒计时，考验你的反应速度</div>
+        <div class="mode-meta">
+          <span class="mode-tag">10题</span>
+          <span class="mode-tag">15秒/题</span>
+        </div>
+      </div>
+      <div class="mode-card" data-mode="category" style="--accent:#8338ec">
+        <div class="mode-icon">🎯</div>
+        <div class="mode-name">分类挑战</div>
+        <div class="mode-desc">选择特定灾害类型，针对性强化训练</div>
+        <div class="mode-meta">
+          <span class="mode-tag">可选分类</span>
+          <span class="mode-tag">10题</span>
+        </div>
+      </div>
+      <div class="mode-card" data-mode="wrong" style="--accent:#ff5470">
+        <div class="mode-icon">📖</div>
+        <div class="mode-name">错题重练</div>
+        <div class="mode-desc">复习答错的题目，巩固薄弱知识点</div>
+        <div class="mode-meta">
+          <span class="mode-tag">错题本</span>
+          <span class="mode-tag" id="wrongCount">0题</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-section" id="catSection" style="display:none">
+      <div class="section-title">选择灾害分类 <span style="font-size:12px;color:var(--text-mute);font-weight:400;margin-left:8px">（可多选，至少选1个）</span></div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+
+    <div class="difficulty-section">
+      <div class="section-title">难度选择</div>
+      <div class="diff-row" id="diffRow">
+        <div class="diff-btn active" data-diff="easy" style="--diff-color:#3ddc97">
+          <div class="diff-icon">🌱</div>
+          <div class="diff-name">简单</div>
+          <div class="diff-desc">入门科普</div>
+        </div>
+        <div class="diff-btn" data-diff="medium" style="--diff-color:#ffd166">
+          <div class="diff-icon">⚡</div>
+          <div class="diff-name">中等</div>
+          <div class="diff-desc">进阶知识</div>
+        </div>
+        <div class="diff-btn" data-diff="hard" style="--diff-color:#ff5470">
+          <div class="diff-icon">🔥</div>
+          <div class="diff-name">困难</div>
+          <div class="diff-desc">专家挑战</div>
+        </div>
+        <div class="diff-btn" data-diff="all" style="--diff-color:#8338ec">
+          <div class="diff-icon">🎲</div>
+          <div class="diff-name">混合</div>
+          <div class="diff-desc">全部难度</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:36px">探索更多功能</div>
+    <div class="mode-grid">
+      <div class="mode-card" onclick="navTo('graph')" style="--accent:#8338ec">
+        <div class="mode-icon">🕸️</div>
+        <div class="mode-name">灾害知识图谱</div>
+        <div class="mode-desc">可视化关系图，探索灾害关联与防御网络</div>
+        <div class="mode-meta">
+          <span class="mode-tag">互动图谱</span>
+          <span class="mode-tag">7大灾害</span>
+        </div>
+      </div>
+      <div class="mode-card" onclick="navTo('kit')" style="--accent:#3ddc97">
+        <div class="mode-icon">🎒</div>
+        <div class="mode-name">应急包生成器</div>
+        <div class="mode-desc">根据家庭情况生成定制化应急物资清单</div>
+        <div class="mode-meta">
+          <span class="mode-tag">定制化</span>
+          <span class="mode-tag">可勾选</span>
+        </div>
+      </div>
+      <div class="mode-card" onclick="navTo('timeline')" style="--accent:#ff6b3d">
+        <div class="mode-icon">📅</div>
+        <div class="mode-name">灾害时间线</div>
+        <div class="mode-desc">中国近年重大自然灾害回顾与教训</div>
+        <div class="mode-meta">
+          <span class="mode-tag">时间轴</span>
+          <span class="mode-tag">可展开</span>
+        </div>
+      </div>
+      <div class="mode-card" onclick="navTo('wrongbook')" style="--accent:#ff5470">
+        <div class="mode-icon">📖</div>
+        <div class="mode-name">错题本</div>
+        <div class="mode-desc">复习答错的题目，巩固薄弱知识点</div>
+        <div class="mode-meta">
+          <span class="mode-tag">复习</span>
+          <span class="mode-tag" id="wrongCount">0题</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="start-btn-wrap">
+      <button class="btn-start" id="btnStart">
+        <span>🚀</span>
+        <span>开始挑战</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== 答题页 ===== -->
+  <div class="page" id="page-quiz">
+    <div class="quiz-wrap">
+      <div class="quiz-topbar">
+        <div class="quiz-back" onclick="quitQuiz()">←</div>
+        <div class="quiz-progress">
+          <div class="quiz-progress-top">
+            <span class="quiz-progress-text">第 <b id="qCur">1</b> / <b id="qTotal">10</b> 题 · <span id="qCat">地震</span></span>
+            <span class="quiz-progress-text" id="qTypeText">单选题</span>
+          </div>
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="qProgress" style="width:10%"></div>
+          </div>
+        </div>
+        <div class="quiz-stats">
+          <div class="quiz-score-box">
+            <div class="quiz-score-label">得分</div>
+            <div class="quiz-score-val" id="qScore">0</div>
+          </div>
+          <div class="quiz-timer-box" id="qTimerBox" style="display:none">
+            <div class="quiz-timer-label">剩余</div>
+            <div class="quiz-timer-val" id="qTimer">15</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-card" id="questionCard">
+        <div class="quiz-meta-row">
+          <span class="quiz-cat-tag" id="questionCategory">🌋 地震</span>
+          <span class="quiz-type-tag" id="questionType">单选题</span>
+          <span class="quiz-diff-tag easy" id="questionDifficulty">简单</span>
+        </div>
+
+        <div class="quiz-question">
+          <span class="quiz-question-num" id="questionNum">Q1.</span>
+          <span id="questionText">题目文字</span>
+        </div>
+
+        <div class="quiz-options" id="optionsContainer"></div>
+
+        <div style="margin-top:20px;">
+          <button class="btn btn-primary" id="submitBtn" style="display:none;">提交答案</button>
+        </div>
+
+        <div class="quiz-explain" id="questionExplain">
+          <div class="explain-title">💡 解析</div>
+          <div id="explanationText"></div>
+        </div>
+
+        <div class="quiz-next" id="nextBtn" style="display:none;">
+          <div class="quiz-next-left"></div>
+          <div class="quiz-next-right">
+            <button class="btn btn-primary" onclick="nextQuestion()">下一题 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 结果页 ===== -->
+  <div class="page" id="page-result">
+    <div class="result-wrap">
+      <div class="result-hero">
+        <div class="result-rank-badge" id="resultRank">A</div>
+        <div class="result-title" id="resultTitle">表现优秀！</div>
+        <div class="result-subtitle" id="resultSubtitle">继续加油，成为防灾专家</div>
+        
+        <div class="result-score-ring">
+          <svg viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4cc9f0"/>
+                <stop offset="100%" stop-color="#8338ec"/>
+              </linearGradient>
+            </defs>
+            <circle class="score-bg" cx="100" cy="100" r="85" fill="none" stroke-width="12"/>
+            <circle class="score-fill" id="scoreRing" cx="100" cy="100" r="85" fill="none" stroke-width="12"
+              stroke-dasharray="534" stroke-dashoffset="534"/>
+          </svg>
+          <div class="result-score-text">
+            <div class="result-score-num" id="resultScore">0</div>
+            <div class="result-score-unit">分</div>
+          </div>
+        </div>
+
+        <div class="result-stats">
+          <div class="result-stat">
+            <div class="result-stat-num ok" id="resultCorrect">0</div>
+            <div class="result-stat-label">答对</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-num bad" id="resultWrong">0</div>
+            <div class="result-stat-label">答错</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-num warn" id="resultCombo">0</div>
+            <div class="result-stat-label">最高连击</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-num purple" id="resultTime">0s</div>
+            <div class="result-stat-label">用时</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="achievements-section" id="resultNewAchievements">
+        <div class="section-title">新成就</div>
+        <div class="ach-grid" id="achGrid"></div>
+      </div>
+
+      <div class="cat-stats-section" id="resultCategoryStats" style="display:none">
+        <div class="section-title">分类正确率</div>
+        <div id="catStatsList"></div>
+      </div>
+
+      <div class="wrong-section" id="resultWrongList" style="display:none">
+        <div class="section-title">错题回顾</div>
+        <div class="wrong-list" id="wrongList"></div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-ghost" onclick="goHome()">🏠 返回首页</button>
+        <button class="btn btn-ghost" onclick="reviewWrong()">📖 错题重练</button>
+        <button class="btn btn-primary" onclick="restartQuiz()">🔄 再来一局</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 错题本页 ===== -->
+  <div class="page" id="page-wrongbook">
+    <div class="page-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div>
+        <h2>错题本</h2>
+        <div class="page-header-desc">复习答错的题目，巩固薄弱知识点</div>
+      </div>
+    </div>
+    <div id="wrongbookContent"></div>
+  </div>
+
+  <!-- ===== 历史记录页 ===== -->
+  <!-- ===== 灾害知识图谱页 ===== -->
+  <div class="page" id="page-graph">
+    <div class="page-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div>
+        <h2>灾害知识图谱</h2>
+        <div class="page-header-desc">探索灾害之间的关联、次生灾害链与防御网络</div>
+      </div>
+    </div>
+    <div class="kg-wrap">
+      <div class="kg-canvas-wrap">
+        <input type="text" class="kg-search" id="kgSearch" placeholder="🔍 搜索灾害或防御..." oninput="filterKgNodes(this.value)" />
+        <div class="kg-controls">
+          <button class="kg-ctrl-btn" onclick="zoomGraph(1.2)" title="放大">+</button>
+          <button class="kg-ctrl-btn" onclick="zoomGraph(0.8)" title="缩小">−</button>
+          <button class="kg-ctrl-btn" onclick="resetGraph()" title="重置">⟲</button>
+        </div>
+        <svg id="kgSvg" viewBox="0 0 700 520"></svg>
+      </div>
+      <div class="kg-side">
+        <div class="kg-info-card" id="kgInfoCard">
+          <h3>👆 点击节点查看详情</h3>
+          <div class="kg-desc">点击图谱中的任意节点，查看该灾害的详细信息、关联灾害和防御措施。</div>
+        </div>
+        <div class="kg-legend">
+          <div class="kg-legend-title">图例</div>
+          <div class="kg-legend-item"><div class="kg-legend-dot" style="background:#ff6b3d"></div>地震</div>
+          <div class="kg-legend-item"><div class="kg-legend-dot" style="background:#4cc9f0"></div>台风</div>
+          <div class="kg-legend-item"><div class="kg-legend-dot" style="background:#2a6f97"></div>洪水</div>
+          <div class="kg-legend-item"><div class="kg-legend-dot" style="background:#ff4d4d"></div>火灾</div>
+          <div class="kg-legend-item"><div class="kg-legend-dot" style="background:#00b4d8"></div>海啸</div>
+          <div class="kg-legend-item"><div class="kg-legend-dot" style="background:#8338ec"></div>龙卷风</div>
+          <div class="kg-legend-item"><div class="kg-legend-dot" style="background:#90e0ef"></div>冰雹</div>
+          <div class="kg-legend-item"><div class="kg-legend-dot" style="background:#3ddc97"></div>防御措施</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 应急包生成器页 ===== -->
+  <div class="page" id="page-kit">
+    <div class="page-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div>
+        <h2>应急包生成器</h2>
+        <div class="page-header-desc">根据你的情况生成定制化应急物资清单</div>
+      </div>
+    </div>
+    <div class="kit-wrap">
+      <div class="kit-form">
+        <h3>📋 填写信息</h3>
+        <div class="kit-input-group">
+          <label class="kit-input-label">家庭人数</label>
+          <input type="number" class="kit-input" id="kitPeople" value="3" min="1" max="20" />
+        </div>
+        <div class="kit-input-group">
+          <label class="kit-input-label">所在地区常见灾害（可多选）</label>
+          <div class="kit-chips" id="kitChips"></div>
+        </div>
+        <div class="kit-input-group">
+          <label class="kit-input-label">特殊需求（可多选）</label>
+          <div class="kit-chips" id="kitSpecial"></div>
+        </div>
+        <button class="kit-btn-generate" onclick="generateKit()">🎒 生成应急包清单</button>
+      </div>
+      <div class="kit-result" id="kitResult">
+        <div class="kit-result-empty">
+          <div class="icon">🎒</div>
+          <div>填写左侧信息后点击生成</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 灾害时间线页 ===== -->
+  <div class="page" id="page-timeline">
+    <div class="page-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div>
+        <h2>灾害时间线</h2>
+        <div class="page-header-desc">中国近年重大自然灾害回顾与教训</div>
+      </div>
+    </div>
+    <div class="tl-filters" id="tlFilters"></div>
+    <div class="tl-wrap" id="tlWrap"></div>
+  </div>
+
+  <!-- ===== 历史记录页 ===== -->
+  <div class="page" id="page-history">
+    <div class="page-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div>
+        <h2>历史记录</h2>
+        <div class="page-header-desc">查看你的挑战历史和进步轨迹</div>
+      </div>
+    </div>
+    <div id="historyContent"></div>
+  </div>
+
+</main>
+
+<!-- 底部导航 -->
+<div class="bottom-nav">
+  <div class="bnav-item active" data-page="home" onclick="navTo('home')">
+    <span class="bnav-icon">🏠</span>
+    <span class="bnav-text">首页</span>
+  </div>
+  <div class="bnav-item" data-page="graph" onclick="navTo('graph')">
+    <span class="bnav-icon">🕸️</span>
+    <span class="bnav-text">图谱</span>
+  </div>
+  <div class="bnav-item" data-page="kit" onclick="navTo('kit')">
+    <span class="bnav-icon">🎒</span>
+    <span class="bnav-text">应急包</span>
+  </div>
+  <div class="bnav-item" data-page="timeline" onclick="navTo('timeline')">
+    <span class="bnav-icon">📅</span>
+    <span class="bnav-text">时间线</span>
+  </div>
+  <div class="bnav-item" data-page="wrongbook" onclick="navTo('wrongbook')">
+    <span class="bnav-icon">📖</span>
+    <span class="bnav-text">错题本</span>
+  </div>
+  <div class="bnav-item" data-page="history" onclick="navTo('history')">
+    <span class="bnav-icon">📊</span>
+    <span class="bnav-text">历史</span>
+  </div>
+</div>
+
+<!-- Toast 通知 -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+/* ============================================================
+   多灾害应急科普 · 知识挑战系统  app.js
+   ============================================================ */
+
+// ============ 简写工具 ============
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+
+// ============ 分类配置 ============
+const categories = [
+  { key:'地震',  icon:'🌋', color:'#ff6b3d' },
+  { key:'台风',  icon:'🌀', color:'#4cc9f0' },
+  { key:'洪水',  icon:'🌊', color:'#2a6f97' },
+  { key:'火灾',  icon:'🔥', color:'#ff4d4d' },
+  { key:'海啸',  icon:'🌊', color:'#00b4d8' },
+  { key:'龙卷风',icon:'🌪️', color:'#8338ec' },
+  { key:'冰雹',  icon:'🧊', color:'#90e0ef' },
+  { key:'通用',  icon:'🛡️', color:'#3ddc97' }
+];
+
+// 题型/难度文字映射
+const TYPE_TEXT = { single:'单选题', multi:'多选题', judge:'判断题', fill:'填空题' };
+const DIFF_TEXT = { easy:'简单', medium:'中等', hard:'困难', all:'混合' };
+
+// ============ 题库（50题） ============
+const questionBank = [
+  // === 地震（7） ===
+  { id:'eq01', category:'地震', type:'single', diff:'easy',
+    q:'地震发生时，最先到达地面的地震波是？',
+    opts:['横波(S波)','纵波(P波)','面波','体波'],
+    answer:1,
+    explain:'地震波分为<strong>纵波(P波)、横波(S波)和面波</strong>。P波传播最快，使物体上下颠簸；S波较慢，使物体前后摇晃；面波破坏力最大但传播最慢。',
+    ref:'《地震学基础》' },
+  { id:'eq02', category:'地震', type:'single', diff:'medium',
+    q:'关于震级和烈度的关系，下列说法正确的是？',
+    opts:['震级越大，烈度一定越大','一次地震只有一个震级，但有多处烈度','震级和烈度是同一概念','烈度由震级唯一决定'],
+    answer:1,
+    explain:'<strong>震级</strong>反映地震释放能量大小，一次地震只有一个；<strong>烈度</strong>反映地震对地表的影响程度，同一次地震在不同地点烈度不同。',
+    ref:'GB/T 17742 中国地震烈度表' },
+  { id:'eq03', category:'地震', type:'judge', diff:'easy',
+    q:'地震发生时，应该立即跑出建筑物。',
+    answer:false,
+    explain:'地震发生瞬间应就近躲避，遵循<strong>"伏地、遮挡、手抓牢"</strong>原则，待震动停止后再撤离，盲目跑出更易被坠落物砸伤。',
+    ref:'中国地震局应急指南' },
+  { id:'eq04', category:'地震', type:'multi', diff:'medium',
+    q:'室内避震时，下列哪些做法是正确的？',
+    opts:['躲在坚固桌子下','蹲在承重墙角','躲在卫生间等小开间','跳楼逃生'],
+    answer:[0,1,2],
+    explain:'应选择<strong>承重墙角、坚固家具下、小开间(卫生间)</strong>等避险位置，远离窗户和外墙，绝对禁止跳楼。',
+    ref:'中国地震局应急指南' },
+  { id:'eq05', category:'地震', type:'fill', diff:'easy',
+    q:'世界上发生次数最多、破坏性最强的地震类型是____地震。',
+    answer:['构造地震','构造'],
+    explain:'<strong>构造地震</strong>由地壳构造运动引起，占全球地震的90%以上，破坏性最强。',
+    ref:'《地震学基础》' },
+  { id:'eq06', category:'地震', type:'single', diff:'hard',
+    q:'中国地震烈度表(GB/T 17742)将地震烈度划分为多少度？',
+    opts:['8度','10度','12度','14度'],
+    answer:2,
+    explain:'中国地震烈度表划分为<strong>I-XII度，共12度</strong>，从无感到毁灭性破坏。',
+    ref:'GB/T 17742-2020' },
+  { id:'eq07', category:'地震', type:'judge', diff:'hard',
+    q:'震源深度越深，地表破坏通常越小。',
+    answer:true,
+    explain:'震源越深，地震波传播到地表能量损失越多，对地表的<strong>破坏力通常越小</strong>，但影响范围可能更大。',
+    ref:'《地震学基础》' },
+
+  // === 台风（7） ===
+  { id:'ty01', category:'台风', type:'fill', diff:'easy',
+    q:'台风是发生在____洋面上具有暖中心结构的强烈热带气旋。',
+    answer:['热带','热带海洋','热带海洋上','热带洋面'],
+    explain:'台风形成于<strong>热带或副热带26℃以上广阔洋面</strong>上，是具有暖心结构的热带气旋。',
+    ref:'中国气象局' },
+  { id:'ty02', category:'台风', type:'single', diff:'medium',
+    q:'台风眼内的天气特征是？',
+    opts:['狂风暴雨','风平浪静、云层稀薄','持续降雨','电闪雷鸣'],
+    answer:1,
+    explain:'<strong>台风眼</strong>是台风中心区域，由于下沉气流，反而风平浪静、云开雾散，但眼壁附近风力最强。',
+    ref:'《热带气旋学》' },
+  { id:'ty03', category:'台风', type:'judge', diff:'easy',
+    q:'台风眼内风平浪静，可以放心外出。',
+    answer:false,
+    explain:'台风眼过后会迎来反向的强风(眼壁)，<strong>盲目外出极度危险</strong>，应在台风完全过境后再出门。',
+    ref:'中国气象局台风防御指南' },
+  { id:'ty04', category:'台风', type:'multi', diff:'medium',
+    q:'台风来临前应做好哪些准备？',
+    opts:['加固门窗','储备食物饮水','检查排水设施','到海边看浪'],
+    answer:[0,1,2],
+    explain:'应做好<strong>加固门窗、储备物资、检查排水</strong>等防御准备，远离海岸，绝不可到海边观浪。',
+    ref:'中国气象局台风防御指南' },
+  { id:'ty05', category:'台风', type:'fill', diff:'medium',
+    q:'我国台风预警信号最高级别是____色。',
+    answer:['红','红色'],
+    explain:'我国台风预警信号分为<strong>蓝、黄、橙、红</strong>四级，红色为最高级别，表示6小时内可能受强台风影响。',
+    ref:'GB/T 19201-2006' },
+  { id:'ty06', category:'台风', type:'single', diff:'hard',
+    q:'西北太平洋和南海热带气旋命名表由哪个机构管理？',
+    opts:['世界气象组织(WMO)','联合国','中国气象局','美国国家飓风中心'],
+    answer:0,
+    explain:'西北太平洋和南海热带气旋命名表由<strong>WMO台风委员会</strong>管理，共有140个名字循环使用。',
+    ref:'WMO Typhoon Committee' },
+  { id:'ty07', category:'台风', type:'judge', diff:'hard',
+    q:'台风路径只能向西移动。',
+    answer:false,
+    explain:'台风路径受副热带高压、西风带等引导气流影响，可<strong>向西、西北、北甚至东北</strong>方向移动，还会出现打转、回旋等异常路径。',
+    ref:'《热带气旋学》' },
+
+  // === 洪水（6） ===
+  { id:'fl01', category:'洪水', type:'single', diff:'easy',
+    q:'山洪来临时，正确的逃生方向是？',
+    opts:['顺流而下','迎着洪水跑','向高处转移','躲在桥下'],
+    answer:2,
+    explain:'山洪暴发时应立即向<strong>高处</strong>转移，远离河道、低洼地带，绝不能顺流或迎流奔跑。',
+    ref:'国家防汛抗旱总指挥部' },
+  { id:'fl02', category:'洪水', type:'judge', diff:'easy',
+    q:'洪水不太深时，可以涉水过河。',
+    answer:false,
+    explain:'洪水流速难以判断，<strong>15厘米深的流水就能让人站立不稳</strong>，60厘米深的流水可冲走汽车，禁止涉水过河。',
+    ref:'国家防汛抗旱总指挥部' },
+  { id:'fl03', category:'洪水', type:'multi', diff:'medium',
+    q:'洪水应急物资包应包括哪些？',
+    opts:['饮用水和食物','手电筒和电池','急救药品','重要证件(防水包装)'],
+    answer:[0,1,2,3],
+    explain:'应急包应备齐<strong>水食、照明、药品、证件</strong>等基础物资，以备紧急转移使用。',
+    ref:'应急管理部门指南' },
+  { id:'fl04', category:'洪水', type:'fill', diff:'easy',
+    q:'洪水预警信号中，____色表示最高级别警报。',
+    answer:['红','红色'],
+    explain:'洪水预警信号由低到高为<strong>蓝、黄、橙、红</strong>四级，红色表示最高级别警报。',
+    ref:'GB/T 27962-2011' },
+  { id:'fl05', category:'洪水', type:'single', diff:'hard',
+    q:'"百年一遇洪水"是指？',
+    opts:['每100年必然发生一次','每年发生概率为1%的洪水','100年内最大洪水','历史最长洪水'],
+    answer:1,
+    explain:'"百年一遇"指<strong>每年发生概率为1%</strong>的洪水事件，并不意味着每100年必发生一次，可能在短期内连续出现。',
+    ref:'《水文学原理》' },
+  { id:'fl06', category:'洪水', type:'judge', diff:'medium',
+    q:'城市内涝时，应特别注意避开下水道井盖。',
+    answer:true,
+    explain:'内涝时下水道井盖可能被冲走，形成<strong>漩涡陷阱</strong>，应行走于道路中央并避开井盖处。',
+    ref:'城市内涝防御指南' },
+
+  // === 火灾（7） ===
+  { id:'fi01', category:'火灾', type:'single', diff:'easy',
+    q:'火场逃生时，正确的姿势是？',
+    opts:['直立快速奔跑','弯腰低姿、用湿毛巾捂口鼻','匍匐爬行','屏住呼吸'],
+    answer:1,
+    explain:'浓烟比空气轻、贴地上浮，应<strong>弯腰低姿</strong>前进，用湿毛巾捂口鼻过滤有毒气体。',
+    ref:'消防安全常识二十条' },
+  { id:'fi02', category:'火灾', type:'judge', diff:'easy',
+    q:'火灾发生时，可以使用电梯快速逃生。',
+    answer:false,
+    explain:'火灾时易断电导致电梯卡停，且电梯井产生<strong>"烟囱效应"</strong>吸入浓烟，严禁使用电梯逃生。',
+    ref:'消防安全常识二十条' },
+  { id:'fi03', category:'火灾', type:'multi', diff:'medium',
+    q:'干粉灭火器的正确使用步骤PASS包括？',
+    opts:['拔出保险销','对准火焰根部','压下手柄','左右扫射'],
+    answer:[0,1,2,3],
+    explain:'PASS法：<strong>P</strong>ull拔销、<strong>A</strong>im对准、<strong>S</strong>queeze压把、<strong>S</strong>weep扫射，四步缺一不可。',
+    ref:'GB 4351 灭火器标准' },
+  { id:'fi04', category:'火灾', type:'fill', diff:'easy',
+    q:'干粉灭火器应每____年检查一次压力表。',
+    answer:['1','一','一年'],
+    explain:'干粉灭火器<strong>每年</strong>应检查压力表，指针在绿区为正常；出厂满5年需水压试验，以后每2年一次。',
+    ref:'GB 50444 灭火器配置验收' },
+  { id:'fi05', category:'火灾', type:'single', diff:'hard',
+    q:'下列哪项不属于燃烧的三要素？',
+    opts:['可燃物','助燃物(氧气)','着火源','二氧化碳'],
+    answer:3,
+    explain:'燃烧三要素为<strong>可燃物、助燃物、着火源</strong>，二氧化碳是灭火剂，不属于燃烧要素。',
+    ref:'《燃烧学》' },
+  { id:'fi06', category:'火灾', type:'judge', diff:'medium',
+    q:'油锅起火时，可以用水浇灭。',
+    answer:false,
+    explain:'油锅起火<strong>严禁用水</strong>，水会瞬间汽化使油花飞溅扩大火势；应盖上锅盖或用灭火毯覆盖窒息灭火。',
+    ref:'消防安全常识' },
+  { id:'fi07', category:'火灾', type:'single', diff:'medium',
+    q:'浓烟中逃生时，发现门把手发烫应？',
+    opts:['强行开门冲出','用脚踹开门','不要开门，封堵门缝待救','立即跳窗'],
+    answer:2,
+    explain:'门把手发烫说明门外火势较大，开门会导致火烟涌入；应<strong>用湿布封堵门缝</strong>，向窗外发出求救信号等待救援。',
+    ref:'消防安全常识二十条' },
+
+  // === 海啸（6） ===
+  { id:'ts01', category:'海啸', type:'single', diff:'easy',
+    q:'引起海啸最主要的原因是？',
+    opts:['海上暴风','海底地震','月球引力','海水温度变化'],
+    answer:1,
+    explain:'<strong>海底大地震</strong>是海啸最主要成因，地震使海底突然垂直位移，水体整体波动形成海啸。',
+    ref:'《海洋灾害学》' },
+  { id:'ts02', category:'海啸', type:'judge', diff:'easy',
+    q:'海啸来临前，海岸附近海水常会异常退去。',
+    answer:true,
+    explain:'海啸波谷先抵达时，海岸海水会异常退去，露出大片海床，这是海啸即将来临的<strong>重要前兆</strong>，应立即向高处撤离。',
+    ref:'自然资源部海啸预警中心' },
+  { id:'ts03', category:'海啸', type:'multi', diff:'medium',
+    q:'海啸发生时，下列哪些行为是正确的？',
+    opts:['远离海岸向高处转移','放弃财物迅速撤离','跟随官方预警指令','留在沿海观看浪景'],
+    answer:[0,1,2],
+    explain:'应<strong>立即向高地转移、放弃财物、听从官方指令</strong>，绝不可在沿海停留观浪。',
+    ref:'联合国教科文组织海啸指南' },
+  { id:'ts04', category:'海啸', type:'fill', diff:'medium',
+    q:'海啸在深海大洋的传播速度可达____km/h，与喷气客机相当。',
+    answer:['800','700','600','900','700-900','800-900'],
+    explain:'海啸在深海传播速度极快，可达<strong>700-900km/h</strong>，接近喷气客机速度，但波高仅0.5米左右不易察觉。',
+    ref:'《海洋灾害学》' },
+  { id:'ts05', category:'海啸', type:'single', diff:'hard',
+    q:'海啸在深海和近岸的传播特征是？',
+    opts:['深海波高速率高，近岸波高速度降','深海波低速度慢','近岸速度更快','全程不变'],
+    answer:0,
+    explain:'海啸在深海波高小、速度极快；接近海岸时受地形抬升，<strong>波高剧增</strong>，速度降低，形成破坏性巨浪。',
+    ref:'《海洋灾害学》' },
+  { id:'ts06', category:'海啸', type:'judge', diff:'medium',
+    q:'海啸通常由多个波浪组成，第一波往往不是最大的。',
+    answer:true,
+    explain:'海啸是<strong>波浪序列</strong>，通常持续数小时，后续波浪可能更大，必须等官方解除警报后再返回沿海。',
+    ref:'联合国教科文组织海啸指南' },
+
+  // === 龙卷风（5） ===
+  { id:'to01', category:'龙卷风', type:'single', diff:'easy',
+    q:'全球龙卷风发生频率最高的国家是？',
+    opts:['中国','美国','日本','澳大利亚'],
+    answer:1,
+    explain:'<strong>美国</strong>中西部"龙卷风走廊"因地形和气候条件，是全球龙卷风发生频率最高的国家，年均约1000次。',
+    ref:'美国国家气象局' },
+  { id:'to02', category:'龙卷风', type:'judge', diff:'easy',
+    q:'龙卷风来临时，应该打开窗户平衡气压。',
+    answer:false,
+    explain:'龙卷风破坏力来自强风和飞射物，开窗不仅不能平衡气压，反而让风进入房屋增加内压使其更易倒塌，应<strong>立即躲避到地下室或内部房间</strong>。',
+    ref:'美国国家气象局' },
+  { id:'to03', category:'龙卷风', type:'fill', diff:'medium',
+    q:'增强藤田级数(EF Scale)将龙卷风强度划分为EF0至EF____级。',
+    answer:['5','五'],
+    explain:'增强藤田级数(EF Scale)分为<strong>EF0-EF5</strong>共6级，EF5为最高级别，风速超过322km/h，造成毁灭性破坏。',
+    ref:'NWS Enhanced Fujita Scale' },
+  { id:'to04', category:'龙卷风', type:'single', diff:'medium',
+    q:'在户外遭遇龙卷风时，正确的避难方式是？',
+    opts:['躲在汽车内','跑入低洼地或沟渠，平躺护头','抱住大树','跑向龙卷风路径'],
+    answer:1,
+    explain:'户外遭遇龙卷风应寻找<strong>低洼地或沟渠</strong>平躺，双手护头；切勿躲在车内或抱树，远离桥梁、广告牌。',
+    ref:'美国国家气象局' },
+  { id:'to05', category:'龙卷风', type:'multi', diff:'hard',
+    q:'龙卷风监测预报主要依靠哪些手段？',
+    opts:['多普勒天气雷达','气象卫星','地面观测站','月相变化'],
+    answer:[0,1,2],
+    explain:'龙卷风监测主要依靠<strong>多普勒雷达(中气旋识别)、气象卫星、地面观测</strong>等综合手段，月相与之无关。',
+    ref:'《强对流天气学》' },
+
+  // === 冰雹（5） ===
+  { id:'ha01', category:'冰雹', type:'single', diff:'easy',
+    q:'我国冰雹天气多发生在哪个季节？',
+    opts:['冬季','春夏季','秋季','全年均匀'],
+    answer:1,
+    explain:'冰雹多发生在<strong>春夏季</strong>，特别是春夏之交，此时对流活动强烈，积雨云发展旺盛。',
+    ref:'中国气象局' },
+  { id:'ha02', category:'冰雹', type:'fill', diff:'easy',
+    q:'冰雹来临时，最重要的是保护____部位。',
+    answer:['头','头部','头部等要害'],
+    explain:'冰雹冲击力大，最关键是<strong>保护头部</strong>，可用书包、衣物等遮挡，迅速进入坚固建筑物躲避。',
+    ref:'中国气象局冰雹防御指南' },
+  { id:'ha03', category:'冰雹', type:'fill', diff:'easy',
+    q:'冰雹属于____态降水。',
+    answer:['固','固态'],
+    explain:'冰雹是<strong>固态降水</strong>，由积雨云中过冷水滴与冰晶碰撞冻结增长形成，分层结构明显。',
+    ref:'《大气物理学》' },
+  { id:'ha04', category:'冰雹', type:'single', diff:'medium',
+    q:'冰雹主要形成于哪种云中？',
+    opts:['卷云','层云','积雨云','卷层云'],
+    answer:2,
+    explain:'冰雹形成于<strong>积雨云</strong>中，需强对流上升气流支撑冰雹在云内反复升降增长。',
+    ref:'《大气物理学》' },
+  { id:'ha05', category:'冰雹', type:'multi', diff:'hard',
+    q:'防范冰雹的正确措施有哪些？',
+    opts:['进入坚固室内','保护头部','将车辆移入车库','在大树下躲避'],
+    answer:[0,1,2],
+    explain:'应进入坚固室内、保护头部、移车入库，<strong>不可在大树下躲避</strong>(可能遭雷击或树枝砸伤)。',
+    ref:'中国气象局冰雹防御指南' },
+
+  // === 通用（7） ===
+  { id:'ge01', category:'通用', type:'single', diff:'easy',
+    q:'家庭应急包中，下列哪项不是必备物品？',
+    opts:['饮用水','手电筒','名牌手提包','急救药品'],
+    answer:2,
+    explain:'家庭应急包应备<strong>水、食物、手电筒、收音机、急救药品、备用电池、重要证件</strong>等基础物资。',
+    ref:'应急管理部家庭应急指南' },
+  { id:'ge02', category:'通用', type:'judge', diff:'easy',
+    q:'在中国，火警报警电话是119。',
+    answer:true,
+    explain:'中国应急救援电话：<strong>110</strong>报警、<strong>119</strong>火警、<strong>120</strong>急救、<strong>122</strong>交通事故。',
+    ref:'公安部应急电话' },
+  { id:'ge03', category:'通用', type:'multi', diff:'medium',
+    q:'心肺复苏(CPR)的基本步骤包括？',
+    opts:['判断意识呼吸','胸外按压','开放气道','人工呼吸'],
+    answer:[0,1,2,3],
+    explain:'CPR步骤：<strong>判断→呼救→按压(C)→开放气道(A)→人工呼吸(B)</strong>，按压频率100-120次/分钟，深度5-6cm。',
+    ref:'2020美国心脏协会CPR指南' },
+  { id:'ge04', category:'通用', type:'fill', diff:'easy',
+    q:'我国火警电话是____，急救电话是____。',
+    answer:['119,120','119 120','119，120','119、120'],
+    explain:'我国常用应急电话：火警<strong>119</strong>、急救<strong>120</strong>、报警<strong>110</strong>、交通事故<strong>122</strong>。',
+    ref:'公安部应急电话' },
+  { id:'ge05', category:'通用', type:'single', diff:'medium',
+    q:'灾后饮水安全处理，下列哪项不正确？',
+    opts:['煮沸饮用','沉淀过滤','饮用未经处理的河水','加氯消毒'],
+    answer:2,
+    explain:'灾后水源可能受污染，应<strong>煮沸、沉淀、消毒</strong>后再饮用，严禁直接饮用未经处理的自然水。',
+    ref:'WHO灾后卫生指南' },
+  { id:'ge06', category:'通用', type:'judge', diff:'hard',
+    q:'使用止血带止血时，应每40-50分钟松开一次。',
+    answer:true,
+    explain:'止血带使用应记录时间，每<strong>40-50分钟</strong>缓慢松开一次，每次1-3分钟，防止远端缺血坏死。',
+    ref:'《院前急救手册》' },
+  { id:'ge07', category:'通用', type:'single', diff:'hard',
+    q:'海姆立克急救法主要用于急救哪种情况？',
+    opts:['心脏骤停','气道异物梗阻','大出血','骨折'],
+    answer:1,
+    explain:'<strong>海姆立克急救法</strong>通过腹部冲击使膈肌上抬，排出气道异物，主要用于完全性气道异物梗阻的急救。',
+    ref:'美国红十字会急救指南' }
+];
+
+// ============ 成就定义（10个） ============
+const achievements = [
+  { id:'first',    name:'初出茅庐', desc:'完成首次挑战',   icon:'🎯' },
+  { id:'good',     name:'小试牛刀', desc:'单次得分≥80',   icon:'⭐' },
+  { id:'perfect',  name:'满分达人', desc:'全部答对',       icon:'💯' },
+  { id:'combo',    name:'连击大师', desc:'连续答对5题',   icon:'🔥' },
+  { id:'speed',    name:'速度之王', desc:'完成限时挑战',   icon:'⚡' },
+  { id:'wrong',    name:'错题克星', desc:'错题重练全对',   icon:'📖' },
+  { id:'expert',   name:'分类专家', desc:'完成所有分类',   icon:'🏆' },
+  { id:'persist',  name:'坚持不懈', desc:'累计10次挑战',   icon:'💪' },
+  { id:'wise',     name:'博学多才', desc:'累计答对100题',  icon:'🧠' },
+  { id:'flawless', name:'完美主义', desc:'零失误满分',     icon:'👑' }
+];
+
+// ============ 全局状态 ============
+let state = {
+  mode: 'normal',
+  diff: 'all',
+  cats: [],
+  quiz: null,
+  ach: {},
+  stats: { games:0, correct:0, categoriesPlayed:{}, wrongSessions:0 }
+};
+let wrongList = [];
+let history = [];
+
+// ============ localStorage 工具 ============
+const LS_KEY = 'disaster_quiz_v1';
+function loadLS(){
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+    if(Array.isArray(d.wrongList)) wrongList = d.wrongList;
+    if(Array.isArray(d.history))   history   = d.history;
+    if(d.ach)   state.ach   = Object.assign({}, d.ach);
+    if(d.stats) state.stats = Object.assign(state.stats, d.stats);
+  } catch(e) { console.warn('LS读取失败', e); }
+}
+function saveLS(){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      wrongList, history, ach: state.ach, stats: state.stats
+    }));
+  } catch(e) { console.warn('LS保存失败', e); }
+}
+
+// ============ 页面切换 ============
+function showPage(name){
+  $$('.page').forEach(p => p.classList.remove('active'));
+  const el = $('#page-' + name);
+  if(el) el.classList.add('active');
+  $$('.bnav-item').forEach(n => n.classList.toggle('active', n.dataset.page === name));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ============ Toast 通知 ============
+let toastTimer = null;
+function showToast(text, type='info'){
+  const t = $('#toast');
+  t.textContent = text;
+  t.className = 'toast ' + type + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); }, 2200);
+}
+
+// ============ 时钟 ============
+function updateClock(){
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2,'0');
+  const m = String(d.getMinutes()).padStart(2,'0');
+  const s = String(d.getSeconds()).padStart(2,'0');
+  $('#clock').textContent = `${h}:${m}:${s}`;
+}
+
+// ============ 粒子特效 ============
+const fx = {
+  canvas:null, ctx:null, particles:[], raf:null,
+  init(){
+    this.canvas = $('#fxC');
+    this.ctx = this.canvas.getContext('2d');
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.loop();
+  },
+  resize(){
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  },
+  burst(x, y, color, count=40){
+    for(let i=0;i<count;i++){
+      const a = Math.random() * Math.PI * 2;
+      const v = 3 + Math.random() * 6;
+      this.particles.push({
+        x, y,
+        vx: Math.cos(a)*v,
+        vy: Math.sin(a)*v,
+        life: 1,
+        decay: 0.012 + Math.random()*0.015,
+        size: 2 + Math.random()*4,
+        color
+      });
+    }
+  },
+  loop(){
+    const c = this.ctx;
+    c.clearRect(0,0,this.canvas.width,this.canvas.height);
+    for(let i=this.particles.length-1;i>=0;i--){
+      const p = this.particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.15;
+      p.vx *= 0.98;
+      p.life -= p.decay;
+      if(p.life <= 0){ this.particles.splice(i,1); continue; }
+      c.globalAlpha = Math.max(0, p.life);
+      c.fillStyle = p.color;
+      c.beginPath();
+      c.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      c.fill();
+    }
+    c.globalAlpha = 1;
+    this.raf = requestAnimationFrame(() => this.loop());
+  },
+  correct(){
+    const cx = window.innerWidth/2, cy = window.innerHeight/2;
+    this.burst(cx, cy, '#3ddc97', 50);
+    this.burst(cx, cy, '#9ff5cb', 20);
+  },
+  wrong(){
+    const cx = window.innerWidth/2, cy = window.innerHeight/2;
+    this.burst(cx, cy, '#ff5470', 40);
+    this.burst(cx, cy, '#ff8fa3', 15);
+  }
+};
+
+// ============ 连击特效 ============
+function showCombo(n){
+  const el = document.createElement('div');
+  el.className = 'combo-float';
+  el.textContent = `${n}连击!`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ============ 分类网格渲染 ============
+function renderCatGrid(){
+  const grid = $('#catGrid');
+  grid.innerHTML = '';
+  categories.forEach(c => {
+    const count = questionBank.filter(q => q.category === c.key).length;
+    const div = document.createElement('div');
+    div.className = 'cat-item';
+    div.dataset.cat = c.key;
+    div.style.setProperty('--cat-color', c.color);
+    div.innerHTML = `
+      <div class="cat-icon">${c.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.key}</div>
+        <div class="cat-count">${count}题</div>
+      </div>
+      <div class="cat-check">✓</div>
+    `;
+    div.addEventListener('click', () => {
+      div.classList.toggle('active');
+      const active = Array.from($$('.cat-item.active')).map(e => e.dataset.cat);
+      state.cats = active;
+    });
+    grid.appendChild(div);
+  });
+}
+
+// ============ 题库筛选 ============
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+}
+function getFilteredQuestions(){
+  let pool = questionBank.slice();
+  if(state.mode === 'wrong'){
+    pool = questionBank.filter(q => wrongList.includes(q.id));
+    return pool;
+  }
+  if(state.mode === 'category' && state.cats.length){
+    pool = pool.filter(q => state.cats.includes(q.category));
+  }
+  if(state.diff !== 'all'){
+    pool = pool.filter(q => q.diff === state.diff);
+  }
+  shuffle(pool);
+  return pool.slice(0, 10);
+}
+
+// ============ 模式选择 ============
+function setModeActive(card){
+  $$('.mode-card').forEach(c => {
+    c.classList.remove('active');
+    c.style.borderColor = '';
+    c.style.boxShadow = '';
+  });
+  card.classList.add('active');
+  const accent = (card.style.getPropertyValue('--accent') || '#4cc9f0').trim();
+  card.style.borderColor = accent;
+  card.style.boxShadow = `0 8px 30px ${accent}55`;
+}
+function initModeCards(){
+  $$('.mode-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const mode = card.dataset.mode;
+      if(mode === 'wrong' && wrongList.length === 0){
+        showToast('错题本为空，先去答错一些题吧', 'bad');
+        return;
+      }
+      state.mode = mode;
+      setModeActive(card);
+      $('#catSection').style.display = (mode === 'category') ? '' : 'none';
+    });
+  });
+}
+
+// ============ 难度选择 ============
+function initDiffBtns(){
+  $$('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.diff-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.diff = btn.dataset.diff;
+    });
+  });
+}
+
+// ============ 开始按钮 ============
+function initStartBtn(){
+  $('#btnStart').addEventListener('click', startQuiz);
+}
+function startQuiz(){
+  if(state.mode === 'category' && state.cats.length === 0){
+    showToast('请至少选择1个分类', 'bad');
+    return;
+  }
+  if(state.mode === 'wrong' && wrongList.length === 0){
+    showToast('错题本为空', 'bad');
+    return;
+  }
+  const questions = getFilteredQuestions();
+  if(questions.length === 0){
+    showToast('当前筛选条件下没有题目', 'bad');
+    return;
+  }
+  state.quiz = {
+    mode: state.mode,
+    diff: state.diff,
+    cats: state.cats.slice(),
+    questions,
+    curIdx: 0,
+    score: 0,
+    correct: 0,
+    wrong: 0,
+    combo: 0,
+    maxCombo: 0,
+    startTime: Date.now(),
+    endTime: 0,
+    catStats: {},
+    wrongOnes: [],
+    selected: [],
+    answered: false,
+    timed: (state.mode === 'timed')
+  };
+  showPage('quiz');
+  $('#qTotal').textContent = questions.length;
+  $('#qTimerBox').style.display = state.quiz.timed ? '' : 'none';
+  renderQuestion();
+}
+
+// ============ 渲染题目 ============
+function renderQuestion(){
+  try{
+    const q = state.quiz.questions[state.quiz.curIdx];
+    if(!q){
+      console.error('题目不存在，curIdx=', state.quiz.curIdx, 'total=', state.quiz.questions.length);
+      finishQuiz();
+      return;
+    }
+    state.quiz.answered = false;
+    state.quiz.selected = [];
+    const cat = categories.find(c => c.key === q.category);
+    $('#qCur').textContent = state.quiz.curIdx + 1;
+    $('#qCat').textContent = q.category;
+    $('#qTypeText').textContent = TYPE_TEXT[q.type];
+    $('#qProgress').style.width = (state.quiz.curIdx / state.quiz.questions.length * 100) + '%';
+    $('#qScore').textContent = state.quiz.score;
+    const card = $('#questionCard');
+    card.classList.remove('flip');
+    void card.offsetWidth;
+    card.classList.add('flip');
+    const catTag = $('#questionCategory');
+    catTag.textContent = `${cat.icon} ${q.category}`;
+    catTag.style.setProperty('--cat-color', cat.color);
+    $('#questionType').textContent = TYPE_TEXT[q.type];
+    const diffTag = $('#questionDifficulty');
+    diffTag.textContent = DIFF_TEXT[q.diff];
+    diffTag.className = 'quiz-diff-tag ' + q.diff;
+    $('#questionNum').textContent = `Q${state.quiz.curIdx + 1}.`;
+    $('#questionText').textContent = q.q;
+    const oc = $('#optionsContainer');
+    oc.innerHTML = '';
+    $('#submitBtn').style.display = 'none';
+    $('#questionExplain').classList.remove('show');
+    $('#nextBtn').style.display = 'none';
+
+    if(q.type === 'single')      renderSingle(q, oc);
+    else if(q.type === 'multi')  renderMulti(q, oc);
+    else if(q.type === 'judge')  renderJudge(q, oc);
+    else if(q.type === 'fill')   renderFill(q, oc);
+
+    if(state.quiz.timed) startTimer(15);
+  } catch(e) {
+    console.error('渲染题目出错:', e);
+    showToast('题目加载失败', 'bad');
+  }
+}
+
+function renderSingle(q, oc){
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'quiz-option single-option';
+    btn.dataset.key = String.fromCharCode(65 + i);
+    btn.innerHTML = `<span class="opt-radio"></span><span class="opt-text">${opt}</span>`;
+    btn.addEventListener('click', () => {
+      if(state.quiz.answered) return;
+      judgeAnswer(q, i, [i], btn);
+    });
+    oc.appendChild(btn);
+  });
+}
+
+function renderMulti(q, oc){
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'quiz-option multi-option';
+    btn.dataset.key = String.fromCharCode(65 + i);
+    btn.innerHTML = `<span class="opt-checkbox"><span class="opt-checkmark">✓</span></span><span class="opt-text">${opt}</span>`;
+    btn.addEventListener('click', () => {
+      if(state.quiz.answered) return;
+      btn.classList.toggle('multi-selected');
+      const idx = state.quiz.selected.indexOf(i);
+      if(idx === -1) state.quiz.selected.push(i);
+      else state.quiz.selected.splice(idx, 1);
+    });
+    oc.appendChild(btn);
+  });
+  $('#submitBtn').style.display = 'inline-flex';
+  $('#submitBtn').onclick = () => {
+    if(state.quiz.answered) return;
+    if(state.quiz.selected.length === 0){
+      showToast('请至少选择1个选项', 'bad');
+      return;
+    }
+    judgeAnswer(q, null, state.quiz.selected.slice(), null);
+  };
+}
+
+function renderJudge(q, oc){
+  const row = document.createElement('div');
+  row.className = 'quiz-tf-row';
+  row.innerHTML = `
+    <div class="quiz-tf-btn true" data-val="true">
+      <div class="quiz-tf-icon">✓</div>
+      <div class="quiz-tf-text">正确</div>
+    </div>
+    <div class="quiz-tf-btn false" data-val="false">
+      <div class="quiz-tf-icon">✕</div>
+      <div class="quiz-tf-text">错误</div>
+    </div>
+  `;
+  row.querySelectorAll('.quiz-tf-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      if(state.quiz.answered) return;
+      const val = b.dataset.val === 'true';
+      judgeAnswer(q, val, val, b);
+    });
+  });
+  oc.appendChild(row);
+}
+
+function renderFill(q, oc){
+  const inp = document.createElement('input');
+  inp.className = 'quiz-blank-input';
+  inp.type = 'text';
+  inp.placeholder = '请输入答案...';
+  oc.appendChild(inp);
+  const hint = document.createElement('div');
+  hint.className = 'quiz-blank-hint';
+  hint.textContent = '提示：填写关键词即可，无需标点';
+  oc.appendChild(hint);
+  $('#submitBtn').style.display = '';
+  $('#submitBtn').onclick = () => {
+    if(state.quiz.answered) return;
+    const val = inp.value.trim();
+    if(!val){
+      showToast('请输入答案', 'bad');
+      return;
+    }
+    judgeAnswer(q, null, val, inp);
+  };
+  inp.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ $('#submitBtn').click(); }
+  });
+  setTimeout(() => inp.focus(), 100);
+}
+
+// ============ 判断答案 ============
+function judgeAnswer(q, singleChoice, userAnswer, clickedEl){
+  state.quiz.answered = true;
+  stopTimer();
+  let correct = false;
+  const oc = $('#optionsContainer');
+
+  if(q.type === 'single'){
+    correct = (userAnswer[0] === q.answer);
+    const opts = oc.querySelectorAll('.quiz-option');
+    opts.forEach((o, i) => {
+      o.classList.add('disabled');
+      if(i === q.answer) o.classList.add('correct');
+      else if(i === userAnswer[0]) o.classList.add('wrong');
+    });
+  } else if(q.type === 'multi'){
+    const correctAns = q.answer.slice().sort();
+    const userAns = userAnswer.slice().sort();
+    correct = (correctAns.length === userAns.length && correctAns.every((v,i) => v === userAns[i]));
+    const opts = oc.querySelectorAll('.quiz-option');
+    opts.forEach((o, i) => {
+      o.classList.add('disabled');
+      o.classList.remove('multi-selected');
+      if(q.answer.includes(i)) o.classList.add('correct');
+      else if(userAnswer.includes(i)) o.classList.add('wrong');
+    });
+  } else if(q.type === 'judge'){
+    correct = (userAnswer === q.answer);
+    const btns = oc.querySelectorAll('.quiz-tf-btn');
+    btns.forEach(b => {
+      b.classList.add('disabled');
+      const v = b.dataset.val === 'true';
+      if(v === q.answer) b.classList.add('selected', q.answer ? 'true' : 'false');
+      else if(v === userAnswer) b.classList.add('selected', userAnswer ? 'true' : 'false');
+    });
+  } else if(q.type === 'fill'){
+    const ua = String(userAnswer).trim().toLowerCase();
+    correct = q.answer.some(a => String(a).trim().toLowerCase() === ua);
+    if(!correct){
+      clickedEl.style.borderColor = 'rgba(255,84,112,.6)';
+      clickedEl.style.background = 'rgba(255,84,112,.08)';
+    } else {
+      clickedEl.style.borderColor = 'rgba(61,220,151,.6)';
+      clickedEl.style.background = 'rgba(61,220,151,.08)';
+    }
+    const hint = document.createElement('div');
+    hint.className = 'quiz-blank-hint';
+    hint.style.color = correct ? '#9ff5cb' : '#ff8fa3';
+    hint.innerHTML = `参考答案：<b>${q.answer[0]}</b>`;
+    oc.appendChild(hint);
+  }
+
+  $('#submitBtn').style.display = 'none';
+
+  if(correct){
+    let base = 10;
+    let bonus = 0;
+    if(q.diff === 'hard') bonus += 5;
+    else if(q.diff === 'medium') bonus += 2;
+    state.quiz.combo += 1;
+    const comboBonus = Math.min(5, Math.max(0, state.quiz.combo - 1));
+    const gain = base + bonus + comboBonus;
+    state.quiz.score += gain;
+    state.quiz.correct += 1;
+    state.quiz.maxCombo = Math.max(state.quiz.maxCombo, state.quiz.combo);
+    fx.correct();
+    if(state.quiz.combo >= 3) showCombo(state.quiz.combo);
+    showToast(`+${gain}分${state.quiz.combo>=2?' '+state.quiz.combo+'连击':''}`, 'ok');
+  } else {
+    state.quiz.combo = 0;
+    state.quiz.wrong += 1;
+    state.quiz.wrongOnes.push(q);
+    if(!wrongList.includes(q.id)) wrongList.push(q.id);
+    fx.wrong();
+    showToast('回答错误', 'bad');
+  }
+
+  if(!state.quiz.catStats[q.category]) state.quiz.catStats[q.category] = { correct:0, total:0 };
+  state.quiz.catStats[q.category].total += 1;
+  if(correct) state.quiz.catStats[q.category].correct += 1;
+
+  $('#explanationText').innerHTML = q.explain + (q.ref ? `<span class="ref">参考资料：${q.ref}</span>` : '');
+  $('#questionExplain').classList.add('show');
+
+  $('#qProgress').style.width = ((state.quiz.curIdx + 1) / state.quiz.questions.length * 100) + '%';
+  $('#qScore').textContent = state.quiz.score;
+
+  $('#nextBtn').style.display = 'flex';
+  const nb = $('#nextBtn').querySelector('button');
+  if(nb) nb.textContent = (state.quiz.curIdx + 1 >= state.quiz.questions.length) ? '查看结果 →' : '下一题 →';
+}
+
+// ============ 下一题 ============
+function nextQuestion(){
+  if(!state.quiz) return;
+  if(state.quiz.curIdx + 1 >= state.quiz.questions.length){
+    finishQuiz();
+    return;
+  }
+  state.quiz.curIdx += 1;
+  renderQuestion();
+}
+
+// ============ 计时器 ============
+let timerInterval = null;
+let timerLeft = 0;
+function startTimer(sec){
+  stopTimer();
+  timerLeft = sec;
+  const box = $('#qTimerBox');
+  box.classList.remove('warning','danger');
+  $('#qTimer').textContent = timerLeft;
+  timerInterval = setInterval(() => {
+    timerLeft -= 1;
+    $('#qTimer').textContent = timerLeft;
+    box.classList.toggle('warning', timerLeft <= 10 && timerLeft > 5);
+    box.classList.toggle('danger', timerLeft <= 5 && timerLeft > 0);
+    if(timerLeft <= 0){
+      stopTimer();
+      if(!state.quiz.answered) autoFail();
+    }
+  }, 1000);
+}
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+  $('#qTimerBox').classList.remove('warning','danger');
+}
+function autoFail(){
+  const q = state.quiz.questions[state.quiz.curIdx];
+  state.quiz.answered = true;
+  state.quiz.combo = 0;
+  state.quiz.wrong += 1;
+  state.quiz.wrongOnes.push(q);
+  if(!wrongList.includes(q.id)) wrongList.push(q.id);
+  const oc = $('#optionsContainer');
+  if(q.type === 'single' || q.type === 'multi'){
+    const opts = oc.querySelectorAll('.quiz-option');
+    opts.forEach((o, i) => {
+      o.classList.add('disabled');
+      if(q.type === 'single' && i === q.answer) o.classList.add('correct');
+      if(q.type === 'multi' && q.answer.includes(i)) o.classList.add('correct');
+    });
+  } else if(q.type === 'judge'){
+    const btns = oc.querySelectorAll('.quiz-tf-btn');
+    btns.forEach(b => {
+      b.classList.add('disabled');
+      const v = b.dataset.val === 'true';
+      if(v === q.answer) b.classList.add('selected', q.answer ? 'true' : 'false');
+    });
+  } else if(q.type === 'fill'){
+    const hint = document.createElement('div');
+    hint.className = 'quiz-blank-hint';
+    hint.style.color = '#ff8fa3';
+    hint.innerHTML = `超时! 参考答案：<b>${q.answer[0]}</b>`;
+    oc.appendChild(hint);
+  }
+  $('#submitBtn').style.display = 'none';
+  if(!state.quiz.catStats[q.category]) state.quiz.catStats[q.category] = { correct:0, total:0 };
+  state.quiz.catStats[q.category].total += 1;
+  fx.wrong();
+  showToast('超时，自动判错', 'bad');
+  $('#explanationText').innerHTML = q.explain + (q.ref ? `<span class="ref">参考资料：${q.ref}</span>` : '');
+  $('#questionExplain').classList.add('show');
+  $('#qProgress').style.width = ((state.quiz.curIdx + 1) / state.quiz.questions.length * 100) + '%';
+  $('#nextBtn').style.display = 'flex';
+  const nb = $('#nextBtn').querySelector('button');
+  if(nb) nb.textContent = (state.quiz.curIdx + 1 >= state.quiz.questions.length) ? '查看结果 →' : '下一题 →';
+}
+
+// ============ 结束答题 ============
+function finishQuiz(){
+  state.quiz.endTime = Date.now();
+  const usedSecs = Math.floor((state.quiz.endTime - state.quiz.startTime) / 1000);
+  const totalQ = state.quiz.questions.length;
+  const record = {
+    date: new Date().toISOString(),
+    mode: state.quiz.mode,
+    diff: state.quiz.diff,
+    score: state.quiz.score,
+    correct: state.quiz.correct,
+    wrong: state.quiz.wrong,
+    total: totalQ,
+    maxCombo: state.quiz.maxCombo,
+    time: usedSecs
+  };
+  history.unshift(record);
+  if(history.length > 100) history = history.slice(0,100);
+  state.stats.games += 1;
+  state.stats.correct += state.quiz.correct;
+  if(state.quiz.mode === 'wrong'){
+    state.stats.wrongSessions += 1;
+    if(state.quiz.wrong === 0){
+      state.quiz.questions.forEach(q => {
+        const idx = wrongList.indexOf(q.id);
+        if(idx !== -1) wrongList.splice(idx, 1);
+      });
+    }
+  }
+  if(state.quiz.mode === 'category'){
+    state.quiz.cats.forEach(c => {
+      state.stats.categoriesPlayed[c] = (state.stats.categoriesPlayed[c] || 0) + 1;
+    });
+  }
+  const newAch = checkAchievements(record);
+  saveLS();
+  renderResult(record, newAch);
+  showPage('result');
+}
+
+// ============ 成就检查 ============
+function checkAchievements(record){
+  const newly = [];
+  const unlock = (id) => {
+    if(!state.ach[id]){ state.ach[id] = true; newly.push(id); }
+  };
+  unlock('first');
+  if(record.score >= 80) unlock('good');
+  if(record.correct === record.total) unlock('perfect');
+  if(record.maxCombo >= 5) unlock('combo');
+  if(record.mode === 'timed') unlock('speed');
+  if(record.mode === 'wrong' && record.wrong === 0) unlock('wrong');
+  const allCatsDone = categories.every(c => (state.stats.categoriesPlayed[c.key] || 0) > 0);
+  if(allCatsDone) unlock('expert');
+  if(state.stats.games >= 10) unlock('persist');
+  if(state.stats.correct >= 100) unlock('wise');
+  if(record.correct === record.total && record.maxCombo === record.total) unlock('flawless');
+  return newly;
+}
+
+// ============ 结果页渲染 ============
+function renderResult(record, newAch){
+  const accuracy = record.correct / record.total;
+  let rank = 'D', title = '继续努力', subtitle = '多练习才能掌握防灾知识';
+  if(accuracy === 1){ rank = 'S'; title = '完美无瑕'; subtitle = '你是真正的防灾专家'; }
+  else if(accuracy >= 0.8){ rank = 'A'; title = '表现优秀'; subtitle = '继续加油，成为防灾专家'; }
+  else if(accuracy >= 0.6){ rank = 'B'; title = '不错的成绩'; subtitle = '掌握了基本知识，还需精进'; }
+  else if(accuracy >= 0.4){ rank = 'C'; title = '尚需努力'; subtitle = '建议复习相关知识'; }
+  const rankEl = $('#resultRank');
+  rankEl.textContent = rank + ' 级';
+  rankEl.className = 'result-rank-badge ' + rank;
+  $('#resultTitle').textContent = title;
+  $('#resultSubtitle').textContent = subtitle;
+  const offset = 534 * (1 - accuracy);
+  $('#scoreRing').style.strokeDashoffset = 534;
+  setTimeout(() => { $('#scoreRing').style.strokeDashoffset = offset; }, 100);
+  animateNum($('#resultScore'), 0, record.score, 1200);
+  $('#resultCorrect').textContent = record.correct;
+  $('#resultWrong').textContent = record.wrong;
+  $('#resultCombo').textContent = record.maxCombo;
+  $('#resultTime').textContent = formatTime(record.time);
+
+  const ag = $('#achGrid');
+  ag.innerHTML = '';
+  achievements.forEach(a => {
+    const unlocked = state.ach[a.id];
+    const div = document.createElement('div');
+    div.className = 'ach-item ' + (unlocked ? 'unlocked' : 'locked');
+    div.innerHTML = `
+      <div class="ach-icon">${unlocked ? a.icon : '🔒'}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+    `;
+    ag.appendChild(div);
+  });
+  if(newAch.length > 0){
+    const names = newAch.map(id => achievements.find(a => a.id === id).name).join('、');
+    setTimeout(() => showToast(`解锁新成就：${names}`, 'ok'), 600);
+  }
+
+  if(Object.keys(state.quiz.catStats).length > 0){
+    $('#resultCategoryStats').style.display = '';
+    const list = $('#catStatsList');
+    list.innerHTML = '';
+    Object.entries(state.quiz.catStats).forEach(([cat, st]) => {
+      const c = categories.find(x => x.key === cat);
+      const pct = st.total ? Math.round(st.correct / st.total * 100) : 0;
+      const row = document.createElement('div');
+      row.className = 'cat-stat-row';
+      row.style.setProperty('--cat-color', c.color);
+      row.innerHTML = `
+        <div class="cat-stat-icon">${c.icon}</div>
+        <div class="cat-stat-name">${cat}</div>
+        <div class="cat-stat-bar"><div class="cat-stat-fill" style="width:0%"></div></div>
+        <div class="cat-stat-num">${st.correct}/${st.total}</div>
+      `;
+      list.appendChild(row);
+      setTimeout(() => { row.querySelector('.cat-stat-fill').style.width = pct + '%'; }, 300);
+    });
+  } else {
+    $('#resultCategoryStats').style.display = 'none';
+  }
+
+  if(state.quiz.wrongOnes.length > 0){
+    $('#resultWrongList').style.display = '';
+    const wl = $('#wrongList');
+    wl.innerHTML = '';
+    state.quiz.wrongOnes.forEach(q => {
+      let ansText = '';
+      if(q.type === 'single') ansText = q.opts[q.answer];
+      else if(q.type === 'multi') ansText = q.answer.map(i => q.opts[i]).join('、');
+      else if(q.type === 'judge') ansText = q.answer ? '正确' : '错误';
+      else if(q.type === 'fill') ansText = q.answer[0];
+      const div = document.createElement('div');
+      div.className = 'wrong-item';
+      div.innerHTML = `
+        <div class="wrong-q">[${q.category}] ${q.q}</div>
+        <div class="wrong-ans">正确答案：<b>${ansText}</b></div>
+      `;
+      wl.appendChild(div);
+    });
+  } else {
+    $('#resultWrongList').style.display = 'none';
+  }
+}
+
+function animateNum(el, from, to, dur){
+  const t0 = performance.now();
+  function step(t){
+    const p = Math.min(1, (t - t0) / dur);
+    el.textContent = Math.round(from + (to - from) * p);
+    if(p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function formatTime(sec){
+  if(sec < 60) return sec + 's';
+  return `${Math.floor(sec/60)}m${sec%60}s`;
+}
+
+// ============ 错题本页 ============
+function renderWrongbook(){
+  const c = $('#wrongbookContent');
+  if(wrongList.length === 0){
+    c.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📖</div>
+        <div class="empty-title">错题本为空</div>
+        <div class="empty-desc">快去挑战答题，错题会自动收录到这里</div>
+      </div>
+    `;
+    return;
+  }
+  const items = wrongList.map(id => questionBank.find(q => q.id === id)).filter(Boolean);
+  let html = `
+    <div class="page-header" style="margin-bottom:16px">
+      <div style="flex:1">
+        <div class="page-header-desc">共 ${items.length} 道错题</div>
+      </div>
+      <button class="btn btn-primary" onclick="reviewWrong()">开始错题练习</button>
+    </div>
+    <div class="record-list">
+  `;
+  items.forEach(q => {
+    let ansText = '';
+    if(q.type === 'single') ansText = q.opts[q.answer];
+    else if(q.type === 'multi') ansText = q.answer.map(i => q.opts[i]).join('、');
+    else if(q.type === 'judge') ansText = q.answer ? '正确' : '错误';
+    else if(q.type === 'fill') ansText = q.answer[0];
+    html += `
+      <div class="wrong-item">
+        <div class="wrong-q">[${q.category}] ${q.q}</div>
+        <div class="wrong-ans">正确答案：<b>${ansText}</b></div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+  c.innerHTML = html;
+}
+
+// ============ 历史记录页 ============
+function renderHistory(){
+  const c = $('#historyContent');
+  if(history.length === 0){
+    c.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div class="empty-title">暂无历史记录</div>
+        <div class="empty-desc">完成第一次挑战后这里会有记录</div>
+      </div>
+    `;
+    return;
+  }
+  let html = `<div class="record-list">`;
+  history.forEach(r => {
+    const dt = new Date(r.date);
+    const ds = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    const modeText = { normal:'常规', timed:'限时', category:'分类', wrong:'错题' }[r.mode] || r.mode;
+    html += `
+      <div class="record-item">
+        <div class="record-date">${ds}</div>
+        <div class="record-mode">${modeText}</div>
+        <div class="record-detail">
+          <span>对 <b>${r.correct}</b></span>
+          <span>错 <b>${r.wrong}</b></span>
+          <span>连击 <b>${r.maxCombo}</b></span>
+          <span>用时 <b>${formatTime(r.time)}</b></span>
+        </div>
+        <div class="record-score">${r.score}</div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+  c.innerHTML = html;
+}
+
+// ============ 全局导航函数 ============
+function goHome(){
+  stopTimer();
+  showPage('home');
+  updateStats();
+}
+function quitQuiz(){
+  if(state.quiz){
+    if(!confirm('答题尚未完成，确定退出吗？')) return;
+  }
+  stopTimer();
+  state.quiz = null;
+  showPage('home');
+  updateStats();
+}
+function navTo(name){
+  if(state.quiz) stopTimer();
+  if(name === 'home'){
+    showPage('home');
+    updateStats();
+  } else if(name === 'wrongbook'){
+    renderWrongbook();
+    showPage('wrongbook');
+  } else if(name === 'history'){
+    renderHistory();
+    showPage('history');
+  } else if(name === 'graph'){
+    renderKnowledgeGraph();
+    showPage('graph');
+  } else if(name === 'kit'){
+    initKit();
+    showPage('kit');
+  } else if(name === 'timeline'){
+    renderTimeline();
+    showPage('timeline');
+  }
+}
+function reviewWrong(){
+  if(wrongList.length === 0){
+    showToast('错题本为空', 'bad');
+    return;
+  }
+  state.mode = 'wrong';
+  startQuiz();
+}
+function restartQuiz(){
+  startQuiz();
+}
+
+// ============ 统计数字更新 ============
+function updateStats(){
+  $('#totalQ').textContent = questionBank.length;
+  $('#totalCat').textContent = categories.length;
+  $('#totalType').textContent = Object.keys(TYPE_TEXT).length;
+  $('#wrongCount').textContent = wrongList.length + '题';
+}
+
+// ============ 初始化 ============
+function init(){
+  loadLS();
+  fx.init();
+  renderCatGrid();
+  initModeCards();
+  initDiffBtns();
+  initStartBtn();
+  updateStats();
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  const normalCard = $('.mode-card[data-mode="normal"]');
+  if(normalCard){
+    setModeActive(normalCard);
+    state.mode = 'normal';
+  }
+  $$('.diff-btn').forEach(b => b.classList.remove('active'));
+  const allDiff = $('.diff-btn[data-diff="all"]');
+  if(allDiff) allDiff.classList.add('active');
+  state.diff = 'all';
+  $('#catSection').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// ============================================================
+// 灾害知识图谱
+// ============================================================
+const kgNodes = [
+  { id:'地震', label:'地震', icon:'🌋', color:'#ff6b3d', x:200, y:160, type:'disaster',
+    desc:'地壳快速释放能量产生震动，可引发滑坡、海啸、火灾等次生灾害。',
+    stats:['震级衡量能量','烈度衡量破坏','黄金12秒避险'] },
+  { id:'台风', label:'台风', icon:'🌀', color:'#4cc9f0', x:480, y:120, type:'disaster',
+    desc:'热带气旋，伴随狂风暴雨风暴潮，影响沿海地区。',
+    stats:['预警4级蓝黄橙红','眼壁风雨最强','风暴潮最危险'] },
+  { id:'洪水', label:'洪水', icon:'🌊', color:'#2a6f97', x:520, y:300, type:'disaster',
+    desc:'暴雨/融雪导致河流泛滥，城市内涝，山洪暴发。',
+    stats:['30cm水可冲倒人','堰塞湖溃决危险','向两侧高地撤离'] },
+  { id:'火灾', label:'火灾', icon:'🔥', color:'#ff4d4d', x:350, y:340, type:'disaster',
+    desc:'失火失去控制，蔓延破坏，烟气是主要致死原因。',
+    stats:['80%死于烟气','弯腰低姿逃生','油锅起火禁泼水'] },
+  { id:'海啸', label:'海啸', icon:'🌊', color:'#00b4d8', x:150, y:340, type:'disaster',
+    desc:'海底地震/火山/滑坡引发的超长波长海浪，破坏力极大。',
+    stats:['海水骤退是前兆','撤离30米海拔','第一波非最大'] },
+  { id:'龙卷风', label:'龙卷风', icon:'🌪️', color:'#8338ec', x:560, y:420, type:'disaster',
+    desc:'强对流产生的漏斗状高速旋转气柱，破坏路径窄但极强。',
+    stats:['躲地下室','远离汽车','EF5为最高级'] },
+  { id:'冰雹', label:'冰雹', icon:'🧊', color:'#90e0ef', x:300, y:80, type:'disaster',
+    desc:'强对流云团中冰块降落，砸坏作物车辆，伤人。',
+    stats:['多发春夏季','3cm冰雹25m/s','远离窗户'] },
+  { id:'应急避险', label:'应急避险', icon:'🛡️', color:'#3ddc97', x:380, y:220, type:'defense',
+    desc:'科学的应急避险措施是减轻灾害损失的关键。',
+    stats:['生命第一','先避险后抢救','听从指挥'] },
+  { id:'物资储备', label:'物资储备', icon:'📦', color:'#3ddc97', x:120, y:240, type:'defense',
+    desc:'家庭应急包和社区物资储备是灾后生存的保障。',
+    stats:['水食品3天量','手电急救包','证件复印件'] },
+  { id:'预警系统', label:'预警系统', icon:'📡', color:'#3ddc97', x:600, y:220, type:'defense',
+    desc:'灾害预警和监测系统为避险争取宝贵时间。',
+    stats:['蓝黄橙红4级','地震预警12秒','台风路径预测'] }
+];
+
+const kgEdges = [
+  ['地震','海啸'], ['地震','洪水'], ['地震','火灾'], ['地震','应急避险'],
+  ['台风','洪水'], ['台风','海啸'], ['台风','应急避险'],
+  ['洪水','应急避险'], ['洪水','物资储备'],
+  ['火灾','应急避险'], ['火灾','物资储备'],
+  ['海啸','应急避险'],
+  ['龙卷风','应急避险'],
+  ['冰雹','应急避险'],
+  ['应急避险','物资储备'], ['应急避险','预警系统'],
+  ['地震','预警系统'], ['台风','预警系统'], ['洪水','预警系统'],
+  ['龙卷风','预警系统'], ['冰雹','预警系统']
+];
+
+let kgZoom = 1;
+let kgSelectedId = null;
+
+function renderKnowledgeGraph(){
+  const svg = $('#kgSvg');
+  if(!svg) return;
+  kgZoom = 1;
+  kgSelectedId = null;
+
+  let html = '';
+  html += '<g id="kgInner">';
+
+  kgEdges.forEach(([from, to]) => {
+    const a = kgNodes.find(n => n.id === from);
+    const b = kgNodes.find(n => n.id === to);
+    if(!a || !b) return;
+    const isDefense = a.type === 'defense' || b.type === 'defense';
+    html += `<line class="kg-edge" data-from="${from}" data-to="${to}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${isDefense ? 'rgba(61,220,151,.2)' : 'rgba(255,255,255,.12)'}" stroke-width="${isDefense ? 2 : 1.5}" stroke-dasharray="${isDefense ? '6,4' : 'none'}" />`;
+  });
+
+  kgNodes.forEach(node => {
+    const r = node.type === 'defense' ? 32 : 38;
+    html += `<g class="kg-node-group" data-id="${node.id}" style="cursor:pointer">`;
+    html += `<circle class="kg-pulse-ring" cx="${node.x}" cy="${node.y}" r="${r}" stroke="${node.color}" />`;
+    html += `<circle class="kg-node-circle" data-id="${node.id}" cx="${node.x}" cy="${node.y}" r="${r}" fill="${node.color}" fill-opacity="0.15" stroke="${node.color}" stroke-width="2.5" style="color:${node.color}" />`;
+    html += `<text x="${node.x}" y="${node.y - 2}" text-anchor="middle" font-size="22" pointer-events="none">${node.icon}</text>`;
+    html += `<text class="kg-node-label" x="${node.x}" y="${node.y + 16}" text-anchor="middle" fill="${node.color}" font-size="13" font-weight="600">${node.label}</text>`;
+    html += `</g>`;
+  });
+
+  html += '</g>';
+  svg.innerHTML = html;
+
+  svg.querySelectorAll('.kg-node-group').forEach(g => {
+    g.addEventListener('click', () => {
+      const id = g.dataset.id;
+      selectKgNode(id);
+      pulseKgNode(id);
+    });
+  });
+
+  const search = $('#kgSearch');
+  if(search) search.value = '';
+}
+
+function pulseKgNode(id){
+  const ring = document.querySelector(`.kg-node-group[data-id="${id}"] .kg-pulse-ring`);
+  if(!ring) return;
+  ring.style.animation = 'none';
+  ring.offsetHeight;
+  ring.style.animation = 'kgPulse 1.5s ease-out 1';
+}
+
+function selectKgNode(id){
+  const node = kgNodes.find(n => n.id === id);
+  if(!node) return;
+  kgSelectedId = id;
+
+  document.querySelectorAll('.kg-node-circle').forEach(c => {
+    c.classList.toggle('selected', c.dataset.id === id);
+  });
+
+  document.querySelectorAll('.kg-edge').forEach(e => {
+    const connected = e.dataset.from === id || e.dataset.to === id;
+    e.classList.toggle('highlight', connected);
+  });
+
+  const related = kgEdges
+    .filter(([a, b]) => a === id || b === id)
+    .map(([a, b]) => a === id ? b : a);
+  const relatedNodes = related.map(r => kgNodes.find(n => n.id === r)).filter(Boolean);
+
+  const card = $('#kgInfoCard');
+  if(!card) return;
+  let html = `<h3 style="color:${node.color}">${node.icon} ${node.label}</h3>`;
+  html += `<div class="kg-desc">${node.desc}</div>`;
+  html += `<div class="kg-stats">`;
+  node.stats.forEach(s => {
+    html += `<span class="kg-stat-tag">${s}</span>`;
+  });
+  html += `</div>`;
+  if(relatedNodes.length > 0){
+    html += `<div style="margin-top:14px;font-size:12px;color:var(--text-mute);margin-bottom:6px">关联节点（${relatedNodes.length}）</div>`;
+    html += `<div class="kg-stats">`;
+    relatedNodes.forEach(r => {
+      html += `<span class="kg-stat-tag" style="border-color:${r.color}55;color:${r.color};cursor:pointer" onclick="selectKgNode('${r.id}');pulseKgNode('${r.id}')">${r.icon} ${r.label}</span>`;
+    });
+    html += `</div>`;
+  }
+  card.innerHTML = html;
+}
+
+function zoomGraph(factor){
+  kgZoom *= factor;
+  kgZoom = Math.max(0.5, Math.min(3, kgZoom));
+  const inner = $('#kgInner');
+  if(inner){
+    inner.style.transformOrigin = '350px 260px';
+    inner.style.transform = `scale(${kgZoom})`;
+    inner.style.transition = 'transform .3s ease';
+  }
+}
+
+function resetGraph(){
+  kgZoom = 1;
+  const inner = $('#kgInner');
+  if(inner){
+    inner.style.transformOrigin = '350px 260px';
+    inner.style.transform = 'scale(1)';
+    inner.style.transition = 'transform .3s ease';
+  }
+  document.querySelectorAll('.kg-node-circle').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.kg-edge').forEach(e => e.classList.remove('highlight'));
+  const card = $('#kgInfoCard');
+  if(card){
+    card.innerHTML = `<h3>👆 点击节点查看详情</h3>
+      <div class="kg-desc">点击图谱中的任意节点，查看该灾害的详细信息、关联灾害和防御措施。</div>`;
+  }
+  kgSelectedId = null;
+  const search = $('#kgSearch');
+  if(search) search.value = '';
+  filterKgNodes('');
+}
+
+function filterKgNodes(keyword){
+  keyword = keyword.trim().toLowerCase();
+  document.querySelectorAll('.kg-node-group').forEach(g => {
+    const id = g.dataset.id.toLowerCase();
+    const label = g.querySelector('.kg-node-label')?.textContent.toLowerCase() || '';
+    const match = !keyword || id.includes(keyword) || label.includes(keyword);
+    g.style.opacity = match ? '1' : '0.15';
+    g.style.pointerEvents = match ? 'auto' : 'none';
+  });
+  document.querySelectorAll('.kg-edge').forEach(e => {
+    const from = e.dataset.from.toLowerCase();
+    const to = e.dataset.to.toLowerCase();
+    const match = !keyword || from.includes(keyword) || to.includes(keyword);
+    e.style.opacity = match ? '1' : '0.05';
+  });
+}
+
+// ============================================================
+// 应急包生成器
+// ============================================================
+let kitSelectedDisasters = [];
+let kitSelectedSpecial = [];
+
+const kitDisasterOptions = [
+  { key:'地震', icon:'🌋', color:'#ff6b3d' },
+  { key:'台风', icon:'🌀', color:'#4cc9f0' },
+  { key:'洪水', icon:'🌊', color:'#2a6f97' },
+  { key:'火灾', icon:'🔥', color:'#ff4d4d' },
+  { key:'海啸', icon:'🌊', color:'#00b4d8' },
+  { key:'龙卷风', icon:'🌪️', color:'#8338ec' },
+  { key:'冰雹', icon:'🧊', color:'#90e0ef' }
+];
+
+const kitSpecialOptions = [
+  { key:'有婴幼儿', icon:'🍼' },
+  { key:'有老人', icon:'👴' },
+  { key:'有宠物', icon:'🐾' },
+  { key:'有慢性病患者', icon:'💊' },
+  { key:'住高层', icon:'🏢' },
+  { key:'住沿海', icon:'🏖️' }
+];
+
+const kitDatabase = {
+  '基础': [
+    { name:'瓶装饮用水', qty:'每人3升×3天', cat:'基础' },
+    { name:'压缩饼干/能量棒', qty:'每人3天量', cat:'基础' },
+    { name:'手电筒', qty:'1-2个', cat:'基础' },
+    { name:'备用电池', qty:'多组', cat:'基础' },
+    { name:'应急哨子', qty:'每人1个', cat:'基础' },
+    { name:'充电宝', qty:'大容量1个', cat:'基础' },
+    { name:'现金', qty:'小额零钱', cat:'基础' },
+    { name:'证件复印件', qty:'密封袋装', cat:'基础' }
+  ],
+  '医疗': [
+    { name:'急救包', qty:'1套', cat:'医疗' },
+    { name:'绷带/纱布', qty:'多卷', cat:'医疗' },
+    { name:'碘伏/消毒湿巾', qty:'1瓶', cat:'医疗' },
+    { name:'常用药品', qty:'3天量', cat:'医疗' },
+    { name:'口罩', qty:'每人5个', cat:'医疗' },
+    { name:'一次性手套', qty:'1盒', cat:'医疗' }
+  ],
+  '地震': [
+    { name:'安全帽', qty:'每人1个', cat:'地震' },
+    { name:'护目镜', qty:'每人1副', cat:'地震' },
+    { name:'防尘口罩', qty:'每人2个', cat:'地震' },
+    { name:'多功能工具钳', qty:'1把', cat:'地震' },
+    { name:'结实的鞋子', qty:'每人1双', cat:'地震' }
+  ],
+  '台风': [
+    { name:'防水胶带', qty:'2卷', cat:'台风' },
+    { name:'防雨布/塑料膜', qty:'2张', cat:'台风' },
+    { name:'绳索', qty:'1根10米', cat:'台风' },
+    { name:'沙袋', qty:'多个', cat:'台风' }
+  ],
+  '洪水': [
+    { name:'救生衣', qty:'每人1件', cat:'洪水' },
+    { name:'防水袋', qty:'大号2个', cat:'洪水' },
+    { name:'绳索', qty:'1根15米', cat:'洪水' },
+    { name:'哨子', qty:'每人1个', cat:'洪水' }
+  ],
+  '火灾': [
+    { name:'灭火器', qty:'1-2个', cat:'火灾' },
+    { name:'防火毯', qty:'1-2张', cat:'火灾' },
+    { name:'防烟面罩', qty:'每人1个', cat:'火灾' },
+    { name:'逃生绳', qty:'1根', cat:'火灾' }
+  ],
+  '海啸': [
+    { name:'救生衣', qty:'每人1件', cat:'海啸' },
+    { name:'防水袋', qty:'大号2个', cat:'海啸' },
+    { name:'高筒靴', qty:'每人1双', cat:'海啸' }
+  ],
+  '龙卷风': [
+    { name:'安全帽', qty:'每人1个', cat:'龙卷风' },
+    { name:'护目镜', qty:'每人1副', cat:'龙卷风' },
+    { name:'口哨', qty:'每人1个', cat:'龙卷风' }
+  ],
+  '冰雹': [
+    { name:'安全帽', qty:'每人1个', cat:'冰雹' },
+    { name:'汽车防雹罩', qty:'1个', cat:'冰雹' }
+  ],
+  '婴幼儿': [
+    { name:'奶粉/辅食', qty:'3天量', cat:'婴幼儿' },
+    { name:'纸尿裤', qty:'3天量', cat:'婴幼儿' },
+    { name:'奶瓶/水杯', qty:'1-2个', cat:'婴幼儿' },
+    { name:'婴儿毯', qty:'1条', cat:'婴幼儿' }
+  ],
+  '老人': [
+    { name:'常用药品', qty:'7天量', cat:'老人' },
+    { name:'老花镜', qty:'备用1副', cat:'老人' },
+    { name:'助行器/拐杖', qty:'1个', cat:'老人' }
+  ],
+  '宠物': [
+    { name:'宠物粮食', qty:'3天量', cat:'宠物' },
+    { name:'牵引绳', qty:'1根', cat:'宠物' },
+    { name:'宠物笼', qty:'1个', cat:'宠物' }
+  ],
+  '慢性病': [
+    { name:'处方药', qty:'7天量', cat:'慢性病' },
+    { name:'血压计', qty:'1台', cat:'慢性病' },
+    { name:'血糖仪', qty:'1台', cat:'慢性病' }
+  ],
+  '高层': [
+    { name:'逃生绳/缓降器', qty:'1套', cat:'高层' },
+    { name:'防火毯', qty:'1张', cat:'高层' }
+  ],
+  '沿海': [
+    { name:'救生衣', qty:'每人1件', cat:'沿海' },
+    { name:'防水手电', qty:'1个', cat:'沿海' }
+  ]
+};
+
+let kitChecked = {};
+
+function initKit(){
+  const chipsEl = $('#kitChips');
+  if(!chipsEl) return;
+  chipsEl.innerHTML = kitDisasterOptions.map(d =>
+    `<div class="kit-chip" data-key="${d.key}" style="--chip-color:${d.color}">${d.icon} ${d.key}</div>`
+  ).join('');
+  chipsEl.querySelectorAll('.kit-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const key = c.dataset.key;
+      const idx = kitSelectedDisasters.indexOf(key);
+      if(idx > -1) kitSelectedDisasters.splice(idx, 1);
+      else kitSelectedDisasters.push(key);
+      c.classList.toggle('active');
+    });
+  });
+
+  const specEl = $('#kitSpecial');
+  if(!specEl) return;
+  specEl.innerHTML = kitSpecialOptions.map(s =>
+    `<div class="kit-chip" data-key="${s.key}" style="--chip-color:#8338ec">${s.icon} ${s.key}</div>`
+  ).join('');
+  specEl.querySelectorAll('.kit-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const key = c.dataset.key;
+      const idx = kitSelectedSpecial.indexOf(key);
+      if(idx > -1) kitSelectedSpecial.splice(idx, 1);
+      else kitSelectedSpecial.push(key);
+      c.classList.toggle('active');
+    });
+  });
+}
+
+function generateKit(){
+  const people = parseInt($('#kitPeople')?.value || '3');
+  const items = [];
+
+  kitDatabase['基础'].forEach(item => {
+    items.push({ ...item, qty: item.qty.replace('每人', `每人(${people}人)`) });
+  });
+  kitDatabase['医疗'].forEach(item => items.push(item));
+
+  kitSelectedDisasters.forEach(d => {
+    if(kitDatabase[d]) kitDatabase[d].forEach(item => items.push(item));
+  });
+
+  const specialMap = {
+    '有婴幼儿':'婴幼儿', '有老人':'老人', '有宠物':'宠物',
+    '有慢性病患者':'慢性病', '住高层':'高层', '住沿海':'沿海'
+  };
+  kitSelectedSpecial.forEach(s => {
+    const cat = specialMap[s];
+    if(cat && kitDatabase[cat]) kitDatabase[cat].forEach(item => items.push(item));
+  });
+
+  const seen = new Set();
+  const unique = items.filter(i => {
+    if(seen.has(i.name)) return false;
+    seen.add(i.name);
+    return true;
+  });
+
+  const cats = {};
+  unique.forEach(item => {
+    if(!cats[item.cat]) cats[item.cat] = [];
+    cats[item.cat].push(item);
+  });
+
+  kitChecked = {};
+  unique.forEach((item, i) => { kitChecked[i] = false; });
+
+  const result = $('#kitResult');
+  if(!result) return;
+  let html = '';
+  html += `<div class="kit-progress"><div class="kit-progress-text">已打包 <b id="kitPacked">0</b> / ${unique.length} 件</div><div class="kit-progress-bar"><div class="kit-progress-fill" id="kitBar" style="width:0%"></div></div></div>`;
+
+  Object.keys(cats).forEach(cat => {
+    const catConfig = kitDisasterOptions.find(d => d.key === cat);
+    const icon = catConfig ? catConfig.icon : '📦';
+    html += `<div class="kit-cat-title">${icon} ${cat}<span class="kit-cat-toggle" onclick="toggleKitCat('${cat}', event)">全选</span></div>`;
+    cats[cat].forEach(item => {
+      const globalIdx = unique.findIndex(u => u.name === item.name);
+      html += `<div class="kit-item" data-idx="${globalIdx}" data-cat="${cat}" onclick="toggleKitItem(this)">`;
+      html += `<div class="kit-checkbox">✓</div>`;
+      html += `<div class="kit-item-name">${item.name}</div>`;
+      html += `<div class="kit-item-qty">${item.qty}</div>`;
+      html += `</div>`;
+    });
+  });
+
+  window._kitUnique = unique;
+
+  result.innerHTML = html;
+  showToast(`已生成 ${unique.length} 件应急物资清单`, 'ok');
+}
+
+function toggleKitItem(el){
+  const idx = parseInt(el.dataset.idx);
+  kitChecked[idx] = !kitChecked[idx];
+  el.classList.toggle('checked');
+  updateKitProgress();
+}
+
+function toggleKitCat(cat, e){
+  e.stopPropagation();
+  const items = document.querySelectorAll(`.kit-item[data-cat="${cat}"]`);
+  let allChecked = true;
+  items.forEach(item => {
+    const idx = parseInt(item.dataset.idx);
+    if(!kitChecked[idx]) allChecked = false;
+  });
+  items.forEach(item => {
+    const idx = parseInt(item.dataset.idx);
+    kitChecked[idx] = !allChecked;
+    item.classList.toggle('checked', !allChecked);
+  });
+  updateKitProgress();
+}
+
+function updateKitProgress(){
+  const total = Object.keys(kitChecked).length;
+  const checked = Object.values(kitChecked).filter(v => v).length;
+  const packed = $('#kitPacked');
+  const bar = $('#kitBar');
+  if(packed) packed.textContent = checked;
+  if(bar) bar.style.width = (checked / total * 100) + '%';
+}
+
+// ============================================================
+// 灾害时间线
+// ============================================================
+const timelineData = [
+  { year:'1976', name:'唐山大地震', cat:'地震', color:'#ff6b3d',
+    summary:'7月28日3时42分，河北唐山发生7.8级强烈地震，几乎将唐山夷为平地。',
+    magnitude:'里氏7.8级', deaths:'242769人遇难 164851人重伤', affected:'直接经济损失100亿元以上',
+    location:'河北省唐山市', detail:'地震发生在凌晨，绝大多数人在睡梦中，大量房屋倒塌。震中烈度达XI度，唐山市顷刻间被夷为废墟。北京、天津等地严重受灾。此地震是20世纪世界上伤亡最惨重的地震之一。',
+    lesson:'城市抗震设防的极端重要性、应急救援体系建设、地震监测预报研究。' },
+  { year:'1987', name:'大兴安岭"五六"特大森林火灾', cat:'火灾', color:'#ff4d4d',
+    summary:'5月6日，黑龙江大兴安岭发生特大森林火灾，燃烧28天，是新中国成立以来最严重的森林火灾。',
+    magnitude:'过火面积101万公顷', deaths:'211人遇难 266人受伤', affected:'直接经济损失约5亿元',
+    location:'黑龙江省大兴安岭地区', detail:'火灾由林场工人误操作引起，受大风天气影响迅速蔓延。过火面积达101万公顷，烧毁木材85万立方米，受灾群众5万余人。数万军民参与扑救，历时28天才将火扑灭。',
+    lesson:'森林防火体系建设、林区生产安全管理、应急响应机制完善。' },
+  { year:'1998', name:'长江流域特大洪水', cat:'洪水', color:'#2a6f97',
+    summary:'夏季，长江流域发生全流域性特大洪水，是20世纪以来最大的洪水之一。',
+    magnitude:'长江干流超警60多天', deaths:'4150人遇难', affected:'直接经济损失2551亿元',
+    location:'长江流域29个省区市', detail:'受持续强降雨影响，长江、嫩江、松花江等流域发生特大洪水。长江干流沙市至九江段超警戒水位长达60多天，九江大堤决口。全国总动员抗洪抢险，数十万军民坚守大堤。',
+    lesson:'水利工程建设、分蓄洪区管理、防洪体系完善、生态环境保护。' },
+  { year:'2003', name:'非典型肺炎(SARS)疫情', cat:'其他', color:'#ffd166',
+    summary:'春季，SARS疫情席卷全国，对公共卫生体系造成严峻考验。',
+    magnitude:'全球累计8422例', deaths:'中国大陆349人遇难', affected:'全国经济社会受严重影响',
+    location:'全国范围', detail:'SARS冠状病毒引发的急性呼吸道传染病，具有极强传染性。疫情从广东开始迅速蔓延至全国及全球。暴露出我国公共卫生应急体系的短板，推动了疾控体系改革。',
+    lesson:'公共卫生应急体系建设、传染病防控机制、信息公开与公众沟通。' },
+  { year:'2005', name:'超强台风"龙王"', cat:'台风', color:'#4cc9f0',
+    summary:'10月2日，超强台风"龙王"登陆福建，造成严重人员伤亡和经济损失。',
+    magnitude:'超强台风15级', deaths:'152人遇难', affected:'直接经济损失78亿元',
+    location:'福建、浙江、江西', detail:'台风"龙王"中心最大风速达50米/秒，登陆后带来特大暴雨。福州发生严重城市内涝，福建多地出现山洪、泥石流灾害。',
+    lesson:'台风预警系统完善、城市防洪排涝能力建设、山区防灾避险。' },
+  { year:'2008', name:'南方低温雨雪冰冻灾害', cat:'冰雹', color:'#90e0ef',
+    summary:'1月中旬至2月初，中国南方遭遇历史罕见的低温雨雪冰冻灾害。',
+    magnitude:'影响20个省区市', deaths:'129人遇难', affected:'直接经济损失1516亿元',
+    location:'湖南、贵州、湖北等南方多省', detail:'持续低温雨雪天气导致大面积冻雨、暴雪。电力设施严重受损，大面积停电；交通瘫痪，京广线受阻；农作物大面积受灾。数百万旅客滞留途中，春节回家路受阻。',
+    lesson:'极端天气应对能力、电力交通抗灾标准、应急物资储备体系。' },
+  { year:'2008', name:'汶川特大地震', cat:'地震', color:'#ff6b3d',
+    summary:'5月12日14时28分，四川汶川发生8.0级特大地震，是新中国成立以来破坏力最大的地震。',
+    magnitude:'里氏8.0级', deaths:'69227人遇难 17923人失踪', affected:'直接经济损失8451亿元',
+    location:'四川省汶川县', detail:'震中位于映秀镇，极重灾区面积达12万平方公里。全国31个省区市有震感。震后全国动员开展大规模救援，5月19日至21日定为全国哀悼日。此事件推动了中国抗震设防标准大幅提升和防灾减灾体系完善。',
+    lesson:'建筑抗震设防、应急避难场所建设、全民地震科普教育的极端重要性。' },
+  { year:'2010', name:'玉树地震', cat:'地震', color:'#ff6b3d',
+    summary:'4月14日，青海玉树发生7.1级地震，造成重大人员伤亡。',
+    magnitude:'里氏7.1级', deaths:'2698人遇难 270人失踪', affected:'直接经济损失约200亿元',
+    location:'青海省玉树藏族自治州', detail:'震中位于结古镇附近，当地建筑多为土木结构，抗震能力差。高原高寒环境增加了救援难度。全国组织大规模救援和灾后重建。',
+    lesson:'高原地区特殊救援能力建设、藏区建筑抗震加固。' },
+  { year:'2010', name:'舟曲特大泥石流', cat:'洪水', color:'#2a6f97',
+    summary:'8月7日，甘肃舟曲突降特大暴雨引发泥石流，吞没大半个县城。',
+    magnitude:'降雨量97毫米/小时', deaths:'1765人遇难', affected:'2.6万人受灾',
+    location:'甘肃省甘南州舟曲县', detail:'泥石流体积约180万立方米，沿沟道冲入白龙江形成堰塞湖。城区三分之二被淹，大量建筑被冲毁。',
+    lesson:'地质灾害隐患排查、山区城镇选址避让、监测预警系统。' },
+  { year:'2011', name:'甬温线特别重大铁路交通事故', cat:'其他', color:'#ffd166',
+    summary:'7月23日，D301次列车与D3115次列车在温州追尾，造成重大人员伤亡。',
+    magnitude:'2列车追尾', deaths:'40人遇难 172人受伤', affected:'直接经济损失约1.9亿元',
+    location:'浙江省温州市', detail:'雷击导致信号设备故障，列控中心对区间闭塞分区信号显示错误，造成后续列车追尾。事故暴露出铁路信号系统设计和安全管理存在缺陷。',
+    lesson:'轨道交通信号安全、应急救援体系、事故调查机制完善。' },
+  { year:'2012', name:'北京"7·21"特大暴雨', cat:'洪水', color:'#2a6f97',
+    summary:'7月21日，北京遭遇61年来最大暴雨，造成严重城市内涝。',
+    magnitude:'全市平均降雨170毫米', deaths:'79人遇难', affected:'直接经济损失116亿元',
+    location:'北京市', detail:'北京全市平均降雨量达170毫米，为61年以来最大。城市内涝严重，多处道路被淹，广渠门桥等低洼地带积水严重。京港澳高速公路南岗洼段积水最深达5米，大量车辆被淹。',
+    lesson:'城市排水系统建设、地下空间防洪标准、极端天气应急响应。' },
+  { year:'2013', name:'芦山地震', cat:'地震', color:'#ff6b3d',
+    summary:'4月20日，四川芦山发生7.0级地震。',
+    magnitude:'里氏7.0级', deaths:'196人遇难', affected:'直接经济损失约665亿元',
+    location:'四川省雅安市芦山县', detail:'极重灾区面积达1860平方公里。大量农村房屋倒塌，暴露了农村建筑抗震薄弱问题。',
+    lesson:'农村民居抗震加固、灾后重建标准提升。' },
+  { year:'2014', name:'超强台风"威马逊"', cat:'台风', color:'#4cc9f0',
+    summary:'7月，超强台风"威马逊"以17级风力登陆海南广东，是建国以来华南最强台风之一。',
+    magnitude:'超强台风17级', deaths:'直接致死约20人', affected:'直接经济损失447亿元',
+    location:'海南、广东、广西', detail:'"威马逊"中心最大风力达17级（60m/s），先后在海南文昌、广东徐闻、广西防城港三次登陆。海南文昌翁田镇几乎被夷为平地，大量房屋倒塌。',
+    lesson:'沿海防台风工程标准、风暴潮防御、渔村防灾能力。' },
+  { year:'2015', name:'天津港"8·12"爆炸事故', cat:'其他', color:'#ffd166',
+    summary:'8月12日，天津港瑞海公司危险品仓库发生火灾爆炸事故。',
+    magnitude:'两次爆炸约450吨TNT当量', deaths:'165人遇难 8人失踪', affected:'直接经济损失约80亿元',
+    location:'天津市滨海新区', detail:'仓库内违规存放大量硝化棉、硝酸铵等危险化学品。因硝化棉积热自燃引发火灾，继而导致硝酸铵爆炸。爆炸冲击波摧毁周边大量建筑。',
+    lesson:'危化品安全监管、城市规划安全距离、应急预案与演练。' },
+  { year:'2015', name:'"东方之星"号客轮翻沉事件', cat:'其他', color:'#ffd166',
+    summary:'6月1日，"东方之星"号客轮在长江湖北监利段突遇龙卷风翻沉，442人遇难。',
+    magnitude:'客轮瞬间翻沉', deaths:'442人遇难 12人生还', affected:'震惊全国的重大灾难',
+    location:'湖北省监利市长江段', detail:'"东方之星"号客轮载有454人，在航行途中突遇下击暴流引发的强对流天气，遭遇12级以上龙卷风和暴雨，船只在1分钟内倾覆。仅12人生还。',
+    lesson:'水上运输安全、极端天气航行安全、客轮安全标准、应急救援能力。' },
+  { year:'2016', name:'盐城龙卷风冰雹灾害', cat:'龙卷风', color:'#8338ec',
+    summary:'6月23日，江苏盐城发生特大龙卷风冰雹灾害，是近年来最严重的龙卷风灾害。',
+    magnitude:'EF4级', deaths:'99人遇难 846人受伤', affected:'直接经济损失约50亿元',
+    location:'江苏省盐城市', detail:'龙卷风横扫阜宁、射阳等地，最大风速超过100米/秒。大量房屋被夷为平地，汽车被卷走数百米。学校、工厂、医院严重受损。',
+    lesson:'龙卷风监测预警系统建设、建筑物抗风标准、应急避难场所。' },
+  { year:'2016', name:'邢台"7·19"特大暴雨', cat:'洪水', color:'#2a6f97',
+    summary:'7月19日至20日，河北邢台遭遇特大暴雨，引发严重洪涝灾害。',
+    magnitude:'最大降雨量672毫米', deaths:'130余人遇难失踪', affected:'直接经济损失超百亿元',
+    location:'河北省邢台市', detail:'邢台遭遇历史罕见强降雨，最大点雨量达672毫米。七里河洪水漫溢进入村庄，造成重大人员伤亡。暴露出预警信息传递不畅、村民转移不及时等问题。',
+    lesson:'山洪灾害预警、基层预警信息传递、人员转移避险机制。' },
+  { year:'2017', name:'九寨沟地震', cat:'地震', color:'#ff6b3d',
+    summary:'8月8日，四川九寨沟发生7.0级地震。',
+    magnitude:'里氏7.0级', deaths:'25人遇难', affected:'景区严重受损',
+    location:'四川省阿坝州九寨沟县', detail:'震中位于世界自然遗产九寨沟景区内，景区内多处景观受损。由于预警系统发挥作用且景区疏散及时，伤亡较轻。',
+    lesson:'景区应急疏散预案、地震预警系统的重要价值。' },
+  { year:'2018', name:'山竹台风', cat:'台风', color:'#4cc9f0',
+    summary:'9月16日，超强台风"山竹"登陆广东，是当年最强的台风之一。',
+    magnitude:'超强台风15级', deaths:'直接致死6人', affected:'直接经济损失142亿元',
+    location:'广东、广西、海南、福建', detail:'"山竹"中心最大风力达15级（48m/s），登陆时强度为强台风级。珠三角地区大面积停工停学停课，深圳、珠海等城市大树倒伏、玻璃幕墙脱落、海水倒灌。',
+    lesson:'超大型城市防台风综合能力、高空坠物防范、沿海风暴潮防御。' },
+  { year:'2019', name:'四川凉山木里森林火灾', cat:'火灾', color:'#ff4d4d',
+    summary:'3月30日，四川凉山木里县发生森林火灾，27名森林消防队员和3名地方干部群众牺牲。',
+    magnitude:'过火面积约20公顷', deaths:'31人牺牲', affected:'原始森林严重受损',
+    location:'四川省凉山州木里县', detail:'火灾由雷击引起，火场平均海拔4000米，地形复杂、交通不便、缺氧严重。扑火人员在转场途中受瞬间风力风向突变影响遇山火爆燃。',
+    lesson:'高海拔森林火灾扑救、安全避险训练、雷击火监测预警。' },
+  { year:'2019', name:'超强台风"利奇马"', cat:'台风', color:'#4cc9f0',
+    summary:'8月，超强台风"利奇马"登陆浙江，为1949年以来第三强登陆台风。',
+    magnitude:'超强台风17级', deaths:'56人遇难', affected:'直接经济损失537亿元',
+    location:'浙江、山东、安徽等多省', detail:'利奇马中心最大风力17级（60m/s），横扫浙江、江苏、山东等地。导致大面积停电、房屋倒塌、农田被淹。',
+    lesson:'沿海地区台风防御工程、城市排水能力、应急疏散机制。' },
+  { year:'2019', name:'无锡高架侧翻事故', cat:'其他', color:'#ffd166',
+    summary:'10月10日，江苏无锡312国道锡港路上跨桥发生桥面侧翻事故。',
+    magnitude:'桥面侧翻约120米', deaths:'3人遇难 2人受伤', affected:'直接经济损失超千万元',
+    location:'江苏省无锡市', detail:'上跨桥在车辆行驶过程中突然侧翻，桥下多辆汽车被压。经调查，事故原因为重型货车严重超载（总重约170吨，限载30吨），导致桥梁独柱墩结构失稳倾覆。',
+    lesson:'桥梁安全标准、超载治理、基础设施安全监管。' },
+  { year:'2020', name:'西昌森林火灾', cat:'火灾', color:'#ff4d4d',
+    summary:'3月30日，四川西昌发生森林火灾，造成19名地方扑火人员牺牲。',
+    magnitude:'过火面积约3000公顷', deaths:'19人牺牲 3人受伤', affected:'威胁西昌城区安全',
+    location:'四川省西昌市', detail:'受大风天气影响，火势迅速蔓延逼近西昌城区，泸山景区被烧。扑救中队伍遭遇风向突变，造成重大人员伤亡。',
+    lesson:'城市周边森林火灾防控、扑火人员安全保障、应急指挥体系。' },
+  { year:'2020', name:'新冠疫情(COVID-19)', cat:'其他', color:'#ffd166',
+    summary:'年初，新型冠状病毒肺炎疫情暴发，武汉封城，全国进入应急状态。',
+    magnitude:'全球大流行', deaths:'数百万人遇难(全球)', affected:'全球经济社会受严重冲击',
+    location:'全国及全球范围', detail:'新冠疫情是百年来全球发生的最严重的传染病大流行。武汉于2020年1月23日封城，全国动员支援湖北。疫情对全球公共卫生、经济、社会造成深远影响。',
+    lesson:'重大传染病防控体系、公共卫生应急能力、全球公共卫生治理。' },
+  { year:'2021', name:'河南商丘龙卷风', cat:'龙卷风', color:'#8338ec',
+    summary:'7月，河南商丘等地遭遇强对流天气，龙卷风造成人员伤亡和财产损失。',
+    magnitude:'EF3级以上', deaths:'多人遇难', affected:'大量房屋倒塌',
+    location:'河南省商丘市', detail:'强对流天气引发龙卷风，横扫多个村庄。房屋倒塌、树木连根拔起、车辆被卷走。龙卷风持续时间虽短，但破坏力极大。',
+    lesson:'强对流天气预警、农村房屋抗风能力、公众避险意识。' },
+  { year:'2021', name:'郑州"7·20"特大暴雨', cat:'洪水', color:'#2a6f97',
+    summary:'7月20日，郑州遭遇历史罕见特大暴雨，小时降雨量突破中国大陆历史极值。',
+    magnitude:'201.9毫米/小时', deaths:'398人遇难', affected:'直接经济损失532亿元',
+    location:'河南省郑州市', detail:'郑州小时降雨量达201.9毫米，打破中国大陆历史纪录。地铁5号线、京广路隧道被淹，大量车辆被困。城市内涝严重暴露了城市排水系统和地下空间防洪短板。',
+    lesson:'极端天气下的城市排水系统、地下空间防洪、预警与停工停运机制。' },
+  { year:'2022', name:'泸定地震', cat:'地震', color:'#ff6b3d',
+    summary:'9月5日，四川泸定发生6.8级地震。',
+    magnitude:'里氏6.8级', deaths:'93人遇难', affected:'直接经济损失154亿元',
+    location:'四川省甘孜州泸定县', detail:'震中位于磨西镇，地处高山峡谷地带，大量山体滑坡阻断道路，救援人员徒步进入灾区。地震预警系统提前数十秒发出警报。',
+    lesson:'山区地震救援通道保障、地震预警系统普及。' },
+  { year:'2022', name:'重庆极端高温干旱与山火', cat:'火灾', color:'#ff4d4d',
+    summary:'7-8月，重庆遭遇历史极端高温天气，多地发生森林火灾。',
+    magnitude:'最高气温45℃', deaths:'山火中无人员死亡', affected:'经济损失超数十亿元',
+    location:'重庆市', detail:'重庆遭遇1961年以来最强高温天气，最高气温达45℃，持续高温少雨导致严重干旱。北碚、涪陵、巴南等多地先后发生森林火灾，云南、四川、甘肃等多地消防驰援，摩托车志愿队运送物资。',
+    lesson:'极端高温应对、森林防火体系、社会动员机制、气候适应能力。' },
+  { year:'2023', name:'京津冀特大暴雨', cat:'洪水', color:'#2a6f97',
+    summary:'7月底至8月初，受台风"杜苏芮"残余环流影响，京津冀遭遇历史性特大暴雨。',
+    magnitude:'累计降雨超600毫米', deaths:'上百人遇难', affected:'直接经济损失超千亿元',
+    location:'北京、河北、天津', detail:'海河流域发生流域性洪水，永定河、大清河等河流漫溢。北京门头沟、河北涿州等地受灾严重。暴露了北方地区极端降雨应对能力不足。',
+    lesson:'北方地区防洪标准提升、跨流域洪水调度、极端天气应急预案。' },
+  { year:'2023', name:'积石山6.2级地震', cat:'地震', color:'#ff6b3d',
+    summary:'12月18日，甘肃积石山县发生6.2级地震，造成重大人员伤亡。',
+    magnitude:'里氏6.2级', deaths:'149人遇难', affected:'直接经济损失约百亿元',
+    location:'甘肃省临夏州积石山县', detail:'地震发生在深夜，震源深度浅（10公里），震中烈度达VIII度。当地民居多为土木、砖木结构，抗震性能差，倒塌严重。低温严寒天气增加了救援难度。',
+    lesson:'农村房屋抗震改造、严寒地区冬季救援保障、地震预警进村入户。' },
+  { year:'2024', name:'广东"龙舟水"特大暴雨', cat:'洪水', color:'#2a6f97',
+    summary:'4月下旬至5月，广东遭遇持续强降雨，多地打破历史同期降水纪录。',
+    magnitude:'多地累计降雨超500毫米', deaths:'数十人遇难失联', affected:'直接经济损失数百亿元',
+    location:'广东、广西、福建', detail:'受冷暖空气交汇和季风影响，华南出现持续性强降雨过程。北江发生流域性洪水，清远、韶关等地受灾严重。城市内涝、山体滑坡频发。',
+    lesson:'华南前汛期防洪应对、城市内涝治理、山洪地质灾害防御。' },
+  { year:'2024', name:'云南镇雄山体滑坡', cat:'其他', color:'#ffd166',
+    summary:'1月22日，云南镇雄县发生山体滑坡，造成重大人员伤亡。',
+    magnitude:'滑坡体积约500万立方米', deaths:'44人遇难', affected:'18户房屋被掩埋',
+    location:'云南省昭通市镇雄县', detail:'山体滑坡瞬间发生，巨大山体从高处滑下，将坡脚村落的18户房屋整体掩埋。滑坡体平均厚度约12米，面积约8万平方米。救援人员在寒冬中昼夜搜救。',
+    lesson:'山区地质灾害隐患排查、山体滑坡监测预警、村镇选址安全评估。' },
+  { year:'2024', name:'台风"摩羯"重创海南广东', cat:'台风', color:'#4cc9f0',
+    summary:'9月，超强台风"摩羯"以17级以上风力登陆海南文昌，为2014年以来登陆华南的最强台风。',
+    magnitude:'超强台风17级以上', deaths:'数十人遇难失踪', affected:'直接经济损失超数百亿元',
+    location:'海南、广东、广西', detail:'"摩羯"中心最大风力达62m/s（17级以上），以超强台风级登陆海南文昌。海口、文昌等地大量房屋受损，树木倒伏，海水倒灌。广东徐闻、湛江等地亦遭受严重破坏。',
+    lesson:'超高层建筑台风防护、沿海基础设施抗风标准、风暴潮预警。' }
+];
+
+let tlCurrentFilter = 'all';
+
+function renderTimeline(){
+  const filterEl = $('#tlFilters');
+  if(filterEl){
+    const cats = [...new Set(timelineData.map(t => t.cat))];
+    let html = `<div class="tl-filter-chip ${tlCurrentFilter === 'all' ? 'active' : ''}" onclick="filterTimeline('all')">全部</div>`;
+    cats.forEach(cat => {
+      const count = timelineData.filter(t => t.cat === cat).length;
+      html += `<div class="tl-filter-chip ${tlCurrentFilter === cat ? 'active' : ''}" onclick="filterTimeline('${cat}')">${cat} (${count})</div>`;
+    });
+    filterEl.innerHTML = html;
+  }
+
+  const wrap = $('#tlWrap');
+  if(!wrap) return;
+  let data = tlCurrentFilter === 'all' ? timelineData.slice() : timelineData.filter(t => t.cat === tlCurrentFilter);
+  data.sort((a, b) => parseInt(a.year) - parseInt(b.year));
+
+  let html = '<div class="tl-line"></div>';
+  data.forEach((item, i) => {
+    html += `<div class="tl-item" style="--tl-color:${item.color}">`;
+    html += `<div class="tl-dot" style="background:${item.color}"></div>`;
+    html += `<div class="tl-card-wrap">`;
+    html += `<div class="tl-card" onclick="toggleTimelineDetail(${i})">`;
+    html += `<div class="tl-year">${item.year}</div>`;
+    html += `<div class="tl-name">${item.name}</div>`;
+    html += `<div class="tl-meta">`;
+    html += `<span class="tl-tag cat" style="background:color-mix(in srgb, ${item.color} 20%, transparent);border-color:color-mix(in srgb, ${item.color} 50%, transparent);color:#fff">${item.cat}</span>`;
+    html += `<span class="tl-tag">${item.magnitude}</span>`;
+    html += `</div>`;
+    html += `<div class="tl-summary">${item.summary}</div>`;
+    html += `<div class="tl-detail" id="tlDetail${i}">`;
+    html += `<div class="tl-detail-inner">`;
+    html += `<div class="tl-detail-row"><b>📍 地点：</b>${item.location}</div>`;
+    html += `<div class="tl-detail-row"><b>💀 伤亡：</b>${item.deaths}</div>`;
+    html += `<div class="tl-detail-row"><b>📊 影响：</b>${item.affected}</div>`;
+    html += `<div class="tl-detail-row"><b>📝 详情：</b>${item.detail}</div>`;
+    html += `<div class="tl-detail-row"><b>💡 教训：</b>${item.lesson}</div>`;
+    html += `</div></div></div></div></div>`;
+  });
+
+  if(data.length === 0){
+    html += '<div style="text-align:center;padding:60px;color:var(--text-mute)">暂无相关事件</div>';
+  }
+
+  wrap.innerHTML = html;
+}
+
+function filterTimeline(cat){
+  tlCurrentFilter = cat;
+  renderTimeline();
+}
+
+function toggleTimelineDetail(i){
+  const el = $('#tlDetail' + i);
+  if(el) el.classList.toggle('show');
+}
+
+// ============ 暴露全局函数 ============
+window.goHome = goHome;
+window.quitQuiz = quitQuiz;
+window.nextQuestion = nextQuestion;
+window.navTo = navTo;
+window.reviewWrong = reviewWrong;
+window.restartQuiz = restartQuiz;
+window.generateKit = generateKit;
+window.toggleKitItem = toggleKitItem;
+window.toggleKitCat = toggleKitCat;
+window.toggleTimelineDetail = toggleTimelineDetail;
+window.filterTimeline = filterTimeline;
+window.zoomGraph = zoomGraph;
+window.resetGraph = resetGraph;
+window.filterKgNodes = filterKgNodes;
+window.selectKgNode = selectKgNode;
+window.pulseKgNode = pulseKgNode;
+</script>
+</body>
+</html>

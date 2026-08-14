@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<!-- saved from url=(0032)http://localhost:8082/index.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地震了怎么做 - 地震安全互动问答</title>
+    <style>
+        /* CSS变量定义 */
+        :root {
+            --primary-blue: #165DFF;
+            --primary-blue-dark: #0E4BCC;
+            --warning-orange: #FF7D00;
+            --success-green: #00B42A;
+            --error-red: #F53F3F;
+            --text-primary: #1D2129;
+            --text-secondary: #4E5969;
+            --text-light: #86909C;
+            --bg-white: #FFFFFF;
+            --bg-gray: #F7F8FA;
+            --border-gray: #E5E6EB;
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 地震背景层 */
+        .earthquake-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+            background-image: url('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=%E5%9C%B0%E9%9C%87%E5%BA%9F%E5%A2%9F%E8%83%8C%E6%99%AF%EF%BC%8C%E4%B8%80%E6%A0%8B%E5%8F%97%E6%8D%9F%E7%9A%84%E6%B7%B7%E5%87%9D%E5%9C%9F%E5%BB%BA%E7%AD%91%EF%BC%8C%E8%84%9A%E6%89%8B%E6%9E%B6%EF%BC%8C%E5%9C%B0%E9%9D%A2%E6%9C%89%E5%9C%B0%E9%9C%87%E6%B3%A2%E7%BA%B9%EF%BC%8C%E5%8D%B1%E9%99%A9%E8%AD%A6%E7%A4%BA%E7%89%8C%EF%BC%8C%E4%B9%8C%E4%BA%91%E5%AF%86%E5%B8%83%E7%9A%84%E5%A4%A9%E7%A9%BA%EF%BC%8C%E6%95%A3%E8%90%BD%E7%9A%84%E7%A0%96%E5%9D%97%E5%92%8C%E7%A0%82%E7%9F%B3%EF%BC%8C%E5%8D%A1%E9%80%9A%E6%8F%92%E7%94%BB%E9%A3%8E%E6%A0%BC%EF%BC%8C%E6%A8%AA%E7%89%88%E5%85%A8%E6%99%AF%E5%9B%BE%EF%BC%8C%E7%81%B0%E6%9A%97%E8%89%B2%E8%B0%83%EF%BC%8C%E8%AD%A6%E7%A4%BA%E6%B0%9B%E5%9B%B4&image_size=landscape_16_9');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .earthquake-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 46, 0.75);
+        }
+
+        /* 装饰元素 */
+        .decorations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .decoration {
+            position: absolute;
+            opacity: 0.12;
+        }
+
+        .decoration-circle {
+            border-radius: 50%;
+            background: rgba(255, 125, 0, 0.5);
+        }
+
+        .decoration-icon {
+            color: rgba(255, 125, 0, 0.4);
+            opacity: 0.15;
+        }
+
+        .decoration-left {
+            left: -20px;
+        }
+
+        .decoration-right {
+            right: -20px;
+        }
+
+        /* 容器 */
+        .container {
+            width: 60vw;
+            max-width: 360px;
+            aspect-ratio: 1 / 1;
+            background: var(--bg-white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 页面基础样式 */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== 首页样式 ==================== */
+        .welcome-header {
+            background: linear-gradient(135deg, rgba(22, 93, 255, 0.7) 0%, rgba(64, 128, 255, 0.6) 100%);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 18px 8px 14px;
+            text-align: center;
+            position: relative;
+        }
+
+        .welcome-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="70" r="2" fill="rgba(255,255,255,0.12)"/><circle cx="90" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 40px 40px;
+            opacity: 0.3;
+        }
+
+        .welcome-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--bg-white);
+            margin-bottom: 4px;
+            position: relative;
+            letter-spacing: 1px;
+        }
+
+        .welcome-subtitle {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .welcome-content {
+            padding: 12px 8px 16px;
+            text-align: center;
+        }
+
+        .welcome-description {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .module-tags {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .module-tag {
+            background: var(--bg-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 5px;
+            padding: 4px 10px;
+            font-size: 10px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .module-tag-number {
+            background: var(--primary-blue);
+            color: var(--bg-white);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #4080FF 100%);
+            color: var(--bg-white);
+            border: none;
+            padding: 8px 22px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+            letter-spacing: 1px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            background: linear-gradient(135deg, var(--primary-blue-dark) 0%, #3060CC 100%);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+        }
+
+        /* ==================== 答题页样式 ==================== */
+        .quiz-header {
+            background: var(--bg-gray);
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .progress-container {
+            margin-bottom: 16px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-blue) 0%, #4080FF 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease-out;
+        }
+
+        .quiz-content {
+            padding: 40px;
+        }
+
+        .module-title {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .module-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .module-progress {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .question-card {
+            background: var(--bg-white);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-gray);
+        }
+
+        .question-number {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 16px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin-bottom: 32px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .option-button {
+            background: var(--bg-white);
+            border: 2px solid var(--border-gray);
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-size: 15px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .option-button:hover:not(.selected):not(.disabled) {
+            border-color: var(--primary-blue);
+            background: rgba(22, 93, 255, 0.04);
+            transform: scale(1.02);
+        }
+
+        .option-button.selected {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: var(--bg-white);
+        }
+
+        .option-button.correct {
+            background: var(--success-green);
+            border-color: var(--success-green);
+            color: var(--bg-white);
+        }
+
+        .option-button.wrong {
+            background: var(--error-red);
+            border-color: var(--error-red);
+            color: var(--bg-white);
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.6;
+        }
+
+        .option-button:active:not(.disabled) {
+            transform: scale(0.98);
+        }
+
+        .quiz-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .action-button {
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-button.secondary {
+            background: var(--bg-gray);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-gray);
+        }
+
+        .action-button.secondary:hover:not(.disabled) {
+            background: var(--border-gray);
+        }
+
+        .action-button.secondary.disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .action-button.primary {
+            background: var(--primary-blue);
+            color: var(--bg-white);
+        }
+
+        .action-button.primary:hover {
+            background: var(--primary-blue-dark);
+        }
+
+        /* ==================== 反馈弹窗样式 ==================== */
+        .feedback-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        .feedback-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .feedback-card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-hover);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .feedback-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .feedback-icon.correct {
+            background: var(--success-green);
+        }
+
+        .feedback-icon.wrong {
+            background: var(--error-red);
+        }
+
+        .feedback-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .feedback-title.correct {
+            color: var(--success-green);
+        }
+
+        .feedback-title.wrong {
+            color: var(--error-red);
+        }
+
+        .feedback-answer {
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--bg-gray);
+            border-radius: 8px;
+        }
+
+        .feedback-explanation {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .feedback-button {
+            width: 100%;
+            background: var(--primary-blue);
+            color: var(--bg-white);
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .feedback-button:hover {
+            background: var(--primary-blue-dark);
+        }
+
+        /* ==================== 结果页样式 ==================== */
+        .result-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--warning-orange) 100%);
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .result-score-container {
+            margin-bottom: 20px;
+        }
+
+        .result-score {
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--bg-white);
+            margin-bottom: 8px;
+        }
+
+        .result-score-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .result-grade {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--bg-white);
+        }
+
+        .result-content {
+            padding: 40px;
+        }
+
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .wrong-questions-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .wrong-questions-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .wrong-question-item {
+            background: var(--bg-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .wrong-question-text {
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .wrong-question-answer {
+            font-size: 13px;
+            color: var(--success-green);
+            margin-bottom: 8px;
+        }
+
+        .wrong-question-explanation {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .no-wrong-message {
+            text-align: center;
+            color: var(--text-light);
+            padding: 40px;
+            font-size: 15px;
+        }
+
+        .restart-button {
+            width: 100%;
+            background: var(--primary-blue);
+            color: var(--bg-white);
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 32px;
+        }
+
+        .restart-button:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+        }
+
+        /* ==================== 响应式设计 ==================== */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                width: 70vw;
+                max-width: 300px;
+                aspect-ratio: 1 / 1;
+                border-radius: 10px;
+            }
+
+            .welcome-header {
+                padding: 40px 20px 30px;
+            }
+
+            .welcome-title {
+                font-size: 28px;
+            }
+
+            .welcome-content {
+                padding: 30px 20px;
+            }
+
+            .module-tags {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .quiz-header {
+                padding: 16px 20px;
+            }
+
+            .quiz-content {
+                padding: 24px 20px;
+            }
+
+            .question-card {
+                padding: 24px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .option-button {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            .quiz-actions {
+                flex-direction: column;
+            }
+
+            .action-button {
+                width: 100%;
+            }
+
+            .feedback-card {
+                padding: 30px 20px;
+            }
+
+            .result-header {
+                padding: 40px 20px;
+            }
+
+            .result-score {
+                font-size: 44px;
+            }
+
+            .result-content {
+                padding: 24px 20px;
+            }
+
+            .result-stats {
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 80vw;
+                max-width: 240px;
+                aspect-ratio: 1 / 1;
+                border-radius: 8px;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+
+            .start-button {
+                padding: 14px 36px;
+                font-size: 16px;
+            }
+
+            .result-score {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 地震背景层 -->
+    <div class="earthquake-bg"></div>
+
+    <!-- 装饰元素 -->
+    <div class="decorations">
+        <div class="decoration decoration-circle decoration-left" style="width: 8px; height: 8px; top: 10%;"></div>
+        <div class="decoration decoration-circle decoration-left" style="width: 6px; height: 6px; top: 35%;"></div>
+        <div class="decoration decoration-circle decoration-left" style="width: 4px; height: 4px; top: 60%;"></div>
+        <div class="decoration decoration-icon decoration-left" style="top: 20%; font-size: 3px;">⚡</div>
+        <div class="decoration decoration-icon decoration-left" style="top: 50%; font-size: 2px;">🛡️</div>
+        <div class="decoration decoration-icon decoration-left" style="top: 80%; font-size: 2px;">📚</div>
+        
+        <div class="decoration decoration-circle decoration-right" style="width: 7px; height: 7px; top: 15%;"></div>
+        <div class="decoration decoration-circle decoration-right" style="width: 5px; height: 5px; top: 45%;"></div>
+        <div class="decoration decoration-circle decoration-right" style="width: 3px; height: 3px; top: 70%;"></div>
+        <div class="decoration decoration-icon decoration-right" style="top: 25%; font-size: 2px;">🔔</div>
+        <div class="decoration decoration-icon decoration-right" style="top: 55%; font-size: 2px;">🚨</div>
+        <div class="decoration decoration-icon decoration-right" style="top: 85%; font-size: 2px;">🏠</div>
+    </div>
+
+    <div class="container">
+        <!-- 首页/欢迎页 -->
+        <div id="welcome-page" class="page active">
+            <div class="welcome-header">
+                <h1 class="welcome-title">地震了怎么做</h1>
+                <p class="welcome-subtitle">学习地震自救知识，提升安全意识</p>
+            </div>
+            <div class="welcome-content">
+                <p class="welcome-description">
+                    题库共100道题目，每次随机抽取10道作答。<br>
+                    涵盖地震前准备、地震中避险、地震后自救三大模块。<br>
+                    每题答完立即反馈正确与否，并提供详细知识点解析。
+                </p>
+                <div class="module-tags">
+                    <div class="module-tag">
+                        <span class="module-tag-number">33</span>
+                        <span>地震前准备</span>
+                    </div>
+                    <div class="module-tag">
+                        <span class="module-tag-number">34</span>
+                        <span>地震中避险</span>
+                    </div>
+                    <div class="module-tag">
+                        <span class="module-tag-number">33</span>
+                        <span>地震后自救</span>
+                    </div>
+                </div>
+                <button class="start-button" onclick="startQuiz()">开始答题</button>
+            </div>
+        </div>
+
+        <!-- 答题页 -->
+        <div id="quiz-page" class="page">
+            <div class="quiz-header">
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span id="progress-question">第 1 题 / 共 12 题</span>
+                        <span id="progress-score">当前得分：0 分</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="quiz-content">
+                <div class="module-title">
+                    <div class="module-name" id="module-name">地震前准备</div>
+                    <div class="module-progress" id="module-progress">第 1 题 / 共 4 题</div>
+                </div>
+                <div class="question-card">
+                    <div class="question-number" id="question-number">题目 1</div>
+                    <div class="question-text" id="question-text"></div>
+                    <div class="options-container" id="options-container"></div>
+                </div>
+                <div class="quiz-actions">
+                    <button class="action-button secondary" id="prev-button" onclick="prevQuestion()">上一题</button>
+                    <button class="action-button secondary" id="skip-button" onclick="skipQuestion()">跳过此题</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 反馈弹窗 -->
+        <div class="feedback-overlay" id="feedback-overlay">
+            <div class="feedback-card">
+                <div class="feedback-header">
+                    <div class="feedback-icon" id="feedback-icon">✓</div>
+                    <div class="feedback-title" id="feedback-title">回答正确</div>
+                </div>
+                <div class="feedback-answer" id="feedback-answer"></div>
+                <div class="feedback-explanation" id="feedback-explanation"></div>
+                <button class="feedback-button" id="feedback-button" onclick="continueQuiz()">继续下一题</button>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div id="result-page" class="page">
+            <div class="result-header">
+                <div class="result-score-container">
+                    <div class="result-score" id="result-score">0</div>
+                    <div class="result-score-label">总分</div>
+                </div>
+                <div class="result-grade" id="result-grade">评级</div>
+            </div>
+            <div class="result-content">
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-correct">0</div>
+                        <div class="stat-label">正确题数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-wrong">0</div>
+                        <div class="stat-label">错误题数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-skipped">0</div>
+                        <div class="stat-label">跳过题数</div>
+                    </div>
+                </div>
+                <div class="wrong-questions-title" id="wrong-title">错题回顾</div>
+                <div class="wrong-questions-list" id="wrong-list"></div>
+                <button class="restart-button" onclick="restartQuiz()">重新答题</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./地震了怎么做 - 地震安全互动问答_files/questions.js.下载"></script>
+    <script>
+        // ==================== 应用状态 ====================
+        const appState = {
+            currentPage: 'welcome',
+            currentQuestionIndex: 0,
+            score: 0,
+            answers: [],
+            wrongAnswers: [],
+            skippedQuestions: [],
+            answeredQuestions: [],
+            currentQuestions: []
+        };
+
+        // ==================== 核心函数 ====================
+
+        // 显示指定页面
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            appState.currentPage = pageId.replace('-page', '');
+        }
+
+        // 随机抽取题目
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // 开始答题
+        function startQuiz() {
+            showPage('quiz-page');
+            appState.currentQuestionIndex = 0;
+            appState.score = 0;
+            appState.answers = [];
+            appState.wrongAnswers = [];
+            appState.skippedQuestions = [];
+            appState.answeredQuestions = [];
+            // 从100道题中随机抽取10道
+            appState.currentQuestions = shuffleArray(questions).slice(0, 10);
+            renderQuestion();
+        }
+
+        // 渲染当前题目
+        function renderQuestion() {
+            const question = appState.currentQuestions[appState.currentQuestionIndex];
+            const totalQuestions = appState.currentQuestions.length;
+            
+            // 更新进度
+            const progressPercent = ((appState.currentQuestionIndex) / totalQuestions) * 100;
+            document.getElementById('progress-fill').style.width = progressPercent + '%';
+            document.getElementById('progress-question').textContent = `第 ${appState.currentQuestionIndex + 1} 题 / 共 ${totalQuestions} 题`;
+            document.getElementById('progress-score').textContent = `当前得分：${appState.score} 分`;
+
+            // 更新模块信息
+            document.getElementById('module-name').textContent = question.moduleName;
+            const moduleQuestions = appState.currentQuestions.filter(q => q.module === question.module);
+            const moduleIndex = moduleQuestions.findIndex(q => q.id === question.id) + 1;
+            document.getElementById('module-progress').textContent = `第 ${moduleIndex} 题 / 共 ${moduleQuestions.length} 题`;
+
+            // 更新题目内容
+            document.getElementById('question-number').textContent = `题目 ${question.id}`;
+            document.getElementById('question-text').textContent = question.question;
+
+            // 渲染选项
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = `${['A', 'B', 'C', 'D'][index]}. ${option}`;
+                button.onclick = () => selectOption(index);
+                
+                // 如果已经作答，显示之前的选择
+                if (appState.answeredQuestions.includes(question.id)) {
+                    const previousAnswer = appState.answers.find(a => a.questionId === question.id);
+                    if (previousAnswer) {
+                        button.classList.add('disabled');
+                        if (index === previousAnswer.selectedOption) {
+                            button.classList.add(previousAnswer.isCorrect ? 'correct' : 'wrong');
+                        }
+                        if (index === question.correctAnswer && !previousAnswer.isCorrect) {
+                            button.classList.add('correct');
+                        }
+                    }
+                }
+                
+                optionsContainer.appendChild(button);
+            });
+
+            // 更新按钮状态
+            document.getElementById('prev-button').classList.toggle('disabled', appState.currentQuestionIndex === 0);
+            document.getElementById('skip-button').classList.toggle('disabled', appState.answeredQuestions.includes(question.id));
+        }
+
+        // 选择选项
+        function selectOption(selectedIndex) {
+            const question = appState.currentQuestions[appState.currentQuestionIndex];
+            
+            // 如果已经作答，不允许再次选择
+            if (appState.answeredQuestions.includes(question.id)) {
+                return;
+            }
+
+            const isCorrect = selectedIndex === question.correctAnswer;
+            
+            // 记录答案
+            appState.answers.push({
+                questionId: question.id,
+                selectedOption: selectedIndex,
+                isCorrect: isCorrect
+            });
+            
+            appState.answeredQuestions.push(question.id);
+            
+            // 更新分数（每题10分）
+            if (isCorrect) {
+                appState.score += 10;
+            } else {
+                appState.wrongAnswers.push({
+                    question: question,
+                    selectedOption: selectedIndex
+                });
+            }
+
+            // 更新进度显示
+            document.getElementById('progress-score').textContent = `当前得分：${appState.score} 分`;
+
+            // 显示反馈
+            showFeedback(isCorrect, question, selectedIndex);
+        }
+
+        // 显示反馈弹窗
+        function showFeedback(isCorrect, question, selectedIndex) {
+            const overlay = document.getElementById('feedback-overlay');
+            const icon = document.getElementById('feedback-icon');
+            const title = document.getElementById('feedback-title');
+            const answerDiv = document.getElementById('feedback-answer');
+            const explanation = document.getElementById('feedback-explanation');
+            const button = document.getElementById('feedback-button');
+
+            if (isCorrect) {
+                icon.textContent = '✓';
+                icon.className = 'feedback-icon correct';
+                title.textContent = '回答正确';
+                title.className = 'feedback-title correct';
+                answerDiv.textContent = `你选择了：${['A', 'B', 'C', 'D'][selectedIndex]}. ${question.options[selectedIndex]}`;
+                answerDiv.style.background = 'rgba(0, 184, 42, 0.08)';
+            } else {
+                icon.textContent = '✗';
+                icon.className = 'feedback-icon wrong';
+                title.textContent = '回答错误';
+                title.className = 'feedback-title wrong';
+                answerDiv.innerHTML = `
+                    你选择了：${['A', 'B', 'C', 'D'][selectedIndex]}. ${question.options[selectedIndex]}<br>
+                    <strong style="color: var(--success-green);">正确答案：${['A', 'B', 'C', 'D'][question.correctAnswer]}. ${question.options[question.correctAnswer]}</strong>
+                `;
+                answerDiv.style.background = 'rgba(245, 63, 63, 0.08)';
+            }
+
+            explanation.textContent = `💡 知识点解析：${question.explanation}`;
+
+            // 更新按钮文字
+            if (appState.currentQuestionIndex === appState.currentQuestions.length - 1) {
+                button.textContent = '查看结果';
+            } else {
+                button.textContent = '继续下一题';
+            }
+
+            overlay.classList.add('active');
+        }
+
+        // 继续答题
+        function continueQuiz() {
+            document.getElementById('feedback-overlay').classList.remove('active');
+            
+            if (appState.currentQuestionIndex === appState.currentQuestions.length - 1) {
+                showResult();
+            } else {
+                appState.currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        // 上一题
+        function prevQuestion() {
+            if (appState.currentQuestionIndex > 0) {
+                appState.currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        // 跳过题目
+        function skipQuestion() {
+            const question = appState.currentQuestions[appState.currentQuestionIndex];
+            
+            if (!appState.answeredQuestions.includes(question.id)) {
+                appState.skippedQuestions.push(question.id);
+            }
+            
+            if (appState.currentQuestionIndex === appState.currentQuestions.length - 1) {
+                showResult();
+            } else {
+                appState.currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        // 显示结果
+        function showResult() {
+            showPage('result-page');
+
+            // 计算统计
+            const correctCount = appState.answers.filter(a => a.isCorrect).length;
+            const wrongCount = appState.wrongAnswers.length;
+            const skippedCount = appState.skippedQuestions.filter(id => !appState.answeredQuestions.includes(id)).length;
+
+            // 显示分数
+            document.getElementById('result-score').textContent = appState.score;
+            document.getElementById('stat-correct').textContent = correctCount;
+            document.getElementById('stat-wrong').textContent = wrongCount;
+            document.getElementById('stat-skipped').textContent = skippedCount;
+
+            // 评级
+            let grade = '';
+            let gradeColor = '';
+            if (appState.score >= 90) {
+                grade = '优秀';
+                gradeColor = 'background: rgba(0, 184, 42, 0.3);';
+            } else if (appState.score >= 70) {
+                grade = '良好';
+                gradeColor = 'background: rgba(22, 93, 255, 0.3);';
+            } else if (appState.score >= 60) {
+                grade = '及格';
+                gradeColor = 'background: rgba(255, 125, 0, 0.3);';
+            } else {
+                grade = '需加强';
+                gradeColor = 'background: rgba(245, 63, 63, 0.3);';
+            }
+            document.getElementById('result-grade').textContent = grade;
+            document.getElementById('result-grade').style.cssText = gradeColor;
+
+            // 错题列表
+            const wrongList = document.getElementById('wrong-list');
+            const wrongTitle = document.getElementById('wrong-title');
+            
+            if (appState.wrongAnswers.length === 0) {
+                wrongTitle.textContent = '恭喜你！全部答对';
+                wrongList.innerHTML = '<div class="no-wrong-message">🎉 你的地震安全意识非常棒！继续保持，定期复习巩固知识。</div>';
+            } else {
+                wrongTitle.textContent = '错题回顾';
+                wrongList.innerHTML = appState.wrongAnswers.map(item => `
+                    <div class="wrong-question-item">
+                        <div class="wrong-question-text">❓ ${item.question.question}</div>
+                        <div class="wrong-question-answer">✅ 正确答案：${['A', 'B', 'C', 'D'][item.question.correctAnswer]}. ${item.question.options[item.question.correctAnswer]}</div>
+                        <div class="wrong-question-explanation">💡 ${item.question.explanation}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 重新答题
+        function restartQuiz() {
+            appState.currentQuestionIndex = 0;
+            appState.score = 0;
+            appState.answers = [];
+            appState.wrongAnswers = [];
+            appState.skippedQuestions = [];
+            appState.answeredQuestions = [];
+            showPage('welcome-page');
+        }
+
+        // ==================== 初始化 ====================
+        // 页面加载时显示首页
+        showPage('welcome-page');
+    </script>
+
+</body></html>

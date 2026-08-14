@@ -1,0 +1,197 @@
+/* ===== Hobbies Section ===== */
+.hobbies {
+  padding-top: 120px;
+  background: var(--color-bg);
+}
+
+.hobbies-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.hobby-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 32px 20px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.hobby-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.hobby-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  margin-bottom: 16px;
+  color: var(--color-terracotta);
+}
+
+.hobby-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.hobby-card p {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  line-height: 1.7;
+}
+
+/* ===== Travel Section ===== */
+.travel {
+  background: var(--color-bg-alt);
+}
+
+.travel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.travel-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.travel-item-reverse .travel-image {
+  order: 2;
+}
+
+.travel-item-reverse .travel-content {
+  order: 1;
+}
+
+.travel-image {
+  position: relative;
+  width: 100%;
+  padding-top: 66%;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.travel-image span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-serif);
+  color: rgba(44, 44, 44, 0.4);
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+
+.travel-content {
+  padding: 16px 0;
+}
+
+.travel-date {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: var(--color-terracotta);
+  margin-bottom: 8px;
+  font-family: var(--font-serif);
+}
+
+.travel-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+
+.travel-content p {
+  font-size: 0.95rem;
+  color: var(--color-text-light);
+  line-height: 1.9;
+}
+
+/* ===== Collection Section ===== */
+.collection {
+  background: var(--color-bg);
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.collection-item {
+  text-align: center;
+  transition: var(--transition);
+}
+
+.collection-item:hover {
+  transform: translateY(-4px);
+}
+
+.collection-image {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.collection-image span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-serif);
+  color: rgba(44, 44, 44, 0.4);
+  font-size: 1rem;
+  letter-spacing: 2px;
+}
+
+.collection-item h4 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.collection-item p {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .hobbies-grid,
+  .collection-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .hobby-card {
+    padding: 24px 16px;
+  }
+
+  .travel-item,
+  .travel-item-reverse {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .travel-item-reverse .travel-image,
+  .travel-item-reverse .travel-content {
+    order: unset;
+  }
+
+  .travel-content {
+    padding: 0;
+  }
+}

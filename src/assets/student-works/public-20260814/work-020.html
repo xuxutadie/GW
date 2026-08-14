@@ -1,0 +1,2634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台风防灾科普 — 知风识雨 安全同行</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #040b1a;
+      --bg-secondary: #081428;
+      --bg-card: rgba(12,26,52,0.75);
+      --bg-card-hover: rgba(20,40,80,0.85);
+      --blue-gray: #1e3a5f;
+      --blue-light: #2a5298;
+      --accent-orange: #ff6b35;
+      --accent-yellow: #ffd700;
+      --accent-cyan: #00d4ff;
+      --accent-red: #ff2d55;
+      --text-primary: #eaf0fa;
+      --text-secondary: #8fa3c4;
+      --text-muted: #4a6590;
+      --warning-blue: #42a5f5;
+      --warning-yellow: #ffca28;
+      --warning-orange: #ffa726;
+      --warning-red: #ef5350;
+      --border-glow: rgba(0,212,255,0.15);
+      --radius-sm: 10px;
+      --radius-md: 18px;
+      --radius-lg: 28px;
+      --font-main: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font-main);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.8;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ===== Scroll Progress Bar ===== */
+    .scroll-progress {
+      position: fixed; top: 0; left: 0;
+      width: 0%; height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-orange), var(--accent-yellow));
+      z-index: 10001;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 12px rgba(0,212,255,0.5), 0 0 24px rgba(255,107,53,0.3);
+    }
+
+    /* ===== Mouse Follow Glow ===== */
+    .mouse-glow {
+      position: fixed;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s;
+    }
+
+    /* ===== Wave Dividers ===== */
+    .wave-divider {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      line-height: 0;
+      margin: -1px 0;
+    }
+    .wave-divider svg {
+      display: block;
+      width: 100%;
+      height: 60px;
+    }
+    .wave-divider.flip { transform: scaleY(-1); }
+
+    /* ===== Film Grain Overlay ===== */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      z-index: 9999; pointer-events: none;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 256px;
+    }
+
+    /* ===== Scroll Animations ===== */
+    .reveal { opacity: 0; transform: translateY(50px); transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    
+    .reveal-left { opacity: 0; transform: translateX(-80px); transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth); }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    
+    .reveal-right { opacity: 0; transform: translateX(80px); transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth); }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+    
+    .reveal-top { opacity: 0; transform: translateY(-60px); transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth); }
+    .reveal-top.visible { opacity: 1; transform: translateY(0); }
+    
+    .reveal-scale { opacity: 0; transform: scale(0.85); transition: opacity 0.7s var(--ease-smooth), transform 0.7s var(--ease-spring); }
+    .reveal-scale.visible { opacity: 1; transform: scale(1); }
+    
+    .reveal-scale-up { opacity: 0; transform: scale(0.7) translateY(40px); transition: opacity 0.8s var(--ease-smooth), transform 0.8s var(--ease-spring); }
+    .reveal-scale-up.visible { opacity: 1; transform: scale(1) translateY(0); }
+    
+    .reveal-rotate { opacity: 0; transform: rotate(-8deg) scale(0.9); transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-spring); }
+    .reveal-rotate.visible { opacity: 1; transform: rotate(0) scale(1); }
+    
+    .reveal-flip { opacity: 0; transform: perspective(800px) rotateY(45deg); transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth); }
+    .reveal-flip.visible { opacity: 1; transform: perspective(800px) rotateY(0); }
+    
+    .reveal-bounce { opacity: 0; transform: translateY(80px) scale(0.8); transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-spring); }
+    .reveal-bounce.visible { opacity: 1; transform: translateY(0) scale(1); animation: bounceIn 0.8s var(--ease-spring); }
+    @keyframes bounceIn {
+      0% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-20px) scale(1.05); }
+      50% { transform: translateY(0) scale(0.98); }
+      70% { transform: translateY(-8px) scale(1.02); }
+      100% { transform: translateY(0) scale(1); }
+    }
+    
+    .reveal-zoom { opacity: 0; transform: scale(0.3); transition: opacity 0.5s var(--ease-smooth), transform 0.5s var(--ease-spring); }
+    .reveal-zoom.visible { opacity: 1; transform: scale(1); }
+    
+    .reveal-slide-up { opacity: 0; transform: translateY(100px) rotateX(20deg); transition: opacity 0.9s var(--ease-smooth), transform 0.9s var(--ease-smooth); }
+    .reveal-slide-up.visible { opacity: 1; transform: translateY(0) rotateX(0); }
+    
+    .reveal-fade-blur { opacity: 0; filter: blur(15px); transition: opacity 1s var(--ease-smooth), filter 1s var(--ease-smooth); }
+    .reveal-fade-blur.visible { opacity: 1; filter: blur(0); }
+    
+    /* Enhanced reveal with blur and glow */
+    .reveal-enhanced { 
+      opacity: 0; 
+      transform: translateY(60px) scale(0.9); 
+      filter: blur(10px);
+      transition: opacity 1.2s var(--ease-smooth), transform 1.2s var(--ease-spring), filter 1.2s var(--ease-smooth); 
+    }
+    .reveal-enhanced.visible { 
+      opacity: 1; 
+      transform: translateY(0) scale(1); 
+      filter: blur(0);
+      animation: revealGlow 1.5s ease-out;
+    }
+    @keyframes revealGlow {
+      0% { filter: drop-shadow(0 0 0px rgba(0,212,255,0)); }
+      50% { filter: drop-shadow(0 0 30px rgba(0,212,255,0.4)); }
+      100% { filter: drop-shadow(0 0 0px rgba(0,212,255,0)); }
+    }
+
+    /* ===== Navigation ===== */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 0 48px; height: 72px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(4,11,26,0.5);
+      backdrop-filter: blur(30px) saturate(1.5);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: all 0.4s var(--ease-smooth);
+    }
+    .navbar.scrolled {
+      background: rgba(4,11,26,0.95);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(0,212,255,0.1);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 1.2rem; letter-spacing: 3px; }
+    .nav-brand .icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--blue-light));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+      animation: iconPulse 3s ease-in-out infinite;
+    }
+    @keyframes iconPulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(0,212,255,0.3); }
+      50% { box-shadow: 0 4px 35px rgba(0,212,255,0.55); }
+    }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-size: 0.88rem; font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.3s var(--ease-smooth);
+      position: relative; padding: 6px 0;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute;
+      bottom: -2px; left: 50%; width: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-orange));
+      transition: all 0.3s var(--ease-smooth);
+      transform: translateX(-50%); border-radius: 2px;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; }
+    .nav-hamburger span { width: 24px; height: 2px; background: var(--text-primary); transition: 0.3s; border-radius: 2px; }
+
+    /* =============================================
+       BANNER — Pure CSS Animated Typhoon Scene
+       ============================================= */
+    .banner {
+      position: relative;
+      width: 100%; height: 100vh; min-height: 700px;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Deep ocean background */
+    .banner-ocean {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 800px 600px at 50% 50%, #0d2240 0%, #071525 60%, #040b1a 100%);
+    }
+    .banner-ocean::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: 
+        radial-gradient(circle 600px at 30% 40%, rgba(0,100,255,0.08) 0%, transparent 70%),
+        radial-gradient(circle 400px at 70% 60%, rgba(255,107,53,0.05) 0%, transparent 60%);
+      animation: oceanPulse 8s ease-in-out infinite alternate;
+    }
+    @keyframes oceanPulse {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    /* Animated spiral typhoon cloud system */
+    .banner-typhoon {
+      position: absolute;
+      width: 900px; height: 900px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: typhoonSpin 40s linear infinite;
+    }
+    .banner-typhoon .arm {
+      position: absolute;
+      width: 100%; height: 100%;
+      top: 0; left: 0;
+    }
+    .banner-typhoon .arm svg {
+      width: 100%; height: 100%;
+    }
+    @keyframes typhoonSpin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Cloud layers */
+    .banner-clouds {
+      position: absolute; inset: 0;
+      overflow: hidden;
+    }
+    .cloud-layer {
+      position: absolute;
+      width: 200%; height: 100%;
+      top: 0; left: -50%;
+      opacity: 0.08;
+    }
+    .cloud-layer:nth-child(1) {
+      background:
+        radial-gradient(ellipse 300px 120px at 15% 30%, rgba(100,160,220,0.4) 0%, transparent 70%),
+        radial-gradient(ellipse 400px 150px at 45% 20%, rgba(80,140,200,0.3) 0%, transparent 70%),
+        radial-gradient(ellipse 350px 130px at 75% 35%, rgba(90,150,210,0.35) 0%, transparent 70%);
+      animation: cloudDrift1 30s ease-in-out infinite alternate;
+    }
+    .cloud-layer:nth-child(2) {
+      background:
+        radial-gradient(ellipse 250px 100px at 25% 50%, rgba(120,170,220,0.3) 0%, transparent 70%),
+        radial-gradient(ellipse 350px 120px at 60% 45%, rgba(100,150,200,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 280px 110px at 85% 55%, rgba(110,160,210,0.3) 0%, transparent 70%);
+      animation: cloudDrift2 25s ease-in-out infinite alternate;
+    }
+    @keyframes cloudDrift1 {
+      0% { transform: translateX(-10%); }
+      100% { transform: translateX(10%); }
+    }
+    @keyframes cloudDrift2 {
+      0% { transform: translateX(8%); }
+      100% { transform: translateX(-8%); }
+    }
+
+    /* Lightning flash */
+    .banner-lightning {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 45% 40%, rgba(200,220,255,0.2) 0%, transparent 50%);
+      animation: lightning 7s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes lightning {
+      0%, 88%, 92%, 100% { opacity: 0; }
+      89% { opacity: 1; }
+      90% { opacity: 0; }
+      91% { opacity: 0.6; }
+    }
+
+    /* Rain effect */
+    .banner-rain {
+      position: absolute; inset: 0;
+      overflow: hidden; pointer-events: none;
+    }
+    .rain-drop {
+      position: absolute;
+      width: 2px;
+      border-radius: 0 0 2px 2px;
+      background: linear-gradient(180deg, transparent 0%, rgba(120,180,255,0.1) 20%, rgba(150,200,255,0.6) 60%, rgba(180,220,255,0.8) 100%);
+      animation: rainFall linear infinite;
+      box-shadow: 0 0 4px rgba(100,180,255,0.3);
+    }
+    @keyframes rainFall {
+      0% { transform: translateY(-100vh) scaleY(0.5); opacity: 0; }
+      5% { opacity: 1; }
+      15% { transform: translateY(-80vh) scaleY(1); }
+      85% { opacity: 0.9; }
+      100% { transform: translateY(100vh) scaleY(1.2); opacity: 0; }
+    }
+
+    /* Cinematic overlay */
+    .banner-overlay {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 50%, rgba(0,100,200,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 30%, rgba(255,107,53,0.06) 0%, transparent 50%),
+        linear-gradient(180deg, rgba(4,11,26,0.2) 0%, rgba(4,11,26,0.05) 30%, rgba(4,11,26,0.4) 70%, rgba(4,11,26,0.95) 100%);
+    }
+
+    /* Light rays */
+    .banner-rays {
+      position: absolute; inset: 0;
+      background:
+        conic-gradient(from 200deg at 30% 20%, rgba(0,212,255,0.05) 0deg, transparent 25deg),
+        conic-gradient(from 340deg at 70% 60%, rgba(255,107,53,0.03) 0deg, transparent 20deg);
+      animation: rayShift 15s ease-in-out infinite alternate;
+    }
+    @keyframes rayShift {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; transform: rotate(2deg); }
+    }
+
+    /* Vignette */
+    .banner-vignette {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);
+      pointer-events: none;
+    }
+
+    .banner-content {
+      position: relative; z-index: 3;
+      text-align: center; padding: 0 24px;
+    }
+    .banner-tag {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 24px;
+      border: 1px solid rgba(0,212,255,0.35);
+      border-radius: 100px;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--accent-cyan);
+      letter-spacing: 5px;
+      margin-bottom: 28px;
+      backdrop-filter: blur(16px);
+      background: rgba(0,212,255,0.06);
+      animation: tagReveal 1s ease 0.2s both;
+      box-shadow: 0 0 30px rgba(0,212,255,0.1), inset 0 0 20px rgba(0,212,255,0.05);
+    }
+    .banner-tag .dot {
+      width: 6px; height: 6px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      animation: dotBlink 2s ease-in-out infinite;
+    }
+    @keyframes dotBlink {
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--accent-cyan); }
+      50% { opacity: 0.4; box-shadow: 0 0 2px var(--accent-cyan); }
+    }
+    @keyframes tagReveal {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .banner-title {
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 24px;
+      animation: titleReveal 1.2s ease 0.4s both;
+      text-shadow: 0 4px 40px rgba(0,0,0,0.5), 0 0 80px rgba(180,210,255,0.12);
+      position: relative;
+    }
+    .banner-title::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120%;
+      height: 120%;
+      background: radial-gradient(ellipse at center, rgba(0,212,255,0.08) 0%, transparent 70%);
+      animation: titleGlow 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes titleGlow {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    }
+    .banner-title .highlight {
+      background: linear-gradient(135deg, #ffffff 0%, #e0f0ff 25%, #b8d4f0 50%, #ffffff 75%, #d0e8ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200% 200%;
+      animation: gradientFlow 4s ease-in-out infinite;
+      filter: drop-shadow(0 0 30px rgba(180,210,255,0.5)) drop-shadow(0 0 60px rgba(100,160,255,0.25));
+      position: relative;
+      display: inline-block;
+    }
+    .banner-title .highlight::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: -1;
+      -webkit-text-stroke: 2px rgba(0,212,255,0.3);
+      filter: blur(8px);
+      animation: highlightPulse 2s ease-in-out infinite;
+    }
+    @keyframes highlightPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    @keyframes titleReveal {
+      from { opacity: 0; transform: translateY(40px); filter: blur(8px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    .banner-subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: rgba(200,215,240,0.7);
+      font-weight: 300;
+      max-width: 560px;
+      margin: 0 auto 44px;
+      animation: subReveal 1s ease 0.7s both;
+      line-height: 2;
+      letter-spacing: 1px;
+    }
+    @keyframes subReveal {
+      from { opacity: 0; transform: translateY(25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .banner-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 42px;
+      background: linear-gradient(135deg, var(--accent-orange), #ff8a5c, var(--accent-yellow));
+      background-size: 200% 200%;
+      border: none; border-radius: 100px;
+      color: #fff;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer;
+      transition: all 0.5s var(--ease-spring);
+      animation: ctaReveal 1s ease 0.9s both;
+      box-shadow: 0 8px 30px rgba(255,107,53,0.3), 0 0 0 1px rgba(255,107,53,0.2);
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+    .banner-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.6s;
+    }
+    .banner-cta:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 16px 50px rgba(255,107,53,0.5), 0 0 0 1px rgba(255,107,53,0.4), 0 0 80px rgba(255,107,53,0.3);
+      background-position: 100% 50%;
+    }
+    .banner-cta:hover::before {
+      left: 100%;
+    }
+    @keyframes ctaReveal {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Banner Skyline */
+    .banner-skyline {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 180px;
+      z-index: 2;
+      opacity: 0.7;
+    }
+    .banner-skyline svg {
+      width: 100%; height: 100%;
+    }
+
+    .scroll-indicator {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%); z-index: 3;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      animation: scrollBounce 2.5s ease-in-out infinite;
+    }
+    .scroll-indicator span {
+      font-size: 0.7rem; color: var(--text-muted);
+      letter-spacing: 3px; text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px; height: 40px;
+      background: linear-gradient(180deg, var(--accent-cyan), transparent);
+      animation: lineGrow 2.5s ease-in-out infinite;
+    }
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+    @keyframes lineGrow {
+      0%, 100% { opacity: 0.3; height: 30px; }
+      50% { opacity: 1; height: 50px; }
+    }
+
+    /* ===== Section Common ===== */
+    .section {
+      padding: 120px 48px;
+      max-width: 1320px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .section-header { text-align: center; margin-bottom: 72px; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 4px; text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .section-label::before, .section-label::after {
+      content: ''; width: 32px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan));
+    }
+    .section-label::after {
+      background: linear-gradient(90deg, var(--accent-cyan), transparent);
+    }
+    .section-title {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 900; line-height: 1.25;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 620px; margin: 0 auto;
+      line-height: 2;
+    }
+
+    /* ===== Formation ===== */
+    .formation { background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); }
+    .formation-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 72px; align-items: center;
+    }
+    /* Animated SVG typhoon formation visual */
+    .formation-visual {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #0a1e3d, #0d2847, #0a1e3d);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,255,0.08);
+    }
+    .formation-visual::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,212,255,0.06), transparent 50%);
+      z-index: 1; pointer-events: none;
+    }
+    .formation-visual svg {
+      width: 100%; height: 100%;
+    }
+    .formation-steps { display: flex; flex-direction: column; gap: 24px; }
+    .step-card {
+      display: flex; gap: 20px; padding: 28px;
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.5s var(--ease-spring);
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    .step-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent-cyan), var(--blue-light));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .step-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,0.1), transparent);
+      transition: left 0.6s;
+    }
+    .step-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateX(10px) scale(1.02);
+      border-color: rgba(0,212,255,0.25);
+      box-shadow: 0 12px 50px rgba(0,212,255,0.15), 0 0 0 1px rgba(0,212,255,0.1);
+    }
+    .step-card:hover::before { opacity: 1; }
+    .step-card:hover::after { left: 100%; }
+    .step-card:hover .step-num {
+      animation: neonPulse 1.5s ease-in-out infinite;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--blue-light), var(--accent-cyan));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; font-weight: 900; color: #fff;
+      box-shadow: 0 4px 16px rgba(0,212,255,0.25);
+    }
+    .step-content h4 { font-size: 1.08rem; font-weight: 700; margin-bottom: 6px; }
+    .step-content p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; }
+
+    /* ===== Safety ===== */
+    .safety { background: var(--bg-secondary); position: relative; }
+    .safety::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,0.15), transparent);
+    }
+    .safety-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .safety-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-md);
+      padding: 40px 28px;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.5s var(--ease-spring);
+      position: relative; overflow: hidden;
+    }
+    .safety-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-yellow), var(--accent-orange));
+      background-size: 200% 100%;
+      opacity: 0;
+      transition: opacity 0.3s;
+      animation: shimmer 2s linear infinite;
+    }
+    .safety-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .safety-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      background: var(--bg-card-hover);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,107,53,0.2), 0 0 60px rgba(255,107,53,0.1);
+    }
+    .safety-card:hover::before { opacity: 1; }
+    .safety-card:hover::after { opacity: 1; }
+    .safety-card:hover .safety-icon {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 8px 30px rgba(255,107,53,0.3);
+    }
+    .safety-icon {
+      transition: all 0.4s var(--ease-spring);
+    }
+    .safety-icon {
+      width: 60px; height: 60px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,215,0,0.08));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.7rem; margin-bottom: 22px;
+      border: 1px solid rgba(255,107,53,0.15);
+      box-shadow: 0 4px 20px rgba(255,107,53,0.08);
+    }
+    .safety-card h4 { font-size: 1.12rem; font-weight: 700; margin-bottom: 10px; }
+    .safety-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.85; }
+
+    /* Animated safety scene */
+    .safety-scene {
+      grid-column: 1 / -1;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.05);
+      aspect-ratio: 16/7;
+      background: linear-gradient(180deg, #0d2240 0%, #112a4a 40%, #0f2540 100%);
+      position: relative;
+    }
+    .safety-scene svg { width: 100%; height: 100%; }
+
+    /* ===== Warning ===== */
+    .warning { background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%); }
+    .warning-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .warning-card {
+      border-radius: var(--radius-md);
+      padding: 36px 24px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.5s var(--ease-spring);
+      position: relative; overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+    .warning-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: var(--radius-md);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .warning-card:hover { transform: translateY(-10px) scale(1.05); }
+    .warning-card:hover::before { opacity: 1; }
+    .warning-card:hover .warning-level {
+      animation: warningPulse 0.8s ease-in-out infinite;
+    }
+    @keyframes warningPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .warning-card.blue {
+      background: linear-gradient(160deg, rgba(66,165,245,0.12), rgba(66,165,245,0.03));
+      border-color: rgba(66,165,245,0.2);
+    }
+    .warning-card.blue::before { background: radial-gradient(circle at 50% 0%, rgba(66,165,245,0.1), transparent 70%); }
+    .warning-card.blue:hover { box-shadow: 0 16px 50px rgba(66,165,245,0.2), 0 0 0 1px rgba(66,165,245,0.15); }
+    .warning-card.yellow {
+      background: linear-gradient(160deg, rgba(255,202,40,0.12), rgba(255,202,40,0.03));
+      border-color: rgba(255,202,40,0.2);
+    }
+    .warning-card.yellow::before { background: radial-gradient(circle at 50% 0%, rgba(255,202,40,0.1), transparent 70%); }
+    .warning-card.yellow:hover { box-shadow: 0 16px 50px rgba(255,202,40,0.2), 0 0 0 1px rgba(255,202,40,0.15); }
+    .warning-card.orange {
+      background: linear-gradient(160deg, rgba(255,167,38,0.12), rgba(255,167,38,0.03));
+      border-color: rgba(255,167,38,0.2);
+    }
+    .warning-card.orange::before { background: radial-gradient(circle at 50% 0%, rgba(255,167,38,0.1), transparent 70%); }
+    .warning-card.orange:hover { box-shadow: 0 16px 50px rgba(255,167,38,0.2), 0 0 0 1px rgba(255,167,38,0.15); }
+    .warning-card.red {
+      background: linear-gradient(160deg, rgba(239,83,80,0.12), rgba(239,83,80,0.03));
+      border-color: rgba(239,83,80,0.2);
+    }
+    .warning-card.red::before { background: radial-gradient(circle at 50% 0%, rgba(239,83,80,0.1), transparent 70%); }
+    .warning-card.red:hover { box-shadow: 0 16px 50px rgba(239,83,80,0.25), 0 0 0 1px rgba(239,83,80,0.15); }
+    .warning-level {
+      font-size: 2.8rem; font-weight: 900;
+      margin-bottom: 6px;
+      text-shadow: 0 0 30px currentColor;
+      filter: brightness(1.2);
+    }
+    .warning-card.blue .warning-level { color: var(--warning-blue); }
+    .warning-card.yellow .warning-level { color: var(--warning-yellow); }
+    .warning-card.orange .warning-level { color: var(--warning-orange); }
+    .warning-card.red .warning-level { color: var(--warning-red); }
+    .warning-badge {
+      display: inline-block;
+      padding: 5px 18px; border-radius: 100px;
+      font-size: 0.78rem; font-weight: 700;
+      margin-bottom: 18px; letter-spacing: 2px;
+    }
+    .warning-card.blue .warning-badge { background: rgba(66,165,245,0.15); color: var(--warning-blue); border: 1px solid rgba(66,165,245,0.25); }
+    .warning-card.yellow .warning-badge { background: rgba(255,202,40,0.15); color: var(--warning-yellow); border: 1px solid rgba(255,202,40,0.25); }
+    .warning-card.orange .warning-badge { background: rgba(255,167,38,0.15); color: var(--warning-orange); border: 1px solid rgba(255,167,38,0.25); }
+    .warning-card.red .warning-badge { background: rgba(239,83,80,0.15); color: var(--warning-red); border: 1px solid rgba(239,83,80,0.25); }
+    .warning-wind { font-size: 1.5rem; font-weight: 800; margin-bottom: 14px; }
+    .warning-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; }
+
+    /* Animated warning infographic */
+    .warning-infographic {
+      margin-top: 52px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.05);
+      aspect-ratio: 16/6;
+      background: linear-gradient(135deg, #0a1628, #0d1f3c);
+      position: relative;
+    }
+    .warning-infographic svg { width: 100%; height: 100%; }
+
+    /* ===== Documentary ===== */
+    .documentary { background: var(--bg-primary); position: relative; }
+    .doc-showcase {
+      display: grid; grid-template-columns: 1.3fr 1fr;
+      gap: 56px; align-items: center;
+    }
+    /* Animated documentary city scene */
+    .doc-visual {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.5);
+      aspect-ratio: 16/9;
+      background: linear-gradient(180deg, #1a2030 0%, #0d1520 50%, #0a1018 100%);
+    }
+    .doc-visual svg { width: 100%; height: 100%; }
+    .doc-visual::after {
+      content: '';
+      position: absolute; inset: 0;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-lg);
+      pointer-events: none;
+    }
+    .doc-image-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 40px 28px 24px;
+      background: linear-gradient(0deg, rgba(4,11,26,0.95) 0%, transparent 100%);
+      z-index: 1;
+    }
+    .doc-image-overlay span {
+      font-size: 0.8rem; color: var(--accent-cyan);
+      font-weight: 600; letter-spacing: 2px;
+    }
+    .doc-info h3 {
+      font-size: 2rem; font-weight: 900;
+      margin-bottom: 24px; line-height: 1.4;
+      background: linear-gradient(135deg, #fff, var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .doc-info p {
+      font-size: 1rem; color: var(--text-secondary);
+      line-height: 2.1; margin-bottom: 18px;
+    }
+    .doc-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-top: 36px;
+    }
+    .stat-item {
+      text-align: center; padding: 24px 12px;
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s var(--ease-smooth);
+    }
+    .stat-item:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,212,255,0.15);
+      box-shadow: 0 8px 30px rgba(0,212,255,0.08);
+    }
+    .stat-num {
+      font-size: 2rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 10px rgba(0,212,255,0.2));
+    }
+    .stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; }
+
+    /* ===== Outdoor ===== */
+    .outdoor { background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); }
+    .outdoor-layout {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 56px; align-items: start;
+    }
+    .outdoor-tips { display: flex; flex-direction: column; gap: 18px; }
+    .outdoor-tip {
+      display: flex; gap: 18px; padding: 26px;
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.4s var(--ease-smooth);
+    }
+    .outdoor-tip:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255,107,53,0.2);
+      transform: translateX(8px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+    .tip-icon {
+      flex-shrink: 0;
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255,107,53,0.12), rgba(255,107,53,0.04));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      border: 1px solid rgba(255,107,53,0.1);
+    }
+    .tip-text h4 { font-size: 1.02rem; font-weight: 700; margin-bottom: 4px; }
+    .tip-text p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8; }
+
+    /* Animated outdoor safety visual */
+    .outdoor-visual {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.05);
+      aspect-ratio: 1;
+      background: linear-gradient(180deg, #0d2240, #0a1a30);
+    }
+    .outdoor-visual svg { width: 100%; height: 100%; }
+    .outdoor-image-badge {
+      position: absolute; top: 20px; right: 20px;
+      padding: 10px 20px;
+      background: rgba(255,107,53,0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 100px;
+      font-size: 0.8rem; font-weight: 700; color: #fff;
+      box-shadow: 0 4px 20px rgba(255,107,53,0.3);
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+    @keyframes badgePulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(255,107,53,0.3); }
+      50% { box-shadow: 0 4px 30px rgba(255,107,53,0.5); }
+    }
+
+    /* ===== Typhoon Query Section ===== */
+    .typhoon-query {
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      position: relative;
+    }
+    .typhoon-query::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), transparent);
+    }
+    .query-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      border: 1px solid rgba(0,212,255,0.1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    
+    /* Tab System */
+    .query-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .query-tab {
+      padding: 12px 32px;
+      background: rgba(0,212,255,0.05);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 100px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-smooth);
+      font-family: var(--font-main);
+    }
+    .query-tab:hover {
+      background: rgba(0,212,255,0.1);
+      border-color: rgba(0,212,255,0.3);
+      color: var(--text-primary);
+    }
+    .query-tab.active {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--blue-light));
+      border-color: var(--accent-cyan);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+    }
+    .tab-content {
+      display: none;
+      animation: tabFadeIn 0.5s var(--ease-smooth);
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* iframe Container */
+    .iframe-container {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid rgba(0,212,255,0.1);
+      background: #0a1628;
+    }
+    .iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .iframe-fallback {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      background: linear-gradient(transparent, rgba(4,11,26,0.95));
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .iframe-container:hover .iframe-fallback {
+      opacity: 1;
+    }
+    .iframe-fallback p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+    .iframe-link-btn {
+      display: inline-block;
+      padding: 10px 28px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--blue-light));
+      border-radius: 100px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.3s var(--ease-spring);
+    }
+    .iframe-link-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,212,255,0.3);
+    }
+    
+    /* Region Controls */
+    .query-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .query-btn {
+      padding: 12px 28px;
+      background: rgba(0,212,255,0.05);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 100px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-smooth);
+      font-family: var(--font-main);
+    }
+    .query-btn:hover {
+      background: rgba(0,212,255,0.1);
+      border-color: rgba(0,212,255,0.4);
+      color: var(--text-primary);
+      transform: translateY(-2px);
+    }
+    .query-btn.active {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--blue-light));
+      border-color: var(--accent-cyan);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+    }
+    .query-result {
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loading-state {
+      text-align: center;
+    }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(0,212,255,0.1);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-state p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+    .typhoon-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      width: 100%;
+    }
+    .typhoon-card {
+      background: linear-gradient(135deg, rgba(12,26,52,0.8), rgba(8,20,40,0.9));
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      transition: all 0.4s var(--ease-spring);
+      position: relative;
+      overflow: hidden;
+    }
+    .typhoon-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-orange));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .typhoon-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(0,212,255,0.3);
+      box-shadow: 0 16px 50px rgba(0,212,255,0.15);
+    }
+    .typhoon-card:hover::before {
+      opacity: 1;
+    }
+    .typhoon-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .typhoon-name {
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .typhoon-level {
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .typhoon-level.blue {
+      background: rgba(66,165,245,0.2);
+      color: var(--warning-blue);
+      border: 1px solid rgba(66,165,245,0.3);
+    }
+    .typhoon-level.yellow {
+      background: rgba(255,202,40,0.2);
+      color: var(--warning-yellow);
+      border: 1px solid rgba(255,202,40,0.3);
+    }
+    .typhoon-level.orange {
+      background: rgba(255,167,38,0.2);
+      color: var(--warning-orange);
+      border: 1px solid rgba(255,167,38,0.3);
+    }
+    .typhoon-level.red {
+      background: rgba(239,83,80,0.2);
+      color: var(--warning-red);
+      border: 1px solid rgba(239,83,80,0.3);
+    }
+    .typhoon-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .typhoon-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .typhoon-info-item:last-child {
+      border-bottom: none;
+    }
+    .typhoon-info-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    .typhoon-info-value {
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .no-data, .error-state {
+      text-align: center;
+    }
+    .no-data-icon, .error-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+    .no-data p, .error-state p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    .retry-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+      border: none;
+      border-radius: 100px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-spring);
+      font-family: var(--font-main);
+      text-decoration: none;
+    }
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255,107,53,0.3);
+    }
+    .data-source {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .data-source span {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    .update-time {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+    
+    /* Info Grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .info-card {
+      background: linear-gradient(135deg, rgba(12,26,52,0.8), rgba(8,20,40,0.9));
+      border: 1px solid rgba(0,212,255,0.1);
+      border-radius: var(--radius-md);
+      padding: 32px 28px;
+      transition: all 0.4s var(--ease-spring);
+    }
+    .info-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(0,212,255,0.25);
+      box-shadow: 0 12px 40px rgba(0,212,255,0.1);
+    }
+    .info-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    .info-card h4 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .info-card p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      line-height: 1.8;
+    }
+    .info-card p strong {
+      color: var(--text-primary);
+    }
+    
+    /* Query Links Grid */
+    .query-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .query-link-card {
+      display: block;
+      background: linear-gradient(135deg, rgba(12,26,52,0.8), rgba(8,20,40,0.9));
+      border: 1px solid rgba(0,212,255,0.12);
+      border-radius: var(--radius-md);
+      padding: 32px 28px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.4s var(--ease-spring);
+      position: relative;
+      overflow: hidden;
+    }
+    .query-link-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-orange));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .query-link-card::after {
+      content: '→';
+      position: absolute;
+      top: 28px;
+      right: 28px;
+      font-size: 1.5rem;
+      color: var(--accent-cyan);
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: all 0.3s var(--ease-smooth);
+    }
+    .query-link-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(0,212,255,0.3);
+      box-shadow: 0 16px 50px rgba(0,212,255,0.15), 0 0 0 1px rgba(0,212,255,0.1);
+    }
+    .query-link-card:hover::before { opacity: 1; }
+    .query-link-card:hover::after { opacity: 1; transform: translateX(0); }
+    .query-link-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    .query-link-card h4 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .query-link-card p {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+    .query-link-tag {
+      display: inline-block;
+      padding: 4px 14px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 100px;
+      color: var(--accent-cyan);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    
+    @media (max-width: 768px) {
+      .query-panel {
+        padding: 24px;
+      }
+      .query-controls, .query-tabs {
+        gap: 8px;
+      }
+      .query-btn, .query-tab {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+      }
+      .typhoon-list, .info-grid {
+        grid-template-columns: 1fr;
+      }
+      .iframe-container {
+        height: 400px;
+      }
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 64px 48px 44px;
+      position: relative;
+    }
+    .footer::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,0.12), transparent);
+    }
+    .footer-inner { max-width: 1320px; margin: 0 auto; }
+    .footer-top {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 44px;
+      flex-wrap: wrap; gap: 40px;
+    }
+    .footer-brand h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; }
+    .footer-brand p { font-size: 0.85rem; color: var(--text-muted); max-width: 320px; line-height: 1.8; }
+    .footer-links-group { display: flex; gap: 64px; }
+    .footer-col h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a { font-size: 0.85rem; color: var(--text-muted); transition: 0.3s; }
+    .footer-col a:hover { color: var(--accent-cyan); }
+    .footer-bottom {
+      padding-top: 28px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    .footer-bottom p { font-size: 0.8rem; color: var(--text-muted); }
+    .footer-hotline {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 24px;
+      background: rgba(255,107,53,0.08);
+      border: 1px solid rgba(255,107,53,0.2);
+      border-radius: 100px;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--accent-orange);
+    }
+
+    /* ===== Back to Top ===== */
+    .back-to-top {
+      position: fixed; bottom: 32px; right: 32px;
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      opacity: 0; transform: translateY(20px);
+      transition: all 0.4s var(--ease-spring);
+      z-index: 999;
+      font-size: 1.2rem; color: var(--text-secondary);
+    }
+    .back-to-top.show { opacity: 1; transform: translateY(0); }
+    .back-to-top:hover {
+      background: var(--accent-cyan);
+      color: var(--bg-primary);
+      transform: translateY(-4px) scale(1.1);
+      box-shadow: 0 8px 30px rgba(0,212,255,0.35);
+    }
+
+    /* ===== Particles ===== */
+    .particles {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      animation: particleFloat linear infinite;
+      box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+    }
+    @keyframes particleFloat {
+      0% { transform: translateY(100vh) rotate(0deg) scale(0); opacity: 0; }
+      10% { opacity: 0.8; transform: translateY(90vh) rotate(36deg) scale(1); }
+      90% { opacity: 0.8; }
+      100% { transform: translateY(-10vh) rotate(360deg) scale(0.5); opacity: 0; }
+    }
+
+    /* ===== Interactive Ripple Effect ===== */
+    .ripple {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.3) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 9998;
+      animation: rippleEffect 1s ease-out forwards;
+    }
+    @keyframes rippleEffect {
+      0% { width: 0; height: 0; opacity: 1; }
+      100% { width: 200px; height: 200px; opacity: 0; }
+    }
+
+    /* ===== Enhanced Glow Effects ===== */
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(50px, -80px) scale(1.2); }
+      66% { transform: translate(-30px, 60px) scale(0.9); }
+    }
+
+    /* ===== Neon Pulse Effect ===== */
+    @keyframes neonPulse {
+      0%, 100% { box-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor; }
+      50% { box-shadow: 0 0 30px currentColor, 0 0 60px currentColor, 0 0 90px currentColor; }
+    }
+
+    /* ===== Light Beam Effect ===== */
+    .light-beam {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(180deg, transparent, rgba(0,212,255,0.3), transparent);
+      animation: beamMove 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes beamMove {
+      0%, 100% { transform: translateX(-100vw) rotate(15deg); opacity: 0; }
+      50% { opacity: 0.6; }
+      50% { transform: translateX(100vw) rotate(15deg); }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .section { padding: 90px 32px; }
+      .formation-grid { grid-template-columns: 1fr; gap: 48px; }
+      .safety-grid { grid-template-columns: repeat(2, 1fr); }
+      .warning-grid { grid-template-columns: repeat(2, 1fr); }
+      .doc-showcase { grid-template-columns: 1fr; }
+      .outdoor-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .navbar { padding: 0 24px; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .nav-links.open {
+        display: flex; flex-direction: column;
+        position: absolute; top: 72px; left: 0; right: 0;
+        background: rgba(4,11,26,0.97);
+        backdrop-filter: blur(24px);
+        padding: 24px; gap: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+      }
+      .section { padding: 72px 20px; }
+      .safety-grid { grid-template-columns: 1fr; }
+      .warning-grid { grid-template-columns: 1fr 1fr; }
+      .doc-stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .footer-top { flex-direction: column; }
+      .footer-links-group { gap: 40px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .warning-grid { grid-template-columns: 1fr; }
+      .doc-stats { grid-template-columns: 1fr; }
+      .banner-title { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  <div class="mouse-glow" id="mouseGlow"></div>
+  <div class="scroll-progress" id="scrollProgress"></div>
+  
+  <!-- Enhanced Glow Orbs -->
+  <div class="glow-orb" style="width:400px;height:400px;background:radial-gradient(circle,rgba(0,212,255,0.4),transparent);top:20%;left:10%;animation-delay:0s;"></div>
+  <div class="glow-orb" style="width:500px;height:500px;background:radial-gradient(circle,rgba(255,107,53,0.3),transparent);top:60%;right:5%;animation-delay:5s;"></div>
+  <div class="glow-orb" style="width:350px;height:350px;background:radial-gradient(circle,rgba(0,255,204,0.25),transparent);bottom:10%;left:30%;animation-delay:10s;"></div>
+  
+  <!-- Light Beams -->
+  <div class="light-beam" style="left:20%;animation-delay:0s;"></div>
+  <div class="light-beam" style="left:60%;animation-delay:3s;"></div>
+  <div class="light-beam" style="left:85%;animation-delay:6s;"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-brand">
+      <div class="icon">&#x1F300;</div>
+      <span>台风科普</span>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#formation">台风形成</a></li>
+      <li><a href="#safety">居家避险</a></li>
+      <li><a href="#warning">预警信号</a></li>
+      <li><a href="#documentary">台风纪实</a></li>
+      <li><a href="#outdoor">户外安全</a></li>
+      <li><a href="#typhoon-query">台风查询</a></li>
+    </ul>
+    <div class="nav-hamburger" id="hamburger" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- Banner -->
+  <section class="banner" id="banner">
+    <div class="banner-ocean"></div>
+
+    <!-- Animated Typhoon Spiral SVG -->
+    <div class="banner-typhoon">
+      <div class="arm">
+        <svg viewBox="0 0 900 900" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="eyeGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#1a3a6a" stop-opacity="0.8"/>
+              <stop offset="40%" stop-color="#0d2240" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="cloudBlur">
+              <feGaussianBlur stdDeviation="8"/>
+            </filter>
+          </defs>
+          <!-- Spiral arms -->
+          <g filter="url(#cloudBlur)" opacity="0.35">
+            <path d="M450,450 Q500,300 650,250 Q750,220 800,300 Q850,400 750,450 Q650,500 550,450" fill="none" stroke="rgba(100,160,220,0.5)" stroke-width="60" stroke-linecap="round"/>
+            <path d="M450,450 Q400,600 250,650 Q150,680 100,600 Q50,500 150,450 Q250,400 350,450" fill="none" stroke="rgba(120,170,230,0.4)" stroke-width="55" stroke-linecap="round"/>
+            <path d="M450,450 Q600,500 650,650 Q680,750 600,800 Q500,850 450,750 Q400,650 450,550" fill="none" stroke="rgba(90,150,210,0.45)" stroke-width="50" stroke-linecap="round"/>
+            <path d="M450,450 Q300,400 250,250 Q220,150 300,100 Q400,50 450,150 Q500,250 450,350" fill="none" stroke="rgba(110,160,220,0.35)" stroke-width="58" stroke-linecap="round"/>
+          </g>
+          <!-- Outer cloud ring -->
+          <g filter="url(#cloudBlur)" opacity="0.2">
+            <circle cx="450" cy="450" r="350" fill="none" stroke="rgba(80,140,200,0.3)" stroke-width="80"/>
+            <circle cx="450" cy="450" r="280" fill="none" stroke="rgba(100,160,220,0.2)" stroke-width="60"/>
+          </g>
+          <!-- Eye of typhoon -->
+          <circle cx="450" cy="450" r="40" fill="url(#eyeGrad)" opacity="0.6"/>
+          <circle cx="450" cy="450" r="15" fill="rgba(200,220,255,0.15)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Cloud layers -->
+    <div class="banner-clouds">
+      <div class="cloud-layer"></div>
+      <div class="cloud-layer"></div>
+    </div>
+
+    <!-- Rain -->
+    <div class="banner-rain" id="rainContainer"></div>
+
+    <!-- Lightning -->
+    <div class="banner-lightning"></div>
+
+    <!-- City Skyline Silhouette -->
+    <div class="banner-skyline">
+      <svg viewBox="0 0 1440 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="skylineGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(4,11,26,0)"/>
+            <stop offset="100%" stop-color="rgba(4,11,26,0.95)"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,200 L0,160 L30,160 L30,120 L50,120 L50,100 L60,100 L60,80 L70,80 L70,100 L80,100 L80,140 L120,140 L120,90 L130,90 L130,60 L140,60 L140,40 L150,40 L150,60 L160,60 L160,90 L170,90 L170,140 L200,140 L200,110 L220,110 L220,70 L230,70 L230,50 L240,50 L240,30 L245,20 L250,30 L250,50 L260,50 L260,70 L270,70 L270,110 L290,110 L290,140 L340,140 L340,100 L360,100 L360,80 L370,80 L370,60 L380,60 L380,80 L390,80 L390,100 L410,100 L410,140 L460,140 L460,120 L480,120 L480,90 L490,90 L490,70 L500,70 L500,50 L510,50 L510,70 L520,70 L520,90 L540,90 L540,120 L560,120 L560,140 L620,140 L620,130 L640,130 L640,100 L650,100 L650,80 L660,80 L660,60 L670,60 L670,80 L680,80 L680,100 L700,100 L700,130 L720,130 L720,140 L780,140 L780,110 L800,110 L800,80 L810,80 L810,50 L820,50 L820,30 L830,30 L830,10 L835,0 L840,10 L840,30 L850,30 L850,50 L860,50 L860,80 L870,80 L870,110 L890,110 L890,140 L940,140 L940,120 L960,120 L960,90 L970,90 L970,70 L980,70 L980,90 L990,90 L990,120 L1010,120 L1010,140 L1060,140 L1060,100 L1080,100 L1080,80 L1090,80 L1090,60 L1100,60 L1100,40 L1110,40 L1110,60 L1120,60 L1120,80 L1140,80 L1140,100 L1160,100 L1160,140 L1200,140 L1200,130 L1220,130 L1220,110 L1240,110 L1240,90 L1250,90 L1250,110 L1270,110 L1270,130 L1290,130 L1290,140 L1340,140 L1340,120 L1360,120 L1360,100 L1380,100 L1380,120 L1400,120 L1400,140 L1440,140 L1440,200 Z" fill="url(#skylineGrad)"/>
+        <!-- Window lights -->
+        <g opacity="0.6">
+          <rect x="135" y="65" width="4" height="6" fill="rgba(255,200,100,0.5)" rx="1">
+            <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="145" y="45" width="4" height="6" fill="rgba(200,220,255,0.4)" rx="1">
+            <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="235" y="55" width="4" height="6" fill="rgba(255,200,100,0.5)" rx="1">
+            <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.5s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="245" y="35" width="4" height="6" fill="rgba(100,200,255,0.4)" rx="1">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3.5s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="495" y="55" width="4" height="6" fill="rgba(255,200,100,0.5)" rx="1">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2.8s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="505" y="75" width="4" height="6" fill="rgba(200,220,255,0.3)" rx="1">
+            <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3.2s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="825" y="15" width="4" height="6" fill="rgba(255,200,100,0.6)" rx="1">
+            <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="835" y="35" width="4" height="6" fill="rgba(100,200,255,0.4)" rx="1">
+            <animate attributeName="opacity" values="0.3;0.8;0.3" dur="4.5s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="1095" y="45" width="4" height="6" fill="rgba(255,200,100,0.5)" rx="1">
+            <animate attributeName="opacity" values="0.4;0.9;0.4" dur="3s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="1105" y="65" width="4" height="6" fill="rgba(200,220,255,0.3)" rx="1">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3.8s" repeatCount="indefinite"/>
+          </rect>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Overlays -->
+    <div class="banner-overlay"></div>
+    <div class="banner-rays"></div>
+    <div class="banner-vignette"></div>
+
+    <div class="banner-content">
+      <div class="banner-tag">
+        <span class="dot"></span>
+        防灾科普教育平台
+      </div>
+      <h1 class="banner-title">
+        <span class="highlight" data-text="知风识雨">知风识雨</span><br><span class="highlight" data-text="安全同行">安全同行</span>
+      </h1>
+      <p class="banner-subtitle">
+        了解台风、认识台风、防范台风<br>守护生命安全，从科普开始
+      </p>
+      <button class="banner-cta" onclick="document.getElementById('formation').scrollIntoView({behavior:'smooth'})">
+        开始了解 &#x2192;
+      </button>
+    </div>
+    <div class="scroll-indicator">
+      <span>向下滚动</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- Wave Divider -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,30 Q180,0 360,30 Q540,60 720,30 Q900,0 1080,30 Q1260,60 1440,30 L1440,60 L0,60 Z" fill="#081428"/>
+    </svg>
+  </div>
+
+  <!-- Formation -->
+  <section class="formation" id="formation">
+    <div class="section">
+      <div class="section-header reveal-fade-blur">
+        <div class="section-label">FORMATION</div>
+        <h2 class="section-title">台风是如何形成的？</h2>
+        <p class="section-desc">
+          台风是一种强烈的热带气旋，形成于温暖的热带洋面上。海水温度超过 26.5°C 时，大量水汽上升凝结，在地球自转作用下形成旋转云系。
+        </p>
+      </div>
+      <div class="formation-grid">
+        <div class="formation-visual reveal-flip">
+          <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="oceanGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a4a7a"/>
+                <stop offset="100%" stop-color="#0d2a4a"/>
+              </linearGradient>
+              <radialGradient id="warmGrad" cx="50%" cy="80%" r="40%">
+                <stop offset="0%" stop-color="#ff6b35" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="4" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <!-- Ocean -->
+            <rect width="500" height="500" fill="url(#oceanGrad)"/>
+            <!-- Warm water glow -->
+            <ellipse cx="250" cy="420" rx="200" ry="60" fill="url(#warmGrad)"/>
+            <!-- Rising vapor arrows -->
+            <g opacity="0.6">
+              <path d="M180,380 Q185,320 200,280" stroke="#00d4ff" stroke-width="2" fill="none" stroke-dasharray="6,4">
+                <animate attributeName="stroke-dashoffset" values="0;-20" dur="2s" repeatCount="indefinite"/>
+              </path>
+              <path d="M250,370 Q250,300 250,240" stroke="#00d4ff" stroke-width="2" fill="none" stroke-dasharray="6,4">
+                <animate attributeName="stroke-dashoffset" values="0;-20" dur="1.8s" repeatCount="indefinite"/>
+              </path>
+              <path d="M320,380 Q315,320 300,280" stroke="#00d4ff" stroke-width="2" fill="none" stroke-dasharray="6,4">
+                <animate attributeName="stroke-dashoffset" values="0;-20" dur="2.2s" repeatCount="indefinite"/>
+              </path>
+            </g>
+            <!-- Spiral cloud -->
+            <g filter="url(#glow)" opacity="0.7">
+              <path d="M250,250 Q300,200 350,220 Q380,240 360,280 Q330,310 290,290 Q260,270 270,240" fill="none" stroke="rgba(150,200,240,0.6)" stroke-width="12" stroke-linecap="round">
+                <animateTransform attributeName="transform" type="rotate" values="0 250 250;360 250 250" dur="20s" repeatCount="indefinite"/>
+              </path>
+              <path d="M250,250 Q200,300 150,280 Q120,260 140,220 Q170,190 210,210 Q240,230 230,260" fill="none" stroke="rgba(130,180,230,0.5)" stroke-width="10" stroke-linecap="round">
+                <animateTransform attributeName="transform" type="rotate" values="0 250 250;360 250 250" dur="20s" repeatCount="indefinite"/>
+              </path>
+            </g>
+            <!-- Center eye -->
+            <circle cx="250" cy="250" r="12" fill="rgba(200,220,255,0.3)" stroke="rgba(0,212,255,0.4)" stroke-width="1">
+              <animate attributeName="r" values="10;14;10" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <!-- Labels -->
+            <text x="100" y="450" fill="rgba(0,212,255,0.7)" font-size="11" font-family="Noto Sans SC">暖湿气流上升</text>
+            <text x="320" y="130" fill="rgba(0,212,255,0.7)" font-size="11" font-family="Noto Sans SC">螺旋云系</text>
+            <text x="220" y="255" fill="rgba(255,215,0,0.8)" font-size="9" font-family="Noto Sans SC">台风眼</text>
+            <!-- Temperature indicator -->
+            <text x="180" y="480" fill="rgba(255,107,53,0.6)" font-size="10" font-family="Noto Sans SC">海面温度 > 26.5°C</text>
+          </svg>
+        </div>
+        <div class="formation-steps reveal-right">
+          <div class="step-card reveal-bounce">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>暖湿气流上升</h4>
+              <p>热带海面水温超过 26.5°C，海水蒸发产生大量暖湿气流，开始向上攀升。</p>
+            </div>
+          </div>
+          <div class="step-card reveal-slide-up">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>云系旋转发展</h4>
+              <p>受地转偏向力影响，上升气流开始旋转，逐渐形成螺旋状云系结构。</p>
+            </div>
+          </div>
+          <div class="step-card reveal-rotate">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>气旋不断增强</h4>
+              <p>水汽持续凝结释放潜热，为气旋提供能量，风力逐渐增强，眼壁结构形成。</p>
+            </div>
+          </div>
+          <div class="step-card reveal-zoom">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>台风登陆影响</h4>
+              <p>成熟台风携带狂风暴雨向陆地移动，登陆后逐渐减弱消散。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave Divider -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,30 Q180,60 360,30 Q540,0 720,30 Q900,60 1080,30 Q1260,0 1440,30 L1440,60 L0,60 Z" fill="#081428"/>
+    </svg>
+  </div>
+
+  <!-- Safety -->
+  <section class="safety" id="safety">
+    <div class="section">
+      <div class="section-header reveal-top">
+        <div class="section-label">SAFETY TIPS</div>
+        <h2 class="section-title">居家避险指南</h2>
+        <p class="section-desc">
+          台风来临前做好充分准备，能有效减少灾害带来的损失。以下是居家防台风的关键措施。
+        </p>
+      </div>
+      <div class="safety-grid">
+        <div class="safety-card reveal-scale-up">
+          <div class="safety-icon">&#x1FA9F;</div>
+          <h4>关紧门窗</h4>
+          <p>检查门窗密封性，用胶带在玻璃上贴米字形，防止碎裂伤人。远离迎风面窗户。</p>
+        </div>
+        <div class="safety-card reveal-bounce">
+          <div class="safety-icon">&#x1F4E6;</div>
+          <h4>收纳阳台物品</h4>
+          <p>将花盆、晾衣架等室外物品搬入室内，防止大风吹落造成高空坠物伤害。</p>
+        </div>
+        <div class="safety-card reveal-rotate">
+          <div class="safety-icon">&#x1F4A7;</div>
+          <h4>储备饮用水</h4>
+          <p>提前储备 3 天以上的饮用水和食物，台风可能导致供水中断，务必未雨绸缪。</p>
+        </div>
+        <div class="safety-card reveal-zoom">
+          <div class="safety-icon">&#x1F526;</div>
+          <h4>准备应急照明</h4>
+          <p>备好手电筒、蜡烛、充电宝等，台风可能造成停电，照明设备必不可少。</p>
+        </div>
+        <div class="safety-card reveal-slide-up">
+          <div class="safety-icon">&#x1FA79;</div>
+          <h4>急救包就位</h4>
+          <p>准备常用药品、创可贴、消毒液等急救物资，以备不时之需。</p>
+        </div>
+        <div class="safety-card reveal-fade-blur">
+          <div class="safety-icon">&#x1F4F1;</div>
+          <h4>关注预警信息</h4>
+          <p>持续收听气象部门发布的台风预警，了解台风路径和强度变化，做好应对准备。</p>
+        </div>
+        <div class="safety-scene reveal-enhanced">
+          <svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a2a40"/>
+                <stop offset="100%" stop-color="#0d1a2e"/>
+              </linearGradient>
+              <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a2535"/>
+                <stop offset="100%" stop-color="#0f1a28"/>
+              </linearGradient>
+            </defs>
+            <!-- Room background -->
+            <rect width="800" height="350" fill="url(#skyGrad)"/>
+            <!-- Floor -->
+            <rect x="0" y="250" width="800" height="100" fill="url(#floorGrad)"/>
+            <!-- Window with tape -->
+            <rect x="100" y="60" width="120" height="160" rx="4" fill="#0a1525" stroke="#2a4a6a" stroke-width="3"/>
+            <line x1="160" y1="60" x2="160" y2="220" stroke="#4a7aaa" stroke-width="2" opacity="0.6"/>
+            <line x1="100" y1="140" x2="220" y2="140" stroke="#4a7aaa" stroke-width="2" opacity="0.6"/>
+            <line x1="110" y1="70" x2="210" y2="210" stroke="#4a7aaa" stroke-width="2" opacity="0.4"/>
+            <line x1="210" y1="70" x2="110" y2="210" stroke="#4a7aaa" stroke-width="2" opacity="0.4"/>
+            <!-- Rain outside window -->
+            <g opacity="0.4">
+              <line x1="120" y1="80" x2="115" y2="100" stroke="#6a9aca" stroke-width="1">
+                <animate attributeName="y1" values="70;110" dur="0.8s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="90;130" dur="0.8s" repeatCount="indefinite"/>
+              </line>
+              <line x1="150" y1="90" x2="145" y2="110" stroke="#6a9aca" stroke-width="1">
+                <animate attributeName="y1" values="80;120" dur="0.7s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="100;140" dur="0.7s" repeatCount="indefinite"/>
+              </line>
+              <line x1="190" y1="75" x2="185" y2="95" stroke="#6a9aca" stroke-width="1">
+                <animate attributeName="y1" values="65;105" dur="0.9s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="85;125" dur="0.9s" repeatCount="indefinite"/>
+              </line>
+            </g>
+            <!-- Person closing window -->
+            <circle cx="260" cy="155" r="12" fill="#e8c8a0"/>
+            <rect x="252" y="167" width="16" height="30" rx="4" fill="#3a6a9a"/>
+            <line x1="268" y1="175" x2="230" y2="155" stroke="#e8c8a0" stroke-width="3" stroke-linecap="round"/>
+            <!-- Water bottles -->
+            <rect x="380" y="210" width="14" height="40" rx="3" fill="#4a9aca" opacity="0.8"/>
+            <rect x="400" y="210" width="14" height="40" rx="3" fill="#4a9aca" opacity="0.7"/>
+            <rect x="420" y="210" width="14" height="40" rx="3" fill="#4a9aca" opacity="0.6"/>
+            <text x="385" y="270" fill="rgba(0,212,255,0.5)" font-size="9" font-family="Noto Sans SC">饮用水</text>
+            <!-- Flashlight -->
+            <rect x="500" y="220" width="10" height="30" rx="3" fill="#ffd700" opacity="0.7"/>
+            <circle cx="505" cy="215" r="6" fill="rgba(255,215,0,0.3)"/>
+            <text x="490" y="270" fill="rgba(255,215,0,0.5)" font-size="9" font-family="Noto Sans SC">手电筒</text>
+            <!-- First aid kit -->
+            <rect x="580" y="225" width="35" height="25" rx="4" fill="#ff6b35" opacity="0.6"/>
+            <line x1="597" y1="230" x2="597" y2="245" stroke="#fff" stroke-width="2"/>
+            <line x1="590" y1="237" x2="605" y2="237" stroke="#fff" stroke-width="2"/>
+            <text x="575" y="270" fill="rgba(255,107,53,0.5)" font-size="9" font-family="Noto Sans SC">急救包</text>
+            <!-- Shield icon -->
+            <path d="M680,130 L700,120 L720,130 L720,160 Q700,180 680,160 Z" fill="none" stroke="rgba(0,212,255,0.4)" stroke-width="2"/>
+            <text x="665" y="200" fill="rgba(0,212,255,0.5)" font-size="10" font-family="Noto Sans SC">安全居家</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave Divider -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,30 Q180,0 360,30 Q540,60 720,30 Q900,0 1080,30 Q1260,60 1440,30 L1440,60 L0,60 Z" fill="#040b1a"/>
+    </svg>
+  </div>
+
+  <!-- Warning -->
+  <section class="warning" id="warning">
+    <div class="section">
+      <div class="section-header reveal-enhanced">
+        <div class="section-label">WARNING LEVELS</div>
+        <h2 class="section-title">台风四级预警信号</h2>
+        <p class="section-desc">
+          我国台风预警信号分为蓝色、黄色、橙色、红色四个等级，分别代表不同程度的台风影响。
+        </p>
+      </div>
+      <div class="warning-grid">
+        <div class="warning-card blue reveal-bounce">
+          <div class="warning-level">IV</div>
+          <div class="warning-badge">蓝色预警</div>
+          <div class="warning-wind">24h 内 ≥ 6 级</div>
+          <p class="warning-desc">台风即将来临，注意防风，减少户外活动，加固易被风吹动的搭建物。</p>
+        </div>
+        <div class="warning-card yellow reveal-slide-up">
+          <div class="warning-level">III</div>
+          <div class="warning-badge">黄色预警</div>
+          <div class="warning-wind">24h 内 ≥ 8 级</div>
+          <p class="warning-desc">台风影响加剧，停止室内外大型活动，做好防台风准备工作。</p>
+        </div>
+        <div class="warning-card orange reveal-rotate">
+          <div class="warning-level">II</div>
+          <div class="warning-badge">橙色预警</div>
+          <div class="warning-wind">12h 内 ≥ 10 级</div>
+          <p class="warning-desc">台风严重影响，进入紧急防风状态，撤离危险区域人员。</p>
+        </div>
+        <div class="warning-card red reveal-zoom">
+          <div class="warning-level">I</div>
+          <div class="warning-badge">红色预警</div>
+          <div class="warning-wind">6h 内 ≥ 12 级</div>
+          <p class="warning-desc">台风特别严重，全面停工停课停业，所有人员进入安全避难场所。</p>
+        </div>
+      </div>
+      <div class="warning-infographic reveal-flip">
+        <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background -->
+          <rect width="800" height="300" fill="#0a1628" rx="12"/>
+          <!-- Title -->
+          <text x="400" y="35" text-anchor="middle" fill="#eaf0fa" font-size="16" font-weight="700" font-family="Noto Sans SC">台风预警信号等级</text>
+          <!-- Arrow line -->
+          <line x1="80" y1="160" x2="720" y2="160" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+          <polygon points="720,155 730,160 720,165" fill="rgba(255,255,255,0.15)"/>
+          <!-- Blue level -->
+          <g>
+            <rect x="60" y="100" width="140" height="120" rx="12" fill="rgba(66,165,245,0.1)" stroke="rgba(66,165,245,0.3)" stroke-width="1.5"/>
+            <circle cx="130" cy="140" r="25" fill="rgba(66,165,245,0.2)" stroke="#42a5f5" stroke-width="2">
+              <animate attributeName="r" values="23;27;23" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <text x="130" y="145" text-anchor="middle" fill="#42a5f5" font-size="14" font-weight="900">IV</text>
+            <text x="130" y="185" text-anchor="middle" fill="#42a5f5" font-size="12" font-weight="700" font-family="Noto Sans SC">蓝色预警</text>
+            <text x="130" y="205" text-anchor="middle" fill="rgba(143,163,196,0.7)" font-size="9" font-family="Noto Sans SC">注意防风</text>
+          </g>
+          <!-- Yellow level -->
+          <g>
+            <rect x="220" y="100" width="140" height="120" rx="12" fill="rgba(255,202,40,0.1)" stroke="rgba(255,202,40,0.3)" stroke-width="1.5"/>
+            <circle cx="290" cy="140" r="25" fill="rgba(255,202,40,0.2)" stroke="#ffca28" stroke-width="2">
+              <animate attributeName="r" values="23;27;23" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <text x="290" y="145" text-anchor="middle" fill="#ffca28" font-size="14" font-weight="900">III</text>
+            <text x="290" y="185" text-anchor="middle" fill="#ffca28" font-size="12" font-weight="700" font-family="Noto Sans SC">黄色预警</text>
+            <text x="290" y="205" text-anchor="middle" fill="rgba(143,163,196,0.7)" font-size="9" font-family="Noto Sans SC">停止活动</text>
+          </g>
+          <!-- Orange level -->
+          <g>
+            <rect x="380" y="100" width="140" height="120" rx="12" fill="rgba(255,167,38,0.1)" stroke="rgba(255,167,38,0.3)" stroke-width="1.5"/>
+            <circle cx="450" cy="140" r="25" fill="rgba(255,167,38,0.2)" stroke="#ffa726" stroke-width="2">
+              <animate attributeName="r" values="23;27;23" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="450" y="145" text-anchor="middle" fill="#ffa726" font-size="14" font-weight="900">II</text>
+            <text x="450" y="185" text-anchor="middle" fill="#ffa726" font-size="12" font-weight="700" font-family="Noto Sans SC">橙色预警</text>
+            <text x="450" y="205" text-anchor="middle" fill="rgba(143,163,196,0.7)" font-size="9" font-family="Noto Sans SC">紧急防风</text>
+          </g>
+          <!-- Red level -->
+          <g>
+            <rect x="540" y="100" width="140" height="120" rx="12" fill="rgba(239,83,80,0.1)" stroke="rgba(239,83,80,0.3)" stroke-width="1.5"/>
+            <circle cx="610" cy="140" r="25" fill="rgba(239,83,80,0.2)" stroke="#ef5350" stroke-width="2">
+              <animate attributeName="r" values="23;27;23" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <text x="610" y="145" text-anchor="middle" fill="#ef5350" font-size="14" font-weight="900">I</text>
+            <text x="610" y="185" text-anchor="middle" fill="#ef5350" font-size="12" font-weight="700" font-family="Noto Sans SC">红色预警</text>
+            <text x="610" y="205" text-anchor="middle" fill="rgba(143,163,196,0.7)" font-size="9" font-family="Noto Sans SC">全面避险</text>
+          </g>
+          <!-- Escalation arrows -->
+          <text x="200" y="165" fill="rgba(255,255,255,0.2)" font-size="16">&#x2192;</text>
+          <text x="360" y="165" fill="rgba(255,255,255,0.2)" font-size="16">&#x2192;</text>
+          <text x="520" y="165" fill="rgba(255,255,255,0.2)" font-size="16">&#x2192;</text>
+          <!-- Bottom note -->
+          <text x="400" y="260" text-anchor="middle" fill="rgba(143,163,196,0.4)" font-size="10" font-family="Noto Sans SC">预警等级由低到高，危险程度逐级递增，请密切关注气象部门发布的信息</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave Divider -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,30 Q180,60 360,30 Q540,0 720,30 Q900,60 1080,30 Q1260,0 1440,30 L1440,60 L0,60 Z" fill="#040b1a"/>
+    </svg>
+  </div>
+
+  <!-- Documentary -->
+  <section class="documentary" id="documentary">
+    <div class="section">
+      <div class="section-header reveal-slide-up">
+        <div class="section-label">DOCUMENTARY</div>
+        <h2 class="section-title">台风过境纪实</h2>
+        <p class="section-desc">
+          台风登陆后带来狂风、暴雨、风暴潮，对沿海城市造成严重影响。了解台风的破坏力，才能更好地防范。
+        </p>
+      </div>
+      <div class="doc-showcase">
+        <div class="doc-visual reveal-scale-up">
+          <svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="stormSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a2030"/>
+                <stop offset="50%" stop-color="#0f1825"/>
+                <stop offset="100%" stop-color="#0a1018"/>
+              </linearGradient>
+            </defs>
+            <!-- Storm sky -->
+            <rect width="800" height="450" fill="url(#stormSky)"/>
+            <!-- Dark clouds -->
+            <g opacity="0.4">
+              <ellipse cx="200" cy="60" rx="180" ry="50" fill="#1a2535"/>
+              <ellipse cx="500" cy="40" rx="220" ry="60" fill="#152030"/>
+              <ellipse cx="700" cy="70" rx="150" ry="45" fill="#1a2535"/>
+            </g>
+            <!-- Rain -->
+            <g opacity="0.3">
+              <line x1="100" y1="80" x2="95" y2="120" stroke="#4a7aaa" stroke-width="1">
+                <animate attributeName="y1" values="60;140" dur="0.6s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="100;180" dur="0.6s" repeatCount="indefinite"/>
+              </line>
+              <line x1="200" y1="90" x2="195" y2="130" stroke="#4a7aaa" stroke-width="1">
+                <animate attributeName="y1" values="70;150" dur="0.7s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="110;190" dur="0.7s" repeatCount="indefinite"/>
+              </line>
+              <line x1="350" y1="70" x2="345" y2="110" stroke="#4a7aaa" stroke-width="1">
+                <animate attributeName="y1" values="50;130" dur="0.5s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="90;170" dur="0.5s" repeatCount="indefinite"/>
+              </line>
+              <line x1="500" y1="85" x2="495" y2="125" stroke="#4a7aaa" stroke-width="1">
+                <animate attributeName="y1" values="65;145" dur="0.65s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="105;185" dur="0.65s" repeatCount="indefinite"/>
+              </line>
+              <line x1="650" y1="75" x2="645" y2="115" stroke="#4a7aaa" stroke-width="1">
+                <animate attributeName="y1" values="55;135" dur="0.55s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="95;175" dur="0.55s" repeatCount="indefinite"/>
+              </line>
+              <line x1="750" y1="95" x2="745" y2="135" stroke="#4a7aaa" stroke-width="1">
+                <animate attributeName="y1" values="75;155" dur="0.75s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="115;195" dur="0.75s" repeatCount="indefinite"/>
+              </line>
+            </g>
+            <!-- Buildings silhouette -->
+            <rect x="50" y="180" width="60" height="270" fill="#0d1520" opacity="0.8"/>
+            <rect x="130" y="220" width="50" height="230" fill="#0f1825" opacity="0.7"/>
+            <rect x="200" y="160" width="70" height="290" fill="#0d1520" opacity="0.85"/>
+            <rect x="300" y="200" width="55" height="250" fill="#0f1825" opacity="0.75"/>
+            <rect x="380" y="170" width="65" height="280" fill="#0d1520" opacity="0.8"/>
+            <rect x="470" y="210" width="50" height="240" fill="#0f1825" opacity="0.7"/>
+            <rect x="550" y="190" width="60" height="260" fill="#0d1520" opacity="0.85"/>
+            <rect x="640" y="230" width="55" height="220" fill="#0f1825" opacity="0.75"/>
+            <rect x="720" y="200" width="80" height="250" fill="#0d1520" opacity="0.8"/>
+            <!-- Fallen tree -->
+            <line x1="280" y1="380" x2="380" y2="340" stroke="#2a3a2a" stroke-width="6" stroke-linecap="round"/>
+            <ellipse cx="270" cy="370" rx="30" ry="20" fill="#1a2a1a" opacity="0.6"/>
+            <!-- Street -->
+            <rect x="0" y="380" width="800" height="70" fill="#0a1220" opacity="0.9"/>
+            <!-- Puddle reflections -->
+            <ellipse cx="200" cy="410" rx="80" ry="8" fill="rgba(100,150,200,0.08)"/>
+            <ellipse cx="500" cy="420" rx="100" ry="10" fill="rgba(100,150,200,0.06)"/>
+            <!-- Wind lines -->
+            <g opacity="0.15">
+              <line x1="0" y1="150" x2="120" y2="155" stroke="#8aaccf" stroke-width="1">
+                <animate attributeName="x1" values="-50;200" dur="3s" repeatCount="indefinite"/>
+                <animate attributeName="x2" values="70;320" dur="3s" repeatCount="indefinite"/>
+              </line>
+              <line x1="100" y1="250" x2="250" y2="253" stroke="#8aaccf" stroke-width="1">
+                <animate attributeName="x1" values="50;300" dur="2.5s" repeatCount="indefinite"/>
+                <animate attributeName="x2" values="200;450" dur="2.5s" repeatCount="indefinite"/>
+              </line>
+              <line x1="300" y1="180" x2="450" y2="184" stroke="#8aaccf" stroke-width="1">
+                <animate attributeName="x1" values="250;500" dur="3.5s" repeatCount="indefinite"/>
+                <animate attributeName="x2" values="400;650" dur="3.5s" repeatCount="indefinite"/>
+              </line>
+            </g>
+            <!-- Overlay text -->
+            <text x="400" y="430" text-anchor="middle" fill="rgba(0,212,255,0.4)" font-size="11" font-family="Noto Sans SC">台风过境后的沿海城市街道</text>
+          </svg>
+          <div class="doc-image-overlay">
+            <span>&#x1F4F7; 台风过境后的沿海城市街道</span>
+          </div>
+        </div>
+        <div class="doc-info reveal-enhanced">
+          <h3>台风的破坏力<br>超乎想象</h3>
+          <p>强台风中心附近风力可达 16 级以上，风速超过 50 米/秒。这样的风力足以拔起大树、掀翻屋顶、吹倒广告牌。</p>
+          <p>伴随的暴雨可在短时间内造成城市内涝，风暴潮则会使海水倒灌，严重威胁沿海居民的生命财产安全。</p>
+          <div class="doc-stats">
+            <div class="stat-item reveal-bounce">
+              <div class="stat-num">60+</div>
+              <div class="stat-label">年均登陆台风数</div>
+            </div>
+            <div class="stat-item reveal-slide-up">
+              <div class="stat-num">50m/s</div>
+              <div class="stat-label">超强台风风速</div>
+            </div>
+            <div class="stat-item reveal-zoom">
+              <div class="stat-num">5000+</div>
+              <div class="stat-label">影响人口（万）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave Divider -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,30 Q180,0 360,30 Q540,60 720,30 Q900,0 1080,30 Q1260,60 1440,30 L1440,60 L0,60 Z" fill="#081428"/>
+    </svg>
+  </div>
+
+  <!-- Outdoor -->
+  <section class="outdoor" id="outdoor">
+    <div class="section">
+      <div class="section-header reveal-rotate">
+        <div class="section-label">OUTDOOR SAFETY</div>
+        <h2 class="section-title">户外避险须知</h2>
+        <p class="section-desc">
+          台风期间尽量避免外出。如必须出行，请牢记以下安全要点，保护自身安全。
+        </p>
+      </div>
+      <div class="outdoor-layout">
+        <div class="outdoor-tips reveal-left">
+          <div class="outdoor-tip reveal-bounce">
+            <div class="tip-icon">&#x1F6AB;</div>
+            <div class="tip-text">
+              <h4>远离海边观浪</h4>
+              <p>台风天海浪凶猛，切勿靠近海边、堤坝观浪，风暴潮可能将人卷入海中。</p>
+            </div>
+          </div>
+          <div class="outdoor-tip reveal-slide-up">
+            <div class="tip-icon">&#x1F333;</div>
+            <div class="tip-text">
+              <h4>远离大树和广告牌</h4>
+              <p>大风可能吹倒树木或吹落广告牌，行走时避开这些潜在危险物。</p>
+            </div>
+          </div>
+          <div class="outdoor-tip reveal-rotate">
+            <div class="tip-icon">&#x26A1;</div>
+            <div class="tip-text">
+              <h4>避开电力设施</h4>
+              <p>台风可能导致电线断裂、变压器损坏，远离电线杆和断裂电线，防止触电。</p>
+            </div>
+          </div>
+          <div class="outdoor-tip reveal-zoom">
+            <div class="tip-icon">&#x1F30A;</div>
+            <div class="tip-text">
+              <h4>注意积水路段</h4>
+              <p>不要在不明深度的积水中行走或驾车，水下可能有打开的井盖或坑洞。</p>
+            </div>
+          </div>
+          <div class="outdoor-tip reveal-fade-blur">
+            <div class="tip-icon">&#x1F3E0;</div>
+            <div class="tip-text">
+              <h4>就近寻找避难所</h4>
+              <p>如在外遇险，立即前往坚固建筑物内避险，切勿在临时搭建物中停留。</p>
+            </div>
+          </div>
+        </div>
+        <div class="outdoor-visual reveal-flip">
+          <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="outdoorSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0d2240"/>
+                <stop offset="100%" stop-color="#0a1a30"/>
+              </linearGradient>
+            </defs>
+            <!-- Background -->
+            <rect width="500" height="500" fill="url(#outdoorSky)"/>
+            <!-- Waves -->
+            <path d="M0,380 Q60,360 120,380 Q180,400 240,380 Q300,360 360,380 Q420,400 500,380 L500,500 L0,500 Z" fill="rgba(30,80,130,0.3)">
+              <animate attributeName="d" values="M0,380 Q60,360 120,380 Q180,400 240,380 Q300,360 360,380 Q420,400 500,380 L500,500 L0,500 Z;M0,385 Q60,405 120,385 Q180,365 240,385 Q300,405 360,385 Q420,365 500,385 L500,500 L0,500 Z;M0,380 Q60,360 120,380 Q180,400 240,380 Q300,360 360,380 Q420,400 500,380 L500,500 L0,500 Z" dur="4s" repeatCount="indefinite"/>
+            </path>
+            <!-- No swimming sign -->
+            <circle cx="150" cy="200" r="50" fill="none" stroke="#ff6b35" stroke-width="4"/>
+            <line x1="115" y1="165" x2="185" y2="235" stroke="#ff6b35" stroke-width="4"/>
+            <!-- Person silhouette -->
+            <circle cx="150" cy="185" r="10" fill="rgba(255,255,255,0.3)"/>
+            <line x1="150" y1="195" x2="150" y2="225" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+            <!-- Tree with warning -->
+            <line x1="350" y1="120" x2="350" y2="300" stroke="#2a4a3a" stroke-width="6"/>
+            <ellipse cx="350" cy="110" rx="50" ry="40" fill="#1a3a2a" opacity="0.5"/>
+            <line x1="330" y1="130" x2="310" y2="160" stroke="#2a4a3a" stroke-width="3"/>
+            <line x1="370" y1="125" x2="390" y2="155" stroke="#2a4a3a" stroke-width="3"/>
+            <!-- Warning triangle near tree -->
+            <polygon points="350,260 335,290 365,290" fill="none" stroke="#ffa726" stroke-width="2"/>
+            <text x="350" y="283" text-anchor="middle" fill="#ffa726" font-size="14" font-weight="900">!</text>
+            <!-- Power line warning -->
+            <line x1="80" y1="350" x2="80" y2="420" stroke="#4a5a6a" stroke-width="3"/>
+            <line x1="60" y1="360" x2="100" y2="360" stroke="#4a5a6a" stroke-width="2"/>
+            <path d="M70,370 Q80,380 90,370 Q80,360 70,370" fill="none" stroke="#ffd700" stroke-width="2">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite"/>
+            </path>
+            <!-- Labels -->
+            <text x="150" y="270" text-anchor="middle" fill="rgba(255,107,53,0.7)" font-size="11" font-family="Noto Sans SC">禁止观浪</text>
+            <text x="350" y="320" text-anchor="middle" fill="rgba(255,167,38,0.7)" font-size="11" font-family="Noto Sans SC">远离大树</text>
+            <text x="80" y="440" text-anchor="middle" fill="rgba(255,215,0,0.7)" font-size="11" font-family="Noto Sans SC">避开电线</text>
+            <!-- Safe shelter icon -->
+            <rect x="200" y="400" width="60" height="40" rx="4" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+            <polygon points="230,385 195,405 265,405" fill="rgba(0,212,255,0.1)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+            <text x="230" y="460" text-anchor="middle" fill="rgba(0,212,255,0.6)" font-size="11" font-family="Noto Sans SC">安全避难所</text>
+          </svg>
+          <div class="outdoor-image-badge">&#x26A0;&#xFE0F; 安全警示</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave Divider -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,30 Q180,60 360,30 Q540,0 720,30 Q900,60 1080,30 Q1260,0 1440,30 L1440,60 L0,60 Z" fill="#040b1a"/>
+    </svg>
+  </div>
+
+  <!-- Typhoon Query -->
+  <section class="typhoon-query" id="typhoon-query">
+    <div class="section">
+      <div class="section-header reveal-enhanced">
+        <div class="section-label">REAL-TIME MONITOR</div>
+        <h2 class="section-title">全球台风实时查询</h2>
+        <p class="section-desc">
+          实时查询全球各地热带气旋位置、强度和移动路径。数据来源：中央气象台 &amp; 浙江省水利厅台风路径实时发布系统。
+        </p>
+      </div>
+      
+      <div class="query-panel reveal-scale-up">
+        <div class="query-tabs">
+          <button class="query-tab active" data-tab="map">实时路径图</button>
+          <button class="query-tab" data-tab="query">台风查询</button>
+          <button class="query-tab" data-tab="info">台风知识</button>
+        </div>
+        
+        <!-- Tab: 实时路径图 -->
+        <div class="tab-content active" id="tab-map">
+          <div class="iframe-container">
+            <iframe src="https://typhoon.slt.zj.gov.cn/slt.htm" 
+                    title="台风路径实时发布系统"
+                    loading="lazy"
+                    referrerpolicy="no-referrer">
+            </iframe>
+            <div class="iframe-fallback">
+              <p>如地图无法加载，请点击下方按钮访问官方系统</p>
+              <a href="https://typhoon.slt.zj.gov.cn/slt.htm" target="_blank" class="iframe-link-btn">
+                打开台风路径实时发布系统 →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tab: 台风查询 -->
+        <div class="tab-content" id="tab-query">
+          <div class="query-links-grid">
+            <a href="https://typhoon.slt.zj.gov.cn/slt.htm" target="_blank" class="query-link-card reveal-bounce">
+              <div class="query-link-icon">🌀</div>
+              <h4>台风路径实时发布系统</h4>
+              <p>浙江省水利厅主办，提供最新最全的台风实时信息、预报路径、降雨云图、雷达风场等数据。</p>
+              <span class="query-link-tag">官方权威</span>
+            </a>
+            <a href="http://www.nmc.cn/publish/typhoon/typhoon.html" target="_blank" class="query-link-card reveal-slide-up">
+              <div class="query-link-icon">🌊</div>
+              <h4>中央气象台台风网</h4>
+              <p>中国气象局中央气象台官方台风信息发布平台，提供台风预警、路径预报、强度分析等专业数据。</p>
+              <span class="query-link-tag">国家级</span>
+            </a>
+            <a href="https://www.wmo.int/pages/prog/www/tcp/index.php" target="_blank" class="query-link-card reveal-rotate">
+              <div class="query-link-icon">🌍</div>
+              <h4>世界气象组织台风委员会</h4>
+              <p>全球热带气旋监测与预警信息，涵盖西北太平洋、大西洋、印度洋等全球各海域台风/飓风/气旋数据。</p>
+              <span class="query-link-tag">全球数据</span>
+            </a>
+            <a href="https://www.wunderground.com/hurricane" target="_blank" class="query-link-card reveal-zoom">
+              <div class="query-link-icon">⚡</div>
+              <h4>Weather Underground 飓风追踪</h4>
+              <p>全球热带气旋实时追踪系统，支持大西洋飓风、太平洋台风、印度洋气旋等多区域实时数据查询。</p>
+              <span class="query-link-tag">国际平台</span>
+            </a>
+            <a href="https://www.jma.go.jp/bosai/typhoon/" target="_blank" class="query-link-card reveal-fade-blur">
+              <div class="query-link-icon">🇯🇵</div>
+              <h4>日本气象厅台风信息</h4>
+              <p>日本气象厅（JMA）官方台风预报系统，提供西北太平洋台风路径预报、强度预测和警戒区域信息。</p>
+              <span class="query-link-tag">区域预报</span>
+            </a>
+            <a href="https://www.nhc.noaa.gov/" target="_blank" class="query-link-card reveal-flip">
+              <div class="query-link-icon">🇺🇸</div>
+              <h4>美国国家飓风中心</h4>
+              <p>美国国家海洋和大气管理局（NOAA）旗下飓风监测中心，提供大西洋和东北太平洋飓风实时追踪与预报。</p>
+              <span class="query-link-tag">飓风追踪</span>
+            </a>
+          </div>
+          <div class="data-source">
+            <span>以上均为官方权威数据源，数据实时准确</span>
+            <span class="update-time" id="updateTime"></span>
+          </div>
+        </div>
+        
+        <!-- Tab: 台风知识 -->
+        <div class="tab-content" id="tab-info">
+          <div class="info-grid">
+            <div class="info-card reveal-bounce">
+              <div class="info-icon">🌀</div>
+              <h4>什么是台风？</h4>
+              <p>台风是发生在西北太平洋和南海的强烈热带气旋，中心附近最大风力达12级（≥32.7m/s）以上。在大西洋和东北太平洋称为"飓风"，在印度洋和南太平洋称为"气旋"。</p>
+            </div>
+            <div class="info-card reveal-slide-up">
+              <div class="info-icon">📊</div>
+              <h4>台风等级划分</h4>
+              <p><strong>热带低压：</strong>6-7级（10.8-17.1m/s）<br><strong>热带风暴：</strong>8-9级（17.2-24.4m/s）<br><strong>强热带风暴：</strong>10-11级（24.5-32.6m/s）<br><strong>台风：</strong>12-13级（32.7-41.4m/s）<br><strong>强台风：</strong>14-15级（41.5-50.9m/s）<br><strong>超强台风：</strong>≥16级（≥51.0m/s）</p>
+            </div>
+            <div class="info-card reveal-rotate">
+              <div class="info-icon">🌍</div>
+              <h4>全球台风分布</h4>
+              <p>全球每年约有80个热带气旋生成，其中西北太平洋最多（约占1/3），其次是大西洋、东北太平洋、印度洋和南太平洋。我国是世界上受台风影响最严重的国家之一。</p>
+            </div>
+            <div class="info-card reveal-zoom">
+              <div class="info-icon">📅</div>
+              <h4>台风季节</h4>
+              <p>西北太平洋台风全年均可发生，但集中在7-10月（占全年70%以上）。8月是台风最活跃的月份。我国台风登陆主要集中在广东、台湾、海南、福建、浙江等沿海省份。</p>
+            </div>
+            <div class="info-card reveal-fade-blur">
+              <div class="info-icon">🏷️</div>
+              <h4>台风命名规则</h4>
+              <p>台风名称由世界气象组织台风委员会14个成员各提供10个名字组成，共140个名字循环使用。如"山竹""利奇马""烟花"等。造成重大灾害的台风名称会被永久除名。</p>
+            </div>
+            <div class="info-card reveal-flip">
+              <div class="info-icon">⚡</div>
+              <h4>台风危害</h4>
+              <p>台风带来的主要灾害包括：狂风（可摧毁建筑物）、暴雨（引发洪涝和山体滑坡）、风暴潮（海水倒灌淹没沿海地区）。一次强台风可造成数百亿元经济损失。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <h3>&#x1F300; 台风防灾科普</h3>
+          <p>面向中小学生的防灾知识教育平台，普及台风科学知识，提升防灾自救能力。</p>
+        </div>
+        <div class="footer-links-group">
+          <div class="footer-col">
+            <h4>科普内容</h4>
+            <ul>
+              <li><a href="#formation">台风形成</a></li>
+              <li><a href="#safety">居家避险</a></li>
+              <li><a href="#warning">预警信号</a></li>
+              <li><a href="#outdoor">户外安全</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>相关链接</h4>
+            <ul>
+              <li><a href="#">中国气象局</a></li>
+              <li><a href="#">国家防总</a></li>
+              <li><a href="#">应急管理部</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 台风防灾科普 — 知风识雨 安全同行</p>
+        <div class="footer-hotline">&#x1F4DE; 全国防灾热线：12379</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+
+  <script>
+    /* ===== Rain Effect ===== */
+    (function() {
+      const container = document.getElementById('rainContainer');
+      for (let i = 0; i < 150; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'rain-drop';
+        const h = Math.random() * 40 + 20;
+        const delay = Math.random() * 3;
+        const duration = Math.random() * 0.6 + 0.3;
+        const opacity = Math.random() * 0.4 + 0.4;
+        drop.style.cssText = `
+          left:${Math.random()*100}%;
+          height:${h}px;
+          animation-duration:${duration}s;
+          animation-delay:${delay}s;
+          opacity:${opacity};
+        `;
+        container.appendChild(drop);
+      }
+    })();
+
+    /* ===== Particles ===== */
+    (function() {
+      const c = document.getElementById('particles');
+      const colors = [
+        'rgba(0,212,255,0.4)',
+        'rgba(0,255,204,0.3)',
+        'rgba(255,107,53,0.3)',
+        'rgba(255,215,0,0.25)',
+        'rgba(100,160,220,0.35)',
+        'rgba(0,180,255,0.3)'
+      ];
+      for (let i = 0; i < 70; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 4 + 1;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        p.style.cssText = `
+          left:${Math.random()*100}%;
+          width:${size}px; height:${size}px;
+          background:${color};
+          color:${color};
+          animation-duration:${Math.random()*20+10}s;
+          animation-delay:${Math.random()*15}s;
+        `;
+        c.appendChild(p);
+      }
+    })();
+
+    /* ===== Scroll Progress Bar ===== */
+    const scrollProgress = document.getElementById('scrollProgress');
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+      scrollProgress.style.width = scrollPercent + '%';
+    });
+
+    /* ===== Mouse Follow Glow ===== */
+    const mouseGlow = document.getElementById('mouseGlow');
+    let mouseX = 0, mouseY = 0;
+    let glowX = 0, glowY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+    function animateGlow() {
+      glowX += (mouseX - glowX) * 0.08;
+      glowY += (mouseY - glowY) * 0.08;
+      mouseGlow.style.left = glowX + 'px';
+      mouseGlow.style.top = glowY + 'px';
+      requestAnimationFrame(animateGlow);
+    }
+    animateGlow();
+
+    /* ===== Navbar ===== */
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 80);
+      backToTop.classList.toggle('show', window.scrollY > 600);
+    });
+
+    /* ===== Mobile Nav ===== */
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+    document.querySelectorAll('.nav-links a').forEach(l => {
+      l.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+    });
+
+    /* ===== Scroll Reveal ===== */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const delay = parseInt(entry.target.dataset.delay) || 0;
+          setTimeout(() => entry.target.classList.add('visible'), delay);
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-top, .reveal-scale, .reveal-scale-up, .reveal-rotate, .reveal-flip, .reveal-bounce, .reveal-zoom, .reveal-slide-up, .reveal-fade-blur, .reveal-enhanced').forEach((el, i) => {
+      el.dataset.delay = (i % 8) * 100;
+      revealObserver.observe(el);
+    });
+
+    /* ===== Typhoon Query - Tab Switching ===== */
+    document.querySelectorAll('.query-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.query-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+        
+        // 更新时间
+        const updateTime = document.getElementById('updateTime');
+        if (updateTime) {
+          const now = new Date();
+          updateTime.textContent = `最后更新：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        }
+      });
+    });
+
+    /* ===== Counter Animation ===== */
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const text = el.textContent.trim();
+          const match = text.match(/^(\d+)(.*)$/);
+          if (match) {
+            const target = parseInt(match[1]);
+            const suffix = match[2];
+            const duration = 2000;
+            const startTime = performance.now();
+            function updateCounter(currentTime) {
+              const elapsed = currentTime - startTime;
+              const progress = Math.min(elapsed / duration, 1);
+              const eased = 1 - Math.pow(1 - progress, 3);
+              const current = Math.floor(target * eased);
+              el.textContent = current + suffix;
+              if (progress < 1) requestAnimationFrame(updateCounter);
+            }
+            requestAnimationFrame(updateCounter);
+          }
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-num').forEach(el => counterObserver.observe(el));
+
+    /* ===== Ripple Effect on Click ===== */
+    document.addEventListener('click', (e) => {
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      ripple.style.left = (e.clientX - 100) + 'px';
+      ripple.style.top = (e.clientY - 100) + 'px';
+      document.body.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 1000);
+    });
+
+    /* ===== Active Nav Highlight ===== */
+    const sections = document.querySelectorAll('section[id]');
+    const navLinksAll = document.querySelectorAll('.nav-links a');
+    const secObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinksAll.forEach(link => {
+            link.style.color = '';
+            if (link.getAttribute('href') === '#' + entry.target.id) {
+              link.style.color = 'var(--accent-cyan)';
+            }
+          });
+        }
+      });
+    }, { threshold: 0.3 });
+    sections.forEach(sec => secObserver.observe(sec));
+
+    /* ===== Parallax on Banner ===== */
+    window.addEventListener('scroll', () => {
+      const typhoon = document.querySelector('.banner-typhoon');
+      if (typhoon && window.scrollY < window.innerHeight) {
+        const parallax = window.scrollY * 0.15;
+        typhoon.style.transform = `translate(-50%, calc(-50% + ${parallax}px))`;
+      }
+    });
+  </script>
+</body>
+</html>

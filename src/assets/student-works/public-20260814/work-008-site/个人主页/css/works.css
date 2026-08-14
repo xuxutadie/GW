@@ -1,0 +1,142 @@
+/* ===== Works Header ===== */
+.works-header {
+  padding-top: 120px;
+  background: var(--color-bg);
+  padding-bottom: 0;
+}
+
+.filter-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+
+.filter-btn {
+  padding: 8px 20px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-light);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border-radius: 2px;
+}
+
+.filter-btn:hover {
+  border-color: var(--color-terracotta);
+  color: var(--color-terracotta);
+}
+
+.filter-btn.active {
+  background: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  color: #fff;
+}
+
+/* ===== Works Grid ===== */
+.works-grid-section {
+  background: var(--color-bg);
+  padding-top: 48px;
+}
+
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.work-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.work-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.work-card.hidden {
+  display: none;
+}
+
+.work-card.fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.work-image {
+  position: relative;
+  width: 100%;
+  padding-top: 66%;
+  overflow: hidden;
+}
+
+.work-placeholder-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-serif);
+  color: rgba(44, 44, 44, 0.4);
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+
+.work-info {
+  padding: 20px;
+}
+
+.work-info .tag {
+  margin-bottom: 10px;
+}
+
+.work-info h3 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.work-info p {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.work-year {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  font-family: var(--font-serif);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .works-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar {
+    gap: 8px;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+  }
+}

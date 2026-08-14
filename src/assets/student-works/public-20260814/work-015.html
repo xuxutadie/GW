@@ -1,0 +1,3495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台风生存指南 - 互动情景决策</title>
+<style>
+/* ============================================================
+   基础样式重置
+   ============================================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   背景 - 暴风雨来临前的天色
+   ============================================================ */
+body {
+  background: linear-gradient(180deg, #0f0f23 0%, #1a1a2e 40%, #2d3561 100%);
+  background-attachment: fixed;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+/* ============================================================
+   雨滴容器
+   ============================================================ */
+#rain-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* 单条雨滴 */
+.raindrop {
+  position: absolute;
+  top: -100px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.5));
+  animation: rainFall linear infinite;
+  border-radius: 0 0 2px 2px;
+}
+
+/* 雨滴下落动画 */
+@keyframes rainFall {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   封面背景视频
+   ============================================================ */
+#cover-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  transform: scale(1.3);
+  transform-origin: center center;
+  overflow: hidden;
+}
+
+#cover-video.hidden {
+  opacity: 0;
+}
+
+/* 视频遮罩层 - 确保封面文字清晰可读 */
+#video-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+#video-overlay.hidden {
+  opacity: 0;
+}
+#lightning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0);
+  pointer-events: none;
+  z-index: 1;
+  transition: background 0.1s ease-out;
+}
+
+#lightning-overlay.flash {
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.05s ease-in;
+}
+
+/* 闪电二次闪（更弱的跟闪） */
+#lightning-overlay.flash2 {
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.05s ease-in;
+}
+
+/* ============================================================
+   主应用容器
+   ============================================================ */
+#app {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 页面切换容器 */
+.screen {
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* ============================================================
+   卡片通用样式
+   ============================================================ */
+.card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 卡片淡入动画 */
+.card.fade-in {
+  animation: cardFadeIn 0.4s ease-out forwards;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================================
+   开场封面
+   ============================================================ */
+#cover-screen {
+  text-align: center;
+}
+
+.cover-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  padding: 36px 28px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.cover-competition {
+  font-size: 14px;
+  color: #666;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.cover-divider {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #4fc3f7, #1565c0);
+  margin: 0 auto 20px;
+  border-radius: 2px;
+}
+
+.cover-title {
+  font-size: 36px;
+  font-weight: 900;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.cover-subtitle {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* 红色警示条 */
+.cover-warning {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 28px;
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+/* CSS 绘制的警告三角 */
+.warning-triangle {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 18px solid #fff;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.warning-triangle::after {
+  content: '!';
+  position: absolute;
+  top: 5px;
+  left: -2.5px;
+  color: #d32f2f;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+@keyframes warningPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(211, 47, 47, 0); }
+}
+
+/* 开始按钮 */
+.btn-start {
+  display: inline-block;
+  background: linear-gradient(135deg, #2196f3, #1565c0);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 14px 48px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4);
+}
+
+.btn-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(21, 101, 192, 0.6), 0 0 30px rgba(33, 150, 243, 0.3);
+}
+
+.btn-start:active {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   进度条区域
+   ============================================================ */
+.progress-container {
+  width: 100%;
+  margin-bottom: 16px;
+  text-align: center;
+  position: relative;
+}
+
+.progress-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* 台风眼进度点 */
+.progress-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  position: relative;
+  transition: all 0.4s ease;
+  flex-shrink: 0;
+}
+
+/* 已完成 - 台风眼效果 */
+.progress-dot.completed {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.progress-dot.completed::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1a1a2e;
+}
+
+/* 当前题目 - 发光 */
+.progress-dot.current {
+  border-color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.15);
+  box-shadow: 0 0 12px rgba(79, 195, 247, 0.5), inset 0 0 6px rgba(79, 195, 247, 0.2);
+  animation: dotGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes dotGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(79, 195, 247, 0.4); }
+  50% { box-shadow: 0 0 18px rgba(79, 195, 247, 0.7); }
+}
+
+/* ============================================================
+   情景卡片内容区
+   ============================================================ */
+#scenario-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+#scenario-desc {
+  font-size: 15px;
+  color: #444;
+  line-height: 1.8;
+  margin-bottom: 24px;
+  text-align: justify;
+}
+
+/* 选项按钮 */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fafafa;
+  color: #333;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.option-btn:hover {
+  border-color: #90caf9;
+  background: #e3f2fd;
+  transform: translateX(4px);
+}
+
+.option-btn:active {
+  transform: scale(0.98);
+}
+
+/* 选项字母标签 */
+.option-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #555;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+}
+
+.option-btn:hover .option-label {
+  background: #90caf9;
+  color: #fff;
+}
+
+/* 选项正确/错误状态 */
+.option-btn.correct {
+  border-color: #4caf50;
+  background: #e8f5e9;
+  animation: btnPulse 0.5s ease-out;
+}
+
+.option-btn.correct .option-label {
+  background: #4caf50;
+  color: #fff;
+}
+
+.option-btn.wrong {
+  border-color: #f44336;
+  background: #ffebee;
+  animation: btnShake 0.4s ease-out;
+}
+
+.option-btn.wrong .option-label {
+  background: #f44336;
+  color: #fff;
+}
+
+/* 禁用状态 */
+.option-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.option-btn:disabled:hover {
+  transform: none;
+  border-color: #e0e0e0;
+  background: #fafafa;
+}
+
+.option-btn.correct:disabled:hover {
+  border-color: #4caf50;
+  background: #e8f5e9;
+}
+
+.option-btn.wrong:disabled:hover {
+  border-color: #f44336;
+  background: #ffebee;
+}
+
+/* 正确脉冲动画 */
+@keyframes btnPulse {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.04); }
+  60% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* 错误抖动动画 */
+@keyframes btnShake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-5px); }
+  60% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+  90% { transform: translateX(3px); }
+}
+
+/* ============================================================
+   反馈区域
+   ============================================================ */
+#feedback-content {
+  text-align: center;
+}
+
+.feedback-icon-wrap {
+  margin-bottom: 16px;
+}
+
+/* CSS 绘制的绿色勾 */
+.checkmark-css {
+  display: inline-block;
+  width: 28px;
+  height: 52px;
+  border: solid #4caf50;
+  border-width: 0 5px 5px 0;
+  transform: rotate(45deg);
+  animation: checkPop 0.4s ease-out;
+}
+
+@keyframes checkPop {
+  0% { transform: rotate(45deg) scale(0); }
+  60% { transform: rotate(45deg) scale(1.2); }
+  100% { transform: rotate(45deg) scale(1); }
+}
+
+/* CSS 绘制的红色叉 */
+.cross-css {
+  display: inline-block;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  animation: crossPop 0.4s ease-out;
+}
+
+.cross-css::before,
+.cross-css::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 44px;
+  background: #f44336;
+  border-radius: 3px;
+}
+
+.cross-css::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.cross-css::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+@keyframes crossPop {
+  0% { transform: scale(0) rotate(90deg); }
+  60% { transform: scale(1.2) rotate(-10deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.feedback-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.feedback-title.correct-title {
+  color: #2e7d32;
+}
+
+.feedback-title.wrong-title {
+  color: #c62828;
+}
+
+.feedback-text {
+  font-size: 15px;
+  color: #444;
+  line-height: 1.8;
+  text-align: justify;
+  margin-bottom: 24px;
+}
+
+/* 下一题按钮 */
+.btn-next {
+  display: inline-block;
+  background: linear-gradient(135deg, #2196f3, #1565c0);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 40px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+}
+
+.btn-next:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(21, 101, 192, 0.5);
+}
+
+/* 查看证书按钮 */
+.btn-cert {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);
+}
+
+.btn-cert:hover {
+  box-shadow: 0 6px 20px rgba(245, 124, 0, 0.5);
+}
+
+/* ============================================================
+   通关证书
+   ============================================================ */
+#certificate-screen {
+  text-align: center;
+}
+
+.certificate-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 32px 24px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  /* 金色渐变边框 */
+  border: 3px solid;
+  border-image: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) 1;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(191, 149, 63, 0.15);
+  animation: cardFadeIn 0.6s ease-out;
+}
+
+/* 证书装饰角标 */
+.certificate-card::before,
+.certificate-card::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #bf953f;
+}
+
+.certificate-card::before {
+  top: 10px;
+  left: 10px;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 4px 0 0 0;
+}
+
+.certificate-card::after {
+  bottom: 10px;
+  right: 10px;
+  border-left: none;
+  border-top: none;
+  border-radius: 0 0 4px 0;
+}
+
+.cert-competition {
+  font-size: 12px;
+  color: #888;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.cert-title {
+  font-size: 28px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.cert-summary {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.cert-score {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.cert-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #bf953f, #fcf6ba);
+  color: #5d4037;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 20px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.cert-divider {
+  width: 80%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ddd, transparent);
+  margin: 0 auto 18px;
+}
+
+.cert-knowledge-title {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.cert-knowledge-list {
+  list-style: none;
+  text-align: left;
+  padding: 0 8px;
+  margin-bottom: 20px;
+}
+
+.cert-knowledge-list li {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.8;
+  padding: 4px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+/* 列表项前的圆点 */
+.cert-knowledge-list li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4fc3f7;
+}
+
+.cert-date {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 24px;
+}
+
+/* 重新挑战按钮 */
+.btn-retry {
+  display: inline-block;
+  background: linear-gradient(135deg, #2196f3, #1565c0);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 40px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+}
+
+.btn-retry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(21, 101, 192, 0.5);
+}
+
+/* ============================================================
+   响应式布局
+   ============================================================ */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+
+  .cover-title {
+    font-size: 26px;
+  }
+
+  .cover-subtitle {
+    font-size: 14px;
+  }
+
+  .cover-competition {
+    font-size: 12px;
+  }
+
+  .cover-card {
+    padding: 24px 16px;
+  }
+
+  .cover-warning {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  .card {
+    padding: 20px 16px;
+  }
+
+  #scenario-title {
+    font-size: 17px;
+  }
+
+  #scenario-desc {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .option-btn {
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .option-label {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+
+  .progress-dot {
+    width: 18px;
+    height: 18px;
+  }
+
+  .progress-dots {
+    gap: 8px;
+  }
+
+  .cert-title {
+    font-size: 22px;
+  }
+
+  .certificate-card {
+    padding: 24px 16px;
+  }
+
+  .btn-start,
+  .btn-next,
+  .btn-retry {
+    font-size: 15px;
+    padding: 12px 32px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .cover-title {
+    font-size: 30px;
+  }
+}
+
+/* ============================================================
+   【功能一】生命值系统 - CSS 心形
+   ============================================================ */
+.lives-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.lives-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  margin-right: 4px;
+  letter-spacing: 1px;
+}
+
+/* CSS 心形 - 用 ::before 和 ::after 伪元素拼出爱心 */
+.heart {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  transition: all 0.5s ease;
+}
+
+.heart::before,
+.heart::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 16px;
+  border-radius: 10px 10px 0 0;
+  background: #e53935;
+  transition: all 0.5s ease;
+}
+
+.heart::before {
+  left: 10px;
+  transform: rotate(-45deg);
+  transform-origin: 0 100%;
+}
+
+.heart::after {
+  left: 0;
+  transform: rotate(45deg);
+  transform-origin: 100% 100%;
+}
+
+/* 失去生命 - 灰色空心 */
+.heart.lost {
+  animation: heartBreak 0.5s ease-out forwards;
+}
+
+.heart.lost::before,
+.heart.lost::after {
+  background: #666;
+  opacity: 0.35;
+}
+
+/* 心形碎裂动画 */
+@keyframes heartBreak {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  30% { transform: scale(1.15) rotate(10deg); opacity: 0.8; }
+  60% { transform: scale(0.7) rotate(-8deg); opacity: 0.5; }
+  100% { transform: scale(0.55) rotate(0deg); opacity: 0.35; }
+}
+
+/* ============================================================
+   【功能一】游戏结束画面
+   ============================================================ */
+#gameover-screen {
+  text-align: center;
+}
+
+.gameover-card {
+  background: rgba(30, 10, 10, 0.95);
+  border-radius: 16px;
+  padding: 32px 24px;
+  width: 100%;
+  text-align: center;
+  border: 2px solid rgba(200, 50, 50, 0.6);
+  box-shadow: 0 8px 40px rgba(200, 0, 0, 0.3), 0 0 60px rgba(200, 0, 0, 0.1);
+  animation: cardFadeIn 0.6s ease-out;
+}
+
+.gameover-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #e53935;
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+}
+
+.gameover-subtitle {
+  font-size: 16px;
+  color: #ff8a80;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.gameover-reasons {
+  text-align: left;
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.gameover-reasons-title {
+  font-size: 14px;
+  color: #ffab91;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.gameover-reasons-list {
+  list-style: none;
+}
+
+.gameover-reasons-list li {
+  font-size: 13px;
+  color: #ef9a9a;
+  line-height: 1.8;
+  padding: 4px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+.gameover-reasons-list li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e53935;
+}
+
+/* 游戏结束时的背景状态 */
+body.gameover-bg {
+  background: linear-gradient(180deg, #1a0000 0%, #2d0000 50%, #1a0000 100%) !important;
+  background-attachment: fixed !important;
+}
+
+/* 游戏结束时雨滴停止 */
+#rain-container.paused .raindrop {
+  animation-play-state: paused !important;
+  opacity: 0.15 !important;
+  background: linear-gradient(to bottom, transparent, rgba(180, 50, 50, 0.4)) !important;
+}
+
+/* ============================================================
+   【功能二】风暴强度升级 - 阶段背景
+   ============================================================ */
+body {
+  transition: background 1.5s ease;
+}
+
+/* 阶段一：台风来临前 */
+body.phase-0 {
+  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  background-attachment: fixed;
+}
+
+/* 阶段二：台风肆虐中 */
+body.phase-1 {
+  background: linear-gradient(180deg, #1a1a2e 0%, #2d3561 100%);
+  background-attachment: fixed;
+}
+
+/* 阶段三：台风持续影响 */
+body.phase-2 {
+  background: linear-gradient(180deg, #0d0d1a 0%, #1a1a2e 100%);
+  background-attachment: fixed;
+}
+
+/* 屏幕横向轻微抖动 - 统一所有阶段 */
+body.phase-shake {
+  animation: screenShake 0.8s ease-in-out infinite;
+}
+
+@keyframes screenShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(1.5px); }
+  75% { transform: translateX(-1.5px); }
+}
+
+/* 卡片边缘蓝色电光 - 阶段三 */
+#scenario-card.edge-glow {
+  animation: edgeGlowPulse 1.5s ease-in-out infinite;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 12px rgba(79, 195, 247, 0.25), 0 0 25px rgba(79, 195, 247, 0.08);
+}
+
+@keyframes edgeGlowPulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 8px rgba(79, 195, 247, 0.2), 0 0 20px rgba(79, 195, 247, 0.05); }
+  50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 18px rgba(79, 195, 247, 0.4), 0 0 35px rgba(79, 195, 247, 0.15); }
+}
+
+/* 阶段提示文字 */
+.phase-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 4px;
+  letter-spacing: 1px;
+  font-style: italic;
+  transition: all 0.5s ease;
+}
+
+/* ============================================================
+   【功能三】错误后果可视化动画
+   ============================================================ */
+
+/* 情景1：警报红色闪烁 */
+#alert-flash-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 100;
+  background: rgba(255, 0, 0, 0);
+  transition: background 0.1s ease;
+}
+
+#alert-flash-overlay.active {
+  animation: alertFlash 0.6s ease-out;
+}
+
+@keyframes alertFlash {
+  0% { background: rgba(255, 0, 0, 0); }
+  15% { background: rgba(255, 0, 0, 0.4); }
+  30% { background: rgba(255, 0, 0, 0); }
+  45% { background: rgba(255, 0, 0, 0.4); }
+  60% { background: rgba(255, 0, 0, 0); }
+  75% { background: rgba(255, 0, 0, 0.4); }
+  90% { background: rgba(255, 0, 0, 0); }
+  100% { background: rgba(255, 0, 0, 0); }
+}
+
+/* 情景2：花盆飞过（从卡片后方横穿，模拟"窗外飞过"） */
+#flowerpot {
+  position: fixed;
+  z-index: 5;
+  pointer-events: none;
+  width: 76px;
+  height: 60px;
+  /* 垂直居中在卡片区域 */
+  top: 38%;
+  left: -100px;
+  opacity: 0;
+  /* 花盆主体 */
+  background: linear-gradient(180deg, #b5651d 0%, #a0522d 30%, #8b4513 70%, #6d3a1a 100%);
+  border: 3px solid #4a2810;
+  border-radius: 6px 6px 16px 16px;
+  box-shadow: 
+    inset 0 -12px 18px rgba(0,0,0,0.25),
+    0 8px 20px rgba(0,0,0,0.5);
+}
+
+/* 花盆顶边装饰 */
+#flowerpot::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 66px;
+  height: 8px;
+  background: linear-gradient(180deg, #c7855a, #a0522d);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* 绿色叶片 + 红色小花 */
+#flowerpot::after {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 22px solid #4caf50;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+}
+
+/* 花盆左侧叶片 */
+#flowerpot .leaf-l {
+  position: absolute;
+  top: -8px;
+  left: 6px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 18px solid #43a047;
+  transform: rotate(-35deg);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+}
+
+/* 花盆右侧叶片 */
+#flowerpot .leaf-r {
+  position: absolute;
+  top: -8px;
+  right: 6px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 18px solid #43a047;
+  transform: rotate(35deg);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+}
+
+/* 红色小花点缀 */
+#flowerpot .flower {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #ff5252, #d32f2f);
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(255, 50, 50, 0.6);
+}
+
+/* 花盆飞行激活 - 水平横穿卡片后方 */
+#flowerpot.active {
+  animation: flowerpotFly 1.8s ease-in forwards;
+  animation-delay: 0.3s;
+  /* 拖影效果 - 拖在花盆左后方 */
+  box-shadow: 
+    inset 0 -12px 18px rgba(0,0,0,0.25),
+    0 8px 20px rgba(0,0,0,0.5),
+    18px 4px 0 rgba(139, 69, 19, 0.35),
+    36px 8px 0 rgba(139, 69, 19, 0.2),
+    54px 12px 0 rgba(139, 69, 19, 0.1);
+}
+
+/* 花盆水平飞行：左→右，从卡片后方穿过 */
+@keyframes flowerpotFly {
+  0% {
+    left: -100px;
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  6% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% + 100px);
+    opacity: 0;
+    transform: rotate(720deg);
+  }
+}
+
+/* 卡片风压效果 - 花盆从背后飞过时触发（晃动 + 两侧白色光晕） */
+#scenario-card.wind-pressure {
+  animation: cardWindShake 0.5s ease-out;
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.25),
+    0 2px 8px rgba(0,0,0,0.1),
+    -8px 0 20px rgba(255,255,255,0.25),
+    8px 0 20px rgba(255,255,255,0.25);
+}
+
+@keyframes cardWindShake {
+  0% { transform: translateX(0); }
+  15% { transform: translateX(3px); }
+  30% { transform: translateX(-3px); }
+  45% { transform: translateX(2px); }
+  60% { transform: translateX(-2px); }
+  75% { transform: translateX(1px); }
+  100% { transform: translateX(0); }
+}
+
+/* 花盆落地碎裂碎片 */
+.shatter-piece {
+  position: fixed;
+  z-index: 101;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.shatter-piece.active {
+  animation: shatterScatter 0.6s ease-out forwards;
+}
+
+@keyframes shatterScatter {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.3); }
+}
+
+/* 风线 - 白色斜线划过屏幕边缘 */
+.wind-line {
+  position: fixed;
+  z-index: 99;
+  pointer-events: none;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 1px;
+  opacity: 0;
+  transform-origin: center;
+}
+
+.wind-line.active {
+  animation: windSweep 0.8s ease-out forwards;
+}
+
+@keyframes windSweep {
+  0% { opacity: 0; transform: scaleX(0.2); }
+  30% { opacity: 0.8; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1.5) translateX(40px); }
+}
+
+/* 情景3：蜡烛倾倒 - 卡片变暗 */
+#scenario-card.candle-dim {
+  animation: candleDim 0.5s ease-in forwards;
+}
+
+@keyframes candleDim {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(0.3); }
+}
+
+/* 蜡烛火焰 */
+#candle-flame {
+  position: absolute;
+  z-index: 101;
+  pointer-events: none;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 28px;
+  opacity: 0;
+}
+
+#candle-flame.active {
+  animation: flameFlicker 2s ease-out forwards;
+}
+
+#candle-flame::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 24px;
+  background: linear-gradient(to top, #ff6f00, #ffab00, #fff176);
+  border-radius: 50% 50% 20% 20%;
+  animation: flameShape 0.15s ease-in-out infinite alternate;
+}
+
+@keyframes flameFlicker {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+  10% { opacity: 1; transform: translateX(-50%) scale(1); }
+  80% { opacity: 0.8; transform: translateX(-50%) scale(0.9); }
+  100% { opacity: 0; transform: translateX(-50%) scale(0.3); }
+}
+
+@keyframes flameShape {
+  from { border-radius: 50% 50% 20% 20%; height: 22px; }
+  to { border-radius: 40% 60% 30% 30%; height: 26px; }
+}
+
+/* 情景4：玻璃碎裂裂纹 */
+#glass-crack-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 99;
+  border-radius: 16px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+#glass-crack-overlay.active {
+  animation: glassCrack 1.5s ease-out forwards;
+}
+
+@keyframes glassCrack {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 裂纹线条 */
+.crack-line {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.85);
+  transform-origin: center;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  border-radius: 1px;
+}
+
+/* 情景5：水位上涨 */
+#water-wave {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+  z-index: 99;
+  background: linear-gradient(to top, rgba(30, 136, 229, 0.55), rgba(30, 136, 229, 0.2));
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+  transition: none;
+}
+
+#water-wave.active {
+  animation: waterRise 2s ease-in-out forwards;
+}
+
+@keyframes waterRise {
+  0% { height: 0; }
+  40% { height: 40%; }
+  70% { height: 42%; }
+  85% { height: 38%; }
+  100% { height: 0; }
+}
+
+/* 情景6：爆炸闪光 */
+#explosion-flash {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 200;
+  background: rgba(255, 255, 255, 0);
+}
+
+#explosion-flash.active {
+  animation: explosionBurst 0.5s ease-out forwards;
+}
+
+@keyframes explosionBurst {
+  0% { background: rgba(255, 255, 255, 0); }
+  15% { background: rgba(255, 255, 255, 0.85); }
+  30% { background: rgba(255, 200, 100, 0.6); }
+  50% { background: rgba(255, 100, 50, 0.3); }
+  100% { background: rgba(255, 255, 255, 0); }
+}
+
+/* 爆炸后屏幕抖动 */
+body.explosion-shake {
+  animation: explosionShake 0.5s ease-out;
+}
+
+@keyframes explosionShake {
+  0% { transform: translateX(0) translateY(0); }
+  10% { transform: translateX(-8px) translateY(3px); }
+  20% { transform: translateX(8px) translateY(-3px); }
+  30% { transform: translateX(-5px) translateY(2px); }
+  40% { transform: translateX(5px) translateY(-2px); }
+  60% { transform: translateX(-3px) translateY(1px); }
+  80% { transform: translateX(3px) translateY(-1px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+/* 情景7：电线火花 */
+.electric-spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffeb3b;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+}
+
+.electric-spark.active {
+  animation: sparkGlow 0.5s ease-in-out infinite alternate;
+}
+
+.electric-spark::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 8px 4px rgba(255, 235, 59, 0.6);
+}
+
+@keyframes sparkGlow {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.4); }
+}
+
+/* ============================================================
+   证书中生命值显示
+   ============================================================ */
+.cert-lives {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #888;
+}
+
+.cert-lives .heart-mini {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+}
+
+.cert-lives .heart-mini::before,
+.cert-lives .heart-mini::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 7px;
+  height: 11px;
+  border-radius: 7px 7px 0 0;
+  background: #e53935;
+}
+
+.cert-lives .heart-mini::before {
+  left: 7px;
+  transform: rotate(-45deg);
+  transform-origin: 0 100%;
+}
+
+.cert-lives .heart-mini::after {
+  left: 0;
+  transform: rotate(45deg);
+  transform-origin: 100% 100%;
+}
+
+.cert-lives .heart-mini.lost::before,
+.cert-lives .heart-mini.lost::after {
+  background: #ccc;
+  opacity: 0.4;
+}
+
+/* ============================================================
+   【功能二】隐藏结局证书样式
+   ============================================================ */
+/* 金色专家结局 */
+.certificate-card.cert-gold {
+  border-image: linear-gradient(135deg, #ffd700, #ffec8b, #daa520, #ffd700, #b8860b) 1;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 0 30px rgba(255,215,0,0.3), 0 0 60px rgba(255,215,0,0.1);
+}
+
+/* 闪电速度结局 */
+.certificate-card.cert-lightning {
+  border-image: linear-gradient(135deg, #4fc3f7, #81d4fa, #0288d1, #4fc3f7, #01579b) 1;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 0 25px rgba(79,195,247,0.4), 0 0 50px rgba(79,195,247,0.15);
+}
+
+/* 绝地求生结局 - 红色裂纹 */
+.certificate-card.cert-crack {
+  border-image: linear-gradient(135deg, #c62828, #ef5350, #b71c1c, #c62828, #880e0e) 1;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 0 20px rgba(200,0,0,0.3);
+}
+
+/* 反面教材结局 */
+.certificate-card.cert-fail {
+  border-image: linear-gradient(135deg, #9e9e9e, #bdbdbd, #757575, #9e9e9e, #616161) 1;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+
+/* 挑战模式证书 */
+.certificate-card.cert-challenge {
+  border-image: linear-gradient(135deg, #d32f2f, #ff5252, #b71c1c, #d32f2f, #880e0e) 1;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 25px rgba(211,47,47,0.3);
+}
+
+/* 隐藏结局提示 */
+.cert-hint {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 12px;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+/* ============================================================
+   【功能二】金色粒子特效
+   ============================================================ */
+.gold-particle {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd700, #ffb300);
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+  animation: goldFall linear forwards;
+  opacity: 0;
+}
+
+@keyframes goldFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+/* ============================================================
+   【功能三】挑战模式样式
+   ============================================================ */
+body.challenge-mode {
+  background: linear-gradient(180deg, #1a0000 0%, #2d0000 50%, #1a0000 100%) !important;
+  background-attachment: fixed !important;
+  transition: background 0.5s ease;
+}
+
+.challenge-timer {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  line-height: 42px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(0,0,0,0.5);
+  border: 2px solid rgba(255,255,255,0.5);
+  border-radius: 50%;
+  animation: timerPulse 1s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(255,255,255,0.3); }
+  50% { box-shadow: 0 0 15px rgba(255,255,255,0.6); }
+}
+
+/* 挑战模式按钮 */
+.btn-challenge {
+  display: inline-block;
+  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 28px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(211,47,47,0.3);
+  margin-top: 8px;
+}
+
+.btn-challenge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(211,47,47,0.5);
+}
+
+/* ============================================================
+   【功能一】新增题目后果动画（id 8-15）
+   ============================================================ */
+
+/* 情景8：预警信号灯闪烁 */
+#signal-lights {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  pointer-events: none;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+}
+
+#signal-lights.active {
+  animation: signalShow 2s ease-out forwards;
+}
+
+.signal-light {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255,255,255,0.4);
+}
+
+.signal-light.blue { background: #2196f3; }
+.signal-light.yellow { background: #ffeb3b; }
+.signal-light.orange { background: #ff9800; }
+.signal-light.red { background: #f44336; }
+
+@keyframes signalShow {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 情景9：应急背包掉落 */
+#backpack {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 60px;
+  background: #5d4037;
+  border: 3px solid #3e2723;
+  border-radius: 8px 8px 12px 12px;
+  opacity: 0;
+}
+
+#backpack::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 18px;
+  background: #795548;
+  border-radius: 10px 10px 0 0;
+  border: 3px solid #3e2723;
+  border-bottom: none;
+}
+
+#backpack.active {
+  animation: backpackFall 1.5s ease-in forwards;
+}
+
+@keyframes backpackFall {
+  0% { top: -80px; opacity: 0; }
+  10% { opacity: 1; }
+  60% { top: 45%; opacity: 1; }
+  75% { top: 48%; }
+  100% { top: 55%; opacity: 0; }
+}
+
+/* 情景10：电梯震动 */
+#scenario-card.elevator-shake {
+  animation: elevatorShake 0.8s ease-out;
+}
+
+@keyframes elevatorShake {
+  0%, 100% { transform: translateY(0); }
+  15% { transform: translateY(-8px); }
+  30% { transform: translateY(6px); }
+  45% { transform: translateY(-5px); }
+  60% { transform: translateY(4px); }
+  75% { transform: translateY(-2px); }
+  90% { transform: translateY(1px); }
+}
+
+/* 情景11：洪水泥浆 */
+#mud-wave {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+  z-index: 99;
+  background: linear-gradient(to top, rgba(139, 90, 43, 0.7), rgba(139, 90, 43, 0.3));
+  border-radius: 0 0 16px 16px;
+}
+
+#mud-wave.active {
+  animation: mudRise 2.5s ease-in-out forwards;
+}
+
+@keyframes mudRise {
+  0% { height: 0; }
+  50% { height: 50%; }
+  75% { height: 48%; }
+  100% { height: 0; }
+}
+
+/* 情景12：闪电劈中 */
+#lightning-strike {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 102;
+  opacity: 0;
+}
+
+#lightning-strike.active {
+  animation: strikeFlash 0.8s ease-out forwards;
+}
+
+#lightning-strike::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100px;
+  background: linear-gradient(to bottom, #fff, #ffeb3b, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 15px rgba(255,235,59,0.8), 0 0 30px rgba(255,235,59,0.4);
+  clip-path: polygon(50% 0%, 0% 30%, 40% 30%, 0% 60%, 50% 60%, 30% 100%, 100% 60%, 60% 60%, 100% 30%, 60% 30%);
+}
+
+@keyframes strikeFlash {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  30% { opacity: 0.5; }
+  40% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 情景13：泥石流 */
+#mudslide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+  z-index: 99;
+  background: linear-gradient(to bottom, rgba(101, 67, 33, 0.8), rgba(139, 90, 43, 0.5), rgba(160, 110, 60, 0.3));
+  border-radius: 16px 16px 0 0;
+}
+
+#mudslide.active {
+  animation: mudslideFlow 1.5s ease-in forwards;
+}
+
+@keyframes mudslideFlow {
+  0% { height: 0; }
+  60% { height: 35%; }
+  100% { height: 0; }
+}
+
+/* 情景14：水杯倾倒 */
+#water-cup {
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 50px;
+  opacity: 0;
+}
+
+#water-cup::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 50px;
+  background: rgba(200, 220, 240, 0.7);
+  border: 2px solid rgba(150, 180, 210, 0.8);
+  border-radius: 5px 5px 12px 12px;
+}
+
+#water-cup.active {
+  animation: cupTip 1.5s ease-out forwards;
+}
+
+@keyframes cupTip {
+  0% { opacity: 0; transform: translateX(-50%) rotate(0deg); }
+  10% { opacity: 1; }
+  50% { opacity: 1; transform: translateX(-50%) rotate(90deg); }
+  100% { opacity: 0; transform: translateX(-50%) rotate(110deg) translateY(30px); }
+}
+
+/* 情景15：车辆打滑 */
+#car-spin {
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+  bottom: 30px;
+  left: 50%;
+  width: 50px;
+  height: 28px;
+  opacity: 0;
+}
+
+#car-spin::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 50px;
+  height: 28px;
+  background: #e53935;
+  border: 2px solid #b71c1c;
+  border-radius: 8px 8px 14px 14px;
+}
+
+#car-spin.active {
+  animation: carSpin 1.5s ease-out forwards;
+}
+
+@keyframes carSpin {
+  0% { opacity: 0; transform: translateX(-50%) rotate(0deg); left: 50%; }
+  10% { opacity: 1; }
+  40% { left: 30%; transform: translateX(-50%) rotate(180deg); }
+  70% { left: 70%; transform: translateX(-50%) rotate(360deg); }
+  100% { opacity: 0; left: 50%; transform: translateX(-50%) rotate(540deg); }
+}
+</style>
+</head>
+<body>
+
+<!-- 雨滴容器 -->
+<div id="rain-container"></div>
+
+<!-- 闪电覆盖层 -->
+<div id="lightning-overlay"></div>
+
+<!-- 封面背景视频 -->
+<video id="cover-video" src="typhoon.mp4.mp4" autoplay muted loop playsinline></video>
+<!-- 视频遮罩层 -->
+<div id="video-overlay"></div>
+
+<!-- 主应用 -->
+<div id="app">
+  <!-- ========== 阶段一：开场封面 ========== -->
+  <div id="cover-screen" class="screen active">
+    <div class="cover-card">
+      <div class="cover-competition">全国青少年安全与应急科普创新大赛</div>
+      <div class="cover-divider"></div>
+      <div class="cover-title">台风生存指南</div>
+      <div class="cover-subtitle">7个关键时刻，你能做出正确选择吗？</div>
+      <div class="cover-warning">
+        <span class="warning-triangle"></span>
+        台风红色预警 · 请立即做好应对准备
+      </div>
+      <button class="btn-start" id="btn-start">开始挑战</button>
+    </div>
+  </div>
+
+  <!-- ========== 阶段二：情景决策 ========== -->
+  <div id="scenario-screen" class="screen">
+    <!-- 进度条 -->
+    <div class="progress-container">
+      <div class="progress-text">决策 <span id="current-q">1</span>/<span id="total-q">7</span></div>
+      <div class="progress-dots" id="progress-dots">
+        <div class="progress-dot current"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+      </div>
+      <!-- 生命值心形 -->
+      <div class="lives-container" id="lives-container">
+        <span class="lives-label">生命</span>
+        <span class="heart" id="heart-0"></span>
+        <span class="heart" id="heart-1"></span>
+        <span class="heart" id="heart-2"></span>
+      </div>
+      <!-- 风暴阶段提示 -->
+      <div class="phase-label" id="phase-label">距离台风登陆还有约2小时</div>
+      <!-- 挑战模式计时器 -->
+      <div class="challenge-timer" id="challenge-timer" style="display:none;">8</div>
+    </div>
+
+    <!-- 情景卡片 -->
+    <div class="card" id="scenario-card">
+      <!-- 问题内容 -->
+      <div id="question-content">
+        <div id="scenario-title"></div>
+        <div id="scenario-desc"></div>
+        <div class="options-container" id="options-container"></div>
+      </div>
+      <!-- 反馈内容（初始隐藏） -->
+      <div id="feedback-content" style="display:none;">
+        <div class="feedback-icon-wrap" id="feedback-icon"></div>
+        <div class="feedback-title" id="feedback-title"></div>
+        <div class="feedback-text" id="feedback-text"></div>
+        <button class="btn-next" id="btn-next">下一题</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 阶段三：通关证书 ========== -->
+  <div id="certificate-screen" class="screen">
+    <div class="certificate-card" id="certificate-card">
+      <!-- 由 JS 动态填充 -->
+    </div>
+  </div>
+
+  <!-- ========== 游戏结束画面 ========== -->
+  <div id="gameover-screen" class="screen">
+    <div class="gameover-card" id="gameover-card">
+      <!-- 由 JS 动态填充 -->
+    </div>
+  </div>
+</div>
+
+<!-- 警报红色闪烁层（情景1） -->
+<div id="alert-flash-overlay"></div>
+
+<!-- 花盆飞过元素（情景2） -->
+<div id="flowerpot">
+  <div class="leaf-l"></div>
+  <div class="leaf-r"></div>
+  <div class="flower"></div>
+</div>
+
+<!-- 爆炸闪光层（情景6） -->
+<div id="explosion-flash"></div>
+
+<script>
+/* ============================================================
+   情景数据 - 7个情景的完整信息
+   ============================================================ */
+var scenarios = [
+  {
+    id: 1,
+    category: 'pre',
+    title: '情景1：预警发布',
+    desc: '手机突然响起警报——台风红色预警！气象台说台风"山竹"还有大约2小时到达你所在的城市。爸爸妈妈都还在上班，你一个人在家。情况紧急，你首先会做什么？',
+    options: [
+      { label: 'A', text: '赶紧去楼下超市买点零食囤着' },
+      { label: 'B', text: '立刻关紧所有门窗，检查阳台和窗户是否牢固' },
+      { label: 'C', text: '打电话叫爸妈马上回来' }
+    ],
+    correctIndex: 1,
+    correctFeedback: {
+      title: '太棒了！',
+      text: '台风来临前，关紧门窗是第一要务。强风会把没关好的门窗吹开，导致屋内进水、物品损坏。记住这个好习惯，每次台风预警时第一时间检查门窗！'
+    },
+    wrongFeedback: [
+      {
+        title: '这样做很危险！',
+        text: '台风天出门非常危险！强风可能吹倒树木和广告牌，而且超市可能已经关门了。正确做法是待在家里，关紧门窗。'
+      },
+      {
+        title: '还可以做得更好！',
+        text: '打电话给家人是对的，但不能只等着。在等待的同时，你应该先关紧门窗，做好自己的防护。记住：先保护自己，再联系家人。'
+      }
+    ],
+    knowledge: '台风预警时，第一时间关紧门窗，检查是否牢固'
+  },
+  {
+    id: 2,
+    category: 'pre',
+    title: '情景2：阳台隐患',
+    desc: '你关好门窗后，突然想起阳台上还有几盆花、晾衣架和一把折叠椅没收。这些东西在平时看起来没什么，但台风天……',
+    options: [
+      { label: 'A', text: '赶紧把它们全部搬进屋里' },
+      { label: 'B', text: '花盆很重，应该吹不走吧，不管了' },
+      { label: 'C', text: '用几根绳子把花盆和椅子绑在阳台栏杆上' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '做得好！',
+      text: '台风天，阳台上任何没固定的东西都可能变成"炮弹"。一个花盆被强风吹起，足以砸碎窗户甚至伤到路人。全部搬进室内是最安全的做法。'
+    },
+    wrongFeedback: [
+      {
+        title: '千万别大意！',
+        text: '台风的风力远超你的想象！一个普通花盆在强风下完全可以被吹飞。所有阳台物品都必须搬进室内或牢固固定。'
+      },
+      {
+        title: '这样还不够安全！',
+        text: '用绳子绑住比什么都不做强，但台风的风向多变，绳子可能松脱。最保险的做法还是全部搬进室内。'
+      }
+    ],
+    knowledge: '阳台上的花盆、晾衣架等物品要全部搬进室内'
+  },
+  {
+    id: 3,
+    category: 'during',
+    title: '情景3：停电了',
+    desc: '窗外风雨越来越大，突然"啪"的一声，家里陷入一片漆黑——停电了。你摸黑找手机，心里有点慌。这时候你需要照明，你会？',
+    options: [
+      { label: 'A', text: '找到蜡烛和打火机，点蜡烛照明' },
+      { label: 'B', text: '用手电筒或者手机闪光灯照明' },
+      { label: 'C', text: '摸黑去检查电闸，看看能不能恢复供电' }
+    ],
+    correctIndex: 1,
+    correctFeedback: {
+      title: '正确！',
+      text: '停电时手电筒和手机是最安全的照明工具。记得提前在家里备好手电筒和备用电池哦！安全无小事，有备无患。'
+    },
+    wrongFeedback: [
+      {
+        title: '非常危险！',
+        text: '台风天点蜡烛太危险了！万一窗户被风吹破，蜡烛可能被吹倒引发火灾。而且如果燃气泄漏，明火可能引起爆炸！'
+      },
+      {
+        title: '不要冒险！',
+        text: '停电时不要去碰电闸！可能是台风导致线路损坏，擅自操作有触电风险。等电力公司恢复供电才是安全的做法。'
+      }
+    ],
+    knowledge: '停电时用手电筒或手机照明，不要点蜡烛，不碰电闸'
+  },
+  {
+    id: 4,
+    category: 'during',
+    title: '情景4：窗户破裂',
+    desc: '"砰！"一声巨响，一块被风刮起的石头砸碎了客厅的窗户，玻璃碎了一地，风雨疯狂地灌进来。你被吓了一跳，心跳加速。你会？',
+    options: [
+      { label: 'A', text: '赶紧拿扫帚把碎玻璃清理干净' },
+      { label: 'B', text: '立刻离开这个房间，躲到没有窗户的房间或卫生间' },
+      { label: 'C', text: '找块木板或硬纸板把破洞堵住' }
+    ],
+    correctIndex: 1,
+    correctFeedback: {
+      title: '冷静！选择正确！',
+      text: '破碎的窗户旁极其危险——更多碎片可能飞进来，强风可能把人吹倒。第一时间撤离到无窗房间，保护好自己。安全永远是第一位的！'
+    },
+    wrongFeedback: [
+      {
+        title: '现在清理太危险了！',
+        text: '现在去清理碎玻璃非常危险！窗户可能继续破裂，碎片可能划伤你。先撤离到安全区域，等台风过后再清理。'
+      },
+      {
+        title: '不要靠近窗户！',
+        text: '台风中试图堵住窗户破洞太危险了。你靠近窗户时可能被飞来的碎片击中，或者被强风伤到。安全第一，先撤离！'
+      }
+    ],
+    knowledge: '窗户破裂时，立刻撤离到没有窗户的房间或卫生间'
+  },
+  {
+    id: 5,
+    category: 'during',
+    title: '情景5：水位上涨',
+    desc: '雨越下越大，你发现一楼的地面开始有水渗进来了，而且水位还在慢慢上涨。如果水继续涨，家里的电器和家具都会被泡。你会？',
+    options: [
+      { label: 'A', text: '赶紧往楼上转移，把重要物品也带上去' },
+      { label: 'B', text: '用拖把和水桶把水弄出去' },
+      { label: 'C', text: '把门缝用毛巾堵住就行了' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '明智的选择！',
+      text: '台风带来的暴雨可能引发城市内涝，水位上涨很快。往高处转移是最安全的做法。带上手机、充电宝和重要物品，待在楼上等待救援或台风过去。'
+    },
+    wrongFeedback: [
+      {
+        title: '这样根本来不及！',
+        text: '台风天的暴雨量非常大，用拖把和水桶根本来不及。而且你在一楼待得越久，危险越大。当水位上涨时，应该立刻往高处转移。'
+      },
+      {
+        title: '挡不住的！',
+        text: '用毛巾堵门缝只能延缓进水，但挡不住真正的水灾。如果外面水位持续上涨，水最终会从各个地方渗进来。往高处转移才是根本办法。'
+      }
+    ],
+    knowledge: '水位上涨时，立刻往楼上或高处转移，带上重要物品'
+  },
+  {
+    id: 6,
+    category: 'during',
+    title: '情景6：异味来袭',
+    desc: '你在房间里待着，突然闻到一股奇怪的味道——像是煤气的味道！你怀疑是台风导致燃气管道出了问题。这个味道让你很不安。你会？',
+    options: [
+      { label: 'A', text: '打开灯，去厨房仔细检查一下燃气灶' },
+      { label: 'B', text: '立即关闭燃气总阀门，轻轻打开窗户通风，不使用任何电器和明火' },
+      { label: 'C', text: '赶紧打电话给爸爸妈妈，问他们怎么办' }
+    ],
+    correctIndex: 1,
+    correctFeedback: {
+      title: '非常正确！',
+      text: '闻到煤气味，第一步就是关阀门、开窗通风。同时记住：不要开关任何电器（包括电灯、手机充电），不要使用明火，因为电器开关产生的微小火花可能引发爆炸！这是保命的关键知识。'
+    },
+    wrongFeedback: [
+      {
+        title: '极度危险！',
+        text: '开灯或使用任何电器都可能产生电火花，在燃气泄漏的环境中，这足以引发爆炸！闻到煤气味，绝对不能碰任何电器开关。'
+      },
+      {
+        title: '先处理再联系！',
+        text: '打电话确实需要，但第一时间应该先关阀门、开窗通风。而且打电话时手机也可能产生微弱的电火花，最好先通风，再到室外打电话。'
+      }
+    ],
+    knowledge: '闻到煤气味时，关阀门、开窗通风，不使用任何电器和明火'
+  },
+  {
+    id: 7,
+    category: 'post',
+    title: '情景7：台风过后',
+    desc: '终于，风雨渐渐平息了。窗外一片狼藉——树枝散落一地，有些地方还积着水。阳光从云层中透出来。你松了一口气，但台风过后就安全了吗？你会？',
+    options: [
+      { label: 'A', text: '终于可以出去了，赶紧下楼看看受灾情况' },
+      { label: 'B', text: '等待官方通知确认安全后再外出，外出时注意避开倒下的电线和积水区域' },
+      { label: 'C', text: '去附近的河边看看涨水的情况' }
+    ],
+    correctIndex: 1,
+    correctFeedback: {
+      title: '非常棒！',
+      text: '台风过后同样存在危险——倒下的电线可能带电，积水中可能有破碎的玻璃或杂物，松动的建筑物可能倒塌。等待官方通知、外出时保持警惕，才是完整的台风应对。你成功通过了所有考验！'
+    },
+    wrongFeedback: [
+      {
+        title: '别急着出去！',
+        text: '台风刚过就外出有风险！倒下的电线杆可能还带电，断裂的树枝可能随时掉落，积水中也藏着看不见的危险。耐心等待官方通知。'
+      },
+      {
+        title: '去河边太危险了！',
+        text: '台风过后去河边极其危险！暴雨可能导致河水暴涨、堤坝不稳，甚至可能发生山洪。远离水域，等一切稳定后再做打算。'
+      }
+    ],
+    knowledge: '台风过后等官方通知，外出时避开倒下的电线和积水区域'
+  },
+  /* ============================================================
+     新增8题（id 8-15）
+     ============================================================ */
+  {
+    id: 8,
+    category: 'pre',
+    title: '情景8：预警信号',
+    desc: '电视上正在播报台风预警，气象台发布了不同的预警信号。你看到屏幕上出现了蓝色、黄色、橙色、红色四种颜色的预警标志。你知道哪种颜色的预警代表台风最危险、最紧急吗？',
+    options: [
+      { label: 'A', text: '蓝色预警——表示台风即将来临' },
+      { label: 'B', text: '红色预警——表示台风非常严重，需立即防范' },
+      { label: 'C', text: '黄色预警——表示需要注意防范' }
+    ],
+    correctIndex: 1,
+    correctFeedback: {
+      title: '回答正确！',
+      text: '台风预警信号分为蓝、黄、橙、红四个等级，红色是最高级别，代表台风将在12小时内严重影响本地。记住颜色越深越危险！'
+    },
+    wrongFeedback: [
+      { title: '不对哦！', text: '蓝色预警是最低级别，表示台风可能在24小时内影响本地。最危险的是红色预警，代表台风即将以最强风力登陆！' },
+      { title: '也不对！', text: '黄色预警是第二级别，不是最紧急的。红色预警才是台风预警中最高、最紧急的级别，需要立即做好最充分的防护准备。' }
+    ],
+    knowledge: '台风预警信号分蓝黄橙红四级，红色为最高级别最紧急'
+  },
+  {
+    id: 9,
+    category: 'pre',
+    title: '情景9：应急物资',
+    desc: '台风来临前，你想起学校老师说过要准备"应急包"。但家里平时没专门准备，现在时间紧迫，你只能快速挑选最重要的东西带上。下列哪组物品才是台风应急最需要的？',
+    options: [
+      { label: 'A', text: '手电筒、矿泉水、干粮、急救药品、充电宝' },
+      { label: 'B', text: '零食、玩具、漫画书、扑克牌' },
+      { label: 'C', text: '笔记本电脑、平板、游戏机、耳机' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '准备充分！',
+      text: '应急包里的核心物品就是这几样：照明（手电筒）、饮水（矿泉水）、食物（干粮）、医疗（急救药品）和通讯（充电宝）。记住这个清单，关键时刻能救命！'
+    },
+    wrongFeedback: [
+      { title: '太不专业了！', text: '零食可以吃，但玩具和漫画书在台风紧急情况下完全没用！应急物资的核心是照明、饮水、食物、药品和通讯设备。' },
+      { title: '这些都没用！', text: '台风天可能停电断网，电子设备很快就会没电。真正需要的是手电筒、饮用水、食物和药品这些生存必需品。' }
+    ],
+    knowledge: '台风应急包核心物品：手电筒、水、食物、药品、充电宝'
+  },
+  {
+    id: 10,
+    category: 'during',
+    title: '情景10：被困电梯',
+    desc: '你正在下楼时电梯突然停了——台风导致片区停电，你被困在了电梯里！电梯里只有你一个人，灯光也灭了，只有应急灯还亮着。你心里很慌。你会怎么做？',
+    options: [
+      { label: 'A', text: '按下紧急呼叫按钮，保持冷静等待救援' },
+      { label: 'B', text: '用力扒开电梯门，想办法爬出去' },
+      { label: 'C', text: '在电梯里跳起来，看看能不能让电梯恢复运行' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '冷静应对！',
+      text: '被困电梯时最重要的是保持冷静。按下紧急呼叫按钮或使用电梯内的对讲机联系物业求助。千万不要扒门或跳跃，这可能导致电梯坠落！'
+    },
+    wrongFeedback: [
+      { title: '千万别扒门！', text: '强行扒开电梯门极其危险！电梯可能卡在楼层之间，爬出去时可能坠落。而且电梯随时可能恢复运行。正确做法是按紧急按钮等待救援。' },
+      { title: '跳不得！', text: '在电梯里跳跃可能导致电梯安全装置误判，引发更严重的故障甚至坠落。保持静止冷静，按紧急按钮等待专业救援人员才是正确做法。' }
+    ],
+    knowledge: '被困电梯时按紧急按钮等待救援，切勿扒门或跳跃'
+  },
+  {
+    id: 11,
+    category: 'during',
+    title: '情景11：洪水自救',
+    desc: '台风带来的暴雨让街道水位迅速上涨，你家一楼已经被淹，水已经漫到楼梯的一半了。你被困在二楼，救援人员还没到。水位还在上涨，你会？',
+    options: [
+      { label: 'A', text: '继续往更高的楼层转移，到楼顶等待救援' },
+      { label: 'B', text: '游泳出去，看能不能找到救援人员' },
+      { label: 'C', text: '待在二楼别动，等水位自己退下去' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '明智之举！',
+      text: '洪水上涨时，往最高处转移是最安全的。到楼顶或屋顶等待救援，同时可以用鲜艳的衣物或手电筒发出求救信号，让救援人员更容易发现你。'
+    },
+    wrongFeedback: [
+      { title: '太危险了！', text: '洪水中游泳极其危险！水中可能有暗流、杂物、碎玻璃，甚至带电的电线。而且水流速度可能很快，很容易被冲走。正确做法是往高处转移并等待救援。' },
+      { title: '不能干等！', text: '被动等待水位退去是不明智的。台风带来的暴雨可能持续数小时，水位只会越来越高。应该主动往更高处转移，而不是在原地等待危险逼近。' }
+    ],
+    knowledge: '洪水上涨时往最高处转移，用鲜艳物品发出求救信号'
+  },
+  {
+    id: 12,
+    category: 'during',
+    title: '情景12：防雷击',
+    desc: '台风天里，你听到外面雷声滚滚，闪电一道接一道地劈下来。你正在家里，但想到一些关于雷电的安全知识，心里有点不确定。雷雨天在家里，你应该怎么做？',
+    options: [
+      { label: 'A', text: '拔掉电视、电脑等电器的插头，不洗澡、不打电话' },
+      { label: 'B', text: '打开窗户看看外面的闪电有多壮观' },
+      { label: 'C', text: '用座机给同学打电话，聊聊台风天的经历' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '非常正确！',
+      text: '雷雨天在家要拔掉电器插头防止雷击损坏，不洗澡（水管可能导电），不打电话（尤其座机）。金属管道和电线都可能把雷电引入室内，远离它们最安全。'
+    },
+    wrongFeedback: [
+      { title: '危险举动！', text: '雷雨天开窗看闪电非常危险！雷电可能通过窗户进入室内，而且站在窗边本身就容易被侧击雷击中。雷雨天应该远离门窗。' },
+      { title: '千万别！', text: '雷雨天用座机打电话极其危险！雷电可能通过电话线传入室内，历史上有很多人因此被雷击。雷雨天最好不用任何连接外墙的电器和线路。' }
+    ],
+    knowledge: '雷雨天拔掉电器插头，不洗澡不打座机，远离门窗和金属管道'
+  },
+  {
+    id: 13,
+    category: 'during',
+    title: '情景13：泥石流',
+    desc: '台风带来了超大暴雨，你家住在山脚下。你突然听到山上传来低沉的隆隆声，地面也有些微微震动，你想起老师说过这是泥石流的前兆。你会？',
+    options: [
+      { label: 'A', text: '立刻向垂直于泥石流方向的两侧高地逃跑' },
+      { label: 'B', text: '沿着山沟往山下跑，争取比泥石流跑得快' },
+      { label: 'C', text: '躲在家里关好门窗，泥石流应该不会冲过来' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '反应迅速！',
+      text: '遇到泥石流，千万不要顺着泥石流的方向跑（你跑不过泥石流！），也不要往山下跑。应该立即向垂直于泥石流方向的两侧山坡高处逃跑，这是唯一的生路。'
+    },
+    wrongFeedback: [
+      { title: '跑不过的！', text: '泥石流的速度可达每秒数十米，人根本跑不过。而且顺着山沟跑正好是泥石流的通道。正确做法是向两侧高地逃跑，远离泥石流路径。' },
+      { title: '不能待在家里！', text: '山脚下的房子在泥石流面前不堪一击，泥石流可以轻松冲毁房屋。听到异常声响必须立即撤离，向两侧高地逃跑，不要抱侥幸心理。' }
+    ],
+    knowledge: '泥石流来时向垂直于流向的两侧高地逃跑，切勿顺流跑'
+  },
+  {
+    id: 14,
+    category: 'post',
+    title: '情景14：饮用水安全',
+    desc: '台风过后，你发现家里的自来水龙头流出来的水有点浑浊，带着淡淡的黄褐色。你已经渴了好几个小时了，很想喝水。但台风后的水，能直接喝吗？',
+    options: [
+      { label: 'A', text: '不能直接喝，要烧开或者使用净水设备处理后再饮用' },
+      { label: 'B', text: '台风天流点汗正好，这点浑浊不算什么，直接喝' },
+      { label: 'C', text: '去楼下积水坑里舀点水，看起来比自来水还清' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '安全意识很强！',
+      text: '台风过后自来水可能被污染，含有细菌、泥沙甚至化学物质。一定要烧开（沸腾至少1分钟）或使用净水设备处理后再饮用。如果水特别浑浊，可以先沉淀再烧开。'
+    },
+    wrongFeedback: [
+      { title: '不能直接喝！', text: '台风后自来水可能被洪水污染，含有大量细菌和有害物质。直接饮用可能导致腹泻、痢疾等疾病。一定要烧开或净化后再喝！' },
+      { title: '积水更脏！', text: '台风后的积水可能混合了污水、垃圾、动物粪便甚至化学物质，比自来水脏得多！喝了可能引发严重疾病。正确的做法是处理自来水——沉淀、过滤、烧开。' }
+    ],
+    knowledge: '台风后自来水需烧开或净化后饮用，积水绝对不能喝'
+  },
+  {
+    id: 15,
+    category: 'post',
+    title: '情景15：行车安全',
+    desc: '台风刚过，爸爸说要开车带你出去看看情况。路上还有一些积水，有些路段积水看起来不深。爸爸开车经过一个积水路段时，你会提醒他？',
+    options: [
+      { label: 'A', text: '提醒爸爸绕道走，不要冒险涉水，积水深度难以判断' },
+      { label: 'B', text: '让爸爸加速冲过去，溅起水花多刺激' },
+      { label: 'C', text: '积水看起来不深，让爸爸慢慢开过去就行' }
+    ],
+    correctIndex: 0,
+    correctFeedback: {
+      title: '提醒得好！',
+      text: '台风后路面情况复杂，积水深度难以判断，水中可能还有暗坑、打开的井盖或倒塌的电线。最安全的做法是绕道行驶，千万不要冒险涉水。很多车辆就是在积水中熄火的！'
+    },
+    wrongFeedback: [
+      { title: '加速冲更危险！', text: '加速冲过积水非常危险！水花可能溅入发动机导致熄火，而且速度快容易失控。如果水中有暗坑，加速冲过去可能直接翻车。正确做法是绕道。' },
+      { title: '不能冒险！', text: '即使积水看起来不深，水下的情况你也看不到。可能有深坑、打开的井盖，甚至带电的电线。台风水灾中很多事故就是这样发生的。绕道才是最安全的选择。' }
+    ],
+    knowledge: '台风后积水路段要绕行，积水深度和路况难以判断，涉水很危险'
+  }
+];
+
+/* ============================================================
+   全局状态
+   ============================================================ */
+var currentQuestion = 0;      // 当前题目索引 (0-6)
+var score = 0;                // 正确数
+var totalQuestions = 7;       // 普通模式题目数
+var selectedScenarios = [];   // 【功能一】本轮随机选中的题目
+
+/* ============================================================
+   【功能一】生命值系统 - 状态变量
+   ============================================================ */
+var lives = 3;                // 生命值（3条命）
+var maxLives = 3;
+var wrongQuestions = [];      // 记录错选题目的标题
+
+/* ============================================================
+   【功能二】风暴升级 - 状态变量
+   ============================================================ */
+var lightningTimer = null;    // 闪电定时器 ID
+var currentPhase = 0;         // 当前风暴阶段 (0/1/2)
+
+/* ============================================================
+   【功能二】隐藏结局 - 状态变量
+   ============================================================ */
+var startTime = 0;            // 开始答题时间戳
+var totalTime = 0;            // 总用时（秒）
+
+/* ============================================================
+   【功能三】挑战模式 - 状态变量
+   ============================================================ */
+var isChallengeMode = false;  // 是否挑战模式
+var challengeTimer = null;    // 倒计时定时器
+var challengeTimeLeft = 0;    // 当前题剩余秒数
+var challengeScore = 0;       // 挑战模式得分
+var challengeQuestionCount = 10; // 挑战模式题目数
+
+/* ============================================================
+   DOM 元素引用
+   ============================================================ */
+var coverScreen = document.getElementById('cover-screen');
+var scenarioScreen = document.getElementById('scenario-screen');
+var certificateScreen = document.getElementById('certificate-screen');
+var scenarioCard = document.getElementById('scenario-card');
+var questionContent = document.getElementById('question-content');
+var feedbackContent = document.getElementById('feedback-content');
+var scenarioTitle = document.getElementById('scenario-title');
+var scenarioDesc = document.getElementById('scenario-desc');
+var optionsContainer = document.getElementById('options-container');
+var feedbackIcon = document.getElementById('feedback-icon');
+var feedbackTitle = document.getElementById('feedback-title');
+var feedbackText = document.getElementById('feedback-text');
+var btnNext = document.getElementById('btn-next');
+var currentQSpan = document.getElementById('current-q');
+var totalQSpan = document.getElementById('total-q');
+var progressDots = document.getElementById('progress-dots');
+var certificateCard = document.getElementById('certificate-card');
+var btnStart = document.getElementById('btn-start');
+
+/* ============================================================
+   【功能一】生命值系统 - DOM 引用
+   ============================================================ */
+var gameoverScreen = document.getElementById('gameover-screen');
+var gameoverCard = document.getElementById('gameover-card');
+var heart0 = document.getElementById('heart-0');
+var heart1 = document.getElementById('heart-1');
+var heart2 = document.getElementById('heart-2');
+
+/* ============================================================
+   【功能二】风暴升级 - DOM 引用
+   ============================================================ */
+var phaseLabel = document.getElementById('phase-label');
+
+/* ============================================================
+   【功能三】后果可视化 - DOM 引用
+   ============================================================ */
+var alertFlashOverlay = document.getElementById('alert-flash-overlay');
+var flowerpot = document.getElementById('flowerpot');
+var explosionFlash = document.getElementById('explosion-flash');
+
+/* ============================================================
+   封面视频 DOM 引用
+   ============================================================ */
+var coverVideo = document.getElementById('cover-video');
+var videoOverlay = document.getElementById('video-overlay');
+
+/* ============================================================
+   雨滴生成 - 根据阶段参数创建不同数量和速度的雨滴
+   ============================================================ */
+function createRaindrops(count, speedMin, speedMax, opacityMin, opacityMax) {
+  // 默认参数（阶段二：中等密度）
+  count = count || 40;
+  speedMin = speedMin || 0.4;
+  speedMax = speedMax || 0.8;
+  opacityMin = opacityMin || 0.15;
+  opacityMax = opacityMax || 0.4;
+
+  var rainContainer = document.getElementById('rain-container');
+  // 清除现有雨滴
+  rainContainer.innerHTML = '';
+  var fragment = document.createDocumentFragment();
+
+  for (var i = 0; i < count; i++) {
+    var drop = document.createElement('div');
+    drop.className = 'raindrop';
+    var left = Math.random() * 100;
+    var duration = speedMin + Math.random() * (speedMax - speedMin);
+    var delay = Math.random() * 8;
+    var opacity = opacityMin + Math.random() * (opacityMax - opacityMin);
+    var height = 20 + Math.random() * 60;
+    var width = 1 + Math.random() * 1;
+
+    drop.style.left = left + '%';
+    drop.style.height = height + 'px';
+    drop.style.width = width + 'px';
+    drop.style.animationDuration = duration + 's';
+    drop.style.animationDelay = delay + 's';
+    drop.style.opacity = opacity;
+
+    fragment.appendChild(drop);
+  }
+
+  rainContainer.appendChild(fragment);
+}
+
+/* ============================================================
+   闪电效果 - 根据阶段控制间隔和亮度
+   ============================================================ */
+function initLightning(minInterval, maxInterval, brightness) {
+  // 清除之前的定时器
+  if (lightningTimer) {
+    clearTimeout(lightningTimer);
+    lightningTimer = null;
+  }
+
+  var overlay = document.getElementById('lightning-overlay');
+
+  function triggerLightning() {
+    var delay = minInterval + Math.random() * (maxInterval - minInterval);
+
+    lightningTimer = setTimeout(function() {
+      // 主闪 - 亮度根据阶段调整
+      overlay.style.background = 'rgba(255, 255, 255, ' + brightness + ')';
+      setTimeout(function() {
+        overlay.style.background = 'rgba(255, 255, 255, 0)';
+      }, 200);
+
+      // 30%概率出现二次跟闪
+      if (Math.random() < 0.3) {
+        setTimeout(function() {
+          overlay.style.background = 'rgba(255, 255, 255, ' + (brightness * 0.4) + ')';
+          setTimeout(function() {
+            overlay.style.background = 'rgba(255, 255, 255, 0)';
+          }, 150);
+        }, 200 + Math.random() * 300);
+      }
+
+      triggerLightning();
+    }, delay);
+  }
+
+  triggerLightning();
+}
+
+/* ============================================================
+   进度条更新
+   ============================================================ */
+function updateProgress() {
+  // 更新文字
+  currentQSpan.textContent = (currentQuestion + 1);
+  totalQSpan.textContent = totalQuestions;
+
+  // 动态生成台风眼进度点（支持7题或10题）
+  var dotsContainer = progressDots;
+  dotsContainer.innerHTML = '';
+  for (var i = 0; i < totalQuestions; i++) {
+    var dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    if (i < currentQuestion) {
+      dot.classList.add('completed');
+    } else if (i === currentQuestion) {
+      dot.classList.add('current');
+    }
+    dotsContainer.appendChild(dot);
+  }
+}
+
+/* ============================================================
+   【功能一】随机选题系统 - 从15题中随机选7题，保证分类覆盖
+   ============================================================ */
+function shuffleArray(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = a[i];
+    a[i] = a[j];
+    a[j] = temp;
+  }
+  return a;
+}
+
+function selectRandomScenarios(count) {
+  // 按分类分组
+  var preScenarios = [];
+  var duringScenarios = [];
+  var postScenarios = [];
+  for (var i = 0; i < scenarios.length; i++) {
+    if (scenarios[i].category === 'pre') preScenarios.push(scenarios[i]);
+    else if (scenarios[i].category === 'during') duringScenarios.push(scenarios[i]);
+    else postScenarios.push(scenarios[i]);
+  }
+
+  // 打乱各组
+  preScenarios = shuffleArray(preScenarios);
+  duringScenarios = shuffleArray(duringScenarios);
+  postScenarios = shuffleArray(postScenarios);
+
+  var selected = [];
+  // 保证至少各分类抽1题
+  if (preScenarios.length > 0) selected.push(preScenarios.shift());
+  if (duringScenarios.length > 0) selected.push(duringScenarios.shift());
+  if (postScenarios.length > 0) selected.push(postScenarios.shift());
+
+  // 合并剩余题目并打乱，补足到 count 题
+  var remaining = preScenarios.concat(duringScenarios).concat(postScenarios);
+  remaining = shuffleArray(remaining);
+  while (selected.length < count && remaining.length > 0) {
+    selected.push(remaining.shift());
+  }
+
+  // 最终打乱顺序
+  selected = shuffleArray(selected);
+  return selected;
+}
+
+/* ============================================================
+   页面切换
+   ============================================================ */
+function showScreen(screen) {
+  coverScreen.classList.remove('active');
+  scenarioScreen.classList.remove('active');
+  certificateScreen.classList.remove('active');
+  gameoverScreen.classList.remove('active');
+  screen.classList.add('active');
+
+  // 封面显示视频，其他屏幕隐藏视频
+  if (screen === coverScreen) {
+    coverVideo.classList.remove('hidden');
+    videoOverlay.classList.remove('hidden');
+    if (coverVideo.paused) coverVideo.play();
+  } else {
+    coverVideo.classList.add('hidden');
+    videoOverlay.classList.add('hidden');
+    coverVideo.pause();
+  }
+}
+
+/* ============================================================
+   【功能二】风暴阶段管理
+   ============================================================ */
+function getStormPhase() {
+  // 基于当前题目的 category 决定阶段
+  if (currentQuestion >= selectedScenarios.length) return 2;
+  var cat = selectedScenarios[currentQuestion].category;
+  if (cat === 'pre') return 0;
+  if (cat === 'during') return 1;
+  return 2;
+}
+
+function applyStormPhase(phase) {
+  currentPhase = phase;
+  var body = document.body;
+  var card = document.getElementById('scenario-card');
+
+  // 清除所有阶段 class
+  body.classList.remove('phase-0', 'phase-1', 'phase-2', 'phase-shake', 'phase-shake-strong');
+  if (card) card.classList.remove('edge-glow');
+
+  // 根据阶段重新生成雨滴和闪电
+  if (phase === 0) {
+    // 阶段一：台风来临前 - 稀疏雨滴，无闪电，无抖动
+    body.classList.add('phase-0');
+    createRaindrops(15, 0.8, 1.5, 0.08, 0.2);
+    if (lightningTimer) { clearTimeout(lightningTimer); lightningTimer = null; }
+    phaseLabel.textContent = '距离台风登陆还有约2小时';
+  } else if (phase === 1) {
+    // 阶段二：台风肆虐中 - 密集雨滴，频繁闪电，轻微抖动
+    body.classList.add('phase-1', 'phase-shake');
+    createRaindrops(40, 0.3, 0.8, 0.15, 0.4);
+    initLightning(3000, 5000, 0.15);
+    phaseLabel.textContent = '台风正在过境，风力12级';
+  } else {
+    // 阶段三：台风持续影响 - 暴雨，极快闪电，轻微抖动，卡片电光
+    body.classList.add('phase-2', 'phase-shake');
+    createRaindrops(60, 0.2, 0.5, 0.2, 0.5);
+    initLightning(1000, 3000, 0.25);
+    if (card) card.classList.add('edge-glow');
+    phaseLabel.textContent = '台风持续中，请保持警惕';
+  }
+}
+
+/* ============================================================
+   渲染情景问题
+   ============================================================ */
+function renderQuestion() {
+  var scenario = selectedScenarios[currentQuestion];
+
+  // 【功能二】检测并应用风暴阶段（基于 category 属性）
+  var newPhase = getStormPhase();
+  if (newPhase !== currentPhase) {
+    applyStormPhase(newPhase);
+  }
+
+  // 更新进度条
+  updateProgress();
+
+  // 【功能三】挑战模式计时器显示
+  var timerEl = document.getElementById('challenge-timer');
+  if (timerEl) {
+    timerEl.style.display = isChallengeMode ? 'block' : 'none';
+    if (isChallengeMode) updateChallengeTimerDisplay();
+  }
+
+  // 填充题目内容
+  scenarioTitle.textContent = scenario.title;
+  scenarioDesc.textContent = scenario.desc;
+
+  // 生成选项按钮
+  optionsContainer.innerHTML = '';
+  for (var i = 0; i < scenario.options.length; i++) {
+    var opt = scenario.options[i];
+    var btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = '<span class="option-label">' + opt.label + '</span><span>' + opt.text + '</span>';
+    btn.setAttribute('data-index', i);
+    btn.addEventListener('click', function() {
+      handleOptionClick(parseInt(this.getAttribute('data-index')));
+    });
+    optionsContainer.appendChild(btn);
+  }
+
+  // 显示问题内容，隐藏反馈
+  questionContent.style.display = 'block';
+  feedbackContent.style.display = 'none';
+
+  // 卡片淡入动画
+  scenarioCard.classList.remove('fade-in');
+  void scenarioCard.offsetWidth; // 触发回流，重置动画
+  scenarioCard.classList.add('fade-in');
+}
+
+/* ============================================================
+   处理选项点击
+   ============================================================ */
+function handleOptionClick(selectedIndex) {
+  var scenario = selectedScenarios[currentQuestion];
+  var isCorrect = (selectedIndex === scenario.correctIndex);
+
+  // 禁用所有选项按钮
+  var allBtns = optionsContainer.querySelectorAll('.option-btn');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].disabled = true;
+  }
+
+  // 高亮用户选择的按钮
+  var selectedBtn = allBtns[selectedIndex];
+  if (isCorrect) {
+    selectedBtn.classList.add('correct');
+    score++;
+  } else {
+    selectedBtn.classList.add('wrong');
+    // 同时高亮正确答案
+    allBtns[scenario.correctIndex].classList.add('correct');
+
+    // 【功能一】扣一条命
+    lives--;
+    updateHearts();
+
+    // 【功能一】记录错题
+    wrongQuestions.push(scenario.title + '：' + scenario.options[selectedIndex].text);
+
+    // 【功能三】触发错误后果动画
+    triggerConsequence(scenario.id);
+  }
+
+  // 0.5秒后显示反馈
+  setTimeout(function() {
+    // 【功能三】挑战模式：错误直接结束
+    if (isChallengeMode && !isCorrect) {
+      handleChallengeWrong();
+      return;
+    }
+    showFeedback(isCorrect, selectedIndex);
+  }, 500);
+}
+
+/* ============================================================
+   显示反馈内容
+   ============================================================ */
+function showFeedback(isCorrect, selectedIndex) {
+  var scenario = selectedScenarios[currentQuestion];
+
+  // 隐藏问题内容
+  questionContent.style.display = 'none';
+
+  // 填充反馈
+  if (isCorrect) {
+    feedbackIcon.innerHTML = '<div class="checkmark-css"></div>';
+    feedbackTitle.className = 'feedback-title correct-title';
+    feedbackTitle.textContent = scenario.correctFeedback.title;
+    feedbackText.textContent = scenario.correctFeedback.text;
+  } else {
+    feedbackIcon.innerHTML = '<div class="cross-css"></div>';
+    feedbackTitle.className = 'feedback-title wrong-title';
+    var wrongIdx = selectedIndex < scenario.correctIndex ? selectedIndex : selectedIndex - 1;
+    feedbackTitle.textContent = scenario.wrongFeedback[wrongIdx].title;
+    feedbackText.textContent = scenario.wrongFeedback[wrongIdx].text;
+  }
+
+  // 【功能一】检查是否生命值归零
+  if (lives <= 0) {
+    // 延迟显示游戏结束画面
+    btnNext.textContent = '查看结果';
+    btnNext.classList.add('btn-cert');
+  } else if (currentQuestion >= totalQuestions - 1) {
+    btnNext.textContent = '查看证书';
+    btnNext.classList.add('btn-cert');
+  } else {
+    btnNext.textContent = '下一题';
+    btnNext.classList.remove('btn-cert');
+  }
+
+  // 显示反馈
+  feedbackContent.style.display = 'block';
+
+  // 卡片淡入动画
+  scenarioCard.classList.remove('fade-in');
+  void scenarioCard.offsetWidth;
+  scenarioCard.classList.add('fade-in');
+}
+
+/* ============================================================
+   下一题 / 查看证书
+   ============================================================ */
+function goToNext() {
+  // 【功能一】检查生命值是否归零
+  if (lives <= 0 && !isChallengeMode) {
+    showGameOver();
+    return;
+  }
+
+  if (currentQuestion < totalQuestions - 1) {
+    currentQuestion++;
+    // 【功能三】挑战模式：重启计时器
+    if (isChallengeMode) {
+      if (challengeTimer) clearInterval(challengeTimer);
+      startChallengeTimer();
+    }
+    renderQuestion();
+  } else {
+    // 【功能三】挑战模式通关
+    if (isChallengeMode) {
+      if (challengeTimer) clearInterval(challengeTimer);
+      showChallengeGameOver();
+      return;
+    }
+    showCertificate();
+  }
+}
+
+/* ============================================================
+   生成通关证书
+   ============================================================ */
+function showCertificate() {
+  showScreen(certificateScreen);
+
+  // 计算总用时
+  totalTime = Math.floor((Date.now() - startTime) / 1000);
+
+  var badgeTitle = '';
+  var summary = '';
+  var certClass = '';   // 证书额外 CSS 类
+  var endingType = '';  // 结局类型
+
+  // 【功能二】隐藏结局判定
+  if (score === totalQuestions && lives === maxLives) {
+    // 全对 + 满血
+    endingType = 'expert';
+    badgeTitle = '台风安全专家';
+    summary = '所有题目全部答对，而且全程毫发无伤！你对台风安全知识了如指掌，是当之无愧的安全专家！';
+    certClass = 'cert-gold';
+  } else if (score === totalQuestions && totalTime < 60) {
+    // 全对 + 速度超快
+    endingType = 'speed';
+    badgeTitle = '应急反应达人';
+    summary = '全部答对且用时仅' + totalTime + '秒！你的应急反应速度令人惊叹，面对危险时就能快速做出正确判断！';
+    certClass = 'cert-lightning';
+  } else if (score === 0) {
+    // 全错
+    endingType = 'fail';
+    badgeTitle = '反面教材';
+    summary = '你大概是台风请来的帮手吧？7道题全错，台风来了你可要小心了！快重新学习一下吧！';
+    certClass = 'cert-fail';
+  } else if (lives === 1 && score > 0) {
+    // 只剩1条命通关
+    endingType = 'survivor';
+    badgeTitle = '绝地求生';
+    summary = '惊险！你只剩最后一条命了，但最终还是安全度过了台风。下次可要更小心了！';
+    certClass = 'cert-crack';
+  } else {
+    // 常规结局
+    if (score >= 5) {
+      badgeTitle = '台风安全小达人';
+      summary = '表现优秀！你已经掌握了台风应对的核心知识，继续保持！';
+    } else if (score >= 3) {
+      badgeTitle = '台风安全学员';
+      summary = '表现良好！你已经有了一定的安全知识基础，再多学习一些就能更从容应对台风了。';
+    } else {
+      badgeTitle = '台风安全新手';
+      summary = '还需要加油！台风安全知识需要多多学习，保护好自己和家人才是最重要的。';
+    }
+    if (lives === maxLives) summary += ' 全程毫发无伤，了不起！';
+    else if (lives >= 2) summary += ' 还有' + lives + '条命剩余，表现稳健！';
+    else if (lives === 1) summary += ' 只剩最后一条命，惊险过关！';
+  }
+
+  // 知识回顾列表
+  var knowledgeHTML = '';
+  for (var i = 0; i < selectedScenarios.length; i++) {
+    knowledgeHTML += '<li>' + selectedScenarios[i].knowledge + '</li>';
+  }
+
+  var now = new Date();
+  var dateStr = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
+
+  var livesHTML = '';
+  for (var l = 0; l < maxLives; l++) {
+    livesHTML += '<span class="heart-mini' + (l >= lives ? ' lost' : '') + '"></span>';
+  }
+
+  // 隐藏结局提示
+  var endingHint = '';
+  if (endingType !== 'expert') {
+    endingHint = '<div class="cert-hint">还有其他结局等你发现哦~</div>';
+  }
+
+  // 挑战模式按钮
+  var challengeBtn = '<button class="btn-challenge" id="btn-challenge">挑战模式（二周目）</button>';
+
+  certificateCard.className = 'certificate-card ' + certClass;
+  certificateCard.innerHTML =
+    '<div class="cert-competition">全国青少年安全与应急科普创新大赛</div>' +
+    '<div class="cert-title">台风安全小达人</div>' +
+    '<div class="cert-summary">' + summary + '</div>' +
+    '<div class="cert-score">正确 ' + score + '/' + totalQuestions + ' | 用时 ' + totalTime + '秒</div>' +
+    '<div class="cert-badge">' + badgeTitle + '</div>' +
+    '<div class="cert-lives">剩余生命：' + livesHTML + '</div>' +
+    '<div class="cert-divider"></div>' +
+    '<div class="cert-knowledge-title">知识回顾</div>' +
+    '<ul class="cert-knowledge-list">' + knowledgeHTML + '</ul>' +
+    '<div class="cert-date">' + dateStr + '</div>' +
+    '<button class="btn-retry" id="btn-retry">重新挑战</button>' +
+    challengeBtn +
+    endingHint;
+
+  document.getElementById('btn-retry').addEventListener('click', resetGame);
+  document.getElementById('btn-challenge').addEventListener('click', startChallengeMode);
+
+  // 卡片淡入
+  certificateCard.classList.remove('fade-in');
+  void certificateCard.offsetWidth;
+  certificateCard.classList.add('fade-in');
+
+  // 金色结局粒子特效
+  if (endingType === 'expert') {
+    triggerGoldParticles();
+  }
+}
+
+/* ============================================================
+   【功能三】挑战模式
+   ============================================================ */
+function startChallengeMode() {
+  currentQuestion = 0;
+  score = 0;
+  lives = 0; // 无生命值
+  wrongQuestions = [];
+  currentPhase = -1;
+  isChallengeMode = true;
+  totalQuestions = challengeQuestionCount;
+  challengeScore = 0;
+  selectedScenarios = selectRandomScenarios(totalQuestions);
+  startTime = Date.now();
+
+  document.body.classList.remove('gameover-bg', 'phase-0', 'phase-1', 'phase-2', 'phase-shake', 'phase-shake-strong', 'explosion-shake');
+  document.body.classList.add('challenge-mode');
+  document.body.style.background = '';
+  var rainContainer = document.getElementById('rain-container');
+  rainContainer.classList.remove('paused');
+
+  showScreen(scenarioScreen);
+  renderQuestion();
+  startChallengeTimer();
+}
+
+function startChallengeTimer() {
+  challengeTimeLeft = 8;
+  updateChallengeTimerDisplay();
+  if (challengeTimer) clearInterval(challengeTimer);
+  challengeTimer = setInterval(function() {
+    challengeTimeLeft--;
+    updateChallengeTimerDisplay();
+    if (challengeTimeLeft <= 0) {
+      clearInterval(challengeTimer);
+      // 超时，视为错误
+      handleChallengeTimeout();
+    }
+  }, 1000);
+}
+
+function updateChallengeTimerDisplay() {
+  var timerEl = document.getElementById('challenge-timer');
+  if (!timerEl) return;
+  timerEl.textContent = challengeTimeLeft;
+  if (challengeTimeLeft <= 3) {
+    timerEl.style.color = '#f44336';
+  } else {
+    timerEl.style.color = '#fff';
+  }
+}
+
+function handleChallengeTimeout() {
+  var allBtns = optionsContainer.querySelectorAll('.option-btn');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].disabled = true;
+  }
+  // 高亮正确答案
+  allBtns[selectedScenarios[currentQuestion].correctIndex].classList.add('correct');
+  wrongQuestions.push(selectedScenarios[currentQuestion].title + '：超时未作答');
+
+  setTimeout(function() {
+    showChallengeGameOver();
+  }, 800);
+}
+
+function handleChallengeWrong() {
+  if (challengeTimer) clearInterval(challengeTimer);
+  setTimeout(function() {
+    showChallengeGameOver();
+  }, 600);
+}
+
+function showChallengeGameOver() {
+  if (challengeTimer) clearInterval(challengeTimer);
+
+  var finalScore = score * 10; // 每题10分
+  var highScore = localStorage.getItem('typhoon_challenge_highscore') || 0;
+  if (finalScore > highScore) {
+    localStorage.setItem('typhoon_challenge_highscore', finalScore);
+    highScore = finalScore;
+  }
+
+  document.body.classList.remove('challenge-mode');
+  showScreen(certificateScreen);
+
+  certificateCard.className = 'certificate-card cert-challenge';
+  certificateCard.innerHTML =
+    '<div class="cert-competition">挑战模式结果</div>' +
+    '<div class="cert-title" style="color:#ff5252">挑战结束</div>' +
+    '<div class="cert-summary">答对 ' + score + ' 题，得分 ' + finalScore + '</div>' +
+    '<div class="cert-score">历史最高分：' + highScore + '</div>' +
+    '<div class="cert-divider"></div>' +
+    '<div class="cert-knowledge-title">挑战模式规则</div>' +
+    '<ul class="cert-knowledge-list">' +
+    '<li>随机抽取10题，每题8秒倒计时</li>' +
+    '<li>无生命值，错一题或超时即结束</li>' +
+    '<li>每题答对得10分，挑战你的极限！</li>' +
+    '</ul>' +
+    '<button class="btn-retry" id="btn-retry-challenge">重新挑战</button>' +
+    '<button class="btn-challenge" id="btn-retry-normal">返回普通模式</button>';
+
+  document.getElementById('btn-retry-challenge').addEventListener('click', function() {
+    startChallengeMode();
+  });
+  document.getElementById('btn-retry-normal').addEventListener('click', resetGame);
+
+  certificateCard.classList.remove('fade-in');
+  void certificateCard.offsetWidth;
+  certificateCard.classList.add('fade-in');
+}
+
+/* ============================================================
+   【功能二】金色粒子特效
+   ============================================================ */
+function triggerGoldParticles() {
+  var count = 30;
+  for (var i = 0; i < count; i++) {
+    var particle = document.createElement('div');
+    particle.className = 'gold-particle';
+    particle.style.left = (10 + Math.random() * 80) + '%';
+    particle.style.top = '-10px';
+    particle.style.animationDelay = (Math.random() * 2) + 's';
+    particle.style.animationDuration = (2 + Math.random() * 3) + 's';
+    particle.style.width = (4 + Math.random() * 6) + 'px';
+    particle.style.height = particle.style.width;
+    document.body.appendChild(particle);
+
+    (function(el) {
+      setTimeout(function() {
+        if (el.parentNode) el.remove();
+      }, 5000);
+    })(particle);
+  }
+}
+function resetGame() {
+  currentQuestion = 0;
+  score = 0;
+  lives = maxLives;
+  wrongQuestions = [];
+  currentPhase = -1;
+  isChallengeMode = false;
+  totalQuestions = 7;
+  if (challengeTimer) { clearInterval(challengeTimer); challengeTimer = null; }
+  updateHearts();
+  // 隐藏计时器
+  var timerEl = document.getElementById('challenge-timer');
+  if (timerEl) timerEl.style.display = 'none';
+  // 清除游戏结束状态
+  document.body.classList.remove('gameover-bg', 'challenge-mode', 'phase-0', 'phase-1', 'phase-2', 'phase-shake', 'phase-shake-strong', 'explosion-shake');
+  var rainContainer = document.getElementById('rain-container');
+  rainContainer.classList.remove('paused');
+  // 恢复默认背景
+  document.body.style.background = '';
+  showScreen(coverScreen);
+}
+
+/* ============================================================
+   开始挑战
+   ============================================================ */
+function startGame() {
+  currentQuestion = 0;
+  score = 0;
+  lives = maxLives;
+  wrongQuestions = [];
+  currentPhase = -1;
+  isChallengeMode = false;
+  totalQuestions = 7;
+  // 【功能一】随机选题
+  selectedScenarios = selectRandomScenarios(totalQuestions);
+  // 【功能二】记录开始时间
+  startTime = Date.now();
+  updateHearts();
+  // 清除游戏结束状态
+  document.body.classList.remove('gameover-bg', 'phase-0', 'phase-1', 'phase-2', 'phase-shake', 'phase-shake-strong', 'explosion-shake');
+  document.body.style.background = '';
+  var rainContainer = document.getElementById('rain-container');
+  rainContainer.classList.remove('paused');
+  showScreen(scenarioScreen);
+  renderQuestion();
+}
+
+/* ============================================================
+   事件绑定
+   ============================================================ */
+btnStart.addEventListener('click', startGame);
+btnNext.addEventListener('click', goToNext);
+
+/* ============================================================
+   【功能一】更新心形生命值显示
+   ============================================================ */
+function updateHearts() {
+  var hearts = [heart0, heart1, heart2];
+  for (var i = 0; i < hearts.length; i++) {
+    if (i >= lives) {
+      hearts[i].classList.add('lost');
+    } else {
+      hearts[i].classList.remove('lost');
+    }
+  }
+}
+
+/* ============================================================
+   【功能一】游戏结束画面
+   ============================================================ */
+function showGameOver() {
+  showScreen(gameoverScreen);
+
+  // 设置游戏结束背景
+  document.body.classList.add('gameover-bg');
+  document.body.classList.remove('phase-0', 'phase-1', 'phase-2', 'phase-shake', 'phase-shake-strong');
+
+  // 停止雨滴
+  var rainContainer = document.getElementById('rain-container');
+  rainContainer.classList.add('paused');
+
+  // 停止闪电
+  if (lightningTimer) {
+    clearTimeout(lightningTimer);
+    lightningTimer = null;
+  }
+  document.getElementById('lightning-overlay').style.background = 'rgba(255,255,255,0)';
+
+  // 生成错题原因列表
+  var reasonsHTML = '';
+  for (var i = 0; i < wrongQuestions.length; i++) {
+    reasonsHTML += '<li>' + wrongQuestions[i] + '</li>';
+  }
+
+  gameoverCard.innerHTML =
+    '<div class="gameover-title">台风灾害结果</div>' +
+    '<div class="gameover-subtitle">你未能安全度过台风……</div>' +
+    '<div class="gameover-reasons">' +
+    '  <div class="gameover-reasons-title">导致失败的原因：</div>' +
+    '  <ul class="gameover-reasons-list">' + reasonsHTML + '</ul>' +
+    '</div>' +
+    '<button class="btn-retry" id="btn-retry-gameover">重新挑战</button>';
+
+  document.getElementById('btn-retry-gameover').addEventListener('click', resetGame);
+}
+
+/* ============================================================
+   【功能三】触发错误后果动画
+   ============================================================ */
+function triggerConsequence(scenarioId) {
+  switch (scenarioId) {
+    case 1:
+      // 情景1：警报红色闪烁
+      alertFlashOverlay.classList.remove('active');
+      void alertFlashOverlay.offsetWidth;
+      alertFlashOverlay.classList.add('active');
+      break;
+
+    case 2:
+      // 情景2：花盆横穿卡片后方（延迟0.3s + 风线 + 卡片风压 + 碎裂）
+      setTimeout(function() {
+        // 触发风线效果
+        triggerWindLines();
+        // 触发花盆飞行（从左侧飞入，卡片后方穿过，右侧飞出）
+        flowerpot.classList.remove('active');
+        void flowerpot.offsetWidth;
+        flowerpot.classList.add('active');
+        // 花盆进入卡片后方时触发风压效果（飞行0.3s延迟 + 约0.55s到达卡片左边缘）
+        setTimeout(function() {
+          scenarioCard.classList.remove('wind-pressure');
+          void scenarioCard.offsetWidth;
+          scenarioCard.classList.add('wind-pressure');
+        }, 850);
+        // 花盆飞出右侧后触发碎裂（飞行1.8s + 延迟0.3s = 2.1s后）
+        setTimeout(function() {
+          triggerShatter();
+          // 清除风压效果
+          scenarioCard.classList.remove('wind-pressure');
+        }, 2100);
+      }, 300);
+      break;
+
+    case 3:
+      // 情景3：蜡烛倾倒 - 卡片变暗 + 火焰
+      scenarioCard.classList.remove('candle-dim');
+      void scenarioCard.offsetWidth;
+      scenarioCard.classList.add('candle-dim');
+
+      // 创建蜡烛火焰元素
+      var existingFlame = document.getElementById('candle-flame');
+      if (existingFlame) existingFlame.remove();
+      var flame = document.createElement('div');
+      flame.id = 'candle-flame';
+      scenarioCard.appendChild(flame);
+      void flame.offsetWidth;
+      flame.classList.add('active');
+
+      // 2.5秒后清除火焰和变暗效果
+      setTimeout(function() {
+        scenarioCard.classList.remove('candle-dim');
+        if (flame.parentNode) flame.remove();
+      }, 2500);
+      break;
+
+    case 4:
+      // 情景4：玻璃碎裂裂纹
+      var existingCrack = document.getElementById('glass-crack-overlay');
+      if (existingCrack) existingCrack.remove();
+      var crackOverlay = document.createElement('div');
+      crackOverlay.id = 'glass-crack-overlay';
+      // 生成随机裂纹线条
+      var crackLines = '';
+      for (var c = 0; c < 6; c++) {
+        var cx = 20 + Math.random() * 60;
+        var cy = 20 + Math.random() * 60;
+        var angle = Math.random() * 360;
+        var clen = 30 + Math.random() * 80;
+        var cwidth = 1 + Math.random() * 2;
+        crackLines += '<div class="crack-line" style="left:' + cx + '%;top:' + cy + '%;width:' + clen + 'px;height:' + cwidth + 'px;transform:rotate(' + angle + 'deg);"></div>';
+      }
+      crackOverlay.innerHTML = crackLines;
+      scenarioCard.appendChild(crackOverlay);
+      void crackOverlay.offsetWidth;
+      crackOverlay.classList.add('active');
+
+      // 2秒后清除
+      setTimeout(function() {
+        if (crackOverlay.parentNode) crackOverlay.remove();
+      }, 2000);
+      break;
+
+    case 5:
+      // 情景5：水位上涨
+      var existingWater = document.getElementById('water-wave');
+      if (existingWater) existingWater.remove();
+      var waterWave = document.createElement('div');
+      waterWave.id = 'water-wave';
+      scenarioCard.appendChild(waterWave);
+      void waterWave.offsetWidth;
+      waterWave.classList.add('active');
+
+      // 2.5秒后清除
+      setTimeout(function() {
+        if (waterWave.parentNode) waterWave.remove();
+      }, 2500);
+      break;
+
+    case 6:
+      // 情景6：爆炸闪光 + 屏幕抖动
+      explosionFlash.classList.remove('active');
+      void explosionFlash.offsetWidth;
+      explosionFlash.classList.add('active');
+      document.body.classList.remove('explosion-shake');
+      void document.body.offsetWidth;
+      document.body.classList.add('explosion-shake');
+
+      setTimeout(function() {
+        document.body.classList.remove('explosion-shake');
+      }, 600);
+      break;
+
+    case 7:
+      // 情景7：电线火花
+      for (var s = 0; s < 3; s++) {
+        var spark = document.createElement('div');
+        spark.className = 'electric-spark';
+        spark.style.top = (15 + Math.random() * 70) + '%';
+        spark.style.left = (10 + Math.random() * 80) + '%';
+        scenarioCard.appendChild(spark);
+        void spark.offsetWidth;
+        spark.classList.add('active');
+        (function(sp) {
+          setTimeout(function() {
+            if (sp.parentNode) sp.remove();
+          }, 2000);
+        })(spark);
+      }
+      break;
+
+    case 8:
+      // 情景8：预警信号灯闪烁
+      var existingSignal = document.getElementById('signal-lights');
+      if (existingSignal) existingSignal.remove();
+      var signalDiv = document.createElement('div');
+      signalDiv.id = 'signal-lights';
+      signalDiv.innerHTML = '<div class="signal-light blue"></div><div class="signal-light yellow"></div><div class="signal-light orange"></div><div class="signal-light red"></div>';
+      document.body.appendChild(signalDiv);
+      void signalDiv.offsetWidth;
+      signalDiv.classList.add('active');
+      setTimeout(function() { if (signalDiv.parentNode) signalDiv.remove(); }, 2500);
+      break;
+
+    case 9:
+      // 情景9：应急背包掉落
+      var existingBackpack = document.getElementById('backpack');
+      if (existingBackpack) existingBackpack.remove();
+      var bp = document.createElement('div');
+      bp.id = 'backpack';
+      document.body.appendChild(bp);
+      void bp.offsetWidth;
+      bp.classList.add('active');
+      setTimeout(function() { if (bp.parentNode) bp.remove(); }, 2000);
+      break;
+
+    case 10:
+      // 情景10：电梯震动
+      scenarioCard.classList.remove('elevator-shake');
+      void scenarioCard.offsetWidth;
+      scenarioCard.classList.add('elevator-shake');
+      break;
+
+    case 11:
+      // 情景11：洪水泥浆
+      var existingMud = document.getElementById('mud-wave');
+      if (existingMud) existingMud.remove();
+      var mudWave = document.createElement('div');
+      mudWave.id = 'mud-wave';
+      scenarioCard.appendChild(mudWave);
+      void mudWave.offsetWidth;
+      mudWave.classList.add('active');
+      setTimeout(function() { if (mudWave.parentNode) mudWave.remove(); }, 3000);
+      break;
+
+    case 12:
+      // 情景12：闪电劈中
+      var existingStrike = document.getElementById('lightning-strike');
+      if (existingStrike) existingStrike.remove();
+      var strike = document.createElement('div');
+      strike.id = 'lightning-strike';
+      scenarioCard.appendChild(strike);
+      void strike.offsetWidth;
+      strike.classList.add('active');
+      setTimeout(function() { if (strike.parentNode) strike.remove(); }, 1500);
+      break;
+
+    case 13:
+      // 情景13：泥石流
+      var existingMudslide = document.getElementById('mudslide');
+      if (existingMudslide) existingMudslide.remove();
+      var ms = document.createElement('div');
+      ms.id = 'mudslide';
+      scenarioCard.appendChild(ms);
+      void ms.offsetWidth;
+      ms.classList.add('active');
+      setTimeout(function() { if (ms.parentNode) ms.remove(); }, 2000);
+      break;
+
+    case 14:
+      // 情景14：水杯倾倒
+      var existingCup = document.getElementById('water-cup');
+      if (existingCup) existingCup.remove();
+      var cup = document.createElement('div');
+      cup.id = 'water-cup';
+      scenarioCard.appendChild(cup);
+      void cup.offsetWidth;
+      cup.classList.add('active');
+      setTimeout(function() { if (cup.parentNode) cup.remove(); }, 2000);
+      break;
+
+    case 15:
+      // 情景15：车辆打滑
+      var existingCar = document.getElementById('car-spin');
+      if (existingCar) existingCar.remove();
+      var car = document.createElement('div');
+      car.id = 'car-spin';
+      scenarioCard.appendChild(car);
+      void car.offsetWidth;
+      car.classList.add('active');
+      setTimeout(function() { if (car.parentNode) car.remove(); }, 2000);
+      break;
+  }
+}
+
+/* ============================================================
+   【功能三】情景2辅助：风线效果
+   ============================================================ */
+function triggerWindLines() {
+  var lineCount = 5;
+  for (var i = 0; i < lineCount; i++) {
+    var line = document.createElement('div');
+    line.className = 'wind-line';
+    // 水平风线，分布在屏幕上下边缘，模拟横向狂风
+    line.style.width = (80 + Math.random() * 140) + 'px';
+    line.style.top = (Math.random() > 0.5 ? (2 + Math.random() * 15) : (82 + Math.random() * 15)) + '%';
+    line.style.left = (5 + Math.random() * 85) + '%';
+    line.style.transform = 'rotate(' + (-10 + Math.random() * 20) + 'deg)';
+    line.style.animationDelay = (i * 0.06) + 's';
+    document.body.appendChild(line);
+    void line.offsetWidth;
+    line.classList.add('active');
+
+    // 1秒后清除
+    (function(el) {
+      setTimeout(function() {
+        if (el.parentNode) el.remove();
+      }, 1000);
+    })(line);
+  }
+}
+
+/* ============================================================
+   【功能三】情景2辅助：碎裂效果
+   ============================================================ */
+function triggerShatter() {
+  var pieceCount = 8;
+  // 碎裂位置在屏幕右侧边缘（花盆飞出落点）
+  var baseX = 88;
+  var baseY = 38;
+
+  for (var i = 0; i < pieceCount; i++) {
+    var piece = document.createElement('div');
+    piece.className = 'shatter-piece';
+    // 随机三角形碎片
+    var size = 6 + Math.random() * 12;
+    var color = ['#b5651d', '#8b4513', '#a0522d', '#6d3a1a', '#4caf50', '#43a047'][Math.floor(Math.random() * 6)];
+    piece.style.borderLeft = size + 'px solid transparent';
+    piece.style.borderRight = size + 'px solid transparent';
+    piece.style.borderBottom = (size * 1.4) + 'px solid ' + color;
+    piece.style.left = baseX + '%';
+    piece.style.top = baseY + '%';
+    // 随机散射方向
+    piece.style.setProperty('--sx', (-40 + Math.random() * 80) + 'px');
+    piece.style.setProperty('--sy', (-40 + Math.random() * 80) + 'px');
+    piece.style.animationDelay = (i * 0.03) + 's';
+
+    document.body.appendChild(piece);
+    void piece.offsetWidth;
+    piece.classList.add('active');
+
+    // 0.8秒后清除
+    (function(el) {
+      setTimeout(function() {
+        if (el.parentNode) el.remove();
+      }, 800);
+    })(piece);
+  }
+}
+
+/* ============================================================
+   初始化
+   ============================================================ */
+function init() {
+  createRaindrops(40, 0.4, 0.8, 0.15, 0.4);
+  initLightning(4000, 8000, 0.15);
+}
+
+init();
+</script>
+
+</body>
+</html>

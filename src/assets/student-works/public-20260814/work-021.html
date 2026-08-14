@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>防灾减灾小游戏</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow: hidden; }
+#game-hall { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+#game-hall h1 { color: white; font-size: 3rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+#game-hall p { color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-bottom: 40px; }
+.game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 600px; }
+.game-card { background: white; border-radius: 15px; padding: 25px; text-align: center; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.game-card:hover { transform: translateY(-10px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+.game-icon { font-size: 4rem; margin-bottom: 15px; }
+.game-card h3 { color: #333; font-size: 1.3rem; margin-bottom: 10px; }
+.game-card p { color: #666; font-size: 0.9rem; margin: 0; }
+#game-container { position: relative; width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.hidden { display: none !important; }
+#start-screen, #mudslide-start-screen { background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 500px; }
+.tip-box { margin-bottom: 30px; }
+.tip-box h2 { color: #e74c3c; font-size: 1.8rem; margin-bottom: 20px; }
+.tip-box ul { text-align: left; padding-left: 20px; }
+.tip-box li { color: #555; font-size: 1.1rem; margin-bottom: 10px; line-height: 1.6; }
+#start-btn, #mudslide-start-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 50px; font-size: 1.3rem; border-radius: 30px; cursor: pointer; transition: transform 0.3s; }
+#start-btn:hover, #mudslide-start-btn:hover { transform: scale(1.05); }
+#game-canvas { border: 4px solid white; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+#game-ui, #mudslide-game-ui { position: absolute; top: 20px; left: 20px; display: flex; gap: 10px; align-items: center; }
+.key-counter, .mudslide-counter { background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 20px; font-size: 1.2rem; font-weight: bold; color: #333; }
+.key-counter #key-count { color: #e74c3c; font-size: 1.5rem; }
+#pause-btn, #mudslide-pause-btn { background: rgba(255,255,255,0.9); border: none; padding: 10px 20px; border-radius: 20px; font-size: 1rem; cursor: pointer; transition: background 0.3s; }
+#pause-btn:hover, #mudslide-pause-btn:hover { background: white; }
+#game-over, #game-win, #pause-menu, #mudslide-game-over, #mudslide-game-win, #mudslide-pause-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 100; }
+#game-over h2, #mudslide-game-over h2 { color: #e74c3c; font-size: 2.5rem; margin-bottom: 20px; }
+#game-win h2, #mudslide-game-win h2 { color: #27ae60; font-size: 2.5rem; margin-bottom: 20px; }
+#game-over p, #game-win p, #mudslide-game-over p, #mudslide-game-win p { color: #555; font-size: 1.2rem; margin-bottom: 30px; }
+#game-over button, #game-win button, #pause-menu button, #mudslide-game-over button, #mudslide-game-win button, #mudslide-pause-menu button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 40px; font-size: 1.1rem; border-radius: 25px; cursor: pointer; margin: 5px; transition: transform 0.3s; }
+#game-over button:hover, #game-win button:hover, #pause-menu button:hover, #mudslide-game-over button:hover, #mudslide-game-win button:hover, #mudslide-pause-menu button:hover { transform: scale(1.05); }
+#quiz-container, #mudslide-quiz-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; }
+.quiz-box { background: white; border-radius: 20px; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.quiz-box h2 { color: #333; font-size: 1.8rem; margin-bottom: 30px; text-align: center; }
+#quiz-question, #mudslide-quiz-question { color: #444; font-size: 1.3rem; margin-bottom: 25px; line-height: 1.6; }
+#quiz-options, #mudslide-quiz-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+.quiz-option { background: #f5f5f5; border: 2px solid #ddd; padding: 15px 20px; border-radius: 10px; cursor: pointer; transition: all 0.3s; font-size: 1.1rem; }
+.quiz-option:hover { background: #e8e8e8; border-color: #667eea; }
+.quiz-option.correct { background: #27ae60; border-color: #27ae60; color: white; }
+.quiz-option.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+#quiz-feedback, #mudslide-quiz-feedback { font-size: 1.2rem; margin-bottom: 20px; padding: 15px; border-radius: 10px; text-align: center; }
+#next-question-btn, #mudslide-next-question-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 40px; font-size: 1.1rem; border-radius: 25px; cursor: pointer; transition: transform 0.3s; float: right; }
+#next-question-btn:hover, #mudslide-next-question-btn:hover { transform: scale(1.05); }
+.quiz-back-btn { background: #95a5a6; color: white; border: none; padding: 12px 30px; font-size: 1rem; border-radius: 25px; cursor: pointer; transition: background 0.3s; }
+.quiz-back-btn:hover { background: #7f8c8d; }
+#backpack-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; padding: 10px 20px; border-radius: 20px; font-size: 1rem; cursor: pointer; transition: transform 0.3s; }
+#backpack-btn:hover { transform: scale(1.05); }
+#backpack { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 150; min-width: 300px; }
+.backpack-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #eee; }
+.backpack-header h3 { color: #333; font-size: 1.5rem; }
+.backpack-header button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+.backpack-items { display: flex; gap: 20px; justify-content: center; }
+.backpack-item { display: flex; flex-direction: column; align-items: center; padding: 15px 25px; background: #f5f5f5; border-radius: 15px; cursor: pointer; transition: all 0.3s; border: 3px solid transparent; }
+.backpack-item:hover { background: #e8e8e8; }
+.backpack-item.selected { border-color: #11998e; background: #e8f5f3; }
+.item-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.backpack-item span { color: #333; font-weight: bold; }
+.backpack-tip { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee; }
+.backpack-tip p { color: #666; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div id="game-hall">
+<h1>防灾减灾小游戏</h1>
+<p>学习防灾知识，保护生命安全</p>
+<div class="game-grid">
+<div class="game-card" onclick="startGame('earthquake')"><div class="game-icon">🏔️</div><h3>地震逃生</h3><p>躲避掉落的石头，收集钥匙逃进木屋</p></div>
+<div class="game-card" onclick="startGame('rainstorm')"><div class="game-icon">⛈️</div><h3>暴雨避险</h3><p>躲避雷击，收集钥匙逃进木屋</p></div>
+<div class="game-card" onclick="startGame('mudslide')"><div class="game-icon">🪨</div><h3>泥石流逃生</h3><p>躲避泥石流，营救被困人员</p></div>
+<div class="game-card" onclick="startGame('fire')"><div class="game-icon">🔥</div><h3>火灾逃生</h3><p>合成湿纸巾，逃出火场</p></div>
+</div>
+</div>
+
+<div id="game-container" class="hidden">
+<div id="start-screen">
+<div class="tip-box">
+<h2>遇到地震该怎么办？</h2>
+<ul>
+<li>🚨 保持冷静，不要慌张</li>
+<li>🏃 如果在室内，迅速躲到桌子下、墙角等安全角落</li>
+<li>🚪 如果在室外，远离建筑物、大树、电线杆</li>
+<li>🔑 收集足够的钥匙才能打开逃生通道</li>
+<li>🏠 集齐所有钥匙后逃进木屋安全地带</li>
+</ul>
+</div>
+<button id="start-btn">开始玩游戏</button>
+</div>
+
+<canvas id="game-canvas"></canvas>
+
+<div id="game-ui" class="hidden">
+<div class="key-counter"><span>钥匙收集:</span><span id="key-count">0</span><span>/24</span></div>
+<button id="pause-btn">暂停</button>
+</div>
+
+<div id="game-over" class="hidden">
+<h2>游戏结束</h2><p>你被石头砸中了！</p>
+<button onclick="backToHall()">返回大厅</button>
+</div>
+
+<div id="game-win" class="hidden">
+<h2>恭喜通关！</h2><p>你成功集齐所有钥匙并逃进木屋！</p>
+<button onclick="startQuiz()">开始答题</button>
+</div>
+
+<div id="quiz-container" class="hidden">
+<div class="quiz-box">
+<h2>防灾知识问答</h2>
+<div id="quiz-question"></div>
+<div id="quiz-options"></div>
+<div id="quiz-feedback"></div>
+<button id="next-question-btn" onclick="nextQuestion()" class="hidden">下一题</button>
+<button onclick="backToHall()" class="quiz-back-btn">返回大厅</button>
+</div>
+</div>
+
+<div id="pause-menu" class="hidden">
+<h2>游戏暂停</h2>
+<button onclick="resumeGame()">继续游戏</button>
+<button onclick="backToHall()">返回大厅</button>
+</div>
+
+<div id="mudslide-start-screen" class="hidden">
+<div class="tip-box">
+<h2>遇到泥石流该怎么办？</h2>
+<ul>
+<li>🚨 立即向两侧高地逃生，不要顺沟方向跑</li>
+<li>⛰️ 躲到坚固的掩体后面</li>
+<li>🎒 背包中有木板和绳子，关键时刻能救命</li>
+<li>👥 发现被困人员时，用绳子快速救援</li>
+<li>⏱️ 救援时间有限，要快速反应</li>
+</ul>
+</div>
+<button id="mudslide-start-btn">开始玩游戏</button>
+</div>
+
+<div id="mudslide-game-ui" class="hidden">
+<div class="mudslide-counter"><span>关卡:</span><span id="mudslide-level">1</span></div>
+<div class="mudslide-counter"><span>人质:</span><span id="mudslide-hostages">0</span><span>/3</span></div>
+<button id="backpack-btn">背包</button>
+<button id="mudslide-pause-btn">暂停</button>
+</div>
+
+<div id="backpack" class="hidden">
+<div class="backpack-header"><h3>背包</h3><button onclick="closeBackpack()">✕</button></div>
+<div class="backpack-items">
+<div class="backpack-item" id="item-rope" onclick="selectItem('rope')"><div class="item-icon">🪢</div><span>绳子</span></div>
+<div class="backpack-item" id="item-board" onclick="selectItem('board')"><div class="item-icon">🪵</div><span>木板</span></div>
+</div>
+<div class="backpack-tip"><p>选中物品后按空格键使用</p></div>
+</div>
+
+<div id="mudslide-game-over" class="hidden">
+<h2>游戏结束</h2><p>你被泥石流冲走了！</p>
+<button onclick="backToHall()">返回大厅</button>
+</div>
+
+<div id="mudslide-game-win" class="hidden">
+<h2>恭喜通关！</h2><p>你成功营救了所有被困人员！</p>
+<button onclick="startMudslideQuiz()">开始答题</button>
+</div>
+
+<div id="mudslide-quiz-container" class="hidden">
+<div class="quiz-box">
+<h2>泥石流知识问答</h2>
+<div id="mudslide-quiz-question"></div>
+<div id="mudslide-quiz-options"></div>
+<div id="mudslide-quiz-feedback"></div>
+<button id="mudslide-next-question-btn" onclick="nextMudslideQuestion()" class="hidden">下一题</button>
+<button onclick="backToHall()" class="quiz-back-btn">返回大厅</button>
+</div>
+</div>
+
+<div id="mudslide-pause-menu" class="hidden">
+<h2>游戏暂停</h2>
+<button onclick="resumeMudslideGame()">继续游戏</button>
+<button onclick="backToHall()">返回大厅</button>
+</div>
+
+<div id="fire-start-screen" class="hidden">
+<div class="tip-box">
+<h2>遇到火灾该怎么办？</h2>
+<ul>
+<li>🚨 保持冷静，不要慌张</li>
+<li>🚪 开门前先摸门把手，如果发烫说明门外有火</li>
+<li>🧻 用湿纸巾或湿布捂住口鼻，防止吸入有毒烟雾</li>
+<li>🏃 弯腰低姿前行，烟雾比空气轻会上升</li>
+<li>🚫 不要乘坐电梯，走楼梯逃生</li>
+<li>📱 拨打119火警电话求助</li>
+</ul>
+</div>
+<button id="fire-start-btn">开始玩游戏</button>
+</div>
+
+<div id="fire-game-ui" class="hidden">
+<div class="key-counter"><span>状态:</span><span id="fire-status">寻找物品</span></div>
+<div class="key-counter"><span>手持:</span><span id="fire-holding">无</span></div>
+<button id="fire-pause-btn">暂停</button>
+</div>
+
+<div id="fire-game-over" class="hidden">
+<h2>游戏结束</h2><p id="fire-over-reason">你被烟雾熏倒了！</p>
+<button onclick="backToHall()">返回大厅</button>
+</div>
+
+<div id="fire-game-win" class="hidden">
+<h2>恭喜通关！</h2><p>你成功逃出了火场！</p>
+<button onclick="startFireQuiz()">开始答题</button>
+</div>
+
+<div id="fire-quiz-container" class="hidden">
+<div class="quiz-box">
+<h2>火灾知识问答</h2>
+<div id="fire-quiz-question"></div>
+<div id="fire-quiz-options"></div>
+<div id="fire-quiz-feedback"></div>
+<button id="fire-next-question-btn" onclick="nextFireQuestion()" class="hidden">下一题</button>
+<button onclick="backToHall()" class="quiz-back-btn">返回大厅</button>
+</div>
+</div>
+
+<div id="fire-pause-menu" class="hidden">
+<h2>游戏暂停</h2>
+<button onclick="resumeFireGame()">继续游戏</button>
+<button onclick="backToHall()">返回大厅</button>
+</div>
+
+<div id="rainstorm-start-screen" class="hidden">
+<div class="tip-box">
+<h2>遇到暴雨该怎么办？</h2>
+<ul>
+<li>🚨 暴雷天气尽量待在室内，不要外出</li>
+<li>⚡ 不要在大树下避雨，大树容易引来雷击</li>
+<li>🪵 寻找木板等遮蔽物挡雨，防止失温</li>
+<li>⚠️ 雷劈前会出现闪电亮光，要赶紧离开树下</li>
+<li>🔑 收集3把钥匙，逃进安全木屋通关</li>
+</ul>
+</div>
+<button id="rainstorm-start-btn">开始玩游戏</button>
+</div>
+
+<div id="rainstorm-game-ui" class="hidden">
+<div class="key-counter"><span>钥匙:</span><span id="rainstorm-keys">0</span><span>/3</span></div>
+<div class="key-counter"><span id="rainstorm-status">树下避雨</span></div>
+<div class="key-counter"><span>木板:</span><span id="rainstorm-board">无</span></div>
+<button id="rainstorm-pause-btn">暂停</button>
+</div>
+
+<div id="rainstorm-game-over" class="hidden">
+<h2>游戏结束</h2><p id="rainstorm-over-reason">你被雷劈中了！</p>
+<button onclick="backToHall()">返回大厅</button>
+</div>
+
+<div id="rainstorm-game-win" class="hidden">
+<h2>恭喜通关！</h2><p>你成功收集钥匙逃进了木屋！</p>
+<button onclick="startRainstormQuiz()">开始答题</button>
+</div>
+
+<div id="rainstorm-quiz-container" class="hidden">
+<div class="quiz-box">
+<h2>暴雨知识问答</h2>
+<div id="rainstorm-quiz-question"></div>
+<div id="rainstorm-quiz-options"></div>
+<div id="rainstorm-quiz-feedback"></div>
+<button id="rainstorm-next-question-btn" onclick="nextRainstormQuestion()" class="hidden">下一题</button>
+<button onclick="backToHall()" class="quiz-back-btn">返回大厅</button>
+</div>
+</div>
+
+<div id="rainstorm-pause-menu" class="hidden">
+<h2>游戏暂停</h2>
+<button onclick="resumeRainstormGame()">继续游戏</button>
+<button onclick="backToHall()">返回大厅</button>
+</div>
+</div>
+
+<script>
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 800;
+canvas.height = 600;
+
+let gameState = 'start';
+let keysCollected = 0;
+const totalKeys = 24;
+let player = { x: 400, y: 520, width: 50, height: 60, speed: 8, dx: 0 };
+let stones = [];
+let keys = [];
+let animationId;
+let lastTime = 0;
+let spawnTimer = 0;
+let spawnInterval = 800;
+let stoneCount = 0;
+const totalStones = 240;
+
+const earthquakeQuestions = [
+{question:"地震发生时，如果你在室内，应该怎么做？",options:["立即跑向室外","躲到桌子下或墙角","乘坐电梯逃生","站在窗户旁边"],answer:1,explanation:"正确！在室内应迅速躲到桌子下、墙角等坚固物体旁边，保护好头部。"},
+{question:"地震发生时，如果你在室外，应该远离哪些地方？",options:["空旷的广场","建筑物、大树和电线杆","开阔的草地","平坦的道路"],answer:1,explanation:"正确！在室外应远离建筑物、大树、电线杆等可能倒塌的物体，跑到空旷地带。"},
+{question:"地震发生后，如果被困在废墟中，应该怎么做？",options:["大声呼救","用硬物敲击墙壁或管道","拼命挣扎","等待救援"],answer:1,explanation:"正确！被困时应保持体力，用硬物敲击墙壁或管道发出求救信号，而不是大声呼救。"},
+{question:"地震发生时，下列哪种做法是错误的？",options:["保护好头部","关闭煤气和电源","躲在卫生间","从高楼跳下"],answer:3,explanation:"正确！从高楼跳下非常危险，应寻找安全的躲避位置。"},
+{question:"地震预警时间一般有多长？",options:["几分钟到十几分钟","几秒钟到几十秒钟","几小时","不确定"],answer:1,explanation:"正确！地震预警时间通常只有几秒钟到几十秒钟，要抓紧时间逃生。"},
+{question:"下列哪种动物的异常行为可能预示着地震即将发生？",options:["猫","狗","鸡","以上都是"],answer:3,explanation:"正确！很多动物对地震前的地壳变化有敏感反应，包括狗、猫、鸡等。"},
+{question:"地震发生后，应该先做什么？",options:["抢救财物","检查是否受伤并帮助他人","立即离开家","等待救援"],answer:1,explanation:"正确！地震后应先检查自己和家人是否受伤，然后帮助身边的人。"},
+{question:"家庭应急包应该包含哪些物品？",options:["食物和水","急救药品","手电筒和电池","以上都是"],answer:3,explanation:"正确！家庭应急包应包含食物、水、急救药品、手电筒等基本生存物品。"}
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showComingSoon(gameName) { alert(gameName + "游戏即将上线，敬请期待！"); }
+
+function startGame(gameType) {
+    document.getElementById('game-hall').classList.add('hidden');
+    document.getElementById('game-container').classList.remove('hidden');
+    // 统一隐藏所有游戏界面
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-ui').classList.add('hidden');
+    document.getElementById('mudslide-start-screen').classList.add('hidden');
+    document.getElementById('mudslide-game-ui').classList.add('hidden');
+    document.getElementById('fire-start-screen').classList.add('hidden');
+    document.getElementById('fire-game-ui').classList.add('hidden');
+    document.getElementById('rainstorm-start-screen').classList.add('hidden');
+    document.getElementById('rainstorm-game-ui').classList.add('hidden');
+    document.getElementById('game-canvas').classList.add('hidden');
+    // 显示对应游戏的开始界面
+    if (gameType === 'earthquake') {
+        document.getElementById('start-screen').classList.remove('hidden');
+    } else if (gameType === 'mudslide') {
+        document.getElementById('mudslide-start-screen').classList.remove('hidden');
+    } else if (gameType === 'fire') {
+        document.getElementById('fire-start-screen').classList.remove('hidden');
+    } else if (gameType === 'rainstorm') {
+        document.getElementById('rainstorm-start-screen').classList.remove('hidden');
+    }
+}
+
+document.getElementById('start-btn').addEventListener('click', () => {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-canvas').classList.remove('hidden');
+    document.getElementById('game-ui').classList.remove('hidden');
+    startEarthquakeGame();
+});
+
+function startEarthquakeGame() {
+    gameState = 'playing';
+    keysCollected = 0;
+    stoneCount = 0;
+    updateKeyCount();
+    player = { x: 400, y: 520, width: 50, height: 60, speed: 8, dx: 0 };
+    stones = [];
+    keys = [];
+    spawnInterval = 800;
+    lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
+}
+
+function gameLoop(currentTime) {
+    if (gameState !== 'playing') return;
+    const deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+    update(deltaTime);
+    draw();
+    animationId = requestAnimationFrame(gameLoop);
+}
+
+function update(deltaTime) {
+    spawnTimer += deltaTime;
+    if (spawnTimer >= spawnInterval && stoneCount < totalStones) {
+        spawnStone();
+        stoneCount++;
+        spawnTimer = 0;
+        if (stoneCount % 10 === 0 && keysCollected < totalKeys) { spawnKey(); }
+    }
+    player.x += player.dx;
+    if (player.x < 0) player.x = 0;
+    if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+    for (let i = stones.length - 1; i >= 0; i--) {
+        stones[i].y += stones[i].speed;
+        if (stones[i].y > canvas.height) { stones.splice(i, 1); continue; }
+        if (checkCollision(player, stones[i])) { gameOver(); return; }
+    }
+    for (let i = keys.length - 1; i >= 0; i--) {
+        if (keys[i].y < canvas.height - 60) { keys[i].y += keys[i].speed; }
+        if (checkCollision(player, keys[i])) {
+            keys.splice(i, 1);
+            keysCollected++;
+            updateKeyCount();
+            if (keysCollected >= totalKeys) { gameWin(); return; }
+        }
+    }
+}
+
+function spawnStone() {
+    stones.push({ x: Math.random() * (canvas.width - 40), y: -50, width: 40 + Math.random() * 30, height: 40 + Math.random() * 30, speed: 1 + Math.random() * 2 });
+}
+
+function spawnKey() {
+    keys.push({ x: Math.random() * (canvas.width - 30), y: -40, width: 30, height: 40, speed: 2 + Math.random() * 3 });
+}
+
+function checkCollision(rect1, rect2) {
+    return rect1.x < rect2.x + rect2.width && rect1.x + rect1.width > rect2.x && rect1.y < rect2.y + rect2.height && rect1.y + rect1.height > rect2.y;
+}
+
+function draw() {
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawGround();
+    drawTreeHouse();
+    drawPlayer();
+    stones.forEach(stone => drawStone(stone));
+    keys.forEach(key => drawKey(key));
+}
+
+function drawGround() { ctx.fillStyle = '#8B4513'; ctx.fillRect(0, 580, canvas.width, 20); }
+
+function drawTreeHouse() {
+    const houseX = canvas.width - 120, houseY = 500;
+    if (keysCollected >= totalKeys) {
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath(); ctx.arc(houseX + 60, houseY - 40, 20, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#FF0000';
+        ctx.font = 'bold 20px Arial';
+        ctx.fillText('安全！', houseX + 40, houseY - 25);
+    }
+    ctx.fillStyle = '#8B4513'; ctx.fillRect(houseX, houseY, 100, 80);
+    ctx.fillStyle = '#654321';
+    ctx.beginPath(); ctx.moveTo(houseX, houseY); ctx.lineTo(houseX + 50, houseY - 40); ctx.lineTo(houseX + 100, houseY); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#FFA500'; ctx.fillRect(houseX + 40, houseY + 40, 20, 40);
+    ctx.fillStyle = '#87CEEB'; ctx.fillRect(houseX + 20, houseY + 20, 15, 15); ctx.fillRect(houseX + 65, houseY + 20, 15, 15);
+}
+
+function drawPlayer() {
+    ctx.fillStyle = '#8B4513';
+    ctx.beginPath();
+    ctx.moveTo(player.x + 10, player.y);
+    ctx.lineTo(player.x + player.width - 10, player.y);
+    ctx.quadraticCurveTo(player.x + player.width, player.y, player.x + player.width, player.y + 10);
+    ctx.lineTo(player.x + player.width, player.y + player.height - 10);
+    ctx.quadraticCurveTo(player.x + player.width, player.y + player.height, player.x + player.width - 10, player.y + player.height);
+    ctx.lineTo(player.x + 10, player.y + player.height);
+    ctx.quadraticCurveTo(player.x, player.y + player.height, player.x, player.y + player.height - 10);
+    ctx.lineTo(player.x, player.y + 10);
+    ctx.quadraticCurveTo(player.x, player.y, player.x + 10, player.y);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#FFDAB9'; ctx.beginPath(); ctx.arc(player.x + 25, player.y + 15, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(player.x + 20, player.y + 12, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(player.x + 30, player.y + 12, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#FF69B4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(player.x + 25, player.y + 20, 5, 0, Math.PI); ctx.stroke();
+    ctx.fillStyle = '#FFD700'; ctx.fillRect(player.x + 10, player.y + 40, 8, 15); ctx.fillRect(player.x + 32, player.y + 40, 8, 15);
+}
+
+function drawStone(stone) {
+    ctx.fillStyle = '#9CA3AF';
+    ctx.beginPath();
+    ctx.moveTo(stone.x, stone.y + stone.height * 0.6);
+    ctx.lineTo(stone.x + stone.width * 0.3, stone.y);
+    ctx.lineTo(stone.x + stone.width * 0.7, stone.y + stone.height * 0.3);
+    ctx.lineTo(stone.x + stone.width, stone.y + stone.height * 0.8);
+    ctx.lineTo(stone.x + stone.width * 0.5, stone.y + stone.height);
+    ctx.lineTo(stone.x + stone.width * 0.2, stone.y + stone.height * 0.7);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#D1D5DB';
+    ctx.beginPath();
+    ctx.moveTo(stone.x + stone.width * 0.25, stone.y + stone.height * 0.3);
+    ctx.lineTo(stone.x + stone.width * 0.4, stone.y + stone.height * 0.5);
+    ctx.lineTo(stone.x + stone.width * 0.3, stone.y + stone.height * 0.6);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#6B7280';
+    ctx.beginPath();
+    ctx.moveTo(stone.x + stone.width * 0.5, stone.y + stone.height * 0.5);
+    ctx.lineTo(stone.x + stone.width * 0.7, stone.y + stone.height * 0.6);
+    ctx.lineTo(stone.x + stone.width * 0.6, stone.y + stone.height * 0.8);
+    ctx.closePath(); ctx.fill();
+}
+
+function drawKey(key) {
+    ctx.fillStyle = '#FFD700';
+    ctx.shadowColor = '#FFA500';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.moveTo(key.x + 5, key.y + 5);
+    ctx.lineTo(key.x + 25, key.y + 5);
+    ctx.lineTo(key.x + 30, key.y + 10);
+    ctx.lineTo(key.x + 25, key.y + 20);
+    ctx.lineTo(key.x + 25, key.y + 25);
+    ctx.lineTo(key.x + 5, key.y + 25);
+    ctx.lineTo(key.x + 5, key.y + 20);
+    ctx.lineTo(key.x + 0, key.y + 10);
+    ctx.closePath(); ctx.fill();
+    ctx.fillRect(key.x + 12, key.y + 25, 6, 15);
+    ctx.beginPath();
+    ctx.moveTo(key.x + 12, key.y + 40);
+    ctx.lineTo(key.x + 18, key.y + 40);
+    ctx.lineTo(key.x + 18, key.y + 35);
+    ctx.arc(key.x + 12, key.y + 35, 6, 0, Math.PI, true);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
+function updateKeyCount() { document.getElementById('key-count').textContent = keysCollected; }
+function gameOver() { gameState = 'over'; cancelAnimationFrame(animationId); document.getElementById('game-over').classList.remove('hidden'); }
+function gameWin() { gameState = 'win'; cancelAnimationFrame(animationId); document.getElementById('game-win').classList.remove('hidden'); }
+function resumeGame() { document.getElementById('pause-menu').classList.add('hidden'); gameState = 'playing'; lastTime = performance.now(); requestAnimationFrame(gameLoop); }
+
+function backToHall() {
+    cancelAnimationFrame(animationId);
+    cancelAnimationFrame(mudslideAnimationId);
+    cancelAnimationFrame(fireAnimationId);
+    cancelAnimationFrame(rainstormAnimationId);
+    document.getElementById('game-container').classList.add('hidden');
+    document.getElementById('game-over').classList.add('hidden');
+    document.getElementById('game-win').classList.add('hidden');
+    document.getElementById('quiz-container').classList.add('hidden');
+    document.getElementById('pause-menu').classList.add('hidden');
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-canvas').classList.add('hidden');
+    document.getElementById('game-ui').classList.add('hidden');
+    document.getElementById('mudslide-start-screen').classList.add('hidden');
+    document.getElementById('mudslide-game-ui').classList.add('hidden');
+    document.getElementById('mudslide-game-over').classList.add('hidden');
+    document.getElementById('mudslide-game-win').classList.add('hidden');
+    document.getElementById('mudslide-quiz-container').classList.add('hidden');
+    document.getElementById('mudslide-pause-menu').classList.add('hidden');
+    document.getElementById('backpack').classList.add('hidden');
+    document.getElementById('fire-start-screen').classList.add('hidden');
+    document.getElementById('fire-game-ui').classList.add('hidden');
+    document.getElementById('fire-game-over').classList.add('hidden');
+    document.getElementById('fire-game-win').classList.add('hidden');
+    document.getElementById('fire-quiz-container').classList.add('hidden');
+    document.getElementById('fire-pause-menu').classList.add('hidden');
+    document.getElementById('rainstorm-start-screen').classList.add('hidden');
+    document.getElementById('rainstorm-game-ui').classList.add('hidden');
+    document.getElementById('rainstorm-game-over').classList.add('hidden');
+    document.getElementById('rainstorm-game-win').classList.add('hidden');
+    document.getElementById('rainstorm-quiz-container').classList.add('hidden');
+    document.getElementById('rainstorm-pause-menu').classList.add('hidden');
+    document.getElementById('game-hall').classList.remove('hidden');
+    gameState = 'start';
+    mudslideState = 'start';
+    fireState = 'start';
+    rainstormState = 'start';
+}
+
+function startQuiz() {
+    document.getElementById('game-win').classList.add('hidden');
+    document.getElementById('quiz-container').classList.remove('hidden');
+    currentQuestionIndex = 0; score = 0; showQuestion();
+}
+
+function showQuestion() {
+    const question = earthquakeQuestions[currentQuestionIndex];
+    document.getElementById('quiz-question').textContent = (currentQuestionIndex + 1) + '. ' + question.question;
+    const optionsContainer = document.getElementById('quiz-options');
+    optionsContainer.innerHTML = '';
+    question.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'quiz-option';
+        optionDiv.textContent = option;
+        optionDiv.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(optionDiv);
+    });
+    document.getElementById('quiz-feedback').textContent = '';
+    document.getElementById('quiz-feedback').style.display = 'none';
+    document.getElementById('next-question-btn').classList.add('hidden');
+}
+
+function selectAnswer(index) {
+    const question = earthquakeQuestions[currentQuestionIndex];
+    const options = document.querySelectorAll('#quiz-options .quiz-option');
+    options.forEach((opt, i) => {
+        opt.onclick = null;
+        if (i === question.answer) opt.classList.add('correct');
+        else if (i === index && i !== question.answer) opt.classList.add('incorrect');
+    });
+    const feedback = document.getElementById('quiz-feedback');
+    feedback.style.display = 'block';
+    if (index === question.answer) {
+        score++;
+        feedback.textContent = '✅ ' + question.explanation;
+        feedback.style.background = '#d4edda'; feedback.style.color = '#155724';
+    } else {
+        feedback.textContent = '❌ 回答错误！' + question.explanation;
+        feedback.style.background = '#f8d7da'; feedback.style.color = '#721c24';
+    }
+    if (currentQuestionIndex < earthquakeQuestions.length - 1) {
+        document.getElementById('next-question-btn').classList.remove('hidden');
+    } else { showQuizResult(); }
+}
+
+function nextQuestion() { currentQuestionIndex++; showQuestion(); }
+
+function showQuizResult() {
+    const feedback = document.getElementById('quiz-feedback');
+    feedback.textContent = '🎉 答题结束！你的得分是 ' + score + ' / ' + earthquakeQuestions.length;
+    feedback.style.background = '#d4edda'; feedback.style.color = '#155724';
+    const nextBtn = document.getElementById('next-question-btn');
+    nextBtn.textContent = '完成'; nextBtn.onclick = backToHall; nextBtn.classList.remove('hidden');
+}
+
+document.getElementById('pause-btn').addEventListener('click', () => {
+    if (gameState === 'playing') { gameState = 'paused'; cancelAnimationFrame(animationId); document.getElementById('pause-menu').classList.remove('hidden'); }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (gameState !== 'playing') return;
+    if (e.key === 'ArrowLeft' || e.key === 'a') { player.dx = -player.speed; }
+    else if (e.key === 'ArrowRight' || e.key === 'd') { player.dx = player.speed; }
+    else if (e.key === 'Escape') { document.getElementById('pause-btn').click(); }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'a') { if (player.dx < 0) player.dx = 0; }
+    else if (e.key === 'ArrowRight' || e.key === 'd') { if (player.dx > 0) player.dx = 0; }
+});
+
+const mudslideQuestions = [
+{question:"遇到泥石流时，应该向哪个方向逃生？",options:["顺着泥石流流动方向跑","向两侧高地逃生","向山下跑","原地等待救援"],answer:1,explanation:"正确！遇到泥石流应立即向两侧高地逃生，不要顺着泥石流流动方向跑。"},
+{question:"下列哪个地方容易发生泥石流？",options:["平原地区","陡峭的山坡和沟谷","城市中心","海边沙滩"],answer:1,explanation:"正确！陡峭的山坡和沟谷地区容易发生泥石流。"},
+{question:"发现泥石流迹象时，应该怎么做？",options:["立即撤离","拍照发朋友圈","去看看情况","等待确认"],answer:0,explanation:"正确！发现泥石流迹象应立即撤离到安全地带。"},
+{question:"泥石流发生时，下列哪种做法是错误的？",options:["躲在坚固的掩体后面","远离河道和沟谷","向高处转移","躲在低洼处"],answer:3,explanation:"正确！躲在低洼处非常危险，应该向高处转移。"},
+{question:"如果被困在泥石流中，应该怎么做？",options:["抱住坚固的物体","拼命挣扎","大声呼救","随波逐流"],answer:0,explanation:"正确！被困时应抱住坚固的物体，等待救援。"},
+{question:"暴雨过后，为什么要警惕泥石流？",options:["土壤含水量高容易滑坡","天气变凉了","河水变浑浊了","空气变清新了"],answer:0,explanation:"正确！暴雨过后土壤含水量高，容易引发滑坡和泥石流。"}
+];
+
+let mudslideState = 'start';
+let mudslideLevel = 1;
+let mudslideHostagesRescued = 0;
+const totalHostages = 3;
+let mudslidePlayer = { x: 100, y: 300, width: 40, height: 50, speed: 5, dy: 0, inMud: false, mudTimer: 0 };
+let rocks = [];
+let mudLevel = 0;
+let mudslideAnimationId;
+let mudslideLastTime = 0;
+let hostages = [];
+let currentTargetHostage = null;
+let rescueTimer = 0;
+let selectedItem = null;
+let hasBoard = true;
+let hasRope = true;
+
+document.getElementById('mudslide-start-btn').addEventListener('click', () => {
+    document.getElementById('mudslide-start-screen').classList.add('hidden');
+    document.getElementById('game-canvas').classList.remove('hidden');
+    document.getElementById('mudslide-game-ui').classList.remove('hidden');
+    startMudslideGame();
+});
+
+function startMudslideGame() {
+    mudslideState = 'playing';
+    mudslideLevel = 1;
+    mudslideHostagesRescued = 0;
+    updateMudslideUI();
+    mudslidePlayer = { x: 100, y: 300, width: 40, height: 50, speed: 5, dy: 0, inMud: false, mudTimer: 0 };
+    rocks = [];
+    mudLevel = canvas.width + 100;
+    hostages = [];
+    currentTargetHostage = null;
+    rescueTimer = 0;
+    selectedItem = null;
+    hasBoard = true;
+    hasRope = true;
+    spawnRocks();
+    mudslideLastTime = performance.now();
+    requestAnimationFrame(mudslideGameLoop);
+}
+
+function spawnRocks() {
+    rocks = [];
+    const positions = [100, 200, 300, 400, 500];
+    for (let i = 0; i < 3; i++) {
+        const y = positions[Math.floor(Math.random() * positions.length)];
+        rocks.push({ x: 300 + Math.random() * 300, y: y - 30, width: 60, height: 60 });
+    }
+}
+
+function mudslideGameLoop(currentTime) {
+    if (mudslideState !== 'playing') return;
+    const deltaTime = currentTime - mudslideLastTime;
+    mudslideLastTime = currentTime;
+    mudslideUpdate(deltaTime);
+    mudslideDraw();
+    mudslideAnimationId = requestAnimationFrame(mudslideGameLoop);
+}
+
+function mudslideUpdate(deltaTime) {
+    mudslidePlayer.y += mudslidePlayer.dy;
+    if (mudslidePlayer.y < 50) mudslidePlayer.y = 50;
+    if (mudslidePlayer.y + mudslidePlayer.height > canvas.height - 50) mudslidePlayer.y = canvas.height - 50 - mudslidePlayer.height;
+    mudLevel -= 0.8;
+    if (mudLevel < -100) {
+        mudLevel = canvas.width + 100;
+        mudslideLevel++;
+        spawnRocks();
+        spawnHostage();
+    }
+
+    // 定期生成人质（如果场上没有人质且还没救满）
+    if (mudslideHostagesRescued < totalHostages && hostages.length === 0 && Math.random() < 0.02) {
+        spawnHostage();
+    }
+    if (mudslidePlayer.inMud) {
+        mudslidePlayer.mudTimer += deltaTime;
+        if (mudslidePlayer.mudTimer > 3000) { mudslideGameOver(); return; }
+    }
+    const mudRightEdge = mudLevel + 150;
+    const isMudAtPlayer = mudRightEdge > mudslidePlayer.x && mudLevel < mudslidePlayer.x + mudslidePlayer.width;
+    if (isMudAtPlayer && !isPlayerBehindRock()) { mudslidePlayer.inMud = true; }
+    else { mudslidePlayer.inMud = false; mudslidePlayer.mudTimer = 0; }
+    checkHostageAlignment();
+    if (currentTargetHostage) {
+        rescueTimer += deltaTime;
+        if (rescueTimer > 5000) { currentTargetHostage = null; rescueTimer = 0; }
+    }
+    for (let i = hostages.length - 1; i >= 0; i--) {
+        hostages[i].x -= 0.5;
+        if (hostages[i].x < -50) hostages.splice(i, 1);
+    }
+}
+
+function isPlayerBehindRock() {
+    for (const rock of rocks) {
+        if (mudslidePlayer.x + mudslidePlayer.width < rock.x &&
+            mudslidePlayer.y + mudslidePlayer.height > rock.y &&
+            mudslidePlayer.y < rock.y + rock.height) { return true; }
+    }
+    return false;
+}
+
+function spawnHostage() {
+    if (mudslideHostagesRescued + hostages.filter(h => !h.rescued).length < totalHostages) {
+        hostages.push({ x: canvas.width + 50, y: 150 + Math.random() * 300, width: 30, height: 40, rescued: false });
+    }
+}
+
+function checkHostageAlignment() {
+    for (const hostage of hostages) {
+        if (hostage.rescued) continue;
+        const dy = Math.abs(mudslidePlayer.y - hostage.y);
+        if (dy < 50 && Math.abs(mudslidePlayer.x - hostage.x) < 200) {
+            currentTargetHostage = hostage;
+            rescueTimer = 0;
+            return;
+        }
+    }
+    currentTargetHostage = null;
+}
+
+function useSelectedItem() {
+    if (!selectedItem) return;
+    if (selectedItem === 'board' && mudslidePlayer.inMud) {
+        mudslidePlayer.inMud = false;
+        mudslidePlayer.mudTimer = 0;
+        mudslideLevel++;
+        mudLevel = canvas.width + 100;
+        spawnRocks();
+    } else if (selectedItem === 'rope' && currentTargetHostage && rescueTimer < 5000) {
+        currentTargetHostage.rescued = true;
+        mudslideHostagesRescued++;
+        updateMudslideUI();
+        currentTargetHostage = null;
+        rescueTimer = 0;
+        if (mudslideHostagesRescued >= totalHostages) { mudslideGameWin(); }
+    }
+    closeBackpack();
+}
+
+function mudslideDraw() {
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#90EE90';
+    ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+    for (const rock of rocks) {
+        ctx.fillStyle = '#696969';
+        ctx.beginPath();
+        ctx.moveTo(rock.x, rock.y + rock.height * 0.6);
+        ctx.lineTo(rock.x + rock.width * 0.3, rock.y);
+        ctx.lineTo(rock.x + rock.width * 0.7, rock.y + rock.height * 0.3);
+        ctx.lineTo(rock.x + rock.width, rock.y + rock.height * 0.8);
+        ctx.lineTo(rock.x + rock.width * 0.5, rock.y + rock.height);
+        ctx.lineTo(rock.x + rock.width * 0.2, rock.y + rock.height * 0.7);
+        ctx.closePath(); ctx.fill();
+    }
+    const mudGradient = ctx.createLinearGradient(mudLevel, 0, mudLevel + 150, 0);
+    mudGradient.addColorStop(0, 'rgba(139, 90, 43, 0.9)');
+    mudGradient.addColorStop(1, 'rgba(139, 90, 43, 0)');
+    ctx.fillStyle = mudGradient;
+    ctx.fillRect(mudLevel, 0, 150, canvas.height - 40);
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(mudLevel + 100, 0, 50, canvas.height - 40);
+    for (const hostage of hostages) {
+        if (hostage.rescued) continue;
+        ctx.fillStyle = '#FF6B6B';
+        ctx.beginPath(); ctx.arc(hostage.x + 15, hostage.y + 10, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(hostage.x + 8, hostage.y + 20, 14, 20);
+        ctx.fillStyle = '#FFDAB9';
+        ctx.fillRect(hostage.x + 5, hostage.y + 25, 6, 10);
+        ctx.fillRect(hostage.x + 19, hostage.y + 25, 6, 10);
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'bold 12px Arial';
+        ctx.fillText('SOS', hostage.x + 5, hostage.y + 50);
+    }
+    if (currentTargetHostage) {
+        ctx.strokeStyle = '#00FF00';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([10, 5]);
+        ctx.beginPath();
+        ctx.moveTo(mudslidePlayer.x + mudslidePlayer.width, mudslidePlayer.y + mudslidePlayer.height / 2);
+        ctx.lineTo(currentTargetHostage.x, currentTargetHostage.y + currentTargetHostage.height / 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const timeLeft = Math.max(0, Math.ceil((5000 - rescueTimer) / 1000));
+        ctx.fillStyle = '#FF0000';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('救援时间: ' + timeLeft + 's', mudslidePlayer.x + mudslidePlayer.width + 10, mudslidePlayer.y);
+    }
+    ctx.fillStyle = '#8B4513';
+    ctx.beginPath();
+    ctx.moveTo(mudslidePlayer.x + 10, mudslidePlayer.y);
+    ctx.lineTo(mudslidePlayer.x + mudslidePlayer.width - 10, mudslidePlayer.y);
+    ctx.quadraticCurveTo(mudslidePlayer.x + mudslidePlayer.width, mudslidePlayer.y, mudslidePlayer.x + mudslidePlayer.width, mudslidePlayer.y + 10);
+    ctx.lineTo(mudslidePlayer.x + mudslidePlayer.width, mudslidePlayer.y + mudslidePlayer.height - 10);
+    ctx.quadraticCurveTo(mudslidePlayer.x + mudslidePlayer.width, mudslidePlayer.y + mudslidePlayer.height, mudslidePlayer.x + mudslidePlayer.width - 10, mudslidePlayer.y + mudslidePlayer.height);
+    ctx.lineTo(mudslidePlayer.x + 10, mudslidePlayer.y + mudslidePlayer.height);
+    ctx.quadraticCurveTo(mudslidePlayer.x, mudslidePlayer.y + mudslidePlayer.height, mudslidePlayer.x, mudslidePlayer.y + mudslidePlayer.height - 10);
+    ctx.lineTo(mudslidePlayer.x, mudslidePlayer.y + 10);
+    ctx.quadraticCurveTo(mudslidePlayer.x, mudslidePlayer.y, mudslidePlayer.x + 10, mudslidePlayer.y);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#FFDAB9';
+    ctx.beginPath(); ctx.arc(mudslidePlayer.x + 20, mudslidePlayer.y + 12, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(mudslidePlayer.x + 16, mudslidePlayer.y + 10, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mudslidePlayer.x + 24, mudslidePlayer.y + 10, 2, 0, Math.PI * 2); ctx.fill();
+    if (mudslidePlayer.inMud) {
+        ctx.fillStyle = '#8B4513';
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(mudslidePlayer.x, mudslidePlayer.y, mudslidePlayer.width, mudslidePlayer.height);
+        ctx.globalAlpha = 1;
+        if (hasBoard) {
+            ctx.fillStyle = '#FF0000';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('按背包使用木板！', mudslidePlayer.x - 20, mudslidePlayer.y - 10);
+        }
+    }
+    if (selectedItem) {
+        ctx.fillStyle = '#11998e';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText('已选中: ' + (selectedItem === 'rope' ? '绳子' : '木板'), 10, 70);
+    }
+}
+
+function updateMudslideUI() {
+    document.getElementById('mudslide-level').textContent = mudslideLevel;
+    document.getElementById('mudslide-hostages').textContent = mudslideHostagesRescued;
+}
+
+function mudslideGameOver() { mudslideState = 'over'; cancelAnimationFrame(mudslideAnimationId); document.getElementById('mudslide-game-over').classList.remove('hidden'); }
+function mudslideGameWin() { mudslideState = 'win'; cancelAnimationFrame(mudslideAnimationId); document.getElementById('mudslide-game-win').classList.remove('hidden'); }
+function resumeMudslideGame() { document.getElementById('mudslide-pause-menu').classList.add('hidden'); mudslideState = 'playing'; mudslideLastTime = performance.now(); requestAnimationFrame(mudslideGameLoop); }
+function closeBackpack() { document.getElementById('backpack').classList.add('hidden'); }
+
+function selectItem(item) {
+    selectedItem = item;
+    document.querySelectorAll('.backpack-item').forEach(el => { el.classList.remove('selected'); });
+    document.getElementById('item-' + item).classList.add('selected');
+}
+
+document.getElementById('backpack-btn').addEventListener('click', () => {
+    if (mudslideState === 'playing') { document.getElementById('backpack').classList.remove('hidden'); }
+});
+
+document.getElementById('mudslide-pause-btn').addEventListener('click', () => {
+    if (mudslideState === 'playing') { mudslideState = 'paused'; cancelAnimationFrame(mudslideAnimationId); document.getElementById('mudslide-pause-menu').classList.remove('hidden'); }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (mudslideState !== 'playing') return;
+    if (e.key === 'ArrowUp' || e.key === 'w') { mudslidePlayer.dy = -mudslidePlayer.speed; }
+    else if (e.key === 'ArrowDown' || e.key === 's') { mudslidePlayer.dy = mudslidePlayer.speed; }
+    else if (e.key === 'b') { document.getElementById('backpack-btn').click(); }
+    else if (e.key === ' ') { e.preventDefault(); useSelectedItem(); }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowUp' || e.key === 'w') { if (mudslidePlayer.dy < 0) mudslidePlayer.dy = 0; }
+    else if (e.key === 'ArrowDown' || e.key === 's') { if (mudslidePlayer.dy > 0) mudslidePlayer.dy = 0; }
+});
+
+function startMudslideQuiz() {
+    document.getElementById('mudslide-game-win').classList.add('hidden');
+    document.getElementById('mudslide-quiz-container').classList.remove('hidden');
+    currentQuestionIndex = 0; score = 0; showMudslideQuestion();
+}
+
+function showMudslideQuestion() {
+    const question = mudslideQuestions[currentQuestionIndex];
+    document.getElementById('mudslide-quiz-question').textContent = (currentQuestionIndex + 1) + '. ' + question.question;
+    const optionsContainer = document.getElementById('mudslide-quiz-options');
+    optionsContainer.innerHTML = '';
+    question.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'quiz-option';
+        optionDiv.textContent = option;
+        optionDiv.onclick = () => selectMudslideAnswer(index);
+        optionsContainer.appendChild(optionDiv);
+    });
+    document.getElementById('mudslide-quiz-feedback').textContent = '';
+    document.getElementById('mudslide-quiz-feedback').style.display = 'none';
+    document.getElementById('mudslide-next-question-btn').classList.add('hidden');
+}
+
+function selectMudslideAnswer(index) {
+    const question = mudslideQuestions[currentQuestionIndex];
+    const options = document.querySelectorAll('#mudslide-quiz-options .quiz-option');
+    options.forEach((opt, i) => {
+        opt.onclick = null;
+        if (i === question.answer) opt.classList.add('correct');
+        else if (i === index && i !== question.answer) opt.classList.add('incorrect');
+    });
+    const feedback = document.getElementById('mudslide-quiz-feedback');
+    feedback.style.display = 'block';
+    if (index === question.answer) {
+        score++;
+        feedback.textContent = '✅ ' + question.explanation;
+        feedback.style.background = '#d4edda'; feedback.style.color = '#155724';
+    } else {
+        feedback.textContent = '❌ 回答错误！' + question.explanation;
+        feedback.style.background = '#f8d7da'; feedback.style.color = '#721c24';
+    }
+    if (currentQuestionIndex < mudslideQuestions.length - 1) {
+        document.getElementById('mudslide-next-question-btn').classList.remove('hidden');
+    } else { showMudslideQuizResult(); }
+}
+
+function nextMudslideQuestion() { currentQuestionIndex++; showMudslideQuestion(); }
+
+function showMudslideQuizResult() {
+    const feedback = document.getElementById('mudslide-quiz-feedback');
+    feedback.textContent = '🎉 答题结束！你的得分是 ' + score + ' / ' + mudslideQuestions.length;
+    feedback.style.background = '#d4edda'; feedback.style.color = '#155724';
+    const nextBtn = document.getElementById('mudslide-next-question-btn');
+    nextBtn.textContent = '完成'; nextBtn.onclick = backToHall; nextBtn.classList.remove('hidden');
+}
+
+// ===== 火灾逃生游戏 =====
+let fireState = 'start';
+let firePlayer = { x: 100, y: 300, width: 40, height: 50, speed: 4, dx: 0, dy: 0 };
+let fireAnimationId;
+let fireLastTime = 0;
+let fireHolding = null;
+let fireHasMask = false;
+let firePhase = 'room';
+let fireSmokeLevel = 0;
+let fireShowGreenLine = false;
+let fireDoorOpen = false;
+let fireItems = [];
+let fireFlames = [];
+let fireNearItem = null;
+let fireNearBucket = false;
+let fireNearDoor = false;
+let fireNearStairs = false;
+
+const fireQuestions = [
+{question:"火灾发生时，应该优先做什么？",options:["抢救财物","逃生并拨打119","躲在床下","打开所有窗户"],answer:1,explanation:"正确！火灾发生时应优先逃生并拨打119报警。"},
+{question:"逃离火场时，应该采取什么姿势？",options:["直立奔跑","弯腰低姿前行","爬行","跳跃"],answer:1,explanation:"正确！烟雾比空气轻会上升，弯腰低姿前行可以减少烟雾吸入。"},
+{question:"开门前应该先做什么？",options:["直接开门","摸门把手判断温度","踢门","用身体撞门"],answer:1,explanation:"正确！开门前先摸门把手，如果发烫说明门外有火，不能开门。"},
+{question:"火灾时能用湿毛巾捂住口鼻吗？",options:["可以，能过滤有毒烟雾","不行，会妨碍呼吸","无所谓","只有干毛巾才可以"],answer:0,explanation:"正确！湿毛巾能过滤有毒烟雾，有效保护呼吸道。"},
+{question:"火灾发生时能乘坐电梯吗？",options:["可以，更快","不能，应走楼梯","看情况","只有低楼层可以"],answer:1,explanation:"正确！火灾时电梯可能断电卡住，应走楼梯逃生。"},
+{question:"如果身上着火了，应该怎么做？",options:["奔跑求救","就地打滚压灭火焰","脱衣服","用水浇"],answer:1,explanation:"正确！身上着火时应就地打滚或用厚重衣物压灭火焰。"}
+];
+
+document.getElementById('fire-start-btn').addEventListener('click', () => {
+    document.getElementById('fire-start-screen').classList.add('hidden');
+    document.getElementById('game-canvas').classList.remove('hidden');
+    document.getElementById('fire-game-ui').classList.remove('hidden');
+    startFireGame();
+});
+
+function startFireGame() {
+    fireState = 'playing';
+    firePhase = 'room';
+    firePlayer = { x: 100, y: 300, width: 40, height: 50, speed: 4, dx: 0, dy: 0 };
+    fireHolding = null;
+    fireHasMask = false;
+    fireSmokeLevel = 0;
+    fireShowGreenLine = false;
+    fireDoorOpen = false;
+    fireNearItem = null;
+    fireNearBucket = false;
+    fireNearDoor = false;
+    fireNearStairs = false;
+    fireItems = [
+        { x: 150, y: 400, width: 40, height: 40, type: 'tissue', collected: false, name: '纸巾' },
+        { x: 300, y: 400, width: 40, height: 40, type: 'cloth', collected: false, name: '布' },
+        { x: 480, y: 400, width: 50, height: 50, type: 'bucket', collected: false, name: '水桶' }
+    ];
+    fireFlames = [];
+    for (let i = 0; i < 8; i++) {
+        fireFlames.push({
+            x: 560 + Math.random() * 220,
+            y: 100 + Math.random() * 400,
+            size: 20 + Math.random() * 30,
+            flicker: Math.random()
+        });
+    }
+    updateFireUI();
+    fireLastTime = performance.now();
+    requestAnimationFrame(fireGameLoop);
+}
+
+function fireGameLoop(currentTime) {
+    if (fireState !== 'playing') return;
+    const deltaTime = currentTime - fireLastTime;
+    fireLastTime = currentTime;
+    fireUpdate(deltaTime);
+    fireDraw();
+    fireAnimationId = requestAnimationFrame(fireGameLoop);
+}
+
+function fireUpdate(deltaTime) {
+    firePlayer.x += firePlayer.dx;
+    firePlayer.y += firePlayer.dy;
+
+    // 房间阶段边界
+    if (firePhase === 'room') {
+        if (firePlayer.x < 20) firePlayer.x = 20;
+        if (firePlayer.x + firePlayer.width > 500) {
+            if (fireDoorOpen) {
+                firePhase = 'hallway';
+                firePlayer.x = 530;
+                updateFireUI();
+            } else {
+                firePlayer.x = 500 - firePlayer.width;
+            }
+        }
+        if (firePlayer.y < 80) firePlayer.y = 80;
+        if (firePlayer.y + firePlayer.height > 540) firePlayer.y = 540 - firePlayer.height;
+    } else if (firePhase === 'hallway') {
+        if (firePlayer.x < 510) firePlayer.x = 510;
+        if (firePlayer.x + firePlayer.width > canvas.width - 20) firePlayer.x = canvas.width - 20 - firePlayer.width;
+        if (firePlayer.y < 80) firePlayer.y = 80;
+        if (firePlayer.y + firePlayer.height > 540) firePlayer.y = 540 - firePlayer.height;
+
+        // 走廊中烟雾伤害
+        if (!fireHasMask) {
+            fireSmokeLevel += deltaTime * 0.05;
+            if (fireSmokeLevel >= 100) {
+                fireGameOver('你被烟雾熏倒了！');
+                return;
+            }
+        }
+    } else if (firePhase === 'outdoor') {
+        // 操场场景边界
+        if (firePlayer.x < 20) {
+            if (fireDoorOpen) {
+                // 进入撤离点
+                fireGameWin();
+                return;
+            } else {
+                firePlayer.x = 20;
+            }
+        }
+        if (firePlayer.x + firePlayer.width > canvas.width - 20) firePlayer.x = canvas.width - 20 - firePlayer.width;
+        if (firePlayer.y < 80) firePlayer.y = 80;
+        if (firePlayer.y + firePlayer.height > 540) firePlayer.y = 540 - firePlayer.height;
+    }
+
+    // 检测附近物品
+    fireNearItem = null;
+    fireNearBucket = false;
+    fireShowGreenLine = false;
+    fireNearDoor = false;
+    fireNearStairs = false;
+
+    // 检测是否靠近门
+    if (firePhase === 'room' && !fireDoorOpen) {
+        if (firePlayer.x + firePlayer.width > 440 && firePlayer.y + firePlayer.height > 230 && firePlayer.y < 390) {
+            fireNearDoor = true;
+        }
+    }
+    // 操场阶段左侧门
+    if (firePhase === 'outdoor' && !fireDoorOpen) {
+        if (firePlayer.x < 80 && firePlayer.y + firePlayer.height > 230 && firePlayer.y < 390) {
+            fireNearDoor = true;
+        }
+    }
+
+    // 检测是否靠近楼梯
+    if (firePhase === 'hallway') {
+        if (firePlayer.x + firePlayer.width > 740 && firePlayer.y < 250) {
+            fireNearStairs = true;
+        }
+    }
+
+    for (const item of fireItems) {
+        if (item.collected) continue;
+        const dx = Math.abs(firePlayer.x - item.x);
+        const dy = Math.abs(firePlayer.y - item.y);
+        if (dx < 60 && dy < 60) {
+            fireNearItem = item;
+            if (item.type === 'bucket') fireNearBucket = true;
+        }
+    }
+
+    // 检测是否可以合成（手持纸巾/布 且 靠近水桶）
+    if (fireNearBucket && (fireHolding === 'tissue' || fireHolding === 'cloth')) {
+        fireShowGreenLine = true;
+    }
+
+    // 火焰闪烁
+    for (const flame of fireFlames) {
+        flame.flicker = Math.random();
+    }
+}
+
+function fireDraw() {
+    // 操场阶段单独绘制
+    if (firePhase === 'outdoor') {
+        fireDrawOutdoor();
+        fireDrawPlayer();
+        return;
+    }
+
+    // 背景
+    ctx.fillStyle = '#F5F5DC';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 房间墙壁
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(0, 0, canvas.width, 20);
+    ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+    ctx.fillRect(0, 0, 20, canvas.height);
+    ctx.fillRect(500, 0, 10, 250);
+    ctx.fillRect(500, 370, 10, canvas.height - 370);
+
+    // 门
+    if (fireDoorOpen) {
+        ctx.fillStyle = '#654321';
+        ctx.fillRect(500, 250, 10, 120);
+    } else {
+        ctx.fillStyle = '#A0522D';
+        ctx.fillRect(500, 250, 10, 120);
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(505, 310, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 房间标签
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText('房间', 200, 50);
+    ctx.fillText('走廊', 620, 50);
+
+    // 楼梯口
+    ctx.fillStyle = '#696969';
+    for (let i = 0; i < 5; i++) {
+        ctx.fillRect(760 + i * 8, 200 + i * 30, 6, 30);
+    }
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 14px Arial';
+    ctx.fillText('楼梯↑', 740, 180);
+
+    // 画物品
+    for (const item of fireItems) {
+        if (item.collected) continue;
+        if (item.type === 'tissue') {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(item.x, item.y, item.width, item.height);
+            ctx.strokeStyle = '#CCC';
+            ctx.strokeRect(item.x, item.y, item.width, item.height);
+            ctx.fillStyle = '#333';
+            ctx.font = '10px Arial';
+            ctx.fillText('纸巾', item.x + 5, item.y + 25);
+        } else if (item.type === 'cloth') {
+            ctx.fillStyle = '#4682B4';
+            ctx.fillRect(item.x, item.y, item.width, item.height);
+            ctx.fillStyle = '#333';
+            ctx.font = '10px Arial';
+            ctx.fillText('布', item.x + 12, item.y + 25);
+        } else if (item.type === 'bucket') {
+            ctx.fillStyle = '#4169E1';
+            ctx.beginPath();
+            ctx.moveTo(item.x, item.y);
+            ctx.lineTo(item.x + item.width, item.y);
+            ctx.lineTo(item.x + item.width - 5, item.y + item.height);
+            ctx.lineTo(item.x + 5, item.y + item.height);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#00BFFF';
+            ctx.fillRect(item.x + 8, item.y + 5, item.width - 16, 8);
+            ctx.fillStyle = '#333';
+            ctx.font = '10px Arial';
+            ctx.fillText('水桶', item.x + 8, item.y + 30);
+        }
+    }
+
+    // 画火焰
+    if (firePhase === 'hallway' || fireDoorOpen) {
+        for (const flame of fireFlames) {
+            const s = flame.size * (0.8 + flame.flicker * 0.4);
+            ctx.fillStyle = '#FF4500';
+            ctx.beginPath();
+            ctx.moveTo(flame.x, flame.y + s);
+            ctx.quadraticCurveTo(flame.x - s * 0.5, flame.y + s * 0.3, flame.x, flame.y);
+            ctx.quadraticCurveTo(flame.x + s * 0.5, flame.y + s * 0.3, flame.x, flame.y + s);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.moveTo(flame.x, flame.y + s * 0.7);
+            ctx.quadraticCurveTo(flame.x - s * 0.3, flame.y + s * 0.4, flame.x, flame.y + s * 0.2);
+            ctx.quadraticCurveTo(flame.x + s * 0.3, flame.y + s * 0.4, flame.x, flame.y + s * 0.7);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+
+    // 绿色合成线
+    if (fireShowGreenLine) {
+        const bucket = fireItems.find(i => i.type === 'bucket' && !i.collected);
+        if (bucket) {
+            ctx.strokeStyle = '#00FF00';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(firePlayer.x + firePlayer.width / 2, firePlayer.y + firePlayer.height / 2);
+            ctx.lineTo(bucket.x + bucket.width / 2, bucket.y + bucket.height / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#00FF00';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('按空格合成！', firePlayer.x, firePlayer.y - 10);
+        }
+    }
+
+    // 画玩家
+    ctx.fillStyle = '#8B4513';
+    ctx.beginPath();
+    ctx.moveTo(firePlayer.x + 8, firePlayer.y);
+    ctx.lineTo(firePlayer.x + firePlayer.width - 8, firePlayer.y);
+    ctx.quadraticCurveTo(firePlayer.x + firePlayer.width, firePlayer.y, firePlayer.x + firePlayer.width, firePlayer.y + 8);
+    ctx.lineTo(firePlayer.x + firePlayer.width, firePlayer.y + firePlayer.height - 8);
+    ctx.quadraticCurveTo(firePlayer.x + firePlayer.width, firePlayer.y + firePlayer.height, firePlayer.x + firePlayer.width - 8, firePlayer.y + firePlayer.height);
+    ctx.lineTo(firePlayer.x + 8, firePlayer.y + firePlayer.height);
+    ctx.quadraticCurveTo(firePlayer.x, firePlayer.y + firePlayer.height, firePlayer.x, firePlayer.y + firePlayer.height - 8);
+    ctx.lineTo(firePlayer.x, firePlayer.y + 8);
+    ctx.quadraticCurveTo(firePlayer.x, firePlayer.y, firePlayer.x + 8, firePlayer.y);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#FFDAB9';
+    ctx.beginPath();
+    ctx.arc(firePlayer.x + 20, firePlayer.y + 12, 12, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(firePlayer.x + 16, firePlayer.y + 10, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(firePlayer.x + 24, firePlayer.y + 10, 2, 0, Math.PI * 2); ctx.fill();
+
+    // 口罩
+    if (fireHasMask) {
+        ctx.fillStyle = '#E0E0E0';
+        ctx.fillRect(firePlayer.x + 12, firePlayer.y + 18, 16, 10);
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(firePlayer.x + 12, firePlayer.y + 18, 16, 10);
+    }
+
+    // 提示
+    if (fireNearItem && !fireNearBucket) {
+        ctx.fillStyle = '#FF0000';
+        ctx.font = 'bold 12px Arial';
+        ctx.fillText('按X拾取' + fireNearItem.name, firePlayer.x - 10, firePlayer.y - 10);
+    } else if (fireNearBucket && !fireHolding) {
+        ctx.fillStyle = '#FF0000';
+        ctx.font = 'bold 12px Arial';
+        ctx.fillText('先拾取纸巾或布', firePlayer.x - 10, firePlayer.y - 10);
+    }
+
+    // 烟雾值
+    if (firePhase === 'hallway') {
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(550, 20, 200, 30);
+        ctx.fillStyle = fireHasMask ? '#27ae60' : '#e74c3c';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText('烟雾: ' + Math.floor(fireSmokeLevel) + '%', 570, 42);
+        if (!fireHasMask) {
+            ctx.fillStyle = '#FF0000';
+            ctx.fillText('未戴口罩！', 680, 42);
+        }
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 12px Arial';
+        if (fireNearStairs) {
+            ctx.fillStyle = '#00FF00';
+            ctx.fillText('按P键下楼梯！', 570, 70);
+        } else {
+            ctx.fillText('到楼梯口按P下楼梯', 570, 70);
+        }
+    }
+
+    // 手持物品
+    if (fireHolding) {
+        ctx.fillStyle = '#11998e';
+        ctx.font = 'bold 14px Arial';
+        const itemName = fireHolding === 'tissue' ? '纸巾' : fireHolding === 'cloth' ? '布' : fireHolding === 'wetTissue' ? '湿纸巾' : '湿布';
+        ctx.fillText('手持: ' + itemName, 10, 70);
+    }
+
+    // 阶段提示
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 14px Arial';
+    if (firePhase === 'room' && !fireHasMask) {
+        ctx.fillText('拾取纸巾→靠近水桶→空格合成→V键戴上', 150, 580);
+    } else if (firePhase === 'room' && fireHasMask && !fireDoorOpen) {
+        ctx.fillText('已戴口罩！走到门旁按O键开门', 150, 580);
+    } else if (firePhase === 'outdoor' && !fireDoorOpen) {
+        ctx.fillText('走到左侧门旁按O键开门，进入撤离点', 200, 580);
+    } else if (firePhase === 'outdoor' && fireDoorOpen) {
+        ctx.fillStyle = '#00FF00';
+        ctx.fillText('门已打开！向左走进入撤离点！', 250, 580);
+    }
+
+    // 门和楼梯提示
+    if (fireNearDoor) {
+        ctx.fillStyle = '#00FF00';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText('按O键开门', firePlayer.x - 5, firePlayer.y - 10);
+    }
+}
+
+// 操场场景绘制
+function fireDrawOutdoor() {
+    // 背景改为草地
+    ctx.fillStyle = '#90EE90';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 外围墙壁
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(0, 0, canvas.width, 20);
+    ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+    ctx.fillRect(0, 0, 20, canvas.height);
+    ctx.fillRect(canvas.width - 20, 0, 20, canvas.height);
+
+    // 左侧门（撤离点入口）
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(0, 220, 10, 140);
+    if (fireDoorOpen) {
+        ctx.fillStyle = '#654321';
+        ctx.fillRect(0, 220, 10, 140);
+        ctx.fillStyle = '#27ae60';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('撤离点←', 30, 50);
+        ctx.fillText('← 撤离点', 25, 290);
+    } else {
+        ctx.fillStyle = '#A0522D';
+        ctx.fillRect(0, 220, 10, 140);
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(5, 290, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 标签
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 20px Arial';
+    ctx.fillText('操场', 360, 50);
+
+    // 撤离点标志
+    ctx.fillStyle = '#27ae60';
+    ctx.beginPath();
+    ctx.arc(100, 300, 40, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText('安全', 80, 295);
+    ctx.fillText('撤离', 80, 315);
+}
+
+// 玩家绘制（供操场场景调用）
+function fireDrawPlayer() {
+    ctx.fillStyle = '#8B4513';
+    ctx.beginPath();
+    ctx.moveTo(firePlayer.x + 8, firePlayer.y);
+    ctx.lineTo(firePlayer.x + firePlayer.width - 8, firePlayer.y);
+    ctx.quadraticCurveTo(firePlayer.x + firePlayer.width, firePlayer.y, firePlayer.x + firePlayer.width, firePlayer.y + 8);
+    ctx.lineTo(firePlayer.x + firePlayer.width, firePlayer.y + firePlayer.height - 8);
+    ctx.quadraticCurveTo(firePlayer.x + firePlayer.width, firePlayer.y + firePlayer.height, firePlayer.x + firePlayer.width - 8, firePlayer.y + firePlayer.height);
+    ctx.lineTo(firePlayer.x + 8, firePlayer.y + firePlayer.height);
+    ctx.quadraticCurveTo(firePlayer.x, firePlayer.y + firePlayer.height, firePlayer.x, firePlayer.y + firePlayer.height - 8);
+    ctx.lineTo(firePlayer.x, firePlayer.y + 8);
+    ctx.quadraticCurveTo(firePlayer.x, firePlayer.y, firePlayer.x + 8, firePlayer.y);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#FFDAB9';
+    ctx.beginPath();
+    ctx.arc(firePlayer.x + 20, firePlayer.y + 12, 12, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(firePlayer.x + 16, firePlayer.y + 10, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(firePlayer.x + 24, firePlayer.y + 10, 2, 0, Math.PI * 2); ctx.fill();
+
+    if (fireHasMask) {
+        ctx.fillStyle = '#E0E0E0';
+        ctx.fillRect(firePlayer.x + 12, firePlayer.y + 18, 16, 10);
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(firePlayer.x + 12, firePlayer.y + 18, 16, 10);
+    }
+
+    // 门提示
+    if (fireNearDoor) {
+        ctx.fillStyle = '#00FF00';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText('按O键开门', firePlayer.x - 5, firePlayer.y - 10);
+    }
+}
+
+function updateFireUI() {
+    const statusEl = document.getElementById('fire-status');
+    const holdingEl = document.getElementById('fire-holding');
+    if (firePhase === 'room') {
+        if (!fireHasMask) statusEl.textContent = '合成口罩';
+        else if (!fireDoorOpen) statusEl.textContent = '按O开门';
+        else statusEl.textContent = '进入走廊';
+    } else if (firePhase === 'hallway') {
+        if (fireNearStairs) statusEl.textContent = '按P下楼梯';
+        else statusEl.textContent = '前往楼梯';
+    } else if (firePhase === 'outdoor') {
+        if (!fireDoorOpen) statusEl.textContent = '按O开门';
+        else statusEl.textContent = '进入撤离点';
+    }
+    const names = { tissue: '纸巾', cloth: '布', wetTissue: '湿纸巾', wetCloth: '湿布' };
+    holdingEl.textContent = fireHolding ? names[fireHolding] : (fireHasMask ? '已戴口罩' : '无');
+}
+
+function fireGameOver(reason) {
+    fireState = 'over';
+    cancelAnimationFrame(fireAnimationId);
+    document.getElementById('fire-over-reason').textContent = reason;
+    document.getElementById('fire-game-over').classList.remove('hidden');
+}
+
+function fireGameWin() {
+    fireState = 'win';
+    cancelAnimationFrame(fireAnimationId);
+    document.getElementById('fire-game-win').classList.remove('hidden');
+}
+
+function resumeFireGame() {
+    document.getElementById('fire-pause-menu').classList.add('hidden');
+    fireState = 'playing';
+    fireLastTime = performance.now();
+    requestAnimationFrame(fireGameLoop);
+}
+
+document.getElementById('fire-pause-btn').addEventListener('click', () => {
+    if (fireState === 'playing') {
+        fireState = 'paused';
+        cancelAnimationFrame(fireAnimationId);
+        document.getElementById('fire-pause-menu').classList.remove('hidden');
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (fireState !== 'playing') return;
+    if (e.key === 'ArrowLeft' || e.key === 'a') { firePlayer.dx = -firePlayer.speed; }
+    else if (e.key === 'ArrowRight' || e.key === 'd') { firePlayer.dx = firePlayer.speed; }
+    else if (e.key === 'ArrowUp' || e.key === 'w') { firePlayer.dy = -firePlayer.speed; }
+    else if (e.key === 'ArrowDown' || e.key === 's') { firePlayer.dy = firePlayer.speed; }
+    else if (e.key === 'x' || e.key === 'X') {
+        // 拾取物品
+        if (fireNearItem && !fireNearBucket && !fireHolding) {
+            fireNearItem.collected = true;
+            fireHolding = fireNearItem.type;
+            fireNearItem = null;
+            updateFireUI();
+        }
+    } else if (e.key === ' ') {
+        e.preventDefault();
+        // 合成
+        if (fireShowGreenLine) {
+            if (fireHolding === 'tissue') { fireHolding = 'wetTissue'; }
+            else if (fireHolding === 'cloth') { fireHolding = 'wetCloth'; }
+            fireShowGreenLine = false;
+            updateFireUI();
+        }
+    } else if (e.key === 'v' || e.key === 'V') {
+        // 戴上口罩
+        if (fireHolding === 'wetTissue' || fireHolding === 'wetCloth') {
+            fireHasMask = true;
+            fireHolding = null;
+            updateFireUI();
+        }
+    } else if (e.key === 'o' || e.key === 'O') {
+        // 开门
+        if (fireNearDoor && !fireDoorOpen) {
+            fireDoorOpen = true;
+            updateFireUI();
+        }
+    } else if (e.key === 'p' || e.key === 'P') {
+        // 下楼梯
+        if (fireNearStairs) {
+            firePhase = 'outdoor';
+            fireDoorOpen = false;
+            firePlayer.x = 400;
+            firePlayer.y = 300;
+            fireSmokeLevel = 0;
+            updateFireUI();
+        }
+    } else if (e.key === 'Escape') {
+        document.getElementById('fire-pause-btn').click();
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'a') { if (firePlayer.dx < 0) firePlayer.dx = 0; }
+    else if (e.key === 'ArrowRight' || e.key === 'd') { if (firePlayer.dx > 0) firePlayer.dx = 0; }
+    else if (e.key === 'ArrowUp' || e.key === 'w') { if (firePlayer.dy < 0) firePlayer.dy = 0; }
+    else if (e.key === 'ArrowDown' || e.key === 's') { if (firePlayer.dy > 0) firePlayer.dy = 0; }
+});
+
+// 火灾自动开门检测已移除，改为按O键开门
+
+function startFireQuiz() {
+    document.getElementById('fire-game-win').classList.add('hidden');
+    document.getElementById('fire-quiz-container').classList.remove('hidden');
+    currentQuestionIndex = 0; score = 0; showFireQuestion();
+}
+
+function showFireQuestion() {
+    const question = fireQuestions[currentQuestionIndex];
+    document.getElementById('fire-quiz-question').textContent = (currentQuestionIndex + 1) + '. ' + question.question;
+    const optionsContainer = document.getElementById('fire-quiz-options');
+    optionsContainer.innerHTML = '';
+    question.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'quiz-option';
+        optionDiv.textContent = option;
+        optionDiv.onclick = () => selectFireAnswer(index);
+        optionsContainer.appendChild(optionDiv);
+    });
+    document.getElementById('fire-quiz-feedback').textContent = '';
+    document.getElementById('fire-quiz-feedback').style.display = 'none';
+    document.getElementById('fire-next-question-btn').classList.add('hidden');
+}
+
+function selectFireAnswer(index) {
+    const question = fireQuestions[currentQuestionIndex];
+    const options = document.querySelectorAll('#fire-quiz-options .quiz-option');
+    options.forEach((opt, i) => {
+        opt.onclick = null;
+        if (i === question.answer) opt.classList.add('correct');
+        else if (i === index && i !== question.answer) opt.classList.add('incorrect');
+    });
+    const feedback = document.getElementById('fire-quiz-feedback');
+    feedback.style.display = 'block';
+    if (index === question.answer) {
+        score++;
+        feedback.textContent = '✅ ' + question.explanation;
+        feedback.style.background = '#d4edda'; feedback.style.color = '#155724';
+    } else {
+        feedback.textContent = '❌ 回答错误！' + question.explanation;
+        feedback.style.background = '#f8d7da'; feedback.style.color = '#721c24';
+    }
+    if (currentQuestionIndex < fireQuestions.length - 1) {
+        document.getElementById('fire-next-question-btn').classList.remove('hidden');
+    } else { showFireQuizResult(); }
+}
+
+function nextFireQuestion() { currentQuestionIndex++; showFireQuestion(); }
+
+function showFireQuizResult() {
+    const feedback = document.getElementById('fire-quiz-feedback');
+    feedback.textContent = '🎉 答题结束！你的得分是 ' + score + ' / ' + fireQuestions.length;
+    feedback.style.background = '#d4edda'; feedback.style.color = '#155724';
+    const nextBtn = document.getElementById('fire-next-question-btn');
+    nextBtn.textContent = '完成'; nextBtn.onclick = backToHall; nextBtn.classList.remove('hidden');
+}
+
+// ===== 暴雨避险游戏 =====
+let rainstormState = 'start';
+let rainstormPlayer = { x: 360, y: 460, width: 40, height: 50, speed: 5, dx: 0, dy: 0 };
+let rainstormKeysCollected = 0;
+const rainstormTotalKeys = 3;
+let rainstormLightningTimer = 0;
+let rainstormFlash = false;
+let rainstormFlashTimer = 0;
+let rainstormStriking = false;
+let rainstormStrikeTimer = 0;
+let rainstormBoardTimer = 0;
+let rainstormBoards = [];
+let rainstormHasBoard = false;
+let rainstormUsingBoard = false;
+let rainstormKeyTimer = 0;
+let rainstormKeysOnGround = [];
+let rainstormColdTimer = 0;
+let rainstormAnimationId;
+let rainstormLastTime = 0;
+let rainstormRaindrops = [];
+const rainstormTreeArea = { x: 320, y: 400, width: 160, height: 140 };
+const rainstormHouseArea = { x: 680, y: 460, width: 100, height: 90 };
+
+const rainstormQuestions = [
+{question:"暴雨天气在树下避雨安全吗？",options:["安全，树能挡雨","不安全，容易遭遇雷击","看树的高低","看雨的大小"],answer:1,explanation:"正确！大树容易引来雷击，暴雨天气不要在树下避雨。"},
+{question:"雷雨天气时，下列哪种做法是正确的？",options:["在大树下避雨","站在空旷高地","远离金属物体和电器","靠近窗户看风景"],answer:2,explanation:"正确！雷雨天气应远离金属物体和电器，避免在空旷高地和大树下停留。"},
+{question:"暴雨天气长时间淋雨会导致什么后果？",options:["身体更强壮","失温，危及生命","只是感冒","没有影响"],answer:1,explanation:"正确！长时间淋雨会导致体温流失，引发失温，严重时危及生命。"},
+{question:"雷击前通常会有什么预兆？",options:["气温骤降","出现闪电亮光","风停了","下冰雹"],answer:1,explanation:"正确！雷击前通常先看到闪电亮光，随后才会听到雷声，要尽快躲避。"},
+{question:"暴雨天气应该远离哪些地方？",options:["低洼地带和河道","商场","家里","学校"],answer:0,explanation:"正确！暴雨天气应远离低洼地带和河道，防范洪水和泥石流。"},
+{question:"遭遇暴雨时，最好的避雨地点是？",options:["大树下","电线杆旁","坚固的建筑物内","空旷的田野"],answer:2,explanation:"正确！坚固的建筑物内是最安全的避雨地点，远离大树和电线杆。"}
+];
+
+document.getElementById('rainstorm-start-btn').addEventListener('click', () => {
+    document.getElementById('rainstorm-start-screen').classList.add('hidden');
+    document.getElementById('game-canvas').classList.remove('hidden');
+    document.getElementById('rainstorm-game-ui').classList.remove('hidden');
+    startRainstormGame();
+});
+
+function startRainstormGame() {
+    rainstormState = 'playing';
+    rainstormPlayer = { x: 360, y: 460, width: 40, height: 50, speed: 5, dx: 0, dy: 0 };
+    rainstormKeysCollected = 0;
+    rainstormLightningTimer = 0;
+    rainstormFlash = false;
+    rainstormFlashTimer = 0;
+    rainstormStriking = false;
+    rainstormStrikeTimer = 0;
+    rainstormBoardTimer = 0;
+    rainstormBoards = [];
+    rainstormHasBoard = false;
+    rainstormUsingBoard = false;
+    rainstormKeyTimer = 0;
+    rainstormKeysOnGround = [];
+    rainstormColdTimer = 0;
+    rainstormRaindrops = [];
+    for (let i = 0; i < 120; i++) {
+        rainstormRaindrops.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, speed: 8 + Math.random() * 6, length: 10 + Math.random() * 10 });
+    }
+    updateRainstormUI(false);
+    rainstormLastTime = performance.now();
+    requestAnimationFrame(rainstormGameLoop);
+}
+
+function rainstormGameLoop(currentTime) {
+    if (rainstormState !== 'playing') return;
+    const deltaTime = currentTime - rainstormLastTime;
+    rainstormLastTime = currentTime;
+    rainstormUpdate(deltaTime);
+    rainstormDraw();
+    rainstormAnimationId = requestAnimationFrame(rainstormGameLoop);
+}
+
+function rainstormUpdate(deltaTime) {
+    // 移动玩家
+    rainstormPlayer.x += rainstormPlayer.dx;
+    rainstormPlayer.y += rainstormPlayer.dy;
+    if (rainstormPlayer.x < 0) rainstormPlayer.x = 0;
+    if (rainstormPlayer.x + rainstormPlayer.width > canvas.width) rainstormPlayer.x = canvas.width - rainstormPlayer.width;
+    if (rainstormPlayer.y < 380) rainstormPlayer.y = 380;
+    if (rainstormPlayer.y + rainstormPlayer.height > 540) rainstormPlayer.y = 540 - rainstormPlayer.height;
+
+    // 雨滴下落
+    rainstormRaindrops.forEach(r => {
+        r.y += r.speed;
+        if (r.y > canvas.height) { r.y = -20; r.x = Math.random() * canvas.width; }
+    });
+
+    // 判断是否在树下避雨区
+    const inTree = rainstormPlayer.x + rainstormPlayer.width > rainstormTreeArea.x &&
+                   rainstormPlayer.x < rainstormTreeArea.x + rainstormTreeArea.width &&
+                   rainstormPlayer.y + rainstormPlayer.height > rainstormTreeArea.y &&
+                   rainstormPlayer.y < rainstormTreeArea.y + rainstormTreeArea.height;
+
+    // 雷电：每10秒一次，闪电亮光提前1.5秒提示
+    rainstormLightningTimer += deltaTime;
+    if (!rainstormFlash && !rainstormStriking && rainstormLightningTimer >= 8500) {
+        rainstormFlash = true;
+        rainstormFlashTimer = 0;
+    }
+    if (rainstormFlash) {
+        rainstormFlashTimer += deltaTime;
+        if (rainstormFlashTimer >= 1500) {
+            // 雷劈！如果在树下则死亡
+            rainstormFlash = false;
+            rainstormStriking = true;
+            rainstormStrikeTimer = 0;
+            rainstormLightningTimer = 0;
+            if (inTree) {
+                rainstormGameOver('你被雷劈中了！');
+                return;
+            }
+        }
+    }
+    if (rainstormStriking) {
+        rainstormStrikeTimer += deltaTime;
+        if (rainstormStrikeTimer >= 400) rainstormStriking = false;
+    }
+
+    // 木板掉落：每60秒在边上掉一个
+    rainstormBoardTimer += deltaTime;
+    if (rainstormBoardTimer >= 60000) {
+        rainstormBoardTimer = 0;
+        const fromLeft = Math.random() < 0.5;
+        rainstormBoards.push({ x: fromLeft ? 20 : canvas.width - 70, y: -30, width: 50, height: 15 });
+    }
+    rainstormBoards.forEach(b => { if (b.y < 500) b.y += 3; });
+
+    // 钥匙掉落：每100秒从天上掉一个
+    rainstormKeyTimer += deltaTime;
+    if (rainstormKeyTimer >= 100000) {
+        rainstormKeyTimer = 0;
+        rainstormKeysOnGround.push({ x: 50 + Math.random() * (canvas.width - 100), y: -40, width: 30, height: 40, speed: 2 });
+    }
+    for (let i = rainstormKeysOnGround.length - 1; i >= 0; i--) {
+        const k = rainstormKeysOnGround[i];
+        if (k.y < 480) k.y += k.speed;
+        if (checkCollision(rainstormPlayer, k)) {
+            rainstormKeysOnGround.splice(i, 1);
+            rainstormKeysCollected++;
+        }
+    }
+
+    // 木板拾取
+    for (let i = rainstormBoards.length - 1; i >= 0; i--) {
+        if (checkCollision(rainstormPlayer, rainstormBoards[i])) {
+            rainstormBoards.splice(i, 1);
+            rainstormHasBoard = true;
+        }
+    }
+
+    // 失温：不在树下且没使用木板时累计，20秒死亡
+    if (!inTree && !rainstormUsingBoard) {
+        rainstormColdTimer += deltaTime;
+        if (rainstormColdTimer >= 20000) {
+            rainstormGameOver('已失温！');
+            return;
+        }
+    } else {
+        rainstormColdTimer = Math.max(0, rainstormColdTimer - deltaTime);
+    }
+
+    // 通关：收集3把钥匙后到达木屋
+    if (rainstormKeysCollected >= rainstormTotalKeys) {
+        const atHouse = rainstormPlayer.x + rainstormPlayer.width > rainstormHouseArea.x &&
+                        rainstormPlayer.x < rainstormHouseArea.x + rainstormHouseArea.width;
+        if (atHouse) {
+            rainstormGameWin();
+            return;
+        }
+    }
+
+    updateRainstormUI(inTree);
+}
+
+function rainstormDraw() {
+    // 阴沉天空
+    ctx.fillStyle = '#4a5568';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 闪电亮光
+    if (rainstormFlash) {
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    // 雷劈效果
+    if (rainstormStriking) {
+        ctx.fillStyle = 'rgba(255,255,0,0.35)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#FFFF00';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(400, 0);
+        ctx.lineTo(380, 100);
+        ctx.lineTo(420, 160);
+        ctx.lineTo(390, 260);
+        ctx.lineTo(400, 400);
+        ctx.stroke();
+    }
+
+    // 地面
+    ctx.fillStyle = '#3d2817';
+    ctx.fillRect(0, 550, canvas.width, 50);
+
+    // 雨
+    ctx.strokeStyle = 'rgba(174,194,224,0.6)';
+    ctx.lineWidth = 1;
+    rainstormRaindrops.forEach(r => {
+        ctx.beginPath();
+        ctx.moveTo(r.x, r.y);
+        ctx.lineTo(r.x - 2, r.y + r.length);
+        ctx.stroke();
+    });
+
+    // 树
+    ctx.fillStyle = '#5C3317';
+    ctx.fillRect(385, 350, 30, 200);
+    ctx.fillStyle = '#2d5016';
+    ctx.beginPath(); ctx.arc(400, 270, 90, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#3d6b1c';
+    ctx.beginPath(); ctx.arc(360, 240, 60, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(440, 240, 60, 0, Math.PI * 2); ctx.fill();
+
+    // 木屋
+    const hx = 680, hy = 460;
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(hx, hy, 100, 90);
+    ctx.fillStyle = '#654321';
+    ctx.beginPath();
+    ctx.moveTo(hx, hy); ctx.lineTo(hx + 50, hy - 40); ctx.lineTo(hx + 100, hy);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = rainstormKeysCollected >= rainstormTotalKeys ? '#FFD700' : '#FFA500';
+    ctx.fillRect(hx + 40, hy + 45, 20, 45);
+    if (rainstormKeysCollected >= rainstormTotalKeys) {
+        ctx.fillStyle = '#27ae60';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('安全!', hx + 28, hy - 50);
+    }
+
+    // 木板
+    rainstormBoards.forEach(b => {
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+        ctx.strokeStyle = '#5C2E0E';
+        ctx.strokeRect(b.x, b.y, b.width, b.height);
+    });
+
+    // 钥匙（复用地震游戏的drawKey）
+    rainstormKeysOnGround.forEach(k => drawKey(k));
+
+    // 玩家
+    const p = rainstormPlayer;
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(p.x, p.y, p.width, p.height);
+    ctx.fillStyle = '#FFDAB9';
+    ctx.beginPath(); ctx.arc(p.x + 20, p.y + 15, 13, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(p.x + 16, p.y + 12, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x + 24, p.y + 12, 2, 0, Math.PI * 2); ctx.fill();
+    // 使用木板挡雨
+    if (rainstormUsingBoard) {
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(p.x - 8, p.y - 18, p.width + 16, 10);
+    }
+
+    // 失温进度条
+    if (rainstormColdTimer > 0) {
+        const pct = rainstormColdTimer / 20000;
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(20, 560, 200, 22);
+        ctx.fillStyle = pct > 0.7 ? '#e74c3c' : '#f39c12';
+        ctx.fillRect(20, 560, 200 * pct, 22);
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.fillText('失温进度', 80, 575);
+    }
+}
+
+function updateRainstormUI(inTree) {
+    document.getElementById('rainstorm-keys').textContent = rainstormKeysCollected;
+    let status;
+    if (rainstormFlash) status = '⚠️ 闪电！快离开树下';
+    else if (inTree) status = '树下避雨';
+    else if (rainstormUsingBoard) status = '木板挡雨';
+    else status = '雨中(注意失温)';
+    document.getElementById('rainstorm-status').textContent = status;
+    document.getElementById('rainstorm-board').textContent = rainstormHasBoard ? (rainstormUsingBoard ? '使用中' : '已持有') : '无';
+}
+
+document.getElementById('rainstorm-pause-btn').addEventListener('click', () => {
+    if (rainstormState === 'playing') {
+        rainstormState = 'paused';
+        cancelAnimationFrame(rainstormAnimationId);
+        document.getElementById('rainstorm-pause-menu').classList.remove('hidden');
+    }
+});
+
+function resumeRainstormGame() {
+    document.getElementById('rainstorm-pause-menu').classList.add('hidden');
+    rainstormState = 'playing';
+    rainstormLastTime = performance.now();
+    requestAnimationFrame(rainstormGameLoop);
+}
+
+function rainstormGameOver(reason) {
+    rainstormState = 'over';
+    cancelAnimationFrame(rainstormAnimationId);
+    document.getElementById('rainstorm-over-reason').textContent = reason;
+    document.getElementById('rainstorm-game-over').classList.remove('hidden');
+}
+
+function rainstormGameWin() {
+    rainstormState = 'win';
+    cancelAnimationFrame(rainstormAnimationId);
+    document.getElementById('rainstorm-game-win').classList.remove('hidden');
+}
+
+document.addEventListener('keydown', (e) => {
+    if (rainstormState !== 'playing') return;
+    if (e.key === 'ArrowLeft' || e.key === 'a') { rainstormPlayer.dx = -rainstormPlayer.speed; }
+    else if (e.key === 'ArrowRight' || e.key === 'd') { rainstormPlayer.dx = rainstormPlayer.speed; }
+    else if (e.key === 'ArrowUp' || e.key === 'w') { rainstormPlayer.dy = -rainstormPlayer.speed; }
+    else if (e.key === 'ArrowDown' || e.key === 's') { rainstormPlayer.dy = rainstormPlayer.speed; }
+    else if (e.key === ' ') {
+        e.preventDefault();
+        // 切换使用木板挡雨
+        if (rainstormHasBoard) { rainstormUsingBoard = !rainstormUsingBoard; }
+    } else if (e.key === 'Escape') {
+        document.getElementById('rainstorm-pause-btn').click();
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (rainstormState !== 'playing') return;
+    if (e.key === 'ArrowLeft' || e.key === 'a') { if (rainstormPlayer.dx < 0) rainstormPlayer.dx = 0; }
+    else if (e.key === 'ArrowRight' || e.key === 'd') { if (rainstormPlayer.dx > 0) rainstormPlayer.dx = 0; }
+    else if (e.key === 'ArrowUp' || e.key === 'w') { if (rainstormPlayer.dy < 0) rainstormPlayer.dy = 0; }
+    else if (e.key === 'ArrowDown' || e.key === 's') { if (rainstormPlayer.dy > 0) rainstormPlayer.dy = 0; }
+});
+
+function startRainstormQuiz() {
+    document.getElementById('rainstorm-game-win').classList.add('hidden');
+    document.getElementById('rainstorm-quiz-container').classList.remove('hidden');
+    currentQuestionIndex = 0; score = 0; showRainstormQuestion();
+}
+
+function showRainstormQuestion() {
+    const question = rainstormQuestions[currentQuestionIndex];
+    document.getElementById('rainstorm-quiz-question').textContent = (currentQuestionIndex + 1) + '. ' + question.question;
+    const optionsContainer = document.getElementById('rainstorm-quiz-options');
+    optionsContainer.innerHTML = '';
+    question.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'quiz-option';
+        optionDiv.textContent = option;
+        optionDiv.onclick = () => selectRainstormAnswer(index);
+        optionsContainer.appendChild(optionDiv);
+    });
+    const nextBtn = document.getElementById('rainstorm-next-question-btn');
+    nextBtn.textContent = '下一题';
+    nextBtn.onclick = nextRainstormQuestion;
+    document.getElementById('rainstorm-quiz-feedback').textContent = '';
+    document.getElementById('rainstorm-quiz-feedback').style.display = 'none';
+    nextBtn.classList.add('hidden');
+}
+
+function selectRainstormAnswer(index) {
+    const question = rainstormQuestions[currentQuestionIndex];
+    const options = document.querySelectorAll('#rainstorm-quiz-options .quiz-option');
+    options.forEach((opt, i) => {
+        opt.onclick = null;
+        if (i === question.answer) opt.classList.add('correct');
+        else if (i === index && i !== question.answer) opt.classList.add('incorrect');
+    });
+    const feedback = document.getElementById('rainstorm-quiz-feedback');
+    feedback.style.display = 'block';
+    if (index === question.answer) {
+        score++;
+        feedback.textContent = '✅ ' + question.explanation;
+        feedback.style.background = '#d4edda'; feedback.style.color = '#155724';
+    } else {
+        feedback.textContent = '❌ 回答错误！' + question.explanation;
+        feedback.style.background = '#f8d7da'; feedback.style.color = '#721c24';
+    }
+    if (currentQuestionIndex < rainstormQuestions.length - 1) {
+        document.getElementById('rainstorm-next-question-btn').classList.remove('hidden');
+    } else { showRainstormQuizResult(); }
+}
+
+function nextRainstormQuestion() { currentQuestionIndex++; showRainstormQuestion(); }
+
+function showRainstormQuizResult() {
+    const feedback = document.getElementById('rainstorm-quiz-feedback');
+    feedback.textContent = '🎉 答题结束！你的得分是 ' + score + ' / ' + rainstormQuestions.length;
+    feedback.style.background = '#d4edda'; feedback.style.color = '#155724';
+    const nextBtn = document.getElementById('rainstorm-next-question-btn');
+    nextBtn.textContent = '完成'; nextBtn.onclick = backToHall; nextBtn.classList.remove('hidden');
+}
+</script>
+</body>
+</html>

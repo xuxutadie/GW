@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>安全守护星球 · 全国青少年安全与应急科普创新大赛参赛作品</title>
+  <meta name="description" content="面向 6-18 岁中小学生的安全应急科普互动网站，参赛作品" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+/* =====================================================
+ * 全局样式（合并自 style.css + home.css + study.css + interact.css + handbook.css）
+ * ===================================================== */
+
+/* ---------- 1. 主题变量 ---------- */
+:root {
+  --c-sky-50:  #E8F6FD; --c-sky-100: #C6E7F9; --c-sky-200: #9FD5F4;
+  --c-sky-300: #6FC1EE; --c-sky-400: #4FC3F7; --c-sky-500: #29B6F6;
+  --c-sky-600: #1E9BD8; --c-sky-700: #1565C0;
+  --c-orange-50: #FFF6E5; --c-orange-100: #FFE4B5; --c-orange-300: #FFCC80;
+  --c-orange-400: #FFB74D; --c-orange-500: #FFA726; --c-orange-600: #FB8C00;
+  --c-success: #66BB6A; --c-warning: #FFB74D; --c-danger: #EF5350; --c-info: #42A5F5;
+  --c-bg: #F0F9FF; --c-bg-warm: #FFFAF0; --c-card: #FFFFFF;
+  --c-text: #1F3A5F; --c-text-sub: #5B7A99; --c-text-mute: #94A8BD;
+  --c-border: rgba(31, 58, 95, 0.08);
+  --r-sm: 8px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px; --r-pill: 999px;
+  --shadow-sm: 0 2px 8px rgba(31, 58, 95, 0.06);
+  --shadow-md: 0 8px 24px rgba(31, 58, 95, 0.10);
+  --shadow-lg: 0 16px 40px rgba(31, 58, 95, 0.14);
+  --shadow-orange: 0 8px 20px rgba(255, 167, 38, 0.35);
+  --shadow-sky: 0 8px 20px rgba(79, 195, 247, 0.35);
+  --font-display: "ZCOOL KuaiLe", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px;
+  --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px;
+  --sp-16: 64px; --sp-20: 80px;
+  --t-fast: 0.18s ease; --t-base: 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  --t-bounce: 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-body); font-size: 18px; line-height: 1.7;
+  color: var(--c-text); background: var(--c-bg);
+  background-image:
+    radial-gradient(circle at 20% 10%, var(--c-sky-100) 0, transparent 40%),
+    radial-gradient(circle at 85% 80%, var(--c-orange-100) 0, transparent 40%);
+  background-attachment: fixed; min-height: 100vh; overflow-x: hidden;
+}
+img,svg { display: block; max-width: 100%; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+a { color: var(--c-sky-600); text-decoration: none; transition: color var(--t-fast); }
+a:hover { color: var(--c-sky-700); }
+ul,ol { list-style: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* ---------- 通用布局 ---------- */
+.container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 var(--sp-6); }
+.section { padding: var(--sp-16) 0; scroll-margin-top: 80px; }
+.section-title { font-family: var(--font-display); font-size: clamp(28px, 4vw, 42px); color: var(--c-sky-700); text-align: center; margin-bottom: var(--sp-3); letter-spacing: 1px; }
+.section-sub { text-align: center; color: var(--c-text-sub); font-size: 18px; margin-bottom: var(--sp-10); }
+
+/* ---------- 导航栏 ---------- */
+.navbar { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.85); backdrop-filter: saturate(180%) blur(14px); -webkit-backdrop-filter: saturate(180%) blur(14px); border-bottom: 1px solid var(--c-border); transition: box-shadow var(--t-base); }
+.navbar.scrolled { box-shadow: var(--shadow-sm); }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+.nav-brand { display: flex; align-items: center; gap: var(--sp-3); font-family: var(--font-display); font-size: 22px; color: var(--c-sky-700); }
+.nav-brand .logo { width: 42px; height: 42px; background: linear-gradient(135deg, var(--c-sky-400), var(--c-orange-400)); border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 22px; box-shadow: var(--shadow-sky); animation: spin-soft 8s linear infinite; }
+.nav-brand small { display: block; font-family: var(--font-body); font-size: 11px; color: var(--c-text-mute); letter-spacing: 1px; margin-top: 2px; }
+.nav-links { display: flex; gap: var(--sp-2); align-items: center; }
+.nav-link { position: relative; padding: 10px 18px; border-radius: var(--r-pill); color: var(--c-text); font-weight: 500; font-size: 16px; transition: all var(--t-base); }
+.nav-link:hover { background: var(--c-sky-50); color: var(--c-sky-700); }
+.nav-link.active { background: var(--c-sky-400); color: #fff; box-shadow: var(--shadow-sky); }
+.nav-toggle { display: none; width: 44px; height: 44px; border-radius: var(--r-md); background: var(--c-sky-50); align-items: center; justify-content: center; font-size: 24px; color: var(--c-sky-700); }
+
+/* ---------- 按钮 ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); padding: 14px 28px; border-radius: var(--r-pill); font-weight: 600; font-size: 17px; letter-spacing: 0.5px; transition: transform var(--t-base), box-shadow var(--t-base), background var(--t-base); min-height: 48px; user-select: none; }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn-primary { background: linear-gradient(135deg, var(--c-sky-400), var(--c-sky-600)); color: #fff; box-shadow: var(--shadow-sky); }
+.btn-primary:hover { box-shadow: 0 12px 28px rgba(79, 195, 247, 0.5); }
+.btn-accent { background: linear-gradient(135deg, var(--c-orange-400), var(--c-orange-600)); color: #fff; box-shadow: var(--shadow-orange); }
+.btn-accent:hover { box-shadow: 0 12px 28px rgba(255, 167, 38, 0.5); }
+.btn-ghost { background: #fff; color: var(--c-sky-700); border: 2px solid var(--c-sky-200); }
+.btn-ghost:hover { background: var(--c-sky-50); border-color: var(--c-sky-400); }
+
+/* ---------- 卡片 ---------- */
+.card { background: var(--c-card); border-radius: var(--r-lg); padding: var(--sp-6); box-shadow: var(--shadow-sm); transition: transform var(--t-base), box-shadow var(--t-base); border: 1px solid var(--c-border); }
+.card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+
+/* ---------- 浮动云朵 ---------- */
+.floating-clouds { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.cloud { position: absolute; font-size: 48px; opacity: 0.5; filter: drop-shadow(0 4px 12px rgba(79, 195, 247, 0.3)); animation: float-cloud linear infinite; }
+.cloud-1 { top: 12%; left: 8%; animation-duration: 38s; }
+.cloud-2 { top: 32%; right: 6%; animation-duration: 46s; animation-delay: -8s; font-size: 36px; }
+.cloud-3 { top: 58%; left: 4%; animation-duration: 52s; animation-delay: -16s; font-size: 42px; }
+.cloud-4 { top: 78%; right: 10%; animation-duration: 42s; animation-delay: -22s; }
+
+@keyframes float-cloud { 0% { transform: translateX(-20px); } 50% { transform: translateX(20px); } 100% { transform: translateX(-20px); } }
+@keyframes spin-soft { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes bounce-soft { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ---------- 页脚 ---------- */
+.footer { background: linear-gradient(135deg, #1F3A5F, #1565C0); color: #DCEAF7; padding: var(--sp-12) 0 var(--sp-6); margin-top: var(--sp-16); text-align: center; }
+.footer h3 { font-family: var(--font-display); color: #fff; font-size: 22px; margin-bottom: var(--sp-3); }
+.footer p { font-size: 15px; opacity: 0.85; margin-bottom: var(--sp-2); }
+.footer-meta { margin-top: var(--sp-6); padding-top: var(--sp-6); border-top: 1px solid rgba(255,255,255,0.15); font-size: 13px; opacity: 0.7; }
+
+/* ---------- 回到顶部 ---------- */
+.back-top { position: fixed; right: 28px; bottom: 28px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--c-orange-400), var(--c-orange-600)); color: #fff; display: grid; place-items: center; font-size: 24px; box-shadow: var(--shadow-orange); opacity: 0; pointer-events: none; transform: translateY(20px); transition: all var(--t-base); z-index: 99; }
+.back-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.back-top:hover { transform: translateY(-4px); }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; padding: var(--sp-12) 0 var(--sp-16); text-align: center; overflow: hidden; }
+.hero-badge { display: inline-flex; align-items: center; gap: var(--sp-2); padding: 8px 18px; background: rgba(255,255,255,0.7); border: 1.5px dashed var(--c-orange-400); border-radius: var(--r-pill); color: var(--c-orange-600); font-size: 14px; font-weight: 600; margin-bottom: var(--sp-6); animation: bounce-soft 3s ease-in-out infinite; }
+.hero-badge::before { content: "🏆"; }
+.hero-title { font-family: var(--font-display); font-size: clamp(40px, 7vw, 76px); line-height: 1.1; color: var(--c-sky-700); margin-bottom: var(--sp-4); letter-spacing: 2px; }
+.hero-title .accent { background: linear-gradient(135deg, var(--c-orange-400), var(--c-orange-600)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; animation: bounce-soft 2.5s ease-in-out infinite; }
+.hero-slogan { font-size: clamp(18px, 2.2vw, 22px); color: var(--c-text-sub); max-width: 720px; margin: 0 auto var(--sp-8); line-height: 1.8; }
+.hero-cta { display: flex; gap: var(--sp-4); justify-content: center; flex-wrap: wrap; }
+.hero-mascot { position: absolute; font-size: 120px; filter: drop-shadow(0 12px 20px rgba(79, 195, 247, 0.4)); animation: float-cloud 6s ease-in-out infinite; pointer-events: none; }
+.hero-mascot.left { left: 4%; top: 20%; font-size: 90px; }
+.hero-mascot.right { right: 4%; top: 35%; font-size: 100px; animation-delay: -3s; }
+
+/* ---------- 数据条 ---------- */
+.stat-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-top: -40px; position: relative; z-index: 2; }
+.stat-item { background: #fff; border-radius: var(--r-lg); padding: var(--sp-6) var(--sp-4); text-align: center; box-shadow: var(--shadow-md); border: 2px solid transparent; transition: all var(--t-base); }
+.stat-item:hover { transform: translateY(-6px); border-color: var(--c-sky-200); }
+.stat-item .num { font-family: var(--font-display); font-size: 42px; background: linear-gradient(135deg, var(--c-sky-500), var(--c-orange-500)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: block; line-height: 1; }
+.stat-item .label { display: block; font-size: 14px; color: var(--c-text-sub); margin-top: var(--sp-2); }
+
+/* ---------- 入口卡片 ---------- */
+.entry-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-6); margin-top: var(--sp-10); }
+.entry-card { position: relative; background: #fff; border-radius: var(--r-xl); padding: var(--sp-8) var(--sp-6); text-align: center; overflow: hidden; box-shadow: var(--shadow-sm); border: 2px solid transparent; transition: all var(--t-base); text-decoration: none; color: inherit; display: block; }
+.entry-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, var(--c-sky-50), var(--c-orange-50)); opacity: 0; transition: opacity var(--t-base); z-index: 0; }
+.entry-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.entry-card:hover::before { opacity: 1; }
+.entry-card > * { position: relative; z-index: 1; }
+.entry-card .icon { width: 96px; height: 96px; margin: 0 auto var(--sp-4); border-radius: 50%; display: grid; place-items: center; font-size: 48px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: transform var(--t-bounce); }
+.entry-card:hover .icon { transform: scale(1.12) rotate(-8deg); }
+.entry-card h3 { font-family: var(--font-display); font-size: 26px; color: var(--c-sky-700); margin-bottom: var(--sp-2); letter-spacing: 1px; }
+.entry-card p { color: var(--c-text-sub); font-size: 16px; margin-bottom: var(--sp-4); min-height: 50px; }
+.entry-card .more { display: inline-flex; align-items: center; gap: 6px; color: var(--c-orange-600); font-weight: 600; font-size: 15px; }
+.entry-card .more::after { content: "→"; transition: transform var(--t-fast); }
+.entry-card:hover .more::after { transform: translateX(4px); }
+.entry-card.c1 .icon { background: linear-gradient(135deg, #FFE0B2, #FFCC80); }
+.entry-card.c2 .icon { background: linear-gradient(135deg, #B3E5FC, #81D4FA); }
+.entry-card.c3 .icon { background: linear-gradient(135deg, #C8E6C9, #A5D6A7); }
+.entry-card.c4 .icon { background: linear-gradient(135deg, #F8BBD0, #F48FB1); }
+
+/* ---------- 特色 ---------- */
+.feature { background: linear-gradient(135deg, var(--c-sky-50), var(--c-bg-warm)); border-radius: var(--r-xl); padding: var(--sp-12) var(--sp-8); margin: var(--sp-12) 0; position: relative; overflow: hidden; }
+.feature::before, .feature::after { content: ""; position: absolute; width: 200px; height: 200px; border-radius: 50%; opacity: 0.3; filter: blur(40px); }
+.feature::before { top: -60px; right: -60px; background: var(--c-orange-100); }
+.feature::after { bottom: -60px; left: -60px; background: var(--c-sky-100); }
+.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-6); position: relative; z-index: 1; }
+.feature-item { background: #fff; border-radius: var(--r-lg); padding: var(--sp-6); text-align: center; transition: transform var(--t-base); }
+.feature-item:hover { transform: translateY(-6px); }
+.feature-item .icon { font-size: 56px; margin-bottom: var(--sp-3); display: inline-block; animation: bounce-soft 2.8s ease-in-out infinite; }
+.feature-item:nth-child(2) .icon { animation-delay: -1s; }
+.feature-item:nth-child(3) .icon { animation-delay: -2s; }
+.feature-item h4 { font-family: var(--font-display); font-size: 22px; color: var(--c-sky-700); margin-bottom: var(--sp-2); }
+.feature-item p { color: var(--c-text-sub); font-size: 15px; }
+
+/* ---------- 科普学堂 ---------- */
+.tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--sp-3); margin-bottom: var(--sp-10); }
+.tab { padding: 12px 26px; border-radius: var(--r-pill); background: #fff; color: var(--c-text); font-weight: 600; font-size: 16px; border: 2px solid transparent; box-shadow: var(--shadow-sm); transition: all var(--t-base); display: inline-flex; align-items: center; gap: 6px; }
+.tab:hover { transform: translateY(-2px); border-color: var(--c-sky-200); }
+.tab.active { background: linear-gradient(135deg, var(--c-orange-400), var(--c-orange-500)); color: #fff; border-color: var(--c-orange-500); box-shadow: var(--shadow-orange); }
+.knowledge-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-6); }
+.knowledge-card { background: #fff; border-radius: var(--r-lg); padding: var(--sp-6); position: relative; overflow: hidden; box-shadow: var(--shadow-sm); border-top: 5px solid var(--accent, var(--c-sky-400)); transition: all var(--t-base); }
+.knowledge-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.knowledge-card .emoji { font-size: 56px; margin-bottom: var(--sp-3); display: inline-block; transition: transform var(--t-bounce); }
+.knowledge-card:hover .emoji { transform: rotate(-10deg) scale(1.1); }
+.knowledge-card h3 { font-family: var(--font-display); font-size: 22px; color: var(--c-sky-700); margin-bottom: var(--sp-2); }
+.knowledge-card .desc { color: var(--c-text-sub); font-size: 16px; line-height: 1.7; margin-bottom: var(--sp-4); }
+.tip-box { background: var(--c-orange-50); border-left: 4px solid var(--c-orange-400); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-sm); color: var(--c-text); font-size: 15px; line-height: 1.6; }
+.tip-box::before { content: "💡 小贴士："; font-weight: 700; color: var(--c-orange-600); }
+.knowledge-card.t-fire { --accent: #EF5350; }
+.knowledge-card.t-water { --accent: #42A5F5; }
+.knowledge-card.t-school { --accent: #66BB6A; }
+.knowledge-card.t-disaster { --accent: #FFA726; }
+.knowledge-card.t-traffic { --accent: #AB47BC; }
+
+/* ---------- 互动区 ---------- */
+.interact-tabs { display: flex; justify-content: center; gap: var(--sp-3); margin-bottom: var(--sp-10); flex-wrap: wrap; }
+.interact-tab { padding: 16px 28px; border-radius: var(--r-pill); background: #fff; color: var(--c-text); font-weight: 600; font-size: 17px; border: 2px solid var(--c-border); box-shadow: var(--shadow-sm); transition: all var(--t-base); display: inline-flex; align-items: center; gap: 8px; }
+.interact-tab .badge { background: var(--c-orange-400); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: var(--r-pill); }
+.interact-tab:hover { transform: translateY(-2px); border-color: var(--c-sky-300); }
+.interact-tab.active { background: linear-gradient(135deg, var(--c-sky-400), var(--c-sky-600)); color: #fff; border-color: var(--c-sky-500); box-shadow: var(--shadow-sky); }
+.interact-tab.active .badge { background: #fff; color: var(--c-sky-600); }
+.stage { background: #fff; border-radius: var(--r-xl); padding: var(--sp-8); box-shadow: var(--shadow-md); min-height: 400px; position: relative; }
+.stage-panel { display: none; }
+.stage-panel.active { display: block; animation: fade-up 0.5s ease; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 闯关 */
+.quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-6); flex-wrap: wrap; gap: var(--sp-3); }
+.quiz-progress { flex: 1; height: 12px; background: var(--c-sky-50); border-radius: var(--r-pill); overflow: hidden; min-width: 200px; }
+.quiz-progress-bar { height: 100%; background: linear-gradient(90deg, var(--c-sky-400), var(--c-orange-400)); border-radius: var(--r-pill); transition: width var(--t-base); width: 0%; }
+.quiz-meta { font-weight: 600; color: var(--c-sky-700); }
+.quiz-question { font-size: 22px; color: var(--c-text); margin-bottom: var(--sp-6); line-height: 1.6; font-weight: 500; }
+.quiz-options { display: grid; gap: var(--sp-3); }
+.quiz-option { padding: var(--sp-4) var(--sp-5); background: #fff; border: 2px solid var(--c-border); border-radius: var(--r-md); font-size: 17px; text-align: left; transition: all var(--t-base); display: flex; align-items: center; gap: var(--sp-3); cursor: pointer; width: 100%; }
+.quiz-option::before { content: attr(data-key); width: 32px; height: 32px; background: var(--c-sky-50); color: var(--c-sky-700); border-radius: 50%; display: grid; place-items: center; font-weight: 700; flex-shrink: 0; transition: all var(--t-base); }
+.quiz-option:hover { border-color: var(--c-sky-400); background: var(--c-sky-50); transform: translateX(4px); }
+.quiz-option:hover::before { background: var(--c-sky-400); color: #fff; }
+.quiz-option.correct { border-color: var(--c-success); background: rgba(102,187,106,0.1); }
+.quiz-option.correct::before { background: var(--c-success); color: #fff; }
+.quiz-option.wrong { border-color: var(--c-danger); background: rgba(239,83,80,0.1); animation: shake 0.4s; }
+.quiz-option.wrong::before { background: var(--c-danger); color: #fff; }
+.quiz-option:disabled { cursor: not-allowed; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.quiz-feedback { margin-top: var(--sp-5); padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); display: none; animation: fade-up 0.4s ease; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: rgba(102,187,106,0.12); border-left: 4px solid var(--c-success); }
+.quiz-feedback.no { background: rgba(239,83,80,0.12); border-left: 4px solid var(--c-danger); }
+.quiz-feedback .title { font-weight: 700; margin-bottom: var(--sp-2); }
+.quiz-feedback.ok .title { color: var(--c-success); }
+.quiz-feedback.no .title { color: var(--c-danger); }
+.quiz-result { text-align: center; padding: var(--sp-8); display: none; }
+.quiz-result.show { display: block; }
+.quiz-result .medal { font-size: 120px; display: inline-block; animation: bounce-soft 2s ease-in-out infinite; }
+.quiz-result h2 { font-family: var(--font-display); font-size: 36px; color: var(--c-sky-700); margin: var(--sp-4) 0; }
+.quiz-result .score { font-family: var(--font-display); font-size: 64px; background: linear-gradient(135deg, var(--c-orange-400), var(--c-sky-500)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* 场景 */
+.scenario-stage { background: linear-gradient(180deg, var(--c-sky-100), #fff); border-radius: var(--r-lg); padding: var(--sp-8); text-align: center; min-height: 320px; display: flex; flex-direction: column; justify-content: center; }
+.scenario-emoji { font-size: 100px; margin-bottom: var(--sp-4); animation: bounce-soft 2.5s ease-in-out infinite; }
+.scenario-title { font-family: var(--font-display); font-size: 28px; color: var(--c-sky-700); margin-bottom: var(--sp-3); }
+.scenario-desc { color: var(--c-text-sub); max-width: 600px; margin: 0 auto var(--sp-6); font-size: 17px; }
+.scenario-choices { display: grid; gap: var(--sp-3); max-width: 600px; margin: 0 auto; }
+.scenario-choice { padding: var(--sp-4) var(--sp-5); background: #fff; border: 2px solid var(--c-sky-200); border-radius: var(--r-md); font-size: 16px; cursor: pointer; transition: all var(--t-base); text-align: left; }
+.scenario-choice:hover { border-color: var(--c-sky-500); background: var(--c-sky-50); transform: translateY(-2px); }
+.scenario-feedback { margin-top: var(--sp-6); padding: var(--sp-5); border-radius: var(--r-md); display: none; }
+.scenario-feedback.show { display: block; animation: fade-up 0.4s ease; }
+.scenario-feedback.ok { background: rgba(102,187,106,0.15); border: 2px solid var(--c-success); }
+.scenario-feedback.no { background: rgba(239,83,80,0.12); border: 2px solid var(--c-danger); }
+.scenario-feedback .icon-big { font-size: 60px; margin-bottom: var(--sp-2); }
+
+/* 找茬 */
+.hazard-scene { position: relative; width: 100%; max-width: 800px; margin: 0 auto var(--sp-6); aspect-ratio: 4 / 3; background: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 60%, #B3E5FC 100%); border-radius: var(--r-lg); overflow: hidden; border: 3px solid var(--c-sky-300); box-shadow: var(--shadow-md); }
+.hazard-svg { width: 100%; height: 100%; }
+.hazard-hotspot { position: absolute; border: 3px dashed transparent; border-radius: 50%; cursor: pointer; transition: all var(--t-base); z-index: 5; }
+.hazard-hotspot:hover { border-color: rgba(255,183,77,0.7); background: rgba(255,183,77,0.2); }
+.hazard-hotspot.found { border: 3px solid var(--c-success); background: rgba(102,187,106,0.3); animation: pulse-success 1.2s ease; }
+@keyframes pulse-success { 0% { transform: scale(0.6); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+.hazard-status { text-align: center; font-size: 18px; color: var(--c-sky-700); font-weight: 600; margin-bottom: var(--sp-4); }
+.hazard-status .found-count { display: inline-block; background: var(--c-orange-400); color: #fff; padding: 2px 14px; border-radius: var(--r-pill); margin: 0 4px; }
+.hazard-hint { background: var(--c-sky-50); border-left: 4px solid var(--c-sky-400); padding: var(--sp-4) var(--sp-5); border-radius: var(--r-sm); color: var(--c-text); display: none; animation: fade-up 0.4s ease; }
+.hazard-hint.show { display: block; }
+.hazard-hint .title { font-weight: 700; color: var(--c-sky-700); margin-bottom: var(--sp-2); }
+
+/* ---------- 应急手册 ---------- */
+.handbook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); margin-top: var(--sp-8); }
+.accordion { display: grid; gap: var(--sp-3); }
+.acc-item { background: #fff; border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-sm); border-left: 6px solid var(--c-sky-400); transition: all var(--t-base); }
+.acc-item:hover { box-shadow: var(--shadow-md); }
+.acc-item.lvl-high { border-left-color: var(--c-danger); }
+.acc-item.lvl-mid { border-left-color: var(--c-orange-400); }
+.acc-item.lvl-low { border-left-color: var(--c-success); }
+.acc-head { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-4) var(--sp-5); cursor: pointer; user-select: none; background: none; border: none; width: 100%; text-align: left; font-size: 17px; font-weight: 600; color: var(--c-text); }
+.acc-head .level { display: inline-block; padding: 2px 10px; border-radius: var(--r-pill); font-size: 12px; font-weight: 700; color: #fff; background: var(--c-sky-500); margin-left: auto; }
+.acc-item.lvl-high .level { background: var(--c-danger); }
+.acc-item.lvl-mid .level { background: var(--c-orange-500); }
+.acc-item.lvl-low .level { background: var(--c-success); }
+.acc-head .arrow { transition: transform var(--t-base); color: var(--c-text-mute); }
+.acc-item.open .acc-head .arrow { transform: rotate(90deg); color: var(--c-sky-500); }
+.acc-body { max-height: 0; overflow: hidden; transition: max-height var(--t-base); }
+.acc-item.open .acc-body { max-height: 500px; }
+.acc-body-inner { padding: 0 var(--sp-5) var(--sp-5); color: var(--c-text-sub); line-height: 1.8; font-size: 15px; }
+.acc-body-inner ol, .acc-body-inner ul { padding-left: 20px; margin: var(--sp-2) 0; }
+.acc-body-inner li { margin-bottom: 6px; list-style: decimal; }
+.acc-body-inner ul li { list-style: disc; }
+.phone-card { background: #fff; border-radius: var(--r-xl); padding: var(--sp-6); box-shadow: var(--shadow-md); }
+.phone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); margin-top: var(--sp-5); }
+.phone-item { background: linear-gradient(135deg, #fff5f5, #ffe9e9); border-radius: var(--r-lg); padding: var(--sp-5); text-align: center; border: 2px solid transparent; transition: all var(--t-base); cursor: pointer; }
+.phone-item:hover { transform: translateY(-4px); border-color: var(--c-danger); box-shadow: 0 12px 28px rgba(239,83,80,0.2); }
+.phone-item .icon { font-size: 40px; margin-bottom: var(--sp-2); }
+.phone-item .name { font-size: 14px; color: var(--c-text-sub); margin-bottom: var(--sp-1); }
+.phone-item .num { font-family: var(--font-display); font-size: 36px; color: var(--c-danger); letter-spacing: 2px; line-height: 1; display: block; }
+.phone-item .desc { font-size: 13px; color: var(--c-text-mute); margin-top: var(--sp-2); }
+.flow-card { background: linear-gradient(135deg, var(--c-sky-50), var(--c-bg-warm)); border-radius: var(--r-xl); padding: var(--sp-8); margin-top: var(--sp-12); text-align: center; }
+.flow-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-top: var(--sp-6); position: relative; }
+.flow-step { background: #fff; border-radius: var(--r-md); padding: var(--sp-4); position: relative; box-shadow: var(--shadow-sm); }
+.flow-step .num { width: 36px; height: 36px; border-radius: 50%; background: var(--c-sky-500); color: #fff; display: grid; place-items: center; font-weight: 700; margin: 0 auto var(--sp-2); font-family: var(--font-display); }
+.flow-step p { font-size: 14px; color: var(--c-text); }
+.flow-step:not(:last-child)::after { content: "→"; position: absolute; right: -16px; top: 50%; transform: translateY(-50%); color: var(--c-orange-500); font-size: 24px; font-weight: 700; }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
+  .nav-links { position: fixed; top: 72px; left: 0; right: 0; background: #fff; flex-direction: column; align-items: stretch; padding: var(--sp-4); gap: var(--sp-2); box-shadow: var(--shadow-md); transform: translateY(-150%); transition: transform var(--t-base); }
+  .nav-links.open { transform: translateY(0); }
+  .nav-link { padding: 14px 20px; }
+  .nav-toggle { display: inline-flex; }
+  .section { padding: var(--sp-12) 0; }
+  .stat-bar { grid-template-columns: repeat(2, 1fr); }
+  .entry-grid { grid-template-columns: 1fr; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .hero-mascot { display: none; }
+  .knowledge-grid { grid-template-columns: 1fr; }
+  .handbook-grid { grid-template-columns: 1fr; }
+  .phone-grid { grid-template-columns: 1fr 1fr; }
+  .flow-steps { grid-template-columns: 1fr 1fr; }
+  .flow-step:not(:last-child)::after { display: none; }
+}
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  .nav-inner { height: 64px; }
+  .nav-brand { font-size: 18px; }
+  .nav-brand .logo { width: 36px; height: 36px; font-size: 18px; }
+  .container { padding: 0 var(--sp-4); }
+  .btn { padding: 12px 22px; font-size: 16px; }
+  .back-top { right: 16px; bottom: 16px; width: 46px; height: 46px; }
+  .hero { padding: var(--sp-8) 0 var(--sp-10); }
+  .stat-bar { gap: var(--sp-2); }
+  .stat-item { padding: var(--sp-4) var(--sp-2); }
+  .stat-item .num { font-size: 32px; }
+  .entry-card { padding: var(--sp-6) var(--sp-4); }
+  .entry-card .icon { width: 76px; height: 76px; font-size: 38px; }
+  .entry-card h3 { font-size: 22px; }
+  .feature { padding: var(--sp-8) var(--sp-5); }
+  .tab { padding: 10px 18px; font-size: 14px; }
+  .knowledge-card { padding: var(--sp-5); }
+  .interact-tab { padding: 12px 18px; font-size: 15px; }
+  .stage { padding: var(--sp-5); }
+  .quiz-question { font-size: 18px; }
+  .scenario-emoji { font-size: 72px; }
+  .phone-item .num { font-size: 30px; }
+  .phone-grid { grid-template-columns: 1fr; }
+  .flow-steps { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+  </style>
+</head>
+<body>
+  <!-- 浮动云朵 -->
+  <div class="floating-clouds" aria-hidden="true">
+    <div class="cloud cloud-1">☁️</div>
+    <div class="cloud cloud-2">☁️</div>
+    <div class="cloud cloud-3">⭐</div>
+    <div class="cloud cloud-4">☁️</div>
+  </div>
+
+  <!-- 顶部导航 -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="#home" class="nav-brand" aria-label="返回顶部">
+        <span class="logo">🛡️</span>
+        <span>安全守护星球<small>SAFE · GUARD · PLANET</small></span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="主导航">
+        <a href="#home" class="nav-link active">首页</a>
+        <a href="#study" class="nav-link">科普学堂</a>
+        <a href="#interact" class="nav-link">互动体验</a>
+        <a href="#handbook" class="nav-link">应急小手册</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="打开菜单" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ====== 首页 ====== -->
+    <section class="hero" id="home">
+      <div class="hero-mascot left" aria-hidden="true">🦸</div>
+      <div class="hero-mascot right" aria-hidden="true">🛡️</div>
+      <div class="container">
+        <div class="hero-badge">全国青少年安全与应急科普创新大赛 · 参赛作品</div>
+        <h1 class="hero-title">守护<span class="accent">安全</span>星球<br />从每一次<span class="accent">学习</span>开始</h1>
+        <p class="hero-slogan">专为 6-18 岁中小学生打造的安全应急科普互动平台<br />知识闯关 · 场景模拟 · 隐患找茬 · 让安全知识真正"活"起来</p>
+        <div class="hero-cta">
+          <a href="#interact" class="btn btn-accent">🎮 开始闯关</a>
+          <a href="#study" class="btn btn-ghost">📚 浏览科普学堂</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="stat-bar reveal">
+        <div class="stat-item"><span class="num" data-target="5">0</span><span class="label">大知识版块</span></div>
+        <div class="stat-item"><span class="num" data-target="60">0</span><span class="label">科普知识点</span></div>
+        <div class="stat-item"><span class="num" data-target="3">0</span><span class="label">互动玩法</span></div>
+        <div class="stat-item"><span class="num" data-target="4">0</span><span class="label">求助电话</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">🧭 探索四大安全版块</h2>
+        <p class="section-sub">点击卡片进入对应主题，每一站都有新发现</p>
+        <div class="entry-grid">
+          <a href="#study" class="entry-card c1 reveal"><div class="icon">📚</div><h3>安全科普学堂</h3><p>消防安全 · 防溺水 · 校园安全 · 自然灾害 · 交通安全，五大主题图文并茂。</p><span class="more">立即学习</span></a>
+          <a href="#interact" class="entry-card c2 reveal"><div class="icon">🎮</div><h3>互动体验区</h3><p>知识闯关、应急场景模拟、隐患找茬三大玩法，边玩边学，记得更牢。</p><span class="more">开始挑战</span></a>
+          <a href="#handbook" class="entry-card c3 reveal"><div class="icon">📒</div><h3>应急小手册</h3><p>自救要点 + 求助电话，关键时刻能救命，建议收藏到收藏夹！</p><span class="more">查看手册</span></a>
+          <a href="#features" class="entry-card c4 reveal"><div class="icon">🌟</div><h3>为什么选我们</h3><p>内容科学严谨、视觉清新护眼、专为青少年优化，比赛评审友好。</p><span class="more">了解特色</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="container">
+        <div class="feature reveal">
+          <h2 class="section-title">✨ 我们的三大特色</h2>
+          <p class="section-sub">为中小学生量身定制，让安全教育更有温度</p>
+          <div class="feature-grid">
+            <div class="feature-item"><div class="icon">🎯</div><h4>内容严谨</h4><p>所有知识点都参考国家中小学安全教育大纲和应急管理部权威指南，确保准确无误。</p></div>
+            <div class="feature-item"><div class="icon">🎨</div><h4>视觉友好</h4><p>扁平化卡通插画风格、护眼色调、大字号排版，6 岁到 18 岁都能舒适阅读。</p></div>
+            <div class="feature-item"><div class="icon">🎉</div><h4>强互动性</h4><p>闯关 + 模拟 + 找茬，拒绝单纯说教，让青少年在游戏中建立安全意识。</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== 科普学堂 ====== -->
+    <section class="section" id="study">
+      <div class="container">
+        <h1 class="section-title">📚 安全科普学堂</h1>
+        <p class="section-sub">点击下方分类标签，查看对应主题的图文科普知识</p>
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-cat="fire" role="tab">🔥 消防安全</button>
+          <button class="tab" data-cat="water" role="tab">🌊 防溺水</button>
+          <button class="tab" data-cat="school" role="tab">🏫 校园安全</button>
+          <button class="tab" data-cat="disaster" role="tab">🌋 自然灾害</button>
+          <button class="tab" data-cat="traffic" role="tab">🚦 交通安全</button>
+        </div>
+        <div class="knowledge-grid" id="knowledgeGrid" role="tabpanel"></div>
+        <div style="text-align:center; margin-top: var(--sp-10);">
+          <a href="#interact" class="btn btn-primary">📝 学完去闯关检验一下</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== 互动体验 ====== -->
+    <section class="section" id="interact">
+      <div class="container">
+        <h1 class="section-title">🎮 互动体验区</h1>
+        <p class="section-sub">选一个玩法开始挑战，每答对一题就离"安全小卫士"更近一步</p>
+        <div class="interact-tabs" role="tablist">
+          <button class="interact-tab active" data-stage="quiz" role="tab">📝 知识闯关 <span class="badge">HOT</span></button>
+          <button class="interact-tab" data-stage="scenario" role="tab">🚨 场景模拟</button>
+          <button class="interact-tab" data-stage="hazard" role="tab">🔍 隐患找茬</button>
+        </div>
+        <div class="stage">
+          <!-- 闯关 -->
+          <div class="stage-panel active" data-panel="quiz" id="quizPanel">
+            <div id="quizIntro">
+              <h2 style="font-family: var(--font-display); color: var(--c-sky-700); font-size: 28px; margin-bottom: var(--sp-3);">准备开启闯关之旅！</h2>
+              <p style="color: var(--c-text-sub); margin-bottom: var(--sp-5);">本次挑战共有 5 道题，覆盖消防、防溺水、地震三个方向。答对得分、答错也有解析，认真读题就能成为"安全小卫士"！</p>
+              <div style="display:flex; gap: var(--sp-3); flex-wrap: wrap;">
+                <button class="btn btn-accent" id="quizStart">🚀 开始闯关</button>
+                <button class="btn btn-ghost" id="quizCategory">📂 选择题库（当前：综合）</button>
+              </div>
+            </div>
+            <div id="quizBody" style="display:none;">
+              <div class="quiz-header">
+                <span class="quiz-meta" id="quizMeta">第 1 / 5 题</span>
+                <div class="quiz-progress"><div class="quiz-progress-bar" id="quizBar"></div></div>
+                <span class="quiz-meta" id="quizScore">⭐ 0 分</span>
+              </div>
+              <div class="quiz-question" id="quizQuestion">题目加载中...</div>
+              <div class="quiz-options" id="quizOptions"></div>
+              <div class="quiz-feedback" id="quizFeedback"></div>
+              <div style="text-align: right; margin-top: var(--sp-4);">
+                <button class="btn btn-primary" id="quizNext" style="display:none;">下一题 →</button>
+              </div>
+            </div>
+            <div class="quiz-result" id="quizResult">
+              <div class="medal" id="quizMedal">🏆</div>
+              <h2 id="quizResultTitle">闯关完成！</h2>
+              <div class="score" id="quizResultScore">0/0</div>
+              <p style="color: var(--c-text-sub); margin: var(--sp-4) 0;">你已经掌握了基本的安全应急知识！</p>
+              <div style="display:flex; gap: var(--sp-3); justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-accent" id="quizAgain">🔄 再来一次</button>
+                <a href="#handbook" class="btn btn-ghost">📒 查看应急手册</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- 场景 -->
+          <div class="stage-panel" data-panel="scenario" id="scenarioPanel">
+            <div class="scenario-stage" id="scenarioStage"></div>
+          </div>
+
+          <!-- 找茬 -->
+          <div class="stage-panel" data-panel="hazard" id="hazardPanel">
+            <p style="text-align:center; color: var(--c-text-sub); margin-bottom: var(--sp-4);">👀 仔细看下面这张"小明的家"插画，找出 <strong style="color: var(--c-orange-600);">所有</strong> 隐藏在画面中的居家安全隐患</p>
+            <div class="hazard-status">已找到 <span class="found-count" id="foundCount">0</span> / <span id="totalCount">5</span> 处隐患</div>
+            <div class="hazard-scene" id="hazardScene"></div>
+            <div class="hazard-hint" id="hazardHint"></div>
+            <div style="text-align: center; margin-top: var(--sp-4);">
+              <button class="btn btn-ghost" id="hazardReset">🔄 重新开始</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== 应急小手册 ====== -->
+    <section class="section" id="handbook">
+      <div class="container">
+        <h1 class="section-title">📒 应急小手册</h1>
+        <p class="section-sub">建议收藏到浏览器收藏夹，关键时刻能救命！</p>
+        <div class="handbook-grid">
+          <div>
+            <h2 style="font-family: var(--font-display); color: var(--c-sky-700); font-size: 26px; margin-bottom: var(--sp-4);">🆘 紧急自救要点</h2>
+            <div class="accordion" id="accordion"></div>
+          </div>
+          <div>
+            <div class="phone-card">
+              <h2 style="font-family: var(--font-display); color: var(--c-sky-700); font-size: 26px;">📞 求助电话</h2>
+              <p style="color: var(--c-text-sub); font-size: 15px; margin-top: var(--sp-2);">记住这些号码，关键时刻拨打（全国统一）</p>
+              <div class="phone-grid" id="phoneGrid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-card reveal">
+          <h2 style="font-family: var(--font-display); color: var(--c-sky-700); font-size: 26px;">🚨 紧急情况正确处理流程</h2>
+          <p style="color: var(--c-text-sub);">保持冷静 → 迅速判断 → 寻找帮助 → 等待救援</p>
+          <div class="flow-steps">
+            <div class="flow-step"><div class="num">1</div><p><strong>保持冷静</strong><br />深呼吸，不要慌张</p></div>
+            <div class="flow-step"><div class="num">2</div><p><strong>判断环境</strong><br />先观察再行动</p></div>
+            <div class="flow-step"><div class="num">3</div><p><strong>求助大人</strong><br />第一时间联系老师/家长</p></div>
+            <div class="flow-step"><div class="num">4</div><p><strong>拨打 110/119/120</strong><br />说清地点和情况</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <h3>🛡️ 安全守护星球</h3>
+      <p>全国青少年安全与应急科普创新大赛 · 互动式安全普及赛道</p>
+      <p>面向 6-18 岁中小学生 · 纯前端静态科普作品</p>
+      <div class="footer-meta">© 2026 SAFE GUARD PLANET · 仅供科普教育用途</div>
+    </div>
+  </footer>
+
+  <button class="back-top" id="backTop" aria-label="回到顶部">↑</button>
+
+  <script>
+/* =====================================================
+ * 全部脚本（合并自 main.js + data.js + study.js + quiz.js + scenarios.js + hazards.js + handbook.js）
+ * 字符串内嵌引号统一使用『』避免转义问题
+ * ===================================================== */
+
+// ========== 数据层 ==========
+const SAFE_DATA = {
+  knowledge: {
+    fire: [
+      { emoji: "🔥", title: "火灾逃生三步走", desc: "发现起火时保持冷静，牢记『小火快跑、大火关门』。用湿毛巾捂住口鼻、弯腰低姿靠墙撤离，千万别乘坐电梯。", tip: "家中常备灭火器、防烟面具和手电筒，并放在随手可取的位置。" },
+      { emoji: "🧯", title: "正确使用灭火器", desc: "记住『提拔握压』四字口诀：提起灭火器、拔掉保险销、握住软管、对准火源根部按压。距离火源约 2-3 米。", tip: "干粉灭火器有效期一般为 5 年，每年需检查一次压力表。" },
+      { emoji: "🚫", title: "校园防火禁令", desc: "教室、宿舍禁止使用大功率电器（电吹风、电热锅等），不私拉乱接电线，不在宿舍给手机整夜充电。", tip: "发现电线短路起火，第一时间切断电源再扑救，不要直接用水浇电器火。" }
+    ],
+    water: [
+      { emoji: "🌊", title: "六不准原则", desc: "不准私自下水游泳；不准擅自与同学结伴游泳；不准在无家长或老师带领下游泳；不准到无安全设施水域游泳；不准到不熟悉的水域游泳；不准不会水性的学生擅自下水施救。", tip: "游泳前应进行热身，下水前先用水拍打身体适应水温。" },
+      { emoji: "🆘", title: "同伴落水正确施救", desc: "切勿手拉手直接下水！应大声呼救、抛掷漂浮物（树枝、绳子、书包）、拨打 110。自己也具备水性时可从背后接近救援。", tip: "会游泳不等于会救援。未成年人发现险情应第一时间呼叫大人。" },
+      { emoji: "⛈️", title: "暴雨天气避险", desc: "暴雨时不要在桥下、低洼地、涵洞逗留；远离电线杆、变压器；不要蹚水行走，水下情况不明可能存在井盖缺失或触电风险。", tip: "雷雨天气不要使用手机充电、不要在空旷地撑伞，远离大树避雨。" }
+    ],
+    school: [
+      { emoji: "🛗", title: "课间活动安全", desc: "课间不追逐打闹、不推搡、不从楼梯扶手滑下。上下楼梯靠右慢行，不在走廊、楼梯口做剧烈运动。", tip: "看到地面湿滑时主动提醒保洁阿姨放置『小心地滑』提示牌。" },
+      { emoji: "🥪", title: "饮食安全", desc: "不在无证摊贩处购买零食；不喝生水、不吃过期变质食品；坚果、果冻等小颗粒食物要小心食用避免呛咳。", tip: "如果被食物卡住喉咙，立即使用『海姆立克急救法』并拨打 120。" },
+      { emoji: "🚌", title: "校园欺凌说『不』", desc: "遇到欺凌要勇敢说不、及时报告；不围观、不参与、不传播；保留证据（录音、聊天记录）方便后续处理。", tip: "校园欺凌不只发生在现实，网络辱骂、恶意 P 图同样属于欺凌。" }
+    ],
+    disaster: [
+      { emoji: "🌋", title: "地震避险口诀", desc: "伏地、遮挡、手抓牢。室内躲在承重墙角或坚固桌下，护住头部；室外远离建筑物、玻璃幕墙，到开阔地蹲下。", tip: "地震被困时保持冷静，节省体力，敲击管道或吹口哨求救，不要大声呼喊浪费氧气。" },
+      { emoji: "🌪️", title: "台风 / 暴雨防范", desc: "提前关好门窗、收好阳台花盆；不要外出，已外出要找安全建筑躲避；远离广告牌、临时建筑。", tip: "台风预警信号分蓝黄橙红四级，红色预警应停课停业、人员转移。" },
+      { emoji: "🌡️", title: "高温中暑急救", desc: "中暑应立即转移到阴凉通风处，解开衣领，用湿毛巾冷敷头部、腋下，补充淡盐水。严重者（昏迷、高烧）立即送医。", tip: "夏季户外活动避开 10:00-16:00 高温时段，每 15 分钟补水一次。" }
+    ],
+    traffic: [
+      { emoji: "🚦", title: "过马路五步骤", desc: "一停二看三通过：停在路沿、看左边再看右边再看左边、确认安全后快步通过。不闯红灯、不跨越护栏。", tip: "即使是绿灯也要左右看，警惕闯红灯车辆和右转盲区车辆。" },
+      { emoji: "🚲", title: "骑行安全", desc: "未满 12 周岁不骑自行车上路，未满 16 周岁不骑电动自行车。骑行要戴头盔、不撑伞、不载人、不逆行。", tip: "夜间骑行要打开车灯、穿着反光衣物，让司机看得见你。" },
+      { emoji: "🚌", title: "乘车安全", desc: "乘坐校车/大巴要系好安全带；不将头手伸出窗外；车辆未停稳不上下车；发生事故听从指挥不拥挤。", tip: "私家车儿童应使用安全座椅，4 岁以下不可直接使用成人安全带。" }
+    ]
+  },
+  quiz: {
+    fire: [
+      { q: "发现家中起小火，正确做法是？", opts: [{k:"A",t:"赶紧用水浇灭",ok:false},{k:"B",t:"迅速切断电源再用灭火器扑救",ok:true},{k:"C",t:"马上躲进被子里",ok:false},{k:"D",t:"抱起贵重物品再跑",ok:false}], explain: "电器起火应先断电，再用干粉灭火器扑救。贸然用水可能触电，抱贵重物品会耽误逃生时间。" },
+      { q: "火场逃生时，应该？", opts: [{k:"A",t:"乘坐电梯下楼",ok:false},{k:"B",t:"弯腰低姿靠墙、用湿毛巾捂口鼻",ok:true},{k:"C",t:"站在窗口大声呼救",ok:false},{k:"D",t:"原地等待救援",ok:false}], explain: "烟雾向上，弯腰低姿可减少吸入烟气；湿毛巾过滤烟雾；电梯可能因断电卡住，绝不能乘。" },
+      { q: "灭火器使用口诀『提拔握压』中，『压』指的是？", opts: [{k:"A",t:"压住瓶身不让倒下",ok:false},{k:"B",t:"用力按压把手喷射",ok:true},{k:"C",t:"压在地面上喷射",ok:false},{k:"D",t:"压制火焰不让扩散",ok:false}], explain: "『提拔握压』是灭火器标准四步：提（起灭火器）、拔（保险销）、握（握紧软管）、压（按压把手）。" },
+      { q: "学校宿舍里，下列哪种行为存在火灾隐患？", opts: [{k:"A",t:"使用充电台灯后及时断电",ok:false},{k:"B",t:"私拉电线给手机充电",ok:true},{k:"C",t:"睡前关闭电源插座",ok:false},{k:"D",t:"不在床上点蜡烛",ok:false}], explain: "私拉电线容易过载发热，夜间长时间充电存在起火风险，是校园消防大忌。" }
+    ],
+    water: [
+      { q: "夏季游泳，下列哪项做法正确？", opts: [{k:"A",t:"结伴去陌生水库游泳",ok:false},{k:"B",t:"到有救生员的正规泳池游泳",ok:true},{k:"C",t:"和同学比赛憋气",ok:false},{k:"D",t:"刚吃饱就下水",ok:false}], explain: "正规泳池有救生员和深浅分区，是最安全的游泳场所。陌生水域水况复杂、可能存在暗流漩涡。" },
+      { q: "同伴掉进水里，最正确的做法是？", opts: [{k:"A",t:"马上跳下去拉他",ok:false},{k:"B",t:"大声呼救并寻找漂浮物抛给同伴",ok:true},{k:"C",t:"自己游到同伴身边救他",ok:false},{k:"D",t:"回家告诉父母",ok:false}], explain: "未成年人水性有限，贸然下水可能一起溺水。正确做法是大声呼救、抛漂浮物（书包、树枝、空塑料瓶）、拨打 110。" },
+      { q: "暴雨天，下列哪种做法有触电危险？", opts: [{k:"A",t:"在室内关好门窗",ok:false},{k:"B",t:"蹚水走过积水路段",ok:true},{k:"C",t:"远离变压器",ok:false},{k:"D",t:"拔掉电器插头",ok:false}], explain: "暴雨可能导致路灯、配电箱漏电，蹚水时水会导电，触电风险极高。" }
+    ],
+    disaster: [
+      { q: "地震发生时在教室里，应如何避险？", opts: [{k:"A",t:"立刻冲出教室",ok:false},{k:"B",t:"躲在课桌下并用书包护头",ok:true},{k:"C",t:"跳窗求生",ok:false},{k:"D",t:"原地打电话给父母",ok:false}], explain: "地震时应就近躲避在承重墙根、坚固桌下，护住头部。剧烈震动时贸然跑动易被掉落物砸伤。" },
+      { q: "高层建筑遇到地震，正确做法是？", opts: [{k:"A",t:"立即乘坐电梯下楼",ok:false},{k:"B",t:"躲在承重墙角『伏地遮挡手抓牢』",ok:true},{k:"C",t:"跳楼求生",ok:false},{k:"D",t:"冲到阳台大喊救命",ok:false}], explain: "电梯可能因断电卡住，跳楼极危险，阳台护栏可能脱落。『伏地遮挡手抓牢』是国际通用的地震避险口诀。" }
+    ]
+  },
+  scenarios: [
+    { id: "fire-home", emoji: "🏠🔥", title: "家中客厅突然起火", desc: "你正在做作业，闻到一股焦糊味，发现客厅插座冒烟起火，火势还不大。", choices: [
+      { text: "立刻冲过去用被子盖灭", ok: false, fb: "电器起火不能直接覆盖！先断电，再用干粉灭火器。贸然行动可能触电。" },
+      { text: "大声呼救 → 关闭电源总闸 → 用干粉灭火器喷射", ok: true, fb: "完全正确！呼救让人知道、关闸断电、用对灭火器，三步到位。" },
+      { text: "抱起贵重物品跑出家门", ok: false, fb: "生命比物品重要！第一时间断电、灭火并报警，再撤离现场。" }
+    ]},
+    { id: "earthquake-school", emoji: "🏫🌋", title: "上课时突然地震", desc: "教室桌椅晃动，吊灯摇摆剧烈，老师大喊『地震了』！", choices: [
+      { text: "立即冲到走廊往楼下跑", ok: false, fb: "剧烈震动时跑动容易被砸伤。应该先就近躲避，震后再有序撤离。" },
+      { text: "快速钻到课桌下，用书包护头，等震动停止后听指挥撤离", ok: true, fb: "标准避险动作！先『伏地遮挡手抓牢』，震停后再撤离到空旷地。" },
+      { text: "从窗户跳出去", ok: false, fb: "千万不要跳窗！高楼层坠落基本没有生还可能。" }
+    ]},
+    { id: "water-pool", emoji: "🏊‍♂️", title: "同伴在泳池里抽筋", desc: "你和同学在泳池玩耍，他突然大喊『腿抽筋了』！在离岸 3 米处挣扎。", choices: [
+      { text: "自己也跳进水里游过去拉他", ok: false, fb: "他抽筋会本能抓住你，可能把你也拖下水。应使用岸边工具救援。" },
+      { text: "立即大声呼救，并递出泳池边的救生圈/漂浮杆", ok: true, fb: "正确！未受过专业训练不要直接下水，利用工具施救最安全。" },
+      { text: "自己吓得站在原地不动", ok: false, fb: "错过最佳救援时间。应第一时间呼救并寻找漂浮物。" }
+    ]}
+  ],
+  hazards: {
+    total: 5,
+    items: [
+      { id: "h1", cx: 18, cy: 78, r: 6, title: "插座过载", desc: "一个插线板接了多个大功率电器，会导致线路过热起火。正确做法：一个插线板最多接 2-3 个电器，大功率电器（空调、热水器）应使用专用插座。" },
+      { id: "h2", cx: 70, cy: 30, r: 6, title: "燃气灶忘关", desc: "做饭时离开厨房忘关燃气，会造成燃气泄漏甚至爆炸。正确做法：做饭全程不离人；如发现燃气泄漏，立即开窗、关闭总阀、不要开电器，迅速撤离到户外拨打 119。" },
+      { id: "h3", cx: 42, cy: 85, r: 5, title: "未熄灭烟头", desc: "未完全熄灭的烟头扔进垃圾桶极易引燃可燃物引发火灾。正确做法：烟头必须完全浸水后再丢弃；家中有吸烟者应使用专用烟灰缸。" },
+      { id: "h4", cx: 88, cy: 22, r: 5, title: "阳台堆放花盆", desc: "阳台边缘摆放花盆，遇大风或碰撞容易坠落砸伤路人。正确做法：花盆应靠墙摆放或加固，阳台不堆放重物。" },
+      { id: "h5", cx: 12, cy: 45, r: 5, title: "浴室插座过低", desc: "浴室插座位置过低、缺少防水盖，洗澡时水汽侵入易引发触电。正确做法：浴室插座应带防溅盖，位置远离淋浴头至少 1.5 米。" }
+    ]
+  },
+  accordion: [
+    { title: "火灾应急", level: "high", levelText: "高危", content: "<ol><li>小火：立即用灭火器扑救，同时拨打 119。</li><li>大火：迅速用湿毛巾捂口鼻、弯腰低姿靠墙撤离。</li><li>门烫手时切勿开门，寻找第二个出口或阳台避险。</li><li>被困：靠窗呼救、关紧房门、用湿物堵门缝、泼水降温。</li></ol><p><strong>关键禁忌：</strong>不乘电梯、不跳楼、不返回取贵重物品。</p>" },
+    { title: "地震避险", level: "high", levelText: "高危", content: "<ol><li>口诀：伏地、遮挡、手抓牢。</li><li>室内：躲在承重墙角或坚固桌下，护住头颈。</li><li>室外：远离建筑物、玻璃幕墙，到开阔地蹲下。</li><li>被困：节省体力、敲击管道或吹口哨求救。</li></ol><p><strong>震后：</strong>疏散时走楼梯、避开悬挂物和广告牌。</p>" },
+    { title: "溺水救援与自救", level: "high", levelText: "高危", content: "<ol><li>自己溺水：保持冷静、仰漂、踢腿、挥手呼救。</li><li>他人溺水：未成年人应大声呼救 + 抛漂浮物 + 拨打 110，不要下水。</li><li>被救上岸：清除口鼻异物，判断呼吸，心肺复苏 + 人工呼吸，立即送医。</li></ol><p><strong>关键禁忌：</strong>未成年人不擅自下水救人、不手拉手施救。</p>" },
+    { title: "触电急救", level: "mid", levelText: "中等", content: "<ol><li>立即切断电源，或用干燥木棍/绝缘物挑开电线。</li><li>切勿直接接触触电者！</li><li>断电后判断意识与呼吸，必要时心肺复苏。</li><li>立即拨打 120。</li></ol>" },
+    { title: "中暑处理", level: "mid", levelText: "中等", content: "<ol><li>立即转移到阴凉通风处。</li><li>解开衣领，扇风散热，冷敷头部、腋下。</li><li>意识清醒：少量多次饮用淡盐水。</li><li>昏迷或高烧：立即拨打 120。</li></ol>" },
+    { title: "食物中毒", level: "mid", levelText: "中等", content: "<ol><li>立即停止食用可疑食品，保留剩余食品以备检测。</li><li>催吐（意识清醒时）、大量饮水稀释。</li><li>症状严重（高烧、血便、脱水）立即就医。</li><li>拨打 120 或 12315 食品药品投诉热线。</li></ol>" },
+    { title: "鼻出血处理", level: "low", levelText: "低危", content: "<ol><li>身体前倾（不要仰头！血液倒流会呛咳）。</li><li>捏住鼻翼两侧 10-15 分钟。</li><li>冷敷鼻梁或后颈帮助止血。</li><li>超过 20 分钟不止或反复出血需就医。</li></ol>" },
+    { title: "烫伤处理", level: "low", levelText: "低危", content: "<ol><li>冲：流动凉水冲洗 15-20 分钟。</li><li>脱：小心剪开覆盖衣物（勿硬撕）。</li><li>泡：继续在凉水中浸泡 10 分钟。</li><li>盖：用干净纱布覆盖，就医。</li></ol><p><strong>禁忌：</strong>不要涂抹牙膏、酱油、食用油。</p>" }
+  ],
+  phones: [
+    { icon: "🚓", name: "报警电话", num: "110", desc: "人身安全、案件、紧急求助" },
+    { icon: "🚒", name: "火警电话", num: "119", desc: "火灾、救援、自然灾害" },
+    { icon: "🚑", name: "急救电话", num: "120", desc: "伤病、中暑、突发疾病" },
+    { icon: "🚧", name: "交通事故", num: "122", desc: "交通事故报警" }
+  ]
+};
+SAFE_DATA.allQuiz = [
+  ...SAFE_DATA.quiz.fire.map(x => ({ ...x, cat: "fire" })),
+  ...SAFE_DATA.quiz.water.map(x => ({ ...x, cat: "water" })),
+  ...SAFE_DATA.quiz.disaster.map(x => ({ ...x, cat: "disaster" }))
+];
+
+// ========== 公共脚本 ==========
+(function () {
+  'use strict';
+  const navbar = document.getElementById('navbar');
+  function onScroll() {
+    if (!navbar) return;
+    if (window.scrollY > 8) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+    const back = document.getElementById('backTop');
+    if (back) {
+      if (window.scrollY > 400) back.classList.add('show');
+      else back.classList.remove('show');
+    }
+    // 高亮当前区段对应的导航项
+    const sections = ['home','study','interact','handbook'];
+    const links = document.querySelectorAll('.nav-link');
+    let current = 'home';
+    for (const id of sections) {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top <= 120) current = id;
+    }
+    links.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const toggle = document.getElementById('navToggle');
+  const links  = document.getElementById('navLinks');
+  if (toggle && links) {
+    toggle.addEventListener('click', () => {
+      const isOpen = links.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      toggle.textContent = isOpen ? '✕' : '☰';
+    });
+    links.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        if (links.classList.contains('open')) {
+          links.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.textContent = '☰';
+        }
+      });
+    });
+  }
+  const back = document.getElementById('backTop');
+  if (back) back.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  const reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && reveals.length) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          e.target.style.transitionDelay = (i * 80) + 'ms';
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => io.observe(el));
+  } else {
+    reveals.forEach(el => el.classList.add('visible'));
+  }
+
+  const nums = document.querySelectorAll('.stat-item .num');
+  if (nums.length && 'IntersectionObserver' in window) {
+    const numIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        const target = parseInt(el.dataset.target || '0', 10);
+        const dur = 1200;
+        const start = performance.now();
+        function tick(now) {
+          const t = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - t, 3);
+          el.textContent = Math.round(target * eased);
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = target;
+        }
+        requestAnimationFrame(tick);
+        numIO.unobserve(el);
+      });
+    }, { threshold: 0.4 });
+    nums.forEach(n => numIO.observe(n));
+  }
+})();
+
+// ========== 科普学堂 ==========
+(function () {
+  const D = SAFE_DATA;
+  const grid = document.getElementById('knowledgeGrid');
+  const tabs = document.querySelectorAll('.tab');
+  if (!grid) return;
+  function renderCategory(cat) {
+    const list = D.knowledge[cat] || [];
+    grid.innerHTML = list.map((item, i) => `
+      <article class="knowledge-card t-${cat} reveal visible" style="transition-delay: ${i * 80}ms;">
+        <div class="emoji" aria-hidden="true">${item.emoji}</div>
+        <h3>${item.title}</h3>
+        <p class="desc">${item.desc}</p>
+        <div class="tip-box">${item.tip}</div>
+      </article>
+    `).join('');
+  }
+  renderCategory('fire');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderCategory(tab.dataset.cat);
+    });
+  });
+})();
+
+// ========== 互动区 Tab 切换 ==========
+document.querySelectorAll('.interact-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.stage;
+    document.querySelectorAll('.interact-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.stage-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const panel = document.querySelector('.stage-panel[data-panel="' + target + '"]');
+    if (panel) panel.classList.add('active');
+  });
+});
+
+// ========== 知识闯关 ==========
+(function () {
+  const D = SAFE_DATA;
+  const $intro = document.getElementById('quizIntro');
+  const $body = document.getElementById('quizBody');
+  const $result = document.getElementById('quizResult');
+  const $meta = document.getElementById('quizMeta');
+  const $score = document.getElementById('quizScore');
+  const $bar = document.getElementById('quizBar');
+  const $q = document.getElementById('quizQuestion');
+  const $opts = document.getElementById('quizOptions');
+  const $fb = document.getElementById('quizFeedback');
+  const $next = document.getElementById('quizNext');
+  const $start = document.getElementById('quizStart');
+  const $again = document.getElementById('quizAgain');
+  const $catBtn = document.getElementById('quizCategory');
+  const $resMed = document.getElementById('quizMedal');
+  const $resTit = document.getElementById('quizResultTitle');
+  const $resScr = document.getElementById('quizResultScore');
+  if (!$start) return;
+
+  let currentCat = 'all';
+  const catNames = { all: '综合', fire: '消防安全', water: '防溺水', disaster: '地震避险' };
+  let questions = [], idx = 0, score = 0, answered = false;
+
+  function pickQuestions() {
+    let pool = currentCat === 'all' ? D.allQuiz.slice() : D.allQuiz.filter(q => q.cat === currentCat);
+    pool = pool.sort(() => Math.random() - 0.5);
+    return pool.slice(0, 5);
+  }
+  function start() {
+    questions = pickQuestions();
+    if (!questions.length) { alert('该题库暂无题目，请选择其他题库'); return; }
+    idx = 0; score = 0;
+    $intro.style.display = 'none';
+    $result.classList.remove('show');
+    $body.style.display = 'block';
+    renderQuestion();
+  }
+  function renderQuestion() {
+    answered = false;
+    const item = questions[idx];
+    $meta.textContent = `第 ${idx + 1} / ${questions.length} 题`;
+    $score.textContent = `⭐ ${score} 分`;
+    $bar.style.width = ((idx) / questions.length * 100) + '%';
+    $q.textContent = item.q;
+    $opts.innerHTML = item.opts.map(o => `<button class="quiz-option" data-key="${o.k}" data-ok="${o.ok ? '1' : '0'}">${o.t}</button>`).join('');
+    $fb.classList.remove('show', 'ok', 'no');
+    $fb.innerHTML = '';
+    $next.style.display = 'none';
+    $opts.querySelectorAll('.quiz-option').forEach(btn => btn.addEventListener('click', () => onAnswer(btn)));
+  }
+  function onAnswer(btn) {
+    if (answered) return;
+    answered = true;
+    const isOk = btn.dataset.ok === '1';
+    const allBtns = $opts.querySelectorAll('.quiz-option');
+    allBtns.forEach(b => b.disabled = true);
+    if (isOk) {
+      btn.classList.add('correct');
+      score += 20;
+      $score.textContent = `⭐ ${score} 分`;
+      $fb.className = 'quiz-feedback show ok';
+      $fb.innerHTML = `<div class="title">🎉 答对啦！</div><div>${questions[idx].explain}</div>`;
+    } else {
+      btn.classList.add('wrong');
+      allBtns.forEach(b => { if (b.dataset.ok === '1') b.classList.add('correct'); });
+      $fb.className = 'quiz-feedback show no';
+      $fb.innerHTML = `<div class="title">😅 答错了</div><div>${questions[idx].explain}</div>`;
+    }
+    $next.style.display = 'inline-flex';
+    $next.textContent = (idx === questions.length - 1) ? '查看成绩 🏁' : '下一题 →';
+  }
+  function nextQuestion() {
+    if (idx < questions.length - 1) { idx++; renderQuestion(); } else { showResult(); }
+  }
+  function showResult() {
+    $body.style.display = 'none';
+    $result.classList.add('show');
+    $bar.style.width = '100%';
+    $resScr.textContent = `${score} / ${questions.length * 20}`;
+    if (score >= 80) { $resMed.textContent = '🏆'; $resTit.textContent = '太棒了！安全小卫士！'; }
+    else if (score >= 60) { $resMed.textContent = '🥈'; $resTit.textContent = '不错的成绩！'; }
+    else { $resMed.textContent = '🌱'; $resTit.textContent = '继续加油，多看看科普！'; }
+  }
+  $start.addEventListener('click', start);
+  $next.addEventListener('click', nextQuestion);
+  $again.addEventListener('click', start);
+  $catBtn.addEventListener('click', () => {
+    const cats = ['all', 'fire', 'water', 'disaster'];
+    currentCat = cats[(cats.indexOf(currentCat) + 1) % cats.length];
+    $catBtn.textContent = `📂 选择题库（当前：${catNames[currentCat]}）`;
+  });
+})();
+
+// ========== 场景模拟 ==========
+(function () {
+  const D = SAFE_DATA;
+  const stage = document.getElementById('scenarioStage');
+  if (!stage) return;
+  let currentIdx = 0, answered = false;
+
+  function renderScenario(idx) {
+    currentIdx = idx;
+    const s = D.scenarios[idx];
+    if (!s) return;
+    answered = false;
+    stage.innerHTML = `
+      <div class="scenario-emoji">${s.emoji}</div>
+      <h3 class="scenario-title">${s.title}</h3>
+      <p class="scenario-desc">${s.desc}</p>
+      <div class="scenario-choices">
+        ${s.choices.map((c, i) => `<button class="scenario-choice" data-ok="${c.ok ? '1' : '0'}" data-i="${i}">${String.fromCharCode(65 + i)}. ${c.text}</button>`).join('')}
+      </div>
+      <div class="scenario-feedback" id="scFeedback"></div>
+      <div style="margin-top: var(--sp-5); display:flex; gap: var(--sp-3); justify-content: center; flex-wrap: wrap;">
+        <button class="btn btn-ghost" id="scPrev">← 上一题</button>
+        <button class="btn btn-primary" id="scNext">下一题 →</button>
+      </div>
+      <p style="margin-top: var(--sp-3); color: var(--c-text-mute); font-size: 14px;">第 ${idx + 1} / ${D.scenarios.length} 个场景</p>
+    `;
+    stage.querySelectorAll('.scenario-choice').forEach(btn => btn.addEventListener('click', () => onChoice(btn)));
+    document.getElementById('scPrev').addEventListener('click', () => renderScenario((idx - 1 + D.scenarios.length) % D.scenarios.length));
+    document.getElementById('scNext').addEventListener('click', () => renderScenario((idx + 1) % D.scenarios.length));
+  }
+  function onChoice(btn) {
+    if (answered) return;
+    answered = true;
+    const isOk = btn.dataset.ok === '1';
+    const i = parseInt(btn.dataset.i, 10);
+    const s = D.scenarios[currentIdx];
+    stage.querySelectorAll('.scenario-choice').forEach(b => {
+      b.disabled = true;
+      b.style.opacity = '0.6';
+      if (b.dataset.ok === '1') b.style.opacity = '1';
+    });
+    btn.style.opacity = '1';
+    const fb = document.getElementById('scFeedback');
+    if (isOk) {
+      btn.style.background = 'rgba(102,187,106,0.2)';
+      btn.style.borderColor = 'var(--c-success)';
+      fb.className = 'scenario-feedback show ok';
+      fb.innerHTML = `<div class="icon-big">🎉</div><h4 style="color: var(--c-success); font-family: var(--font-display); font-size: 22px;">太棒了！这是最佳做法！</h4><p style="margin-top: var(--sp-2); color: var(--c-text);">${s.choices[i].fb}</p>`;
+    } else {
+      btn.style.background = 'rgba(239,83,80,0.15)';
+      btn.style.borderColor = 'var(--c-danger)';
+      fb.className = 'scenario-feedback show no';
+      fb.innerHTML = `<div class="icon-big">⚠️</div><h4 style="color: var(--c-danger); font-family: var(--font-display); font-size: 22px;">有更好的做法哦</h4><p style="margin-top: var(--sp-2); color: var(--c-text);">${s.choices[i].fb}</p>`;
+    }
+  }
+  renderScenario(0);
+})();
+
+// ========== 隐患找茬 ==========
+(function () {
+  const D = SAFE_DATA;
+  const scene = document.getElementById('hazardScene');
+  const hintBox = document.getElementById('hazardHint');
+  const foundEl = document.getElementById('foundCount');
+  const totalEl = document.getElementById('totalCount');
+  const resetBtn = document.getElementById('hazardReset');
+  if (!scene) return;
+  let found = 0;
+
+  function buildSVG() {
+    return `<svg class="hazard-svg" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" aria-label="居家场景图">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFF8E7"/><stop offset="100%" stop-color="#FFE4B5"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D7B899"/><stop offset="100%" stop-color="#A57E5A"/></linearGradient>
+  </defs>
+  <rect x="0" y="0" width="800" height="450" fill="url(#wall)"/>
+  <rect x="0" y="450" width="800" height="150" fill="url(#floor)"/>
+  <rect x="50" y="60" width="180" height="160" fill="#B3E5FC" stroke="#5D4037" stroke-width="6" rx="6"/>
+  <line x1="140" y1="60" x2="140" y2="220" stroke="#5D4037" stroke-width="4"/>
+  <line x1="50" y1="140" x2="230" y2="140" stroke="#5D4037" stroke-width="4"/>
+  <text x="140" y="145" text-anchor="middle" font-size="40">☀️</text>
+  <circle cx="660" cy="100" r="36" fill="#fff" stroke="#5D4037" stroke-width="4"/>
+  <line x1="660" y1="100" x2="660" y2="76" stroke="#5D4037" stroke-width="3"/>
+  <line x1="660" y1="100" x2="680" y2="100" stroke="#5D4037" stroke-width="3"/>
+  <rect x="280" y="280" width="260" height="120" fill="#FFB74D" stroke="#5D4037" stroke-width="4" rx="14"/>
+  <rect x="280" y="260" width="60" height="40" fill="#FFA726" stroke="#5D4037" stroke-width="4" rx="8"/>
+  <rect x="480" y="260" width="60" height="40" fill="#FFA726" stroke="#5D4037" stroke-width="4" rx="8"/>
+  <rect x="280" y="380" width="260" height="20" fill="#8D6E63"/>
+  <rect x="340" y="420" width="140" height="30" fill="#A1887F" stroke="#5D4037" stroke-width="3" rx="4"/>
+  <rect x="350" y="450" width="10" height="40" fill="#8D6E63"/>
+  <rect x="460" y="450" width="10" height="40" fill="#8D6E63"/>
+  <ellipse cx="370" cy="420" rx="14" ry="6" fill="#42A5F5"/>
+  <rect x="356" y="395" width="28" height="25" fill="#90CAF9" stroke="#1976D2" stroke-width="2" rx="3"/>
+  <rect x="540" y="60" width="220" height="180" fill="#FFE0B2" stroke="#5D4037" stroke-width="4" rx="6"/>
+  <rect x="560" y="140" width="180" height="80" fill="#90A4AE" stroke="#37474F" stroke-width="3" rx="4"/>
+  <circle cx="620" cy="180" r="18" fill="#37474F"/>
+  <text x="620" y="190" text-anchor="middle" font-size="24">🔥</text>
+  <circle cx="700" cy="180" r="18" fill="#37474F"/>
+  <rect x="600" y="80" width="100" height="50" fill="#78909C" stroke="#37474F" stroke-width="3" rx="4"/>
+  <rect x="560" y="100" width="60" height="40" fill="#B0BEC5" stroke="#37474F" stroke-width="2" rx="3"/>
+  <rect x="565" y="105" width="50" height="30" fill="#37474F" rx="2"/>
+  <rect x="700" y="280" width="80" height="120" fill="#E1F5FE" stroke="#0277BD" stroke-width="3" rx="6"/>
+  <line x1="710" y1="290" x2="710" y2="390" stroke="#0277BD" stroke-width="2"/>
+  <line x1="730" y1="290" x2="730" y2="390" stroke="#0277BD" stroke-width="2"/>
+  <line x1="750" y1="290" x2="750" y2="390" stroke="#0277BD" stroke-width="2"/>
+  <line x1="770" y1="290" x2="770" y2="390" stroke="#0277BD" stroke-width="2"/>
+  <text x="740" y="160" text-anchor="middle" font-size="40">🪴</text>
+  <rect x="50" y="280" width="180" height="160" fill="#B3E5FC" stroke="#0277BD" stroke-width="3" rx="6" opacity="0.6"/>
+  <ellipse cx="140" cy="350" rx="70" ry="30" fill="#fff" stroke="#0277BD" stroke-width="3"/>
+  <rect x="60" y="265" width="24" height="18" fill="#F5F5F5" stroke="#37474F" stroke-width="2" rx="2"/>
+  <circle cx="68" cy="274" r="1.5" fill="#37474F"/>
+  <circle cx="76" cy="274" r="1.5" fill="#37474F"/>
+  <rect x="100" y="445" width="90" height="30" fill="#212121" stroke="#000" stroke-width="2" rx="4"/>
+  <circle cx="115" cy="460" r="2" fill="#FFEB3B"/>
+  <circle cx="130" cy="460" r="2" fill="#FFEB3B"/>
+  <circle cx="145" cy="460" r="2" fill="#FFEB3B"/>
+  <circle cx="160" cy="460" r="2" fill="#FFEB3B"/>
+  <circle cx="175" cy="460" r="2" fill="#FFEB3B"/>
+  <path d="M 130 475 Q 130 510 200 510 Q 270 510 270 480" fill="none" stroke="#212121" stroke-width="3"/>
+  <path d="M 150 475 Q 150 530 250 530 Q 320 530 320 490" fill="none" stroke="#212121" stroke-width="3"/>
+  <path d="M 170 475 Q 170 550 290 550 Q 350 550 350 500" fill="none" stroke="#212121" stroke-width="3"/>
+  <text x="340" y="520" text-anchor="middle" font-size="32">🚬</text>
+  <circle cx="360" cy="525" r="3" fill="#9E9E9E"/>
+  <circle cx="368" cy="528" r="2" fill="#9E9E9E"/>
+  <circle cx="375" cy="524" r="2.5" fill="#9E9E9E"/>
+  <text x="400" y="585" text-anchor="middle" font-size="14" fill="#5D4037">居家场景 · 小明的家</text>
+</svg>`;
+  }
+
+  function buildHotspots() {
+    return D.hazards.items.map(h => `
+      <div class="hazard-hotspot" data-id="${h.id}"
+           style="left: ${h.cx}%; top: ${h.cy}%; width: ${h.r * 2}%; height: ${h.r * 2}%; transform: translate(-50%, -50%);"></div>
+    `).join('');
+  }
+
+  function reset() {
+    found = 0;
+    foundEl.textContent = '0';
+    scene.innerHTML = buildSVG() + buildHotspots();
+    hintBox.classList.remove('show');
+    hintBox.innerHTML = '';
+    scene.querySelectorAll('.hazard-hotspot').forEach(hs => hs.addEventListener('click', () => onHit(hs)));
+  }
+  function onHit(hs) {
+    if (hs.classList.contains('found')) return;
+    const item = D.hazards.items.find(x => x.id === hs.dataset.id);
+    if (!item) return;
+    hs.classList.add('found');
+    found++;
+    foundEl.textContent = found;
+    hintBox.classList.add('show');
+    hintBox.innerHTML = `<div class="title">⚠️ 找到隐患：${item.title}</div><div>${item.desc}</div>`;
+    if (found >= D.hazards.total) {
+      hintBox.innerHTML += `<div style="margin-top: var(--sp-3); padding: var(--sp-3); background: rgba(102,187,106,0.15); border-radius: var(--r-sm); color: var(--c-success); font-weight: 700; text-align: center;">🎉 全部找齐！你已经成为『安全小达人』！</div>`;
+    }
+  }
+  totalEl.textContent = D.hazards.total;
+  reset();
+  if (resetBtn) resetBtn.addEventListener('click', reset);
+})();
+
+// ========== 应急手册 ==========
+(function () {
+  const D = SAFE_DATA;
+  const acc = document.getElementById('accordion');
+  if (acc) {
+    acc.innerHTML = D.accordion.map((item, i) => `
+      <div class="acc-item lvl-${item.level}${i === 0 ? ' open' : ''}">
+        <button class="acc-head" aria-expanded="${i === 0 ? 'true' : 'false'}">
+          <span style="font-size: 22px;">${getIcon(item.title)}</span>
+          <span style="flex: 1;">${item.title}</span>
+          <span class="level">${item.levelText}</span>
+          <span class="arrow">▸</span>
+        </button>
+        <div class="acc-body"><div class="acc-body-inner">${item.content}</div></div>
+      </div>
+    `).join('');
+    acc.querySelectorAll('.acc-item').forEach(item => {
+      const head = item.querySelector('.acc-head');
+      head.addEventListener('click', () => {
+        const isOpen = item.classList.toggle('open');
+        head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+    });
+  }
+  function getIcon(title) {
+    const map = { '火灾应急':'🔥','地震避险':'🌋','溺水救援与自救':'🌊','触电急救':'⚡','中暑处理':'🌡️','食物中毒':'🍔','鼻出血处理':'🩸','烫伤处理':'🔥' };
+    return map[title] || '🆘';
+  }
+  const pg = document.getElementById('phoneGrid');
+  if (pg) {
+    pg.innerHTML = D.phones.map(p => `
+      <div class="phone-item" tabindex="0" role="button" aria-label="拨打 ${p.name} ${p.num}">
+        <div class="icon">${p.icon}</div>
+        <div class="name">${p.name}</div>
+        <span class="num">${p.num}</span>
+        <div class="desc">${p.desc}</div>
+      </div>
+    `).join('');
+    pg.querySelectorAll('.phone-item').forEach(el => {
+      const handler = () => {
+        const num = el.querySelector('.num').textContent;
+        alert(`📞 ${num}\n\n请使用手机或座机拨打此号码。\n拨打时保持冷静，说清：\n  1) 事发地点（街道/门牌）\n  2) 发生了什么\n  3) 受伤人数和情况\n  4) 留下你的联系电话`);
+      };
+      el.addEventListener('click', handler);
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
+    });
+  }
+})();
+  </script>
+</body>
+</html>

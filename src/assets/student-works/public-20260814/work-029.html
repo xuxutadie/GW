@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智安应急空间 - 全国青少年安全应急科普创新大赛</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'soft-blue': '#E3F2FD',
+                        'soft-green': '#E8F5E9',
+                        'soft-purple': '#F3E5F5',
+                        'milk-white': '#FFFEF9',
+                        'accent-blue': '#64B5F6',
+                        'accent-green': '#81C784',
+                        'accent-purple': '#BA68C8',
+                        'danger-red': '#EF5350',
+                        'warning-orange': '#FFB74D',
+                    },
+                    fontFamily: {
+                        'cartoon': ['Comic Sans MS', 'cursive', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'shake': 'shake 0.5s ease-in-out',
+                        'smoke': 'smoke 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        },
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '25%': { transform: 'translateX(-5px)' },
+                            '75%': { transform: 'translateX(5px)' },
+                        },
+                        smoke: {
+                            '0%': { opacity: '0.3', transform: 'translateY(0) scale(1)' },
+                            '100%': { opacity: '0', transform: 'translateY(-50px) scale(2)' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gradient-to-br from-soft-blue via-milk-white to-soft-green min-h-screen font-cartoon overflow-x-hidden">
+    
+    <!-- ==================== 首页封面页 ==================== -->
+    <div id="home-page" class="page-container min-h-screen flex flex-col items-center justify-center p-4">
+        <!-- 装饰背景元素 -->
+        <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+            <div class="absolute top-10 left-10 w-32 h-32 bg-accent-blue/20 rounded-full blur-2xl animate-pulse-slow"></div>
+            <div class="absolute top-1/3 right-20 w-40 h-40 bg-accent-green/20 rounded-full blur-2xl animate-pulse-slow" style="animation-delay: 1s;"></div>
+            <div class="absolute bottom-20 left-1/4 w-36 h-36 bg-accent-purple/20 rounded-full blur-2xl animate-pulse-slow" style="animation-delay: 2s;"></div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="relative z-10 text-center max-w-4xl mx-auto">
+            <!-- Logo和标题 -->
+            <div class="mb-8 animate-float">
+                <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-accent-blue to-accent-green rounded-3xl flex items-center justify-center shadow-xl">
+                    <span class="text-6xl">🛡️</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-bold bg-gradient-to-r from-accent-blue via-accent-green to-accent-purple bg-clip-text text-transparent mb-4">
+                    AI智安应急空间
+                </h1>
+                <p class="text-lg md:text-xl text-gray-600 mb-2">沉浸式应急模拟体验</p>
+                <p class="text-sm text-gray-500">全国青少年安全应急科普创新大赛参赛作品</p>
+            </div>
+
+            <!-- 功能开关区 -->
+            <div class="flex flex-wrap justify-center gap-4 mb-10">
+                <button id="voice-toggle" onclick="toggleVoiceRead()" 
+                    class="px-6 py-3 bg-white/80 backdrop-blur rounded-2xl shadow-lg border-2 border-accent-blue/30 hover:border-accent-blue transition-all flex items-center gap-2">
+                    <span id="voice-icon">🔊</span>
+                    <span id="voice-text">语音朗读：开启</span>
+                </button>
+                <button onclick="toggleFontSize()" 
+                    class="px-6 py-3 bg-white/80 backdrop-blur rounded-2xl shadow-lg border-2 border-accent-green/30 hover:border-accent-green transition-all flex items-center gap-2">
+                    <span>🔤</span>
+                    <span id="font-text">文字放大</span>
+                </button>
+            </div>
+
+            <!-- 场景卡片入口 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <!-- 居家卧室 -->
+                <div onclick="startScene('bedroom')" 
+                    class="scene-card group cursor-pointer bg-white/70 backdrop-blur rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-accent-blue">
+                    <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🛏️</div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">居家卧室</h3>
+                    <p class="text-sm text-gray-500">探索家庭安全隐患</p>
+                    <div class="mt-4 flex justify-center gap-1">
+                        <span class="w-2 h-2 bg-accent-blue rounded-full animate-pulse"></span>
+                        <span class="w-2 h-2 bg-accent-blue rounded-full animate-pulse" style="animation-delay: 0.2s;"></span>
+                        <span class="w-2 h-2 bg-accent-blue rounded-full animate-pulse" style="animation-delay: 0.4s;"></span>
+                    </div>
+                </div>
+
+                <!-- 校园教室 -->
+                <div onclick="startScene('classroom')" 
+                    class="scene-card group cursor-pointer bg-white/70 backdrop-blur rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-accent-green">
+                    <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🏫</div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">校园教室</h3>
+                    <p class="text-sm text-gray-500">学习校园安全知识</p>
+                    <div class="mt-4 flex justify-center gap-1">
+                        <span class="w-2 h-2 bg-accent-green rounded-full animate-pulse"></span>
+                        <span class="w-2 h-2 bg-accent-green rounded-full animate-pulse" style="animation-delay: 0.2s;"></span>
+                        <span class="w-2 h-2 bg-accent-green rounded-full animate-pulse" style="animation-delay: 0.4s;"></span>
+                    </div>
+                </div>
+
+                <!-- 手机社交 -->
+                <div onclick="startScene('phone')" 
+                    class="scene-card group cursor-pointer bg-white/70 backdrop-blur rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-accent-purple">
+                    <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">📱</div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">手机社交</h3>
+                    <p class="text-sm text-gray-500">识别AI诈骗陷阱</p>
+                    <div class="mt-4 flex justify-center gap-1">
+                        <span class="w-2 h-2 bg-accent-purple rounded-full animate-pulse"></span>
+                        <span class="w-2 h-2 bg-accent-purple rounded-full animate-pulse" style="animation-delay: 0.2s;"></span>
+                        <span class="w-2 h-2 bg-accent-purple rounded-full animate-pulse" style="animation-delay: 0.4s;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目简介 -->
+            <div class="bg-white/50 backdrop-blur rounded-2xl p-6 max-w-2xl mx-auto">
+                <p class="text-gray-600 text-sm leading-relaxed">
+                    🌟 沉浸式应急模拟体验 — 在虚拟场景中学习安全知识，通过互动体验掌握自救技能
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 场景选择页 ==================== -->
+    <div id="scene-select-page" class="page-container hidden min-h-screen p-4 md:p-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- 返回按钮 -->
+            <button onclick="goHome()" class="mb-6 px-4 py-2 bg-white/70 rounded-xl shadow flex items-center gap-2 hover:bg-white transition">
+                <span>←</span> 返回首页
+            </button>
+
+            <h2 class="text-3xl font-bold text-center mb-8 text-gray-700">选择探索场景</h2>
+
+            <!-- 三张大图场景卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 居家卧室 -->
+                <div onclick="enterScene('bedroom')" 
+                    class="relative group cursor-pointer rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3">
+                    <div class="aspect-[3/4] bg-gradient-to-br from-accent-blue/30 to-accent-blue/10 flex items-center justify-center">
+                        <div class="text-center p-6">
+                            <div class="text-8xl mb-6">🏠</div>
+                            <h3 class="text-2xl font-bold text-gray-700 mb-3">居家卧室</h3>
+                            <p class="text-gray-500 text-sm">点击进入 → 探索家庭安全</p>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-accent-blue/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+
+                <!-- 校园教室 -->
+                <div onclick="enterScene('classroom')" 
+                    class="relative group cursor-pointer rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3">
+                    <div class="aspect-[3/4] bg-gradient-to-br from-accent-green/30 to-accent-green/10 flex items-center justify-center">
+                        <div class="text-center p-6">
+                            <div class="text-8xl mb-6">🎓</div>
+                            <h3 class="text-2xl font-bold text-gray-700 mb-3">校园教室</h3>
+                            <p class="text-gray-500 text-sm">点击进入 → 校园安全体验</p>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-accent-green/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+
+                <!-- 手机社交 -->
+                <div onclick="enterScene('phone')" 
+                    class="relative group cursor-pointer rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3">
+                    <div class="aspect-[3/4] bg-gradient-to-br from-accent-purple/30 to-accent-purple/10 flex items-center justify-center">
+                        <div class="text-center p-6">
+                            <div class="text-8xl mb-6">💬</div>
+                            <h3 class="text-2xl font-bold text-gray-700 mb-3">手机社交</h3>
+                            <p class="text-gray-500 text-sm">点击进入 → AI反诈挑战</p>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-accent-purple/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 居家卧室场景页 ==================== -->
+    <div id="bedroom-scene" class="page-container hidden min-h-screen">
+        <!-- 场景顶部导航 -->
+        <div class="bg-white/80 backdrop-blur p-4 flex justify-between items-center shadow">
+            <button onclick="exitScene()" class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200 transition flex items-center gap-2">
+                <span>←</span> 退出场景
+            </button>
+            <h3 class="text-lg font-bold text-gray-700">🏠 居家卧室探索</h3>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-500">探索进度：</span>
+                <div class="flex gap-1" id="bedroom-stars">
+                    <span class="star text-2xl opacity-30">⭐</span>
+                    <span class="star text-2xl opacity-30">⭐</span>
+                    <span class="star text-2xl opacity-30">⭐</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主场景区域 -->
+        <div class="flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
+            <!-- 场景画布 -->
+            <div class="flex-1 relative p-4">
+                <div id="bedroom-canvas" class="relative w-full h-[60vh] md:h-[70vh] bg-gradient-to-b from-blue-100 to-blue-50 rounded-3xl shadow-inner overflow-hidden border-4 border-white">
+                    <!-- 墙壁背景 -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-amber-50 to-amber-100"></div>
+                    
+                    <!-- 可点击物品 -->
+                    <!-- 老旧插线板 -->
+                    <div class="scene-item absolute cursor-pointer transition-all hover:scale-110" 
+                         style="left: 15%; top: 60%; width: 80px; height: 40px;"
+                         data-item="socket" data-event="fire" onclick="triggerEvent(this, 'bedroom', 'socket')">
+                        <div class="bg-gray-700 rounded-lg w-full h-full flex items-center justify-center shadow-lg relative">
+                            <div class="flex gap-1">
+                                <div class="w-2 h-3 bg-gray-400 rounded-sm"></div>
+                                <div class="w-2 h-3 bg-gray-400 rounded-sm"></div>
+                            </div>
+                            <div class="absolute -top-1 -right-1 w-3 h-3 bg-danger-red rounded-full animate-pulse opacity-70"></div>
+                        </div>
+                        <div class="text-xs text-center mt-1 text-gray-600">老旧插线板</div>
+                    </div>
+
+                    <!-- 窗户 -->
+                    <div class="scene-item absolute cursor-pointer transition-all hover:scale-105" 
+                         style="left: 60%; top: 20%; width: 120px; height: 150px;"
+                         data-item="window" data-event="earthquake" onclick="triggerEvent(this, 'bedroom', 'window')">
+                        <div class="bg-gradient-to-b from-sky-200 to-sky-300 w-full h-full rounded-lg border-4 border-amber-200 shadow-lg relative">
+                            <div class="absolute inset-2 border-2 border-amber-100"></div>
+                            <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-amber-200"></div>
+                            <div class="absolute top-1/2 left-0 right-0 h-1 bg-amber-200"></div>
+                        </div>
+                        <div class="text-xs text-center mt-1 text-gray-600">窗户</div>
+                    </div>
+
+                    <!-- 热水器 -->
+                    <div class="scene-item absolute cursor-pointer transition-all hover:scale-110" 
+                         style="left: 75%; top: 55%; width: 60px; height: 90px;"
+                         data-item="heater" data-event="shock" onclick="triggerEvent(this, 'bedroom', 'heater')">
+                        <div class="bg-gradient-to-b from-gray-300 to-gray-400 w-full h-full rounded-xl shadow-lg relative">
+                            <div class="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-4 bg-blue-200 rounded"></div>
+                            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-3 bg-danger-red rounded animate-pulse"></div>
+                        </div>
+                        <div class="text-xs text-center mt-1 text-gray-600">热水器</div>
+                    </div>
+
+                    <!-- 充电手机 -->
+                    <div class="scene-item absolute cursor-pointer transition-all hover:scale-110" 
+                         style="left: 25%; top: 75%; width: 50px; height: 70px;"
+                         data-item="phone" data-event="burn" onclick="triggerEvent(this, 'bedroom', 'phone')">
+                        <div class="bg-gradient-to-b from-gray-800 to-gray-900 w-full h-full rounded-xl shadow-lg relative">
+                            <div class="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-4 bg-blue-400 rounded-sm"></div>
+                            <div class="absolute top-6 left-1/2 -translate-x-1/2 w-4 h-8 bg-orange-400 rounded animate-pulse"></div>
+                            <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-1 h-4 bg-white"></div>
+                        </div>
+                        <div class="text-xs text-center mt-4 text-gray-600">充电手机</div>
+                    </div>
+
+                    <!-- 床 -->
+                    <div class="absolute" style="left: 5%; top: 50%; width: 180px; height: 100px;">
+                        <div class="bg-gradient-to-r from-pink-200 to-pink-300 w-full h-full rounded-2xl shadow-lg">
+                            <div class="absolute -top-4 left-2 w-16 h-20 bg-white rounded-t-2xl"></div>
+                        </div>
+                    </div>
+
+                    <!-- 书桌 -->
+                    <div class="absolute" style="left: 40%; top: 65%; width: 150px; height: 80px;">
+                        <div class="bg-gradient-to-b from-amber-600 to-amber-700 w-full h-full rounded-lg shadow-lg"></div>
+                    </div>
+
+                    <!-- 危险效果层 -->
+                    <div id="bedroom-danger-effect" class="absolute inset-0 pointer-events-none hidden"></div>
+                </div>
+
+                <!-- 事件提示区 -->
+                <div id="bedroom-event-hint" class="mt-4 p-4 bg-white/70 backdrop-blur rounded-2xl hidden">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl" id="bedroom-hint-icon">⚠️</span>
+                        <p class="text-gray-700" id="bedroom-hint-text"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 道具侧边栏 -->
+            <div class="w-full lg:w-64 bg-white/80 backdrop-blur p-4 rounded-t-3xl lg:rounded-l-3xl shadow-lg">
+                <h4 class="text-center font-bold text-gray-700 mb-4">🎒 家庭应急道具</h4>
+                <div class="grid grid-cols-2 lg:grid-cols-1 gap-3" id="bedroom-tools">
+                    <!-- 灭火器 -->
+                    <div class="tool-item p-3 bg-red-50 rounded-xl cursor-grab hover:shadow-lg transition text-center"
+                         draggable="true" data-tool="extinguisher" ondragstart="dragStart(event)" onclick="selectTool('extinguisher', 'bedroom')">
+                        <div class="text-4xl mb-1">🧯</div>
+                        <span class="text-xs text-gray-600">灭火器</span>
+                    </div>
+                    <!-- 湿毛巾 -->
+                    <div class="tool-item p-3 bg-blue-50 rounded-xl cursor-grab hover:shadow-lg transition text-center"
+                         draggable="true" data-tool="towel" ondragstart="dragStart(event)" onclick="selectTool('towel', 'bedroom')">
+                        <div class="text-4xl mb-1">🧽</div>
+                        <span class="text-xs text-gray-600">湿毛巾</span>
+                    </div>
+                    <!-- 绝缘手套 -->
+                    <div class="tool-item p-3 bg-purple-50 rounded-xl cursor-grab hover:shadow-lg transition text-center"
+                         draggable="true" data-tool="gloves" ondragstart="dragStart(event)" onclick="selectTool('gloves', 'bedroom')">
+                        <div class="text-4xl mb-1">🧤</div>
+                        <span class="text-xs text-gray-600">绝缘手套</span>
+                    </div>
+                    <!-- 求救哨 -->
+                    <div class="tool-item p-3 bg-orange-50 rounded-xl cursor-grab hover:shadow-lg transition text-center"
+                         draggable="true" data-tool="whistle" ondragstart="dragStart(event)" onclick="selectTool('whistle', 'bedroom')">
+                        <div class="text-4xl mb-1">📢</div>
+                        <span class="text-xs text-gray-600">求救哨</span>
+                    </div>
+                </div>
+                
+                <!-- 操作按钮区 -->
+                <div id="bedroom-actions" class="mt-4 space-y-2 hidden">
+                    <button onclick="handleAction('bedroom', 'correct')" class="w-full py-3 bg-accent-green text-white rounded-xl font-bold hover:bg-green-600 transition">
+                        ✅ 正确处置
+                    </button>
+                    <button onclick="handleAction('bedroom', 'wrong')" class="w-full py-3 bg-danger-red text-white rounded-xl font-bold hover:bg-red-600 transition">
+                        ❌ 错误操作
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 校园教室场景页 ==================== -->
+    <div id="classroom-scene" class="page-container hidden min-h-screen">
+        <!-- 场景顶部导航 -->
+        <div class="bg-white/80 backdrop-blur p-4 flex justify-between items-center shadow">
+            <button onclick="exitScene()" class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200 transition flex items-center gap-2">
+                <span>←</span> 退出场景
+            </button>
+            <h3 class="text-lg font-bold text-gray-700">🏫 校园教室探索</h3>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-500">探索进度：</span>
+                <div class="flex gap-1" id="classroom-stars">
+                    <span class="star text-2xl opacity-30">⭐</span>
+                    <span class="star text-2xl opacity-30">⭐</span>
+                    <span class="star text-2xl opacity-30">⭐</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主场景区域 -->
+        <div class="flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
+            <div class="flex-1 relative p-4">
+                <div id="classroom-canvas" class="relative w-full h-[60vh] md:h-[70vh] bg-gradient-to-b from-green-50 to-green-100 rounded-3xl shadow-inner overflow-hidden border-4 border-white">
+                    <!-- 教室背景 -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-lime-50 to-lime-100"></div>
+                    
+                    <!-- 可点击物品 -->
+                    <!-- 后排插排 -->
+                    <div class="scene-item absolute cursor-pointer transition-all hover:scale-110" 
+                         style="left: 70%; top: 55%; width: 80px; height: 50px;"
+                         data-item="powerstrip" data-event="fire" onclick="triggerEvent(this, 'classroom', 'powerstrip')">
+                        <div class="bg-gray-800 rounded-lg w-full h-full flex items-center justify-center shadow-lg relative">
+                            <div class="flex gap-1">
+                                <div class="w-2 h-3 bg-yellow-400 rounded-sm"></div>
+                                <div class="w-2 h-3 bg-yellow-400 rounded-sm"></div>
+                                <div class="w-2 h-3 bg-yellow-400 rounded-sm"></div>
+                            </div>
+                            <div class="absolute -top-2 -right-2 w-4 h-4 bg-warning-orange rounded-full animate-pulse"></div>
+                        </div>
+                        <div class="text-xs text-center mt-1 text-gray-600">违规插排</div>
+                    </div>
+
+                    <!-- 楼道人群 -->
+                    <div class="scene-item absolute cursor-pointer transition-all hover:scale-105" 
+                         style="left: 85%; top: 30%; width: 80px; height: 100px;"
+                         data-item="crowd" data-event="stampede" onclick="triggerEvent(this, 'classroom', 'crowd')">
+                        <div class="relative">
+                            <div class="flex -space-x-2">
+                                <div class="w-8 h-8 bg-blue-300 rounded-full"></div>
+                                <div class="w-8 h-8 bg-pink-300 rounded-full"></div>
+                                <div class="w-8 h-8 bg-yellow-300 rounded-full"></div>
+                            </div>
+                            <div class="flex -space-x-2 mt-1">
+                                <div class="w-8 h-8 bg-green-300 rounded-full"></div>
+                                <div class="w-8 h-8 bg-purple-300 rounded-full"></div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-center mt-2 text-gray-600">楼道人群</div>
+                    </div>
+
+                    <!-- 化学试剂瓶 -->
+                    <div class="scene-item absolute cursor-pointer transition-all hover:scale-110" 
+                         style="left: 30%; top: 65%; width: 50px; height: 70px;"
+                         data-item="chemical" data-event="burn" onclick="triggerEvent(this, 'classroom', 'chemical')">
+                        <div class="bg-gradient-to-b from-blue-400 to-blue-600 w-full h-full rounded-lg shadow-lg relative">
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-3 bg-gray-400 rounded-t"></div>
+                            <div class="absolute top-4 left-1/2 -translate-x-1/2 text-white text-xs">⚗️</div>
+                        </div>
+                        <div class="text-xs text-center mt-1 text-gray-600">化学试剂</div>
+                    </div>
+
+                    <!-- 窗边广告牌 -->
+                    <div class="scene-item absolute cursor-pointer transition-all hover:scale-105" 
+                         style="left: 10%; top: 25%; width: 100px; height: 80px;"
+                         data-item="billboard" data-event="falling" onclick="triggerEvent(this, 'classroom', 'billboard')">
+                        <div class="bg-gradient-to-b from-gray-200 to-gray-300 w-full h-full rounded shadow-lg relative">
+                            <div class="absolute inset-2 bg-white flex items-center justify-center text-2xl">📢</div>
+                            <div class="absolute -bottom-1 left-0 right-0 h-2 bg-danger-red animate-pulse"></div>
+                        </div>
+                        <div class="text-xs text-center mt-1 text-gray-600">广告牌</div>
+                    </div>
+
+                    <!-- 黑板 -->
+                    <div class="absolute" style="left: 25%; top: 10%; width: 200px; height: 100px;">
+                        <div class="bg-gradient-to-b from-green-700 to-green-800 w-full h-full rounded-lg shadow-lg">
+                            <div class="absolute top-4 left-4 text-white text-sm">今日课程</div>
+                        </div>
+                    </div>
+
+                    <!-- 课桌 -->
+                    <div class="absolute" style="left: 20%; top: 50%; width: 180px; height: 60px;">
+                        <div class="bg-gradient-to-b from-amber-500 to-amber-600 w-full h-full rounded shadow-lg"></div>
+                    </div>
+
+                    <!-- 危险效果层 -->
+                    <div id="classroom-danger-effect" class="absolute inset-0 pointer-events-none hidden"></div>
+                </div>
+
+                <div id="classroom-event-hint" class="mt-4 p-4 bg-white/70 backdrop-blur rounded-2xl hidden">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl" id="classroom-hint-icon">⚠️</span>
+                        <p class="text-gray-700" id="classroom-hint-text"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 道具侧边栏 -->
+            <div class="w-full lg:w-64 bg-white/80 backdrop-blur p-4 rounded-t-3xl lg:rounded-l-3xl shadow-lg">
+                <h4 class="text-center font-bold text-gray-700 mb-4">🎒 校园应急道具</h4>
+                <div class="grid grid-cols-2 lg:grid-cols-1 gap-3" id="classroom-tools">
+                    <!-- 灭火器 -->
+                    <div class="tool-item p-3 bg-red-50 rounded-xl cursor-grab hover:shadow-lg transition text-center"
+                         draggable="true" data-tool="extinguisher" ondragstart="dragStart(event)" onclick="selectTool('extinguisher', 'classroom')">
+                        <div class="text-4xl mb-1">🧯</div>
+                        <span class="text-xs text-gray-600">灭火器</span>
+                    </div>
+                    <!-- 安全帽 -->
+                    <div class="tool-item p-3 bg-yellow-50 rounded-xl cursor-grab hover:shadow-lg transition text-center"
+                         draggable="true" data-tool="helmet" ondragstart="dragStart(event)" onclick="selectTool('helmet', 'classroom')">
+                        <div class="text-4xl mb-1">⛑️</div>
+                        <span class="text-xs text-gray-600">安全帽</span>
+                    </div>
+                    <!-- 急救包 -->
+                    <div class="tool-item p-3 bg-green-50 rounded-xl cursor-grab hover:shadow-lg transition text-center"
+                         draggable="true" data-tool="firstaid" ondragstart="dragStart(event)" onclick="selectTool('firstaid', 'classroom')">
+                        <div class="text-4xl mb-1">🩹</div>
+                        <span class="text-xs text-gray-600">急救包</span>
+                    </div>
+                    <!-- 报告按钮 -->
+                    <div class="tool-item p-3 bg-blue-50 rounded-xl cursor-grab hover:shadow-lg transition text-center"
+                         draggable="true" data-tool="report" ondragstart="dragStart(event)" onclick="selectTool('report', 'classroom')">
+                        <div class="text-4xl mb-1">🔔</div>
+                        <span class="text-xs text-gray-600">报告老师</span>
+                    </div>
+                </div>
+                <div id="classroom-actions" class="mt-4 space-y-2 hidden">
+                    <button onclick="handleAction('classroom', 'correct')" class="w-full py-3 bg-accent-green text-white rounded-xl font-bold hover:bg-green-600 transition">
+                        ✅ 正确处置
+                    </button>
+                    <button onclick="handleAction('classroom', 'wrong')" class="w-full py-3 bg-danger-red text-white rounded-xl font-bold hover:bg-red-600 transition">
+                        ❌ 错误操作
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 手机社交场景页 ==================== -->
+    <div id="phone-scene" class="page-container hidden min-h-screen">
+        <!-- 场景顶部导航 -->
+        <div class="bg-white/80 backdrop-blur p-4 flex justify-between items-center shadow">
+            <button onclick="exitScene()" class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200 transition flex items-center gap-2">
+                <span>←</span> 退出场景
+            </button>
+            <h3 class="text-lg font-bold text-gray-700">📱 手机社交反诈</h3>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-500">探索进度：</span>
+                <div class="flex gap-1" id="phone-stars">
+                    <span class="star text-2xl opacity-30">⭐</span>
+                    <span class="star text-2xl opacity-30">⭐</span>
+                    <span class="star text-2xl opacity-30">⭐</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主场景区域 -->
+        <div class="flex flex-col lg:flex-row min-h-[calc(100vh-80px)]">
+            <div class="flex-1 relative p-4 flex justify-center items-center">
+                <!-- 手机框架 -->
+                <div id="phone-canvas" class="relative w-full max-w-sm h-[65vh] bg-black rounded-3xl shadow-2xl overflow-hidden border-8 border-gray-800">
+                    <!-- 手机屏幕 -->
+                    <div class="absolute inset-1 bg-gradient-to-b from-purple-50 to-pink-50 rounded-2xl overflow-hidden">
+                        <!-- 状态栏 -->
+                        <div class="h-6 bg-black/10 flex items-center justify-between px-4 text-xs text-gray-600">
+                            <span>9:41</span>
+                            <span>📶 🔋</span>
+                        </div>
+                        
+                        <!-- 聊天界面头部 -->
+                        <div class="h-12 bg-white/80 flex items-center px-3 border-b">
+                            <span class="text-lg">💬</span>
+                            <span class="ml-2 font-bold text-gray-700">消息</span>
+                        </div>
+
+                        <!-- 可点击消息列表 -->
+                        <div class="p-3 space-y-3">
+                            <!-- AI仿声诈骗消息 -->
+                            <div class="scene-item message-bubble cursor-pointer transition-all hover:scale-[1.02]" 
+                                 data-item="voice" data-event="voice-scam" onclick="triggerEvent(this, 'phone', 'voice')">
+                                <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow">
+                                    <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center text-2xl">👩</div>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-gray-700">妈妈</div>
+                                        <div class="text-sm text-gray-500 flex items-center gap-1">
+                                            <span>🎵</span> 语音消息
+                                        </div>
+                                    </div>
+                                    <div class="w-3 h-3 bg-danger-red rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+
+                            <!-- AI换脸诈骗消息 -->
+                            <div class="scene-item message-bubble cursor-pointer transition-all hover:scale-[1.02]" 
+                                 data-item="video" data-event="deepfake" onclick="triggerEvent(this, 'phone', 'video')">
+                                <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow">
+                                    <div class="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center text-2xl">👨</div>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-gray-700">好友小明</div>
+                                        <div class="text-sm text-gray-500">🎥 视频通话请求</div>
+                                    </div>
+                                    <div class="w-3 h-3 bg-danger-red rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+
+                            <!-- 陌生链接消息 -->
+                            <div class="scene-item message-bubble cursor-pointer transition-all hover:scale-[1.02]" 
+                                 data-item="link" data-event="phishing" onclick="triggerEvent(this, 'phone', 'link')">
+                                <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow">
+                                    <div class="w-12 h-12 bg-yellow-200 rounded-full flex items-center justify-center text-2xl">🎁</div>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-gray-700">未知号码</div>
+                                        <div class="text-sm text-gray-500 truncate">🔗 点击领取大奖...</div>
+                                    </div>
+                                    <div class="w-3 h-3 bg-warning-orange rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+
+                            <!-- AI绘图图标 -->
+                            <div class="scene-item message-bubble cursor-pointer transition-all hover:scale-[1.02]" 
+                                 data-item="ai-art" data-event="portrait" onclick="triggerEvent(this, 'phone', 'ai-art')">
+                                <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow">
+                                    <div class="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center text-2xl">🎨</div>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-gray-700">AI绘图助手</div>
+                                        <div class="text-sm text-gray-500">🖼️ 生成你的AI头像</div>
+                                    </div>
+                                    <div class="w-3 h-3 bg-accent-purple rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI识别功能入口 -->
+                        <div class="absolute bottom-16 left-3 right-3">
+                            <button onclick="openAIRecognition()" class="w-full py-3 bg-gradient-to-r from-accent-purple to-accent-blue text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition">
+                                🔍 AI识别伪造图片
+                            </button>
+                        </div>
+
+                        <!-- 底部导航 -->
+                        <div class="absolute bottom-0 left-0 right-0 h-12 bg-white/90 flex items-center justify-around border-t">
+                            <span class="text-xl">💬</span>
+                            <span class="text-xl">📞</span>
+                            <span class="text-xl">📱</span>
+                            <span class="text-xl">⚙️</span>
+                        </div>
+                    </div>
+
+                    <!-- 危险效果层 -->
+                    <div id="phone-danger-effect" class="absolute inset-1 pointer-events-none hidden rounded-2xl"></div>
+                </div>
+
+                <div id="phone-event-hint" class="mt-4 p-4 bg-white/70 backdrop-blur rounded-2xl hidden absolute bottom-4 left-4 right-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl" id="phone-hint-icon">⚠️</span>
+                        <p class="text-gray-700" id="phone-hint-text"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作面板 -->
+            <div class="w-full lg:w-64 bg-white/80 backdrop-blur p-4 rounded-t-3xl lg:rounded-l-3xl shadow-lg">
+                <h4 class="text-center font-bold text-gray-700 mb-4">🛡️ 防骗操作</h4>
+                <div class="space-y-3" id="phone-tools">
+                    <button onclick="handlePhoneAction('verify')" class="w-full p-3 bg-blue-50 rounded-xl hover:shadow-lg transition text-center">
+                        <div class="text-3xl mb-1">📞</div>
+                        <span class="text-sm text-gray-600">电话核实</span>
+                    </button>
+                    <button onclick="handlePhoneAction('report')" class="w-full p-3 bg-red-50 rounded-xl hover:shadow-lg transition text-center">
+                        <div class="text-3xl mb-1">🚨</div>
+                        <span class="text-sm text-gray-600">举报诈骗</span>
+                    </button>
+                    <button onclick="handlePhoneAction('ignore')" class="w-full p-3 bg-yellow-50 rounded-xl hover:shadow-lg transition text-center">
+                        <div class="text-3xl mb-1">🚫</div>
+                        <span class="text-sm text-gray-600">忽略/删除</span>
+                    </button>
+                    <button onclick="handlePhoneAction('check')" class="w-full p-3 bg-green-50 rounded-xl hover:shadow-lg transition text-center">
+                        <div class="text-3xl mb-1">🔍</div>
+                        <span class="text-sm text-gray-600">官方核实</span>
+                    </button>
+                </div>
+                <div id="phone-actions" class="mt-4 space-y-2 hidden">
+                    <button onclick="handleAction('phone', 'correct')" class="w-full py-3 bg-accent-green text-white rounded-xl font-bold hover:bg-green-600 transition">
+                        ✅ 正确处置
+                    </button>
+                    <button onclick="handleAction('phone', 'wrong')" class="w-full py-3 bg-danger-red text-white rounded-xl font-bold hover:bg-red-600 transition">
+                        ❌ 错误操作
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== AI识别伪造图片弹窗 ==================== -->
+    <div id="ai-recognition-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full max-h-[80vh] overflow-auto shadow-2xl">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-700">🔍 AI识别伪造图片</h3>
+                    <button onclick="closeAIRecognition()" class="text-2xl text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+                
+                <!-- 上传区域 -->
+                <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-accent-blue transition cursor-pointer" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                    <div class="text-4xl mb-2">📷</div>
+                    <p class="text-gray-500">点击或拖拽上传图片</p>
+                    <p class="text-sm text-gray-400 mt-1">AI将识别伪造痕迹</p>
+                </div>
+
+                <!-- 识别结果区 -->
+                <div id="recognition-result" class="mt-4 hidden">
+                    <div class="bg-gray-50 rounded-2xl p-4">
+                        <img id="uploaded-image" class="w-full h-48 object-contain rounded-xl mb-4" src="" alt="上传的图片">
+                        <div id="detection-marks" class="relative">
+                            <!-- AI识别标记会动态添加 -->
+                        </div>
+                        <div id="detection-report" class="text-sm text-gray-600">
+                            <!-- 识别报告 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 事件弹窗 ==================== -->
+    <div id="event-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl animate-bounce-slow">
+            <!-- 危险动画区 -->
+            <div id="event-animation" class="h-48 rounded-t-3xl flex items-center justify-center relative overflow-hidden">
+                <!-- 动态内容 -->
+            </div>
+            
+            <!-- 事件说明 -->
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span id="event-icon" class="text-4xl">⚠️</span>
+                    <h3 id="event-title" class="text-xl font-bold text-gray-700"></h3>
+                </div>
+                <p id="event-description" class="text-gray-600 mb-4"></p>
+                
+                <!-- 交互提示 -->
+                <div id="event-instruction" class="bg-blue-50 rounded-xl p-4 mb-4">
+                    <p class="text-sm text-gray-600"></p>
+                </div>
+
+                <!-- 关闭按钮 -->
+                <button onclick="closeEventModal()" class="w-full py-3 bg-accent-blue text-white rounded-xl font-bold hover:bg-blue-600 transition">
+                    开始处置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== AI反馈弹窗 ==================== -->
+    <div id="ai-feedback-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl">
+            <div class="p-6">
+                <!-- AI机器人 -->
+                <div class="flex justify-center mb-4">
+                    <div class="w-24 h-24 bg-gradient-to-br from-accent-blue to-accent-green rounded-full flex items-center justify-center text-5xl shadow-xl animate-float">
+                        🤖
+                    </div>
+                </div>
+                
+                <div id="ai-feedback-content">
+                    <!-- 动态内容 -->
+                </div>
+
+                <!-- 科普卡片 -->
+                <div id="knowledge-card" class="mt-4 bg-gradient-to-r from-soft-blue to-soft-green rounded-xl p-4 hidden">
+                    <h4 class="font-bold text-gray-700 mb-2">💡 安全小贴士</h4>
+                    <p id="knowledge-text" class="text-sm text-gray-600"></p>
+                </div>
+
+                <button onclick="closeAIFeedback()" class="w-full mt-4 py-3 bg-accent-blue text-white rounded-xl font-bold hover:bg-blue-600 transition">
+                    继续探索
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== AI复盘报告页 ==================== -->
+    <div id="report-page" class="page-container hidden min-h-screen p-4 md:p-8">
+        <div class="max-w-4xl mx-auto">
+            <button onclick="goHome()" class="mb-6 px-4 py-2 bg-white/70 rounded-xl shadow flex items-center gap-2 hover:bg-white transition">
+                <span>←</span> 返回首页
+            </button>
+
+            <div class="bg-white/80 backdrop-blur rounded-3xl shadow-xl p-6 md:p-8">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">📊</div>
+                    <h2 class="text-3xl font-bold text-gray-700 mb-2">AI安全复盘报告</h2>
+                    <p class="text-gray-500">根据您的体验生成个性化安全建议</p>
+                </div>
+
+                <!-- 统计图表 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- 场景完成度 -->
+                    <div class="bg-gray-50 rounded-2xl p-6">
+                        <h3 class="font-bold text-gray-700 mb-4">🏆 场景完成度</h3>
+                        <div id="scene-progress-chart" class="space-y-3">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 错误类型统计 -->
+                    <div class="bg-gray-50 rounded-2xl p-6">
+                        <h3 class="font-bold text-gray-700 mb-4">📈 需要加强的知识点</h3>
+                        <div id="weakness-chart" class="space-y-3">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 安全建议 -->
+                <div class="bg-gradient-to-r from-soft-blue to-soft-green rounded-2xl p-6 mb-6">
+                    <h3 class="font-bold text-gray-700 mb-4">💡 个性化安全建议</h3>
+                    <div id="suggestions" class="space-y-3">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 科普卡片集合 -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-gray-700 mb-4">📚 安全科普卡片</h3>
+                    <div id="knowledge-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 保存按钮 -->
+                <div class="flex justify-center gap-4">
+                    <button onclick="saveReport()" class="px-8 py-3 bg-accent-green text-white rounded-xl font-bold hover:bg-green-600 transition shadow-lg">
+                        💾 保存报告图片
+                    </button>
+                    <button onclick="goHome()" class="px-8 py-3 bg-accent-blue text-white rounded-xl font-bold hover:bg-blue-600 transition shadow-lg">
+                        🏠 重新体验
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== AI悬浮助手 ==================== -->
+    <div id="ai-assistant" class="fixed bottom-6 right-6 z-40">
+        <button onclick="toggleAIPanel()" class="w-16 h-16 bg-gradient-to-br from-accent-blue to-accent-green rounded-full shadow-xl flex items-center justify-center text-3xl hover:scale-110 transition-transform animate-float">
+            🤖
+        </button>
+    </div>
+
+    <!-- AI助手面板 -->
+    <div id="ai-panel" class="fixed bottom-24 right-6 w-80 bg-white rounded-2xl shadow-2xl z-40 hidden overflow-hidden">
+        <div class="bg-gradient-to-r from-accent-blue to-accent-green p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-xl">🤖</div>
+                <div>
+                    <h4 class="font-bold text-white">AI安全助手</h4>
+                    <p class="text-xs text-white/80">随时为您解答安全疑问</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4">
+            <!-- 语音输入按钮 -->
+            <button onclick="startVoiceInput()" class="w-full py-3 bg-gray-100 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 transition mb-3">
+                <span>🎤</span>
+                <span class="text-sm text-gray-600">语音提问</span>
+            </button>
+
+            <!-- 文字输入 -->
+            <div class="flex gap-2">
+                <input type="text" id="ai-input" placeholder="输入安全相关问题..." 
+                    class="flex-1 px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-accent-blue focus:outline-none text-sm"
+                    onkeypress="if(event.key==='Enter')askAI()">
+                <button onclick="askAI()" class="px-4 py-2 bg-accent-blue text-white rounded-xl hover:bg-blue-600 transition">
+                    发送
+                </button>
+            </div>
+
+            <!-- 快捷问题 -->
+            <div class="mt-3 flex flex-wrap gap-2">
+                <button onclick="quickAsk('火灾逃生')" class="px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs hover:bg-red-100">火灾逃生</button>
+                <button onclick="quickAsk('地震自救')" class="px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-xs hover:bg-orange-100">地震自救</button>
+                <button onclick="quickAsk('防诈骗')" class="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-xs hover:bg-purple-100">防诈骗</button>
+            </div>
+
+            <!-- 回答区 -->
+            <div id="ai-answer" class="mt-4 p-3 bg-gray-50 rounded-xl text-sm text-gray-600 hidden">
+                <!-- 动态内容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 科普短句生成器弹窗 ==================== -->
+    <div id="slogan-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-700">✨ AI生成安全宣传短句</h3>
+                    <button onclick="closeSloganModal()" class="text-2xl text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <button onclick="generateSlogan('fire')" class="w-full py-3 bg-red-50 rounded-xl text-left hover:bg-red-100 transition">
+                        🔥 火灾安全
+                    </button>
+                    <button onclick="generateSlogan('earthquake')" class="w-full py-3 bg-orange-50 rounded-xl text-left hover:bg-orange-100 transition">
+                        🌊 地震安全
+                    </button>
+                    <button onclick="generateSlogan('scam')" class="w-full py-3 bg-purple-50 rounded-xl text-left hover:bg-purple-100 transition">
+                        🎭 防诈骗
+                    </button>
+                </div>
+
+                <div id="slogan-result" class="p-4 bg-gradient-to-r from-soft-blue to-soft-green rounded-xl text-center font-bold text-gray-700 hidden">
+                    <!-- 生成的短句 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载JS文件 -->
+    <script src="js/data.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/scenes.js"></script>
+    <script src="js/ai-helper.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

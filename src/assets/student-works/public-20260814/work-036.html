@@ -1,0 +1,2734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>烧脑卡牌破案推理小游戏</title>
+    <style>
+        /* ========== 重置与基础样式 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --accent-gold: #e6b800;
+            --accent-amber: #f0a500;
+            --text-light: #eaeaea;
+            --text-muted: #a0a0a0;
+            --danger: #dc3545;
+            --success: #28a745;
+            --hint-highlight: #ff6b6b;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* ========== 主容器 ========== */
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ========== 游戏规则区 ========== */
+        .rules-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(230, 184, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .rules-section h1 {
+            color: var(--accent-gold);
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px rgba(230, 184, 0, 0.3);
+        }
+
+        .rules-section p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .rules-section .highlight {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        /* ========== 案件情境区 ========== */
+        .case-section {
+            background: linear-gradient(145deg, #1e2a4a, #162035);
+            border: 1px solid rgba(230, 184, 0, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .case-title {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .case-title::before {
+            content: '📁';
+            font-size: 1.2rem;
+        }
+
+        .case-background {
+            color: var(--text-light);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-amber);
+        }
+
+        /* ========== 嫌疑人卡牌区 ========== */
+        .characters-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+
+        /* ========== 角色卡牌样式 ========== */
+        .character-card {
+            background: linear-gradient(145deg, #1e2a4a, #0d1525);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 15px 30px rgba(230, 184, 0, 0.2);
+        }
+
+        .character-card:hover::before {
+            opacity: 1;
+        }
+
+        .character-card.selected {
+            border-color: var(--accent-gold);
+            background: linear-gradient(145deg, #2a3a5a, #1a2540);
+            box-shadow: 0 0 25px rgba(230, 184, 0, 0.4);
+        }
+
+        .character-card.selected::after {
+            content: '👆';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .character-card.hint-highlight {
+            border-color: var(--hint-highlight);
+            background: linear-gradient(145deg, #3a1a2a, #250a15);
+            animation: pulse-hint 1.5s infinite;
+        }
+
+        @keyframes pulse-hint {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 107, 107, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 107, 107, 0.6); }
+        }
+
+        .character-card.hint-highlight::after {
+            content: '💡';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 1rem;
+        }
+
+        .character-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-amber), var(--accent-gold));
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(230, 184, 0, 0.3);
+        }
+
+        .character-name {
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .character-role {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .character-intro {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            text-align: center;
+            margin-bottom: 12px;
+            opacity: 0.9;
+            min-height: 36px;
+        }
+
+        .character-statement {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            border-left: 2px solid var(--accent-amber);
+            font-style: italic;
+        }
+
+        .statement-label {
+            color: var(--accent-amber);
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+            font-style: normal;
+        }
+
+        /* ========== 操作按钮区 ========== */
+        .actions-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-hint {
+            background: linear-gradient(135deg, #4a90d9, #357abd);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-hint:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5aa0e9, #458acd);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 144, 217, 0.4);
+        }
+
+        .btn-hint:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
+            color: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: linear-gradient(135deg, #f0c500, #e0a500);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(230, 184, 0, 0.5);
+        }
+
+        .btn-submit:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #555, #444);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-reset:hover {
+            background: linear-gradient(135deg, #666, #555);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ========== 结果提示区 ========== */
+        .result-section {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-section.victory {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.1));
+            border: 1px solid var(--success);
+        }
+
+        .result-section.defeat {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.1));
+            border: 1px solid var(--danger);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .result-section.victory .result-title {
+            color: var(--success);
+        }
+
+        .result-section.defeat .result-title {
+            color: var(--danger);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== 解析展示区 ========== */
+        .analysis-section {
+            background: linear-gradient(145deg, #1e2a4a, #162035);
+            border: 1px solid rgba(230, 184, 0, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .analysis-section.show {
+            display: block;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .analysis-title {
+            color: var(--accent-gold);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .analysis-block {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--accent-amber);
+        }
+
+        .analysis-block h3 {
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .analysis-block p {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        .truth-list, .lie-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .truth-list li {
+            color: var(--success);
+            padding: 5px 0;
+        }
+
+        .lie-list li {
+            color: var(--danger);
+            padding: 5px 0;
+        }
+
+        .character-motive {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+        }
+
+        .character-motive strong {
+            color: var(--accent-gold);
+        }
+
+        /* ========== 初始欢迎界面 ========== */
+        .welcome-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-screen::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(230, 184, 0, 0.08) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-logo {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(230, 184, 0, 0.5));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(230, 184, 0, 0.5), 0 0 60px rgba(230, 184, 0, 0.3);
+            letter-spacing: 4px;
+            font-weight: bold;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-tagline {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 15px;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .welcome-divider {
+            width: 300px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            margin: 30px auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 游戏特色卡片 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card {
+            background: linear-gradient(145deg, rgba(30, 42, 74, 0.8), rgba(22, 32, 53, 0.8));
+            border: 1px solid rgba(230, 184, 0, 0.2);
+            border-radius: 16px;
+            padding: 25px 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(230, 184, 0, 0.5);
+            box-shadow: 0 15px 40px rgba(230, 184, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .feature-number {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(230, 184, 0, 0.3);
+        }
+
+        .feature-label {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* 规则说明区 */
+        .rules-panel {
+            background: linear-gradient(145deg, rgba(30, 42, 74, 0.6), rgba(22, 32, 53, 0.6));
+            border: 1px solid rgba(230, 184, 0, 0.25);
+            border-radius: 20px;
+            padding: 30px 40px;
+            max-width: 800px;
+            width: 100%;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+
+        .rules-panel-title {
+            text-align: center;
+            color: var(--accent-gold);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .rules-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rules-list li {
+            padding: 10px 0;
+            color: var(--text-light);
+            font-size: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.6;
+        }
+
+        .rules-list li::before {
+            content: '⚡';
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .rules-list .truth {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        .rules-list .lie {
+            color: var(--hint-highlight);
+            font-weight: bold;
+        }
+
+        /* 开始按钮 */
+        .start-button {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
+            color: #1a1a2e;
+            border: none;
+            padding: 18px 60px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            letter-spacing: 4px;
+            box-shadow: 0 10px 40px rgba(230, 184, 0, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 50px rgba(230, 184, 0, 0.6);
+        }
+
+        .start-button:hover::before {
+            left: 100%;
+        }
+
+        .start-button:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .welcome-footer {
+            margin-top: 30px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 2px;
+        }
+
+        /* ========== 响应式设计 ========== */
+        @media (max-width: 1024px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .welcome-title {
+                font-size: 2.2rem;
+            }
+
+            .welcome-logo {
+                font-size: 4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .rules-panel {
+                padding: 20px;
+            }
+
+            .welcome-title {
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+            }
+
+            .welcome-subtitle {
+                font-size: 0.9rem;
+                letter-spacing: 4px;
+            }
+
+            .welcome-logo {
+                font-size: 3.5rem;
+            }
+
+            .start-button {
+                padding: 15px 40px;
+                font-size: 1.1rem;
+                letter-spacing: 2px;
+            }
+
+            .features-grid {
+                gap: 12px;
+            }
+
+            .feature-card {
+                padding: 18px 10px;
+            }
+
+            .feature-icon {
+                font-size: 2rem;
+            }
+
+            .feature-number {
+                font-size: 1.5rem;
+            }
+
+            .rules-list li {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+
+            .rules-section h1 {
+                font-size: 1.4rem;
+            }
+
+            .rules-section p {
+                font-size: 0.9rem;
+            }
+
+            .characters-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .character-card {
+                padding: 12px;
+            }
+
+            .character-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .character-name {
+                font-size: 1rem;
+            }
+
+            .character-intro {
+                font-size: 0.75rem;
+                min-height: 30px;
+            }
+
+            .character-statement {
+                font-size: 0.8rem;
+            }
+
+            .actions-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 250px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .characters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .case-section {
+                padding: 15px;
+            }
+
+            .case-title {
+                font-size: 1.2rem;
+            }
+
+            .case-background {
+                font-size: 0.95rem;
+                padding: 12px;
+            }
+
+            /* 欢迎界面小屏适配 */
+            .welcome-title {
+                font-size: 1.6rem;
+                letter-spacing: 2px;
+            }
+
+            .welcome-subtitle {
+                font-size: 0.85rem;
+                letter-spacing: 3px;
+            }
+
+            .welcome-logo {
+                font-size: 3rem;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .feature-card {
+                padding: 15px 8px;
+            }
+
+            .feature-icon {
+                font-size: 1.8rem;
+            }
+
+            .feature-number {
+                font-size: 1.3rem;
+            }
+
+            .feature-label {
+                font-size: 0.85rem;
+            }
+
+            .feature-desc {
+                font-size: 0.7rem;
+            }
+
+            .rules-panel {
+                padding: 15px;
+            }
+
+            .rules-panel-title {
+                font-size: 1.1rem;
+            }
+
+            .rules-list li {
+                font-size: 0.85rem;
+                padding: 8px 0;
+            }
+
+            .start-button {
+                padding: 12px 30px;
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+        }
+
+        /* ========== 隐藏类 ========== */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 初始欢迎界面 ========== -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-header">
+            <div class="welcome-logo">🔍</div>
+            <h1 class="welcome-title">烧脑卡牌破案</h1>
+            <div class="welcome-subtitle">推理 · 侦查 · 真相</div>
+            <div class="welcome-divider"></div>
+            <div class="welcome-tagline">在谎言的迷雾中，寻找唯一的真相</div>
+        </div>
+
+        <!-- 游戏特色卡片 -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">📚</span>
+                <div class="feature-number">60</div>
+                <div class="feature-label">精彩案件</div>
+                <div class="feature-desc">海量剧本等你来挑战</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">👥</span>
+                <div class="feature-number">5</div>
+                <div class="feature-label">嫌疑人</div>
+                <div class="feature-desc">每局随机分配角色</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💎</span>
+                <div class="feature-number">2</div>
+                <div class="feature-label">说真话</div>
+                <div class="feature-desc">诚实者的证词可信</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🎭</span>
+                <div class="feature-number">3</div>
+                <div class="feature-label">说谎话</div>
+                <div class="feature-desc">真凶必定在其中</div>
+            </div>
+        </div>
+
+        <!-- 规则说明区 -->
+        <div class="rules-panel">
+            <div class="rules-panel-title">— 游戏规则 —</div>
+            <ul class="rules-list">
+                <li>每局随机生成一个案件，配有 <span class="truth">5名嫌疑人</span> 的证词供你分析</li>
+                <li>5人中 <span class="truth">2人说真话</span>（与案件事实一致），<span class="lie">3人说谎话</span>（隐瞒或误导）</li>
+                <li><span class="lie">真凶必定在3名说谎者中</span>，但其他说谎者也有各自的动机</li>
+                <li>你拥有 <span class="truth">1次免费提示</span>，可高亮一名非凶手的说谎者</li>
+                <li>仔细阅读每人证词、分析逻辑矛盾，<span class="truth">正确选出真凶</span> 即可获胜</li>
+            </ul>
+        </div>
+
+        <button class="start-button" id="btnStart" onclick="startGame()">▶ 开始破案</button>
+
+        <div class="welcome-footer">
+            真相只有一个 · Detective Mystery Card Game
+        </div>
+    </div>
+
+    <!-- ========== 主游戏界面 ========== -->
+    <div class="game-container hidden" id="gameMain">
+        <!-- 游戏规则区 -->
+        <div class="rules-section">
+            <h1>🔍 烧脑卡牌破案推理</h1>
+            <p>本局共有 <span class="highlight">5名嫌疑人</span>，其中 <span class="highlight">2人说真话</span>，<span class="highlight">3人说谎</span></p>
+            <p>你拥有 <span class="highlight">1次免费提示</span>，找出真正的凶手即可获胜！</p>
+        </div>
+
+        <!-- 案件情境区 -->
+        <div class="case-section">
+            <h2 class="case-title" id="caseTitle">案件加载中...</h2>
+            <div class="case-background" id="caseBackground">正在生成案件...</div>
+        </div>
+
+        <!-- 嫌疑人卡牌区 -->
+        <div class="characters-section">
+            <div class="section-title">— 嫌疑人证词 —</div>
+            <div class="characters-grid" id="charactersGrid">
+                <!-- 角色卡牌将由JS动态生成 -->
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="actions-section">
+            <button class="btn btn-hint" id="btnHint" onclick="useHint()">💡 获取提示</button>
+            <button class="btn btn-submit" id="btnSubmit" onclick="submitAnswer()" disabled>✓ 确认答案</button>
+            <button class="btn btn-reset" id="btnReset" onclick="resetGame()">🔄 重新开局</button>
+        </div>
+
+        <!-- 结果提示区 -->
+        <div class="result-section" id="resultSection">
+            <h2 class="result-title" id="resultTitle"></h2>
+            <p id="resultMessage"></p>
+        </div>
+
+        <!-- 解析展示区 -->
+        <div class="analysis-section" id="analysisSection">
+            <h2 class="analysis-title">📋 完整推理分析</h2>
+            <div class="analysis-block">
+                <h3>一、全局真假话复盘</h3>
+                <div id="truthLieAnalysis"></div>
+            </div>
+            <div class="analysis-block">
+                <h3>二、假话者撒谎动机分析</h3>
+                <div id="lieMotiveAnalysis"></div>
+            </div>
+            <div class="analysis-block">
+                <h3>三、凶手作案动机与过程</h3>
+                <div id="murdererAnalysis"></div>
+            </div>
+            <div class="analysis-block">
+                <h3>四、完整推理逻辑</h3>
+                <div id="reasoningAnalysis"></div>
+            </div>
+        </div>
+
+        <!-- 返回主界面按钮 -->
+        <div class="actions-section" style="margin-top: 30px;">
+            <button class="btn btn-reset" onclick="backToWelcome()">← 返回主界面</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 数据定义 ====================
+
+        // 案件数据库（10个案件）
+        const casesDB = [
+            {
+                id: 1,
+                title: "午夜画室谋杀案",
+                background: "著名画家林墨白在他的私人画室被发现死亡，现场留有打翻的颜料和破碎的画框。警方发现画室的门锁并无破坏痕迹，窗户也紧闭。经调查，死者当晚独自在画室创作，来访者共有4人：画商的女儿陈雨薇、艺术评论家赵明远、画室助手王海、以及画家的前女友苏晚晴。死者手握一封未完成的信。",
+                truth: "画家林墨白发现自己的绝世名作《星夜》是一幅赝品，愤怒之下心脏病发作死亡。真正的赝品作者是助手王海，他偷换了真迹。",
+                murderer: 2,
+                motive: "凶手王海是名临摹高手，他偷换了林墨白的绝世名作《星夜》真迹，用自己临摹的赝品替换。他害怕林墨白发现真相，因此起了杀念。在林墨白发现真相时，他故意刺激林墨白的心脏病发作，导致其死亡。"
+            },
+            {
+                id: 2,
+                title: "豪华游轮密室案",
+                background: "首富周建国在豪华游轮的船长室被害，凶器是一把冰锥。案发时，游轮正在公海航行，所有乘客和船员都有不在场证明。船长室的门从内部反锁，窗户正对着大海。死者的保险箱被打开，里面的遗嘱不翼而飞。嫌疑人有：周建国的私人秘书李娜、合作伙伴陈志远、儿子周子轩、以及情人韩冰。",
+                truth: "周建国早就立下遗嘱，将所有财产捐给慈善机构。秘书李娜为了继续掌控周建国的财富，用冰锥将其杀害，并拿走了遗嘱。",
+                murderer: 0,
+                motive: "李娜作为私人秘书，多年来利用职务之便挪用周建国的资金，如果周建国的真实遗嘱被发现并执行，她的罪行将曝光。她用冰锥杀害周建国后，打开保险箱拿走了遗嘱，企图日后篡改。"
+            },
+            {
+                id: 3,
+                title: "古董店深夜火灾",
+                background: "深夜11点，城中最著名的古董店突发大火，店主吴老先生在火灾中丧生。消防员在废墟中发现了吴老先生的尸体，他的手里紧握着一块被烧焦的怀表碎片。店内的监控录像在火灾前被人为删除。嫌疑人有：吴老先生的独子吴明、古董鉴定师张文、竞争对手李老板、以及神秘买家赵先生。",
+                truth: "吴老先生发现儿子吴明欠下巨额赌债，准备修改遗嘱剥夺其继承权。吴明得知后，先下手为强放火焚烧古董店，并删除了监控记录。",
+                murderer: 0,
+                motive: "吴明嗜赌成性，欠下黑帮高利贷。他知道父亲即将修改遗嘱，如果失去继承权，他将无力偿还债务。于是他深夜潜入古董店，先杀害吴老先生，再放火焚烧店铺毁灭证据。"
+            },
+            {
+                id: 4,
+                title: "慈善晚宴毒杀案",
+                background: "在奢华的慈善晚宴上，著名企业家陈德海在众目睽睽之下饮下红酒后突然死亡。警方发现酒杯中残留有毒药。晚宴的菜品由米其林大厨亲手制作，酒杯来源可追溯。出席晚宴的嫌疑人有：商业对手王思聪、大厨林威、情人刘芳、以及合作伙伴赵东。",
+                truth: "大厨林威被人收买，在陈德海的酒杯中下了毒。但真正的幕后黑手是商业对手王思聪，他想借此除掉陈德海并嫁祸给餐厅。",
+                murderer: 1,
+                motive: "林威因欠下巨额赌债被人要挟，被迫在陈德海的酒杯中下毒。他本以为可以嫁祸给餐厅，但没想到最终还是被警方识破。实际上他是被王思聪收买执行犯罪，而王思聪才是真正的幕后主使。"
+            },
+            {
+                id: 5,
+                title: "大学实验室爆炸案",
+                background: "深夜，大学化学实验室发生爆炸，年轻的博士生刘洋不幸遇难。实验室的门锁完好，没有外来闯入的痕迹。死者正在研究一项新型能源专利。调查发现，爆炸发生前有4人进出过实验室：导师张教授、同学李明、实验室管理员王阿姨、以及竞争对手陈博士。",
+                truth: "刘洋的新能源专利一旦成功，将彻底改变行业格局。导师张教授为了独占研究成果，联合实验室管理员王阿姨，在刘洋离开后故意制造了爆炸。",
+                murderer: 0,
+                motive: "张教授作为导师，眼看学生的研究成果即将超越自己，内心极度不平衡。他勾结管理员王阿姨，在刘洋离开后潜入实验室，故意破坏了实验设备，导致爆炸发生，企图以此窃取刘洋的研究成果。"
+            },
+            {
+                id: 6,
+                title: "婚礼现场枪击案",
+                background: "在一场盛大的婚礼上，新郎的父亲——房地产大亨王建业在宴会厅被人枪杀。凶手从二楼包厢开枪，现场混乱。案发时，新郎王浩、新娘林小雨、伴郎陈风、以及新娘的前男友赵强都在现场。",
+                truth: "新郎王浩早就知道父亲王建业曾经害死了自己的亲生母亲，为了复仇，他在婚礼当天亲手开枪杀死了父亲。",
+                murderer: 0,
+                motive: "王浩在整理父亲遗物时发现了真相：当年王建业为了娶现在的妻子，故意制造了一场车祸害死了王浩的亲生母亲。愤怒和仇恨让王浩决定在婚礼这个最具象征意义的时刻，亲手结束父亲的生命，为母亲报仇。"
+            },
+            {
+                id: 7,
+                title: "疗养院离奇死亡案",
+                background: "高档疗养院里，80岁的老董事长赵老爷子在深夜去世。医生诊断为心脏骤停，但细心的护士发现死者的手背有可疑的针孔。疗养院当晚没有外来人员，内部人员有：专职护理员小林、主治医生陈医生、赵老爷子的私人助理、以及他的小儿子赵明。",
+                truth: "赵老爷子的小儿子赵明是私生子，一直被家族排斥。他为了让父亲改遗嘱将财产留给自己，雇佣护理员小林用胰岛素谋杀了父亲。",
+                murderer: 2,
+                motive: "赵明作为赵老爷子的私生子，从小被家族排斥在外。他得知父亲病重，迫不及待想要继承遗产。他收买护理员小林，趁夜色给赵老爷子注射了大量胰岛素，导致其低血糖休克死亡。"
+            },
+            {
+                id: 8,
+                title: "书店毒咖啡案",
+                background: "文艺青年小李最喜欢的独立书店里，老板林姐在给常客小李冲泡咖啡后，突然倒地身亡。咖啡杯里检测出致命毒药。书店平时只有林姐一人经营，当晚小李是唯一的客人。此外还有外卖员曾经送过宵夜。",
+                truth: "小李其实是林姐失散多年的亲生儿子，林姐当年为了前程抛弃了他。小李得知真相后，为了报复亲生母亲在咖啡中下了毒。",
+                murderer: 0,
+                motive: "小李在整理母亲遗物时发现了真相：当年林姐为了去国外深造，故意抛弃了年幼的儿子。这个真相让小李充满恨意，他决定设计毒杀这个抛弃自己的亲生母亲，让她在死前知道真相。"
+            },
+            {
+                id: 9,
+                title: "别墅区绑架杀人案",
+                background: "亿万富翁张磊在自家别墅中被绑架，绑匪索要一亿赎金。但当张家人支付赎金后，张磊仍被残忍杀害。别墅的监控被删除，保安系统没有发出任何警报。嫌疑人有：管家李叔、保安队长张强、以及张磊的商业合作伙伴陈总。",
+                truth: "管家李叔欠下赌债，被犯罪集团威胁，必须帮助他们绑架张磊。他删除了监控记录，让绑匪顺利进入别墅。",
+                murderer: 0,
+                motive: "李叔是别墅区多年的管家，因儿子生意失败欠下巨额高利贷。犯罪集团威胁他如果不配合，就对他儿子下手。李叔被迫删除了监控，让犯罪集团顺利进入别墅实施绑架。事后他虽配合警方调查，但最终良心不安自首。"
+            },
+            {
+                id: 10,
+                title: "音乐厅窒息案",
+                background: "著名钢琴家孙雅在演出前被发现死在化妆间，死因为窒息。现场没有打斗痕迹，化妆间的门窗都完好。经纪人王丽、钢琴调音师老李、以及孙雅的前男友陈浩都有进出化妆间的记录。",
+                truth: "经纪人王丽多年来一直克扣孙雅的演出费用，私吞了数百万。当孙雅发现真相准备解约并起诉时，王丽用枕头捂死了她。",
+                murderer: 0,
+                motive: "王丽作为经纪人，多年来以各种名义克扣孙雅的演出费用，总额高达数百万。当孙雅请来会计查账时，真相即将曝光。王丽在化妆间趁孙雅不备，用枕头将其捂死，企图制造心脏病发作的假象。"
+            },
+            // ========== 以下为新增的50个案件 ==========
+            {
+                id: 11,
+                title: "网红直播间猝死案",
+                background: "拥有千万粉丝的美妆网红苏糖糖在深夜直播中突然倒地身亡。直播间当时有上万人在线观看。警方发现她饮用了一瓶观众寄来的礼品酒。经调查，嫌疑人有：苏糖糖的私人助理、榜一大哥、闺蜜、竞争对手网红、以及她的前男友。",
+                truth: "榜一大哥林先生追求苏糖糖多年被拒，因爱生恨。他伪装成观众寄了一瓶有毒的酒作为'粉丝礼物'，想借刀杀人。",
+                murderer: 1,
+                motive: "林先生是苏糖糖直播间的'榜一大哥'，三年来打赏超过500万，却始终被苏糖糖当作提款机。他表白被拒后，越想越不平衡，决定用这种方式报复——他买通快递员将掺有剧毒的酒送入直播间。苏糖糖饮用后中毒身亡。"
+            },
+            {
+                id: 12,
+                title: "马场骑师坠马案",
+                background: "著名骑师陈风在一场重要赛马比赛中从马上坠落，当场死亡。马厩管理员、驯马师、赛事裁判、骑师助手、以及马主都曾在比赛前接触过陈风和赛马。",
+                truth: "驯马师李明与马主有债务纠纷，他故意在马鞍上做了手脚，导致骑师坠马。",
+                murderer: 1,
+                motive: "驯马师李明欠马主200万赌债，马主威胁要让他家破人亡。李明知道马主一直想除掉骑师陈风（因为陈风发现了马主赌马的秘密），于是他主动提出'帮忙'——在马鞍上做了手脚，让马在冲刺时突然发狂。骑师坠马后，李明假装惊慌失措。"
+            },
+            {
+                id: 13,
+                title: "电竞酒店触电案",
+                background: "电竞酒店房间里，一名年轻职业选手被发现死在电脑前，法医鉴定为触电身亡。死者当时正在直播打游戏。酒店服务员、队友、房东（电竞酒店老板）、以及欠死者钱的粉丝都有嫌疑。",
+                truth: "职业选手张伟发现队友小李在比赛中打假赛，向赛事组委会举报。小李为了阻止他，在张伟的键盘线路上动了手脚。",
+                murderer: 1,
+                motive: "小李是张伟的队友，他参与赌球打假赛，被张伟发现并举报。小李不仅会被禁赛，还要赔偿巨额违约金。他想除掉张伟这个'叛徒'，于是趁张伟不注意时，在张伟电脑键盘的USB线接口处做了手脚，让其漏电。张伟打游戏时触电身亡。"
+            },
+            {
+                id: 14,
+                title: "剧本杀店 strangulation案",
+                background: "剧本杀店晚上11点打烊后，有人在推理室里发现主持人王老师被勒死。监控显示当晚只有四名玩家最后离开。嫌疑人有：四名玩家、店长、以及住在店里的NPC演员。",
+                truth: "玩家刘涛因为在游戏中表现太差被主持人嘲笑，怀恨在心。他等其他人离开后返回店里，将主持人勒死。",
+                murderer: 0,
+                motive: "刘涛是个性格偏执的年轻人，在当晚的剧本杀中因为推理错误被主持人王老师当众嘲笑。他觉得丢了面子，加上生活中工作不顺的压力，他将仇恨转移到了主持人身上。他等所有人都离开后，悄悄返回店里，用店里的道具绳子将王老师勒死。"
+            },
+            {
+                id: 15,
+                title: "美术馆名画调包案",
+                background: "，价值连城的名画《星空》被人掉包成赝品，美术馆馆长被警方控制。管理员、策展人、这幅画的捐赠者、以及画家的后代都有嫌疑。名画被换走时真迹去向不明。",
+                truth: "美术馆馆长与画商勾结，用赝品换走真迹打算私下拍卖，真迹其实一直藏在馆长办公室的密室里。",
+                murderer: 0,
+                motive: "馆长林志是个艺术商人出身，他用赝品换走真迹，打算等风头过去后私下拍卖获利。他以为自己的密室天衣无缝，没想到警方在他办公室的密室里找到了真迹。"
+            },
+            {
+                id: 16,
+                title: "寺庙住持毒杀案",
+                background: "清晨，寺庙住持被发现死在禅房里，茶杯中检测出致命毒药。当晚留宿寺中的有：三位云游僧人、女施主、还有住在附近的香火店老板。",
+                truth: "女施主与住持有染多年，发现住持其实是拐卖妇女的人贩子，于是将其毒杀。",
+                murderer: 3,
+                motive: "女施主王芳是住持多年的'红颜知己'，直到她偶然发现住持年轻时竟然是人贩子集团的一员。住持看破红尘出家只是洗白身份。王芳无法接受这个真相，用毒药毒死了这个披着袈裟的恶魔。"
+            },
+            {
+                id: 17,
+                title: "宠物店仓鼠失踪案",
+                background: "宠物店老板报案称店内价值数万元的稀有仓鼠被盗，同时发现店员死在仓库里，脖子上有勒痕。店员、宠物店老板娘、仓鼠买家、以及竞争对手都有不在场证明。",
+                truth: "宠物店老板娘与店员有染，被老板发现。老板娘联合情人将老板勒死，伪装成入室抢劫，然后偷走仓鼠制造贼赃两得的假象。",
+                murderer: 1,
+                motive: "老板娘刘美与店员小张有染，被老板发现后要离婚分钱。刘美不想失去财产，联合小张将老板勒死，偷走店里最值钱的仓鼠制造假象，想嫁祸给'盗贼'。但仓鼠其实已经被他们卖掉换钱了。"
+            },
+            {
+                id: 18,
+                title: "相亲对象溺水案",
+                background: "公园湖里发现一具女尸，是相亲节目中女嘉宾李小姐。她在录制完节目后失踪，第二天被发现溺亡。相亲对象、节目导演、摄影师、以及李小姐的前男友都被警方调查。",
+                truth: "相亲对象赵先生是已婚男人，与李小姐发生一夜情后想分手。李小姐威胁要曝光他，赵先生将其推入湖中。",
+                murderer: 0,
+                motive: "赵先生是某公司老板，在相亲节目中与李小姐速配成功。交往后赵先生想分手，但李小姐发现自己怀孕了，并威胁要告他'骗色'。赵先生害怕事情曝光，在公园湖边假装和解时将李小姐推入水中，导致其溺亡。"
+            },
+            {
+                id: 19,
+                title: "牙医诊所麻醉案",
+                background: "女牙医在诊所里被自己的手术刀刺死，诊所的麻醉师、护士、牙医的丈夫、以及医疗器械推销员成为嫌疑人。手术刀上有且只有牙医本人的指纹。",
+                truth: "牙医丈夫出轨被妻子发现，他买通推销员将凶器换成了一把指纹无法被检测的特殊手术刀。",
+                murderer: 2,
+                motive: "牙医丈夫王强与医疗器械推销员林海有秘密合作关系。王强发现妻子有了外遇，想离婚却被妻子威胁要分走一半财产。他买通林海，用一把特殊材料制成的'隐形指纹'手术刀替换了诊所的手术刀，趁妻子不备将其刺死。"
+            },
+            {
+                id: 20,
+                title: "潜水俱乐部窒息案",
+                background: "潜水爱好者在深海潜水时溺亡，潜水教练、潜伴、俱乐部老板、以及死者的生意伙伴成为嫌疑人。死者被发现时氧气瓶还有余量，但呼吸器被人做过手脚。",
+                truth: "潜水教练因为学员投诉想报复，在死者的呼吸器上做了手脚，但真正的幕后是潜水俱乐部老板。",
+                murderer: 0,
+                motive: "潜水教练小张因为学员投诉他教学不负责任，正面临被俱乐部开除的危机。俱乐部老板威胁他：要么让这个投诉消失，要么滚蛋。小张被逼无奈，在死者（投诉他的学员）的呼吸器二接头处做了手脚，让其在水下无法正常呼吸。"
+            },
+            {
+                id: 21,
+                title: "网红餐厅食物中毒案",
+                background: "网红餐厅30名顾客集体食物中毒，其中一名孕妇抢救无效死亡。网红餐厅老板、厨师长、食材供应商、以及餐厅经理都坚称自己无责。",
+                truth: "竞争对手餐厅买通了厨师长，在食材中掺入过期调料，导致大规模中毒。",
+                murderer: 2,
+                motive: "网红餐厅厨师长老陈与竞争对手餐厅老板有旧仇。竞争对手以高额报酬收买老陈，让他在食材中掺入过期调料。老陈照做了，导致30人中毒，1名孕妇死亡。老陈以为天衣无缝，没想到竞争对手录下了他投毒的证据，日后用来威胁他。"
+            },
+            {
+                id: 22,
+                title: "赛车场撞人案",
+                background: "地下赛车场发生撞人致死案，受害者是赛车手的对手。赛车手、车队经理、赛车场安保、以及赛车手的未婚妻成为嫌疑人。监控录像只拍到了模糊的车辆影子。",
+                truth: "赛车手的未婚妻知道未婚夫在地下赌场欠下巨债，她想杀死对手让未婚夫获胜还债。",
+                murderer: 2,
+                motive: "未婚妻赵丽知道未婚夫在地下赌场欠了500万，她铤而走险，在对手赛车的刹车油管上做了手脚。比赛时对手的赛车失控撞向路边围墙，车手当场死亡。赵丽想的是：只要未婚夫赢了比赛拿到奖金，就能还清赌债。"
+            },
+            {
+                id: 23,
+                title: "图书馆古籍焚毁案",
+                background: "图书馆特藏室发生火灾，烧毁了多本价值连城的古籍。管理员、夜班保安、古籍修复师、以及经常来借阅的研究员成为嫌疑人。起火点被认为在古籍附近的电源插座处。",
+                truth: "古籍修复师想独占馆藏珍本，制造火灾销毁证据，然后假装是意外。",
+                murderer: 2,
+                motive: "古籍修复师李文是馆长的远房亲戚，他利用工作之便监守自盗，将馆藏珍本偷出藏在家中。但古籍上有特殊标记，容易被发现。他灵机一动，制造了这场火灾，想烧毁证据。没料到大火烧得太猛，波及了整层古籍。"
+            },
+            {
+                id: 24,
+                title: "按摩店按摩女死亡案",
+                background: "按摩店女按摩师在VIP包厢里被发现死亡，法医鉴定为外力导致的颈椎骨折。店长、男按摩师、常客王总、以及女按摩师的男友成为嫌疑人。",
+                truth: "常客王总在按摩时对女按摩师动手动脚遭到反抗，王总恼羞成怒将其摔死。",
+                murderer: 2,
+                motive: "王总是按摩店的老顾客，那天他喝多了，对女按摩师动手动脚。女按摩师激烈反抗并威胁要报警。王总一时冲动，抓住女按摩师的头颈部用力一摔，导致其颈椎骨折当场死亡。事后王总用100万贿赂按摩店想私了。"
+            },
+            {
+                id: 25,
+                title: "健身房教练猝死案",
+                background: "金牌健身教练在带客户做力量训练时突然猝死，死者平时身体很好。健身房老板、合作教练、常客富婆、以及健身教练的妻子成为嫌疑人。",
+                truth: "健身教练发现妻子与健身房老板有染，他准备离婚并揭露两人。健身房老板买通合作教练，在教练的蛋白粉里下了毒。",
+                murderer: 1,
+                motive: "合作教练张林一直被健身房老板压制，老板不仅抢了他的客户，还霸占了他的女友。张林发现老板想除掉健身教练后，主动请缨——他在教练的蛋白粉里掺入了违禁兴奋剂，导致教练心脏骤停。"
+            },
+            {
+                id: 26,
+                title: "照相馆暗房窒息案",
+                background: "老式照相馆的老板被发现死在暗房里，死因为窒息。暗房门窗紧锁，从内部反锁。照相馆老板的女儿、学徒、胶片收藏家、以及老朋友的儿子成为嫌疑人。",
+                truth: "照相馆老板发现学徒偷拍客人的私密照片用于贩卖，他想报警。学徒为了灭口，在暗房里将老板闷死。",
+                murderer: 1,
+                motive: "学徒小刘是个变态偷拍狂，他在暗房里安装了针孔摄像头，偷拍女性顾客换衣服的照片贩卖。老板发现后要报警，小刘求饶不成，起了杀心。他在暗房里趁老板不备，用厚重的棉被捂死了老板，然后锁好门从窗户逃走。"
+            },
+            {
+                id: 27,
+                title: "网吧青年猝死案",
+                background: "网吧里一名青年连续上网三天三夜后突然猝死。网吧老板、网民同伴、死者父亲、以及网吧管理员成为嫌疑人。死者生前曾和网吧管理员发生过激烈争吵。",
+                truth: "网吧管理员怀恨在心，在死者喝的水里掺入了违禁药物，导致其心脏骤停。",
+                murderer: 2,
+                motive: "网吧管理员老赵曾被死者当着很多人的面羞辱。原来死者发现老赵在网吧电脑里装了挖矿程序。死者猝死后，老赵以为神不知鬼不觉。但他不知道的是，网吧老板其实在监控里看到了他下毒的过程。"
+            },
+            {
+                id: 28,
+                title: "寺庙素斋馆中毒案",
+                background: "寺庙素斋馆里，知名素食博主在直播试吃后中毒身亡。素斋馆老板、厨师、食材供应商、以及博主的摄影师成为嫌疑人。博主生前曾威胁要曝光素斋馆的'假有机'问题。",
+                truth: "素斋馆老板收买摄影师在博主的水杯里下毒，因为博主正准备发视频揭露素斋馆用普通蔬菜冒充有机蔬菜。",
+                murderer: 3,
+                motive: "摄影师小张其实暗恋素斋馆老板的女儿，为了帮未来岳父解决麻烦，他主动提出'帮忙'。他在博主的水杯里下了毒，让博主以为只是普通的水。实际上博主早就立下了遗嘱，要把素斋馆的丑闻公开。"
+            },
+            {
+                id: 29,
+                title: "理发店烫发烧伤致死案",
+                background: "女顾客在高端理发店做烫发时，烫发机突然起火，女顾客被严重烧伤后抢救无效死亡。理发店老板、烫发师、烫发机供应商、以及女顾客的丈夫成为嫌疑人。",
+                truth: "烫发师忘记关闭烫发机电源就去吃午饭，机器过热起火。但真正的问题是理发店为了省钱，没有按规定配备灭火器。",
+                murderer: 0,
+                motive: "烫发师小刘是个粗心大意的人，他操作烫发机时没有遵守规范，擅自离开去买零食。机器过热起火后，由于店里没有按规定配备灭火器，火势迅速蔓延。事后理发店老板威胁小刘：如果不认下所有责任，就扣他一年工资。"
+            },
+            {
+                id: 30,
+                title: "游泳馆溺水案",
+                background: "游泳馆里一名年轻女子溺水身亡，救生员当时不在岗位上。游泳馆老板、救生员（临时工）、女子闺蜜、以及游泳馆常客成为嫌疑人。监控录像显示女子下水时身边没有任何人。",
+                truth: "救生员是女子的闺蜜雇佣的，闺蜜欠女子10万元不还，想制造意外让女子闭嘴。",
+                murderer: 1,
+                motive: "救生员小林是女子闺蜜阿芳雇来的。阿芳欠女子10万元多年不还，女子威胁要起诉她。阿芳灵机一动，花5万雇小林在女子游泳时假装不在岗，让女子'意外'溺亡。小林照做了，但女子水性太好，一直没淹死，最后小林只能亲自下手。"
+            },
+            {
+                id: 31,
+                title: "花店老板娘毒杀案",
+                background: "花店老板娘在店内被毒杀，凶手将毒药藏在花束里。嫌疑人有：花店员工、隔壁老王、老板娘的女儿、以及花店供应商。花束是嫌疑人之一送的。",
+                truth: "隔壁老王与老板娘有染，被老板娘女儿发现。女儿为了替母亲报复，将毒药藏在老王送的花束里。",
+                murderer: 2,
+                motive: "女儿小美早就发现母亲与隔壁老王的不正当关系，她恨母亲背叛父亲，更恨老王勾引母亲。她知道老王每周都会给母亲送花，于是她提前把毒药涂在花束的包装纸上。老王不知情地把花送给了老板娘，老板娘接触包装纸后中毒身亡。"
+            },
+            {
+                id: 32,
+                title: "高尔夫球童死亡案",
+                background: "高尔夫球童在球场工作时从高处坠落身亡，球童主管、球场设计师、会员王总、以及球童的室友成为嫌疑人。球童坠落前正在第18洞果岭附近工作。",
+                truth: "会员王总追求球童被拒绝，他威胁要让她失业。球童主管为了讨好王总，制造了这起'意外坠落'。",
+                murderer: 1,
+                motive: "球童主管老刘一直想巴结会员王总，因为王总在球场有巨额消费。一天王总向他抱怨球童小芳'不识抬举'，老刘心领神会。第18洞的观景台年久失修，老刘提前一天'不小心'松动了护栏螺丝。小芳工作时正好走到那里，坠落身亡。"
+            },
+            {
+                id: 33,
+                title: "纹身店纹身过敏案",
+                background: "年轻女孩在纹身店纹身后产生严重过敏反应，抢救无效死亡。纹身师、纹身店老板、纹身色料供应商、以及女孩的母亲成为嫌疑人。女孩生前是纹身店的常客。",
+                truth: "纹身师知道色料有问题但为了省钱继续使用，导致女孩过敏性休克死亡。",
+                murderer: 0,
+                motive: "纹身师小吴是个贪图便宜的人，他用的纹身色料是从微商那里买的廉价货，早就有顾客反映过敏。老板让他下架这批货，但小吴舍不得扔掉，继续给顾客使用。女孩小芳对某种色料成分严重过敏，小吴没有做皮试就直接纹身，导致其过敏性休克死亡。"
+            },
+            {
+                id: 34,
+                title: "鬼屋演员吓死案",
+                background: "鬼屋演员在表演时被游客'吓死'，法医鉴定为心脏骤停。演员、鬼屋负责人、扮鬼的同事、以及当天最后离开的员工成为嫌疑人。死者是被'活活吓死'的。",
+                truth: "扮鬼的同事与演员有积怨，利用鬼屋的恐怖环境故意将其吓死。",
+                murderer: 2,
+                motive: "扮鬼的小张和死者小李都是鬼屋演员，小张一直嫉妒小李演技好、人气高。那天小张用辣椒水浸湿了面具，趁黑暗拍在小李脸上，小李受到惊吓后引发心脏病发作。小张以为这只是'恶作剧'，没想到小李有先天性心脏病。"
+            },
+            {
+                id: 35,
+                title: "蹦床乐园摔伤致死案",
+                background: "孩子在蹦床乐园玩耍时从蹦床边缘飞出，撞到头部死亡。蹦床教练、安全员、蹦床厂家代表、以及孩子母亲成为嫌疑人。蹦床的安全护栏被人为拆除。",
+                truth: "安全员为了多赚加班费擅自拆除了护栏，他想这样能多放几个孩子进来玩。",
+                murderer: 1,
+                motive: "安全员老赵在蹦床乐园干了5年，工资一直没涨。那天晚上他想多赚点加班费，就拆掉了护栏让更多孩子进去玩耍。他以为只要自己盯紧就不会出事，没想到护栏一拆，孩子从蹦床边缘飞出，头部撞到硬物死亡。"
+            },
+            {
+                id: 36,
+                title: "茶馆茶艺师猝死案",
+                background: "知名茶艺师在茶艺表演时突然倒地身亡，茶艺师生前身体健康。茶馆老板、泡茶助手、茶叶供应商、以及茶艺师的前男友成为嫌疑人。茶艺师表演时用的是自己带去的专用茶具。",
+                truth: "茶叶供应商与茶馆老板有矛盾，在茶叶里下了慢性毒药，想嫁祸给茶馆。",
+                murderer: 2,
+                motive: "茶叶供应商老李被茶馆拖欠货款多年，他多次催款被拒后恼羞成怒。他知道茶艺师用的都是顶级茶叶，于是他在供给茶馆的一批茶叶里掺入了慢性毒素。这种毒素长期积累会导致器官衰竭。茶艺师每日品茶，毒素慢慢积累，最终在表演时发作死亡。"
+            },
+            {
+                id: 37,
+                title: "魔术道具店窒息案",
+                background: "魔术道具店老板被发现死在展示柜前，死因为窒息。嫌疑人是当晚来过店里的三位魔术师同行。老板脖子的勒痕与一款魔术道具箱的绑带完全吻合。",
+                truth: "魔术师同行们发现老板卖给他们假道具，想找老板理论。混乱中其中一人失手勒死了老板。",
+                murderer: 0,
+                motive: "三位魔术师同行发现老板卖给他们的是以次充好的假道具，他们相约去找老板退货。老板态度嚣张拒不承认，争吵中魔术师老张（武术爱好者出身）一时冲动，用道具箱的绑带勒住了老板的脖子。其他两位魔术师想阻止，但已经来不及了。"
+            },
+            {
+                id: 38,
+                title: "KTV公主被杀案",
+                background: "KTV公主在包厢里被人用酒杯砸死，凶手使用的是包厢里的玻璃酒杯。KTV经理、公主的男朋友、当晚消费最高的客户、以及公主的好姐妹成为嫌疑人。酒杯碎片散落一地。",
+                truth: "公主的好姐妹嫉妒公主生意好，与公主男友合谋将公主杀死，想继承她的'客户资源'。",
+                murderer: 3,
+                motive: "好姐妹小红和公主小丽是同事，小红嫉妒小丽每个月赚得比自己多。小红勾搭上了小丽的男朋友，两人密谋：只要小丽死了，她的'客户资源'就能被小红继承，男友也能从小丽那里骗来的存款。小红在酒杯里下了迷药，等小丽昏迷后，男友用酒杯砸死了她。"
+            },
+            {
+                id: 39,
+                title: "盲人按摩师被杀案",
+                background: "盲人按摩师在按摩店里被人用精油瓶砸死。按摩店老板、精油供应商、按摩师的徒弟、以及按摩师的妻子成为嫌疑人。按摩师虽然眼睛看不见，但听力极好。",
+                truth: "按摩师发现妻子与精油供应商有染，想离婚却被威胁。他假装看不见，想等收集证据。但妻子先下手为强，与情人合伙将他杀死。",
+                murderer: 2,
+                motive: "按摩师陈明虽然失明，但耳朵特别灵。他发现妻子与精油供应商老王有染，偷偷录下了证据。他假装不知道，想等时机成熟再摊牌。妻子察觉到了他的异常，与老王商量对策。一天晚上，老王借口来送精油，两人在陈明背后用精油瓶将其砸死。"
+            },
+            {
+                id: 40,
+                title: "攀岩俱乐部坠崖案",
+                background: "攀岩教练在指导学员时坠崖身亡，安全绳在关键时刻断裂。攀岩俱乐部老板、攀岩设备供应商、学员、以及教练的好友成为嫌疑人。安全绳被检测出是假冒伪劣产品。",
+                truth: "俱乐部老板为了省钱从黑市买了假绳子，供应商明知道是假货还卖给他。教练因绳子断裂坠崖。",
+                murderer: 0,
+                motive: "设备供应商老张知道俱乐部老板贪便宜，就向他推销了一批'工厂尾货'（实际上是假货）。老板心知肚明但为了省钱还是买了。教练在使用前检查过绳子，但假绳子外观与真品一模一样。攀岩时绳子突然断裂，教练坠崖身亡。"
+            },
+            {
+                id: 41,
+                title: "密室逃脱窒息的案",
+                background: "四名玩家在密室逃脱游戏中被困，消防员赶到时，其中一名玩家已经窒息死亡。密室老板、NPC演员、另外三名玩家成为嫌疑人。密室通风口被发现被人为封堵。",
+                truth: "密室老板为了制造恐怖效果擅自封堵了通风口，他以为只是增加游戏体验而已。",
+                murderer: 0,
+                motive: "密室老板为了增加'真实恐怖感'，擅自用塑料板封堵了房间的通风口。他认为反正游戏时间只有一个小时，不会有问题。但密室里的二氧化碳浓度不断升高，其中一名有呼吸系统疾病的玩家因缺氧窒息死亡。"
+            },
+            {
+                id: 42,
+                title: "美甲店顾客死亡案",
+                background: "女顾客在做美甲时突然抽搐，送医后不治身亡。法医在其指甲油中检测出有毒成分。美甲师、美甲店老板、指甲油供应商、以及女顾客的丈夫成为嫌疑人。",
+                truth: "女顾客的丈夫与美甲师有染，想与美甲师双宿双飞。他们在顾客的指甲油里下了毒。",
+                murderer: 1,
+                motive: "丈夫刘某早就想摆脱年老色衰的妻子，与美甲师小张远走高飞。小张出主意：只要除掉刘妻，两人就能拿着刘家的财产过日子。他们在刘妻的指甲油里掺入了一种慢性毒药，这种毒药会导致神经系统紊乱，最终引发心脏骤停。"
+            },
+            {
+                id: 43,
+                title: "溜冰场撞人致死案",
+                background: "溜冰场里一名年轻男子被撞倒在地，颅内出血死亡。溜冰教练、溜冰场保安、被撞男子、以及撞人的小孩父亲成为嫌疑人。监控显示小孩在冰面上追逐打闹。",
+                truth: "小孩父亲是溜冰场VIP，他怂恿孩子在冰面上追逐打闹，想看孩子'溜冰技术'。孩子撞死人后，他想嫁祸给溜冰场。",
+                murderer: 2,
+                motive: "小孩父亲王某是个不讲理的富二代，他带着儿子来溜冰场耍威风。他怂恿儿子在冰面上追逐其他滑冰者，说这样'好玩'。儿子撞倒了一名正在正常滑行的年轻人，导致其颅内出血死亡。事后王某威胁溜冰场：如果不赔钱私了，他就让溜冰场关门。"
+            },
+            {
+                id: 44,
+                title: "采茶姑娘坠落案",
+                background: "茶山上发现一名采茶姑娘的尸体，她从茶山陡坡滚落身亡。茶园主、茶叶加工厂老板、采茶领队、以及姑娘的未婚夫成为嫌疑人。姑娘的竹筐被人为破坏。",
+                truth: "采茶姑娘的未婚夫发现她与其他男人有染，想在婚礼前除掉她。他破坏了她的竹筐导致她坠落。",
+                murderer: 3,
+                motive: "未婚夫李某偶然发现未婚妻与茶叶加工厂老板有染，他怒火中烧。他知道未婚妻每天都会去茶山最陡的那块区域采茶，于是他提前一天夜里破坏了她的竹筐。第二天采茶时竹筐突然断裂，未婚妻失足滚落山坡身亡。"
+            },
+            {
+                id: 45,
+                title: "钓场钓鱼猝死案",
+                background: "钓鱼爱好者在钓场钓鱼时突然猝死，死因为心脏骤停。钓场老板、死者钓友、渔具店老板、以及死者的生意伙伴成为嫌疑人。死者生前患有严重的高血压。",
+                truth: "生意伙伴在死者常用的鱼饵里掺入了会让血压飙升的药物，想借刀杀人。",
+                murderer: 2,
+                motive: "生意伙伴张某与死者有200万的债务纠纷，张某多次催款不成，反而被死者威胁要举报他行贿。张某想出一条毒计：他从黑市买了一种能导致血压飙升的药物，偷偷掺入死者常用的鱼饵添加剂里。死者钓鱼时药效发作，心脏病发作死亡。"
+            },
+            {
+                id: 46,
+                title: "陶艺工作室坍塌案",
+                background: "陶艺工作室的窑炉突然坍塌，砸死了正在附近工作的陶艺师。陶艺工作室老板、陶艺师学徒、电工、以及窑炉设备供应商成为嫌疑人。窑炉的电路被人为改动过。",
+                truth: "电工与陶艺师有私人恩怨，他故意破坏了窑炉的电路，让其在高温运行时短路坍塌。",
+                murderer: 2,
+                motive: "电工老赵的儿子曾被陶艺师的学生欺负，老赵咽不下这口气。某天晚上，他潜入工作室，在窑炉的电路接线上做了手脚。陶艺师在使用窑炉时，电路突然短路引发火灾，窑炉结构坍塌将陶艺师砸死。"
+            },
+            {
+                id: 47,
+                title: "棋牌室老人猝死案",
+                background: "老人在棋牌室打麻将时突然猝死，四名牌友成为嫌疑人。老人当时赢了很多钱，情绪激动。四个嫌疑人分别是：同桌的三个牌友和棋牌室老板。",
+                truth: "棋牌室老板在老人茶杯里下了能让血压飙升的药，他想独吞老人赢的钱。",
+                murderer: 3,
+                motive: "棋牌室老板看到老人那天手气特别好，赢了一大笔钱。他起了贪念：在老人的茶杯里下了能导致血压飙升的药物。老人喝完茶后情绪一激动，血压直接飙升到极限，心脏病发作死亡。老板趁机把老人的钱全部据为己有。"
+            },
+            {
+                id: 48,
+                title: "自习室学生被推案",
+                background: "考研女生在自习室被人从楼梯推下，当场死亡。死亡地点是自习室的三楼楼梯口。嫌疑人有：自习室管理员、死者的男朋友、室友、以及死者的竞争对手（考研同一个专业）。",
+                truth: "死者的竞争对手因为竞争同一个导师的名额，想除掉她。她假装与死者成为朋友，趁其不备将其推下楼梯。",
+                murderer: 3,
+                motive: "考研女生李某和王某是竞争对手，都想考进张教授的研究生。张教授只有一个名额。李某知道王某家里有关系，肯定能上。她心生嫉妒，在自习室里假装与王某成为朋友，取得信任后约王某一起下楼。在楼梯口，她突然从背后用力一推，王某滚下楼梯当场死亡。"
+            },
+            {
+                id: 49,
+                title: "射箭馆误伤致死案",
+                background: "射箭馆里一名顾客被箭射穿喉咙死亡，射箭教练和当天当班的安全员成为嫌疑人。死者是完全不会射箭的新手，而弓箭上只有安全员的指纹。",
+                truth: "射箭教练想除掉知道他在外面赌钱的妻子，他让安全员'不小心'把一支箭留在了弦上。",
+                murderer: 0,
+                motive: "射箭教练赵某欠下百万赌债，妻子发现后要与他离婚。赵某不想分财产给妻子，他买通安全员，让安全员'疏忽'忘了收好一支箭。然后他约妻子来射箭馆'体验'，借口教她射箭。实际上那支夺命箭早就上了弦，赵某故意让妻子站到箭的射程内。"
+            },
+            {
+                id: 50,
+                title: "跆拳道馆重伤案",
+                background: "跆拳道馆里一名小学员在训练时被师兄踢中腹部，内脏破裂死亡。跆拳道馆馆长、教练、小学员的父亲、以及踢人的师兄成为嫌疑人。",
+                truth: "教练故意让小学员和力量差距过大的师兄对练，想给不听话的小学员一个教训。",
+                murderer: 1,
+                motive: "跆拳道馆教练张某一直看不上小学员明明（因为明明家长投诉过他教学态度差）。那天他故意安排明明和力量悬殊很大的师兄对练美其名曰'加强对抗训练'。师兄一脚踢中明明腹部，导致内脏破裂死亡。事后教练威胁师兄：如果不顶罪，就让他被跆拳道馆开除。"
+            },
+            {
+                id: 51,
+                title: "陶艺展刺杀死案",
+                background: "陶艺展上，著名陶艺家的参展作品被人蓄意破坏，陶艺家本人也被刺杀身亡。陶艺家的徒弟、策展人、收藏家、以及陶艺家抛弃的前女友成为嫌疑人。凶器是一把陶艺刀。",
+                truth: "前女友无法忍受被抛弃的羞辱，在展览上假装祝贺，趁陶艺家不备将其刺杀。",
+                murderer: 3,
+                motive: "前女友王某被陶艺家李某抛弃，李某曾承诺会娶她，结果只是玩弄她的感情。王某从社交媒体上看到李某要举办陶艺展，她买了两张票，一张给自己一张给闺蜜。展览当天，她借机接近李某，用藏在包里的陶艺刀将其刺死。"
+            },
+            {
+                id: 52,
+                title: "拳击馆KO致死案",
+                background: "业余拳击比赛时，红方选手被蓝方选手一拳打死。拳击馆老板、比赛裁判、红方教练、以及蓝方选手成为嫌疑人。医务监督当时不在场。",
+                truth: "蓝方选手知道红方有心脏病家族史，故意违规击打其心脏位置。",
+                murderer: 1,
+                motive: "蓝方选手宋某是专业拳手，被安排'配合'打业余比赛。赛前宋某的教练告诉他：对手有心脏病家族史，只要击打其心脏位置，就能让对方'意外'心脏骤停。宋某照做了，红方选手被一拳击中心脏，当场死亡。"
+            },
+            {
+                id: 53,
+                title: "拳击🥊擂台毒杀案",
+                background: "拳击手在休息室里突然抽搐死亡，死因为中毒。拳击手经纪人、营养师、陪练、以及拳击手的妻子成为嫌疑人。他在喝了一杯蛋白粉后倒下。",
+                truth: "拳击手发现陪练打假赛，想向赛事方举报。陪练与拳击手妻子合谋，将毒药下在了他的蛋白粉里。",
+                murderer: 2,
+                motive: "陪练刘某与拳击手的妻子有染，两人密谋要除掉拳击手独吞财产。拳击手发现刘某在陪练时打假赛，正准备向赛事方举报。刘某和拳击手妻子商议后，将一种能导致肌肉溶解的毒素掺入了拳击手的蛋白粉里。拳击手喝完后毒素发作，抢救无效死亡。"
+            },
+            {
+                id: 54,
+                title: "漂流胜地翻船案",
+                background: "漂流时发生翻船事故，一名游客溺水死亡。漂流教练、船夫、景区安全员、以及死者丈夫成为嫌疑人。翻船地点水流湍急，救生衣被人为解开。",
+                truth: "丈夫为了获得保险赔偿，与漂流教练合谋制造翻船事故，将妻子溺死。",
+                murderer: 1,
+                motive: "丈夫陈某给妻子买了巨额保险，受益人是自己。他与漂流教练老赵商量：只要制造一场'意外'翻船，就能骗取保险赔偿。老赵欠陈某钱，答应配合。他们在漂流前'不小心'没给陈妻系紧救生衣，翻船后陈妻溺水身亡。"
+            },
+            {
+                id: 55,
+                title: "漂流河落水溺亡案",
+                background: "漂流河中一名游客被水流冲走，下落不明。三天后尸体在下游被发现，死因为溺水。漂流景区管理员、刺激项目承包商、死者的哥哥、以及同行的朋友成为嫌疑人。",
+                truth: "死者的哥哥为了独吞父母留下的遗产，想除掉弟弟。他故意在漂流前弄坏了弟弟的漂流艇。",
+                murderer: 2,
+                motive: "哥哥大刘和弟弟小刘是同父异母的兄弟。父母去世后，两人为了遗产一直有矛盾。父母遗嘱写明：弟弟继承60%，哥哥继承40%。哥哥不服，想制造弟弟意外死亡的假象，这样他就能以'唯一继承人'的身份拿走全部遗产。他提前一天夜里破坏了弟弟漂流艇的安全锁扣。"
+            },
+            {
+                id: 56,
+                title: "雪场缆车坠落案",
+                background: "滑雪场缆车在运行时突然坠落，造成一名滑雪者死亡。缆车维修工、缆车操作员、滑雪场安全主管、以及缆车设备供应商成为嫌疑人。缆车的制动系统被人为破坏。",
+                truth: "缆车维修工因被拖欠工资怀恨在心，故意破坏了制动系统想让滑雪场出事。",
+                murderer: 0,
+                motive: "缆车维修工老赵被滑雪场拖欠了半年工资，多次讨要无果。他一气之下在缆车的制动系统上做了手脚，想让滑雪场'出点事'长点记性。他以为最多就是缆车停摆，没想到制动失灵后缆车直接坠落，造成了人员死亡的严重后果。"
+            },
+            {
+                id: 57,
+                title: "雪地摩托翻车案",
+                background: "雪地摩托爱好者在雪地上翻车，被摩托车身压住窒息死亡。雪地摩托店主、摩托维修员、死者的商业伙伴、以及雪场巡逻员成为嫌疑人。摩托的刹车线被发现被人为割断。",
+                truth: "死者的商业伙伴欠死者巨款，买通维修员在刹车线上动手脚，制造意外死亡来逃债。",
+                murderer: 1,
+                motive: "商业伙伴刘某欠死者张某200万工程款，多次被催款后刘某起了杀心。他花20万买通雪地摩托店的维修员，让维修员在张某的摩托上割断刹车线。张某在雪地骑行时刹车失灵，摩托失控翻覆，张某被车身压住窒息死亡。"
+            },
+            {
+                id: 58,
+                title: "卡丁车馆碰撞致死案",
+                background: "卡丁车馆内一辆卡丁车突然失控撞向人群，撞死了一名观众。卡丁车馆老板、车辆维修员、当事车手、以及场馆安全员成为嫌疑人。卡丁车的方向盘被人为锁死。",
+                truth: "当事车手与观众席上的某人有仇，那人买通维修员在车手的车上做了手脚，想借车杀人。",
+                murderer: 1,
+                motive: "维修员小周欠了黑车行老板50万，黑车行老板威胁他：要么还钱，要么帮他'办点事'。有个观众席上的人找到黑车行老板，说想除掉自己的仇人。黑车行老板就派小周在卡丁车的方向盘连杆上做了手脚。比赛时车手的车突然失控，撞向观众席。"
+            },
+            {
+                id: 59,
+                title: "真人CS中弹身亡案",
+                background: "真人CS比赛中，一名玩家被彩弹击中头部，颅内出血死亡。比赛裁判、场地安全员、当事双方玩家、以及场地老板成为嫌疑人。彩弹枪的初速度被人为调高。",
+                truth: "场地老板为了节省成本，用工业弹丸替代了合规彩弹，导致冲击力过大。",
+                murderer: 2,
+                motive: "场地老板李某是个贪得无厌的人。合规彩弹成本较高，李某私自用工业级的弹丸替换了部分彩弹，认为'反正打不死人'。在比赛过程中，玩家陈某的头盔被工业弹丸击中，冲击力穿透头盔导致颅内出血死亡。"
+            },
+            {
+                id: 60,
+                title: "蹦极事故坠落案",
+                background: "蹦极时，游客的绑带突然断裂，游客坠落身亡。蹦极设备供应商、蹦极教练、景区安全员、以及游客的闺蜜成为嫌疑人。游客是第一次体验蹦极，她之前有些犹豫。",
+                truth: "游客的闺蜜与游客男友有染，两人为了长久在一起，闺蜜故意在帮游客系绑带时没有系紧。",
+                murderer: 3,
+                motive: "闺蜜周某与游客的男友偷情，被游客发现后，男友下跪求原谅，求周某帮他想办法'解决'。周某提出：只要游客'意外'死亡，男友就能继承游客的财产（游客家里很有钱），两人就能在一起了。在蹦极体验时，周某'不小心'没有帮游客系紧绑带，导致绑带滑脱，游客坠落。"
+            }
+        ];
+
+        // 角色池（每个案件会随机从这里选5个角色）
+        const characterPool = [
+            { name: "林晓薇", emoji: "👩‍🎨", intro: "温柔内敛的艺术系研究生，性格文静" },
+            { name: "赵铭远", emoji: "🧑‍🏫", intro: "经验丰富的艺术评论家，眼光独到" },
+            { name: "王小海", emoji: "👨‍🎨", intro: "沉默寡言的年轻助理，动手能力强" },
+            { name: "苏倩倩", emoji: "👩", intro: "气质优雅的女子，处事低调" },
+            { name: "李小娜", emoji: "👩‍💼", intro: "精明干练的秘书，办事能力强" },
+            { name: "陈大志", emoji: "🧔", intro: "商场老手，为人低调谨慎" },
+            { name: "周子浩", emoji: "👦", intro: "年轻气盛的富家子，性格张扬" },
+            { name: "韩冰雪", emoji: "👩‍🦰", intro: "容貌出众的年轻女性，神秘莫测" },
+            { name: "吴明亮", emoji: "🧑", intro: "不务正业的败家子，负债累累" },
+            { name: "张文博", emoji: "🧑‍🔬", intro: "专业鉴定师，做事一丝不苟" },
+            { name: "李老板", emoji: "👨‍💼", intro: "精明的生意人，与死者有生意往来" },
+            { name: "赵天华", emoji: "🎩", intro: "出手阔绰的收藏家，背景神秘" },
+            { name: "王建国", emoji: "🦊", intro: "野心勃勃的商业人士，争强好胜" },
+            { name: "林大伟", emoji: "👨‍🍳", intro: "手艺精湛的厨师，为人老实" },
+            { name: "刘美丽", emoji: "💃", intro: "多才多艺的年轻女性，社交广泛" }
+        ];
+
+        // 每个案件的证词配置（索引0-4对应5个角色，固定角色顺序：凶手 + 4个证人）
+        // 规则：索引0固定为凶手（说假话），再随机选1人说真话，剩余3人说假话
+        // 每条证词用{name}占位，渲染时替换为实际角色名
+        const testimoniesConfig = [
+            // 案件1: 午夜画室谋杀案（凶手索引2）
+            {
+                caseId: 1,
+                murdererIndex: 2,
+                statements: [
+                    { text: "我昨晚来找林老师谈画展合作的事情，当时他还在专心创作，状态完全正常。", truthTeller: true, roleIntro: "画商的女儿，与死者有商业合作", lieReason: null },
+                    { text: "我亲眼看到{name}最近在偷偷临摹林老师的名画，还趁林老师不注意时调换了画作。", truthTeller: true, roleIntro: "艺术评论家，对画作真伪有鉴别能力", lieReason: null },
+                    { text: "我只是林老师的普通助手，我离开时他还好好的，我什么都不知道。", truthTeller: false, roleIntro: "画室助手，跟随林老师多年", lieReason: "{name}才是真正偷换画作的人，他故意隐瞒自己临摹真迹、调换赝品的行为。当林老师发现自己珍藏多年的名作被调包后，与{name}发生激烈争执，{name}刺激林老师心脏病发作致其死亡。为了掩盖罪行，{name}谎称自己离开时一切正常。" },
+                    { text: "我和林老师早就分手了，昨晚只是来取我的私人物品，和他的死绝对没有关系。", truthTeller: false, roleIntro: "画家的前女友，曾有情感纠葛", lieReason: "{name}虽然已经与林老师分手，但她一直对分手耿耿于怀。昨晚她不仅来取东西，还在画室与林老师发生了争吵。她隐瞒自己与死者争吵的事实，是为了避免被怀疑为报复杀人。同时，她也看到了{name}（助手）在画室的异常行为，但选择保持沉默以泄私愤。" },
+                    { text: "林老师最近一直说心脏不舒服，还让我帮他买过心脏药，我担心他是旧病突发。", truthTeller: false, roleIntro: "画室常客，对死者身体状况了解", lieReason: "{name}是个心思缜密的人，案发时他看到了{name}（助手）与林老师激烈争吵。但他没有说实话，而是故意强调林老师有心脏病，试图误导警方认为这是自然死亡。他这样做是因为{name}曾承诺给他一幅名画作为封口费，他为了利益选择隐瞒真相。" }
+                ],
+                truthTellerFixed: [0, 1],
+                lieReasoning: "仔细分析5人的证词：角色0和角色1的证词互相印证——画商女儿证明死者当时状态正常，艺术评论家看到了有人偷画并调包画作，这两条证词逻辑一致。反观角色2（助手）声称自己只是普通助手、离开时一切正常，但这与艺术评论家的证词直接矛盾。角色3（前女友）和角色4（常客）也都在撒谎，但他们只是为了隐瞒各自的小秘密，没有直接杀人动机。角色2是唯一既有机会（贴身助手）、又有动机（偷画被发现）、证词又与事实矛盾的人。因此凶手是角色2（画室助手）。"
+            },
+            // 案件2: 豪华游轮密室案（凶手索引0）
+            {
+                caseId: 2,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我只是周总的秘书，案发时我已经回自己房间休息，有同事可以为我作证。", truthTeller: false, roleIntro: "周建国的私人秘书，跟随多年", lieReason: "{name}作为秘书，多年来利用职务之便挪用周建国的资金。案发当晚她不是回房间休息，而是去船长室找周建国确认遗嘱内容。当得知周建国已立下遗嘱将全部财产捐给慈善机构后，{name}知道自己的贪污行为即将败露。情急之下她用冰锥杀害了周建国，并拿走了遗嘱。她撒谎说回房间休息，是为了制造不在场证明，掩盖自己谋杀并盗窃遗嘱的事实。" },
+                    { text: "周总最近身体确实不好，我多次劝他去做体检，但他一直忙于工作没时间。", truthTeller: true, roleIntro: "周建国的私人医生，了解其健康状况", lieReason: null },
+                    { text: "我昨晚在游轮酒吧喝了一整晚，有多名服务员看到我，我根本没有作案时间。", truthTeller: false, roleIntro: "周建国的独子，家产继承人之一", lieReason: "{name}声称整晚在酒吧喝酒是撒谎。实际上他半夜离开了酒吧大约20分钟，因为他得知父亲要修改遗嘱剥夺他的继承权，去船长室试图与父亲谈判。但他到达时父亲已经死亡，他惊慌失措回到酒吧。他隐瞒这段经历是怕被警方误认为是凶手。虽然他不是真凶，但他确实有动机和嫌疑。" },
+                    { text: "我和周总是真心相爱，虽然我比他年轻很多，但我们的感情是真诚的。", truthTeller: false, roleIntro: "周建国的情人，年轻貌美", lieReason: "{name}声称与周建国真心相爱是谎言。实际上她只是贪图周建国的钱财，早已暗中与周子轩勾结，希望周建国死后能分到遗产。案发当晚她确实没有杀人，但她知道周子轩去了船长室，却选择隐瞒不报。她撒谎是为了保护自己和周子轩的秘密关系，同时也希望周建国死后自己能分到一笔钱。" },
+                    { text: "我和周总合作多年，他为人正直，我相信他的死一定有蹊跷。", truthTeller: true, roleIntro: "周建国的商业合作伙伴，关系密切", lieReason: null }
+                ],
+                truthTellerFixed: [1, 4],
+                lieReasoning: "分析证词：角色1（医生）和角色4（合作伙伴）说真话——医生证明周建国身体确实不好（这是秘书{name}企图嫁祸的方向），合作伙伴承认与周建国合作多年。角色0（秘书）是凶手，她谎称案发时回房间休息，但实际上她是去船长室确认遗嘱并杀人。角色2（独子）确实离开过酒吧，但他到达时父亲已死，他隐瞒这段经历只是怕被怀疑。角色3（情人）撒谎是为了保护自己和周子轩的秘密关系，她贪图周建国的钱财。秘书{name}既有动机（贪污即将败露），又有机会（贴身随行），且证词与事实不符，是真正的凶手。"
+            },
+            // 案件3: 古董店深夜火灾（凶手索引0）
+            {
+                caseId: 3,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我当晚一直在家里睡觉，我父亲的死对我打击太大了，我绝不可能伤害他。", truthTeller: false, roleIntro: "吴老先生的独子，不学无术", lieReason: "{name}声称在家睡觉完全是谎言。实际上他当晚深夜潜入古董店，先是与父亲发生激烈争吵（关于赌债和修改遗嘱），然后残忍地将父亲杀害，最后放火烧店毁灭证据。他还删除了店内的监控录像，制造了外人作案的假象。他撒谎是为了掩盖自己杀人纵火的滔天罪行。他欠黑帮巨额高利贷，知道父亲即将修改遗嘱剥夺他的继承权，因此先下手为强。" },
+                    { text: "我确实是古董鉴定师，案发前我来店里取走了一批委托鉴定的文物，有收据为证。", truthTeller: true, roleIntro: "古董鉴定师，与死者有业务往来", lieReason: null },
+                    { text: "吴老先生最近一直在念叨要修改遗嘱，我无意中听到他说要把家产全部捐给博物馆。", truthTeller: false, roleIntro: "古董店的老员工，工作多年", lieReason: "{name}确实听到过吴老先生提到修改遗嘱，但他添油加醋地说要'全部捐给博物馆'，这是夸大其词。吴老先生只是说要减少儿子的继承份额，并没有说全部捐赠。{name}这样说是为了把嫌疑引向吴明（角色0），暗示吴明有充足的杀人动机。但{name}自己也有动机——他多年来一直偷偷变卖店里的古董，怕被吴老先生发现，所以也希望吴明背锅。" },
+                    { text: "我和吴老有生意竞争，但我们也是多年的朋友，我绝对不会伤害他。", truthTeller: true, roleIntro: "另一家古董店老板，与死者有竞争关系", lieReason: null },
+                    { text: "有个神秘买家最近出价很高想买店里那件最珍贵的青花瓷，吴老先生一直在犹豫。", truthTeller: false, roleIntro: "神秘收藏家，与死者有交易意向", lieReason: "{name}声称有神秘买家出价买青花瓷是编造的。实际上他是吴明（角色0）的债主派来的眼线，负责监视古董店并在适当时机配合吴明作案。案发前他确实到过店里，但不是来谈生意的，而是与吴明秘密会面，确认作案时间和计划。他撒谎是为了掩盖自己与吴明的同谋关系，同时制造'外人觊觎古董'的烟雾弹。" }
+                ],
+                truthTellerFixed: [1, 3],
+                lieReasoning: "真假话分析：角色1（鉴定师）和角色3（竞争对手）说真话。鉴定师证明自己案发前确实来取过文物并有单据，竞争对手坦诚有竞争关系但不会杀人——这两条证词都符合客观事实，没有隐瞒的必要。角色0（吴明）是凶手，他的不在场证明完全是假的。角色2（老员工）确实听到过遗嘱的事，但夸大其词是为了嫁祸吴明，同时掩盖自己偷卖古董的事。角色4（神秘买家）是吴明的同伙，撒谎是为了保护同谋。综合动机和证据，吴明是真凶。"
+            },
+            // 案件4: 慈善晚宴毒杀案（凶手索引1）
+            {
+                caseId: 4,
+                murdererIndex: 1,
+                statements: [
+                    { text: "我确实和陈德海有激烈的商业竞争，但我当晚一直在晚宴大厅应酬，没离开过。", truthTeller: false, roleIntro: "商业对手，与死者竞争激烈", lieReason: "{name}声称整晚在大厅应酬是谎言。实际上晚宴进行到一半时，他以'去透气'为借口离开了15分钟，期间他去了厨房，威胁并收买厨师{name}（角色1）在陈德海的红酒中下毒。他撒谎是为了掩盖自己离开大厅的这段时间，同时隐瞒自己收买厨师下毒的主谋身份。{name}想除掉陈德海这个最大的竞争对手，独霸市场。" },
+                    { text: "那瓶红酒是我亲自挑选的上等佳酿，我可以保证酒的来源和品质都绝对没问题。", truthTeller: false, roleIntro: "米其林大厨，晚宴主厨", lieReason: "{name}声称酒没问题是彻头彻尾的谎言。实际上他正是下毒的人。{name}因欠下巨额赌债被犯罪集团要挟，当晚他被角色0（商业对手）威胁和收买，在陈德海的酒杯中下了致命毒药。他撒谎说酒没问题，一方面是为了掩盖自己的罪行，另一方面也是想把嫌疑引向红酒供应商或餐厅管理层，企图蒙混过关。" },
+                    { text: "陈德海这个人脾气很坏，在商场上得罪了很多人，我知道至少有两拨人想对他不利。", truthTeller: true, roleIntro: "陈德海的多年老友，了解其为人", lieReason: null },
+                    { text: "我和陈德海是情人关系，但我们最近确实吵过架，不过我绝对不会伤害他。", truthTeller: true, roleIntro: "陈德海的情人，感情复杂", lieReason: null },
+                    { text: "晚宴开始前，我看到角色1和角色0在厨房门口鬼鬼祟祟地交谈，神情很不自然。", truthTeller: false, roleIntro: "晚宴服务员，负责后台工作", lieReason: "{name}声称看到角色1和角色0在厨房门口交谈是部分真实但有误导性的说法。实际上{name}是看到了两人的接触，但他描述的时间和地点是不准确的。{name}本身也被角色0收买了，他故意模糊描述，一方面让自己看起来像是'证人'，另一方面又故意把嫌疑引向角色0和角色1。他这样做是为了配合角色0的计划，让警方以为是角色0和角色1合谋作案，同时自己也能拿到一笔封口费。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "真相推理：角色2（老友）和角色3（情人）说真话。老友证明陈德海确实得罪了很多人（这为后续嫁祸提供了基础），情人承认与死者吵架但否认杀人——这是诚实的。角色0（商业对手）是主谋，他谎称没离开过大厅，但实际上他去厨房收买了厨师。角色1（厨师）是直接行凶者，他声称酒没问题是最大的谎言。角色4（服务员）被角色0收买，撒谎是为了配合计划。虽然角色0和角色1都在撒谎，但角色1（厨师）才是直接下毒的人。他既有犯罪行为，又有被威胁的动机，证词矛盾最明显。"
+            },
+            // 案件5: 大学实验室爆炸案（凶手索引0）
+            {
+                caseId: 5,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我当晚一直在办公室整理刘洋的研究资料，爆炸发生时我还不知道，直到有人跑来通知我。", truthTeller: false, roleIntro: "刘洋的导师，知名教授", lieReason: "{name}声称在办公室整理资料是彻头彻尾的谎言。实际上案发当晚，他亲自潜入实验室，故意破坏了实验设备的安全装置，制造了爆炸。{name}作为导师，一直觊觎刘洋的新能源专利——这项研究一旦成功将彻底改变行业格局，专利价值数十亿。{name}想除掉刘洋后以'指导教授'的身份继承研究成果。他撒谎是为了制造不在场证明，掩盖自己谋财害命的罪行。" },
+                    { text: "刘洋的研究非常有前景，我亲眼看过他的实验数据，我相信他一定能获得重大突破。", truthTeller: true, roleIntro: "刘洋的同学兼室友，了解其研究进展", lieReason: null },
+                    { text: "我确实去过实验室，但只是去找刘洋讨论数据的事情，没做任何破坏行为。", truthTeller: false, roleIntro: "刘洋的同学，存在学术竞争关系", lieReason: "{name}确实去过实验室，但他不是去找刘洋讨论数据。实际上他是被角色0（张教授）收买，去确认刘洋的实验进度，并在实验记录本上做了一些手脚，让记录看起来像是刘洋自己操作失误导致爆炸。{name}因为嫉妒刘洋的才华，又被张教授许诺推荐他署名发表论文，所以答应配合。他撒谎是为了掩盖自己进入实验室的真实目的——不是讨论数据，而是确认并辅助张教授的破坏计划。" },
+                    { text: "我的工作是打扫实验室，爆炸发生前10分钟，我亲眼看到角色0（张教授）进了实验室。", truthTeller: true, roleIntro: "实验室管理员，负责日常清洁和安全", lieReason: null },
+                    { text: "陈博士一直和刘洋的研究团队有竞争关系，学术圈的人都知道他们的矛盾很深。", truthTeller: false, roleIntro: "同系研究员，了解学术圈内情", lieReason: "{name}确实知道陈博士和刘洋有学术竞争，但他故意夸大其词，把普通的学术竞争描绘成'矛盾很深'，其目的是为了把嫌疑引向陈博士。{name}是被角色0（张教授）暗示要这样说的。{name}一直想讨好张教授，希望能在张教授的项目中谋得一个位置。他撒谎是为了配合张教授的嫁祸计划，同时讨好张教授换取个人利益。" }
+                ],
+                truthTellerFixed: [1, 3],
+                lieReasoning: "推理分析：角色1（同学）和角色3（管理员）说真话。同学证明刘洋的研究确实有重大价值（这揭示了犯罪动机——谁能从中获益最大？），管理员目击张教授案发前进入实验室。角色0（张教授）是凶手，他谎称在办公室，但管理员证明他进了实验室。角色2（同学）被张教授收买进入实验室配合破坏，他的证词是谎言。角色4（研究员）出于讨好张教授的目的，故意夸大竞争关系来嫁祸陈博士。综合动机、机会、证据三要素，张教授是主谋，他既有最大获益（独占专利），又有管理员目击的证据，且证词矛盾最明显。"
+            },
+            // 案件6: 婚礼现场枪击案（凶手索引0）
+            {
+                caseId: 6,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我亲手杀了我父亲王建业，因为他是一个残暴不仁的人，害死了我母亲，我要为母亲报仇。", truthTeller: false, roleIntro: "新郎，王建业的儿子", lieReason: "{name}承认杀了父亲，但他的动机描述并不完全诚实。他只说父亲'残暴不仁'，但没有说出具体真相：{name}在整理父亲遗物时发现，当年王建业为了娶现在的妻子（{name}的继母），故意制造了一场车祸害死了{name}的亲生母亲。{name}选择在婚礼这个最具象征意义的时刻动手，是想用这种极端方式让父亲在最得意的时刻身败名裂。他模糊描述动机是为了不让继母受到牵连，同时也不想让外人知道自己母亲被谋害的丑事。" },
+                    { text: "婚礼前一天，我和{name}（角色0）确实有过激烈争吵，我当时很担心他的状态。", truthTeller: true, roleIntro: "婚礼伴郎，新郎的多年好友", lieReason: null },
+                    { text: "我和{name}（角色0）是真心相爱走到一起的，我了解他的为人，他绝对不是一个坏人。", truthTeller: false, roleIntro: "新娘，与新郎感情深厚", lieReason: "{name}声称新郎'绝对不是一个坏人'是在说谎和掩饰。实际上她在婚礼前一天就察觉到新郎情绪异常，隐约知道他要对公公做什么，但她选择了沉默和纵容。{name}深爱自己的丈夫，也感激公公王建业为她提供的奢华生活，她既不想阻止丈夫为母报仇，又怕丈夫被捕后自己失去一切。她撒谎是为了保护丈夫，同时掩盖自己'知情不报、纵容犯罪'的事实。" },
+                    { text: "王建业在商场上手段强硬，得罪了不少人，生意场上的对手想报复他也不是不可能。", truthTeller: true, roleIntro: "王建业的商业律师，了解其商业往来", lieReason: null },
+                    { text: "{name}（角色3的前男友）一直对这门婚事耿耿于怀，婚礼前我还看到他在酒店附近徘徊。", truthTeller: false, roleIntro: "新娘的朋友，熟悉新娘的过去", lieReason: "{name}声称看到新娘的前男友在婚礼现场附近徘徊是编造的谎言。实际上{name}是新郎{name}的一个远房亲戚，他知道新郎的计划——为母报仇。案发后他故意编造'新娘前男友徘徊'的说法，目的是为了把嫌疑引向一个虚构的情敌，为新郎{name}争取时间和脱罪机会。他撒谎是为了报答新郎一家多年来对他的照顾，同时也想在新郎面前立功。" }
+                ],
+                truthTellerFixed: [1, 3],
+                lieReasoning: "真相分析：角色1（伴郎）和角色3（律师）说真话。伴郎承认与新郎有过激烈争吵（这证明新郎确实有激烈的情绪波动），律师证明王建业确实得罪了很多人（为新郎的动机提供了侧面证据）。角色0（新郎）是凶手，他虽然承认杀人，但动机描述并不完整——他隐瞒了母亲被谋害的具体情节。角色2（新娘）撒谎是为了保护丈夫，她知情不报并纵容犯罪。角色4（新娘朋友）撒谎是为了配合新郎的计划，嫁祸给虚构的情敌。新郎{name}在婚礼这个特殊时刻亲手开枪，是为了在父亲最得意的时刻将其击毙，为被父亲害死的亲生母亲复仇。"
+            },
+            // 案件7: 疗养院离奇死亡案（凶手索引2）
+            {
+                caseId: 7,
+                murdererIndex: 2,
+                statements: [
+                    { text: "我照顾赵老爷子已经十年了，他待我如亲生女儿，我绝不可能伤害他。", truthTeller: true, roleIntro: "疗养院专职护理员，照顾死者多年", lieReason: null },
+                    { text: "赵老爷子最近确实多次提到要修改遗嘱，但具体内容我作为医生不方便过问。", truthTeller: false, roleIntro: "疗养院主治医生，负责死者健康管理", lieReason: "{name}说自己不方便过问遗嘱内容是谎言。实际上赵老爷子每次提到修改遗嘱时，{name}都在场，清楚地知道遗嘱内容——赵老爷子打算把自己的私生子（角色2）纳入遗嘱，分给其一部分财产。{name}多年来一直与角色2有秘密联系，并接受过角色2的贿赂。案发当晚，是{name}亲自为角色2打开了疗养院的侧门，让角色2有机会潜入病房。{name}撒谎是为了掩盖自己受贿、协助作案的罪行。" },
+                    { text: "我只是赵老爷子众多私生子中的一个，家族一直排斥我，我根本就没有继承权。", truthTeller: false, roleIntro: "死者的私生子，长期被家族排斥", lieReason: "{name}声称自己没有继承权是彻头彻尾的谎言。实际上案发前一周，赵老爷子已经立下新遗嘱，明确将家产的三分之一留给{name}。{name}得知这一消息后，反而迫不及待——他担心赵老爷子反悔，也担心其他子女反对，更怕自己等不及继承就继续过着穷日子。他收买了角色1（陈医生）和角色4（护理员小林），趁夜色给赵老爷子注射了大量胰岛素，导致其低血糖休克死亡。他撒谎说自己没有继承权，是为了掩盖'有充足继承动机却急不可耐'这一事实。" },
+                    { text: "作为专业医生，我必须说明：过量注射胰岛素会导致严重低血糖休克，这与心脏病发作症状非常相似，容易混淆。", truthTeller: true, roleIntro: "另一名值班医生，专业人士", lieReason: null },
+                    { text: "{name}（角色2）最近确实经常来探望赵老爷子，看起来非常孝顺，比亲儿子还贴心。", truthTeller: false, roleIntro: "疗养院护理员小林，日常照护死者", lieReason: "{name}声称角色2'看起来非常孝顺'是带有误导性的证词。实际上{name}（小林）早就被角色2收买，她故意用'看起来很孝顺'这种描述来淡化角色2的嫌疑。案发当晚，正是她为角色2提供了赵老爷子的胰岛素注射记录，并在案发后第一时间向角色2通风报信。她撒谎是为了掩盖自己被角色2收买、协助作案的事实。她之所以帮助角色2，是因为角色2承诺事成之后给她一大笔钱。" }
+                ],
+                truthTellerFixed: [0, 3],
+                lieReasoning: "推理分析：角色0（护理员）和角色3（值班医生）说真话。护理员证明自己照顾死者十年（这其实暗示她对死者有感情，但同时也证明她最了解情况），值班医生从专业角度说明胰岛素注射可以造成类似心脏病发作的假象——这实际上揭示了作案手法。角色2（私生子）是凶手，他谎称没有继承权，但实际上他即将继承三分之一家产——他只是怕被人看出谋财害命的动机。角色1（陈医生）受贿协助角色2进入病房。角色4（小林）被角色2收买提供作案信息和掩护。虽然角色2、角色1、角色4都说谎，但角色2是主谋，他既有最大获益动机，又有收买两人的能力。"
+            },
+            // 案件8: 书店毒咖啡案（凶手索引0）
+            {
+                caseId: 8,
+                murdererIndex: 0,
+                statements: [
+                    { text: "林姐是我最信任的朋友，也是我最尊敬的前辈，我每周都来她的书店看书。", truthTeller: false, roleIntro: "书店常客，与死者关系密切", lieReason: "{name}声称林姐是'朋友'和'前辈'是他最大的谎言。实际上{name}是林姐当年为了去国外深造而狠心抛弃的亲生儿子。多年后{name}找到林姐，但他不是来认亲的，而是来复仇的——他怨恨母亲当年为了前程抛弃自己。{name}以'常客'身份伪装，每周来书店观察林姐的生活，寻找复仇机会。案发当晚他在林姐冲泡的咖啡中下了致命毒药。他撒谎是为了掩盖自己与林姐的真实关系，隐瞒复仇杀人的动机。" },
+                    { text: "那杯咖啡是我亲手冲泡的，用的是店里常备的咖啡豆，绝对不可能有问题。", truthTeller: false, roleIntro: "书店老板林姐，死者本人（由其日记/自述推断）", lieReason: "{name}声称咖啡没问题是基于她自己的认知，但这也是一种'撒谎'——因为她完全不知道自己店里的咖啡豆已经被角色0（小李）动了手脚。{name}作为一个专注于事业和写作的女性，多年来一直埋头工作，对身边人缺乏警惕。她万万没想到，自己眼中'最信任的朋友'竟是她当年抛弃的儿子，而且这个儿子一直在策划复仇。她声称咖啡没问题，是因为她确实不知道咖啡被下毒——但从证据角度看，她的证词与事实不符，构成了误导。" },
+                    { text: "我是送外卖的，案发前我在窗外看到{name}（角色0）在咖啡杯里偷偷加了什么东西。", truthTeller: true, roleIntro: "外卖员，案发时正在附近送外卖", lieReason: null },
+                    { text: "林姐最近刚刚完成了一本书的创作，是关于她年轻时奋斗经历的回忆录。", truthTeller: true, roleIntro: "出版社编辑，与死者有合作关系", lieReason: null },
+                    { text: "{name}（角色0）和林姐其实是失散多年的母子，{name}一直怨恨母亲当年抛弃自己。", truthTeller: false, roleIntro: "林姐的老同学，知道一些往事", lieReason: "{name}声称知道{name}（角色0）是林姐的私生子，这是部分事实，但他描述的动机和情节有很大偏差。实际上{name}（老同学）与林姐有私人恩怨，他年轻时曾追求过林姐被拒绝，一直怀恨在心。案发后他主动向警方提供信息，故意把{name}（角色0）描述成'怨恨母亲的私生子'——虽然这是事实，但他添油加醋地描绘了很多细节，目的是为了让{name}（角色0）的形象更可恶，同时也让自己看起来像是个'知情的正义人士'。他撒谎（夸大细节）是为了报复当年被林姐拒绝的耻辱。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "真相推理：角色2（外卖员）和角色3（编辑）说真话。外卖员是关键目击证人，他亲眼看到角色0在咖啡中加了东西——这是最直接的证据。编辑证明林姐确实刚刚完成一本书（这本书的内容揭示了林姐当年抛弃孩子的往事，也解释了角色0的动机）。角色0（小李）是凶手，他伪装成'朋友'接近林姐，实际是被抛弃的儿子来复仇。角色1（林姐本人的认知）在不知情的情况下提供了与事实不符的证词。角色4（老同学）出于私怨夸大细节，虽然部分属实但有明显误导。综合证据链：角色0有最强烈的动机（被抛弃的怨恨）、有目击者看到他下毒、且他的证词（'林姐是我朋友'）与真实关系完全矛盾。"
+            },
+            // 案件9: 别墅区绑架杀人案（凶手索引0）
+            {
+                caseId: 9,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我当晚一直在监控室值班，监控系统运行正常，没有发现任何可疑人员进入。", truthTeller: false, roleIntro: "别墅区管家李叔，工作多年", lieReason: "{name}声称在监控室值班是最大的谎言。实际上案发当晚，{name}根本没有坚守岗位——他先是删除了别墅区主入口和别墅周围的所有监控录像，然后亲自打开了别墅侧门的电子锁，让绑匪顺利进入别墅。{name}之所以这样做，是因为他的儿子做生意失败欠下了500万高利贷，犯罪集团以他儿子的性命威胁他配合。{name}在家庭安危和职业操守之间选择了前者。他撒谎是为了掩盖自己协助绑匪进入别墅的罪行。案发后虽然他良心不安主动自首，但他的证词已经构成了严重的谎言。" },
+                    { text: "我和张磊合作多年，他的为人我了解，我不相信这是简单的绑架案。", truthTeller: true, roleIntro: "张磊的商业合作伙伴，关系稳定", lieReason: null },
+                    { text: "绑匪的手法非常专业，他们对别墅的安保系统了如指掌，这绝不是普通的绑架犯。", truthTeller: false, roleIntro: "别墅区保安队长张强，负责安保工作", lieReason: "{name}声称绑匪'对安保系统了如指掌'是在误导警方。实际上{name}（保安队长）也是被犯罪集团威胁的人之一。他负责别墅的安保系统，非常清楚系统的弱点在哪里。案发前一周，他'不小心'在系统中留下了一个漏洞，让绑匪能够顺利突破安保而不触发警报。案发后他又故意强调绑匪'专业'，企图让警方认为这是外来人员作案，而不会怀疑内部有人配合。他撒谎是为了掩盖自己被威胁后协助绑匪的事实。他的家人也被犯罪集团控制。" },
+                    { text: "我只是张总的普通生意伙伴，案发当晚我在外地谈项目，有完整的行程记录。", truthTeller: true, roleIntro: "张磊的商业伙伴陈总，有合作关系", lieReason: null },
+                    { text: "我看到{name}（角色0）案发前神色慌张地在走廊打电话，语气听起来像是在跟什么人汇报。", truthTeller: false, roleIntro: "别墅服务员，日常工作在别墅内", lieReason: "{name}声称看到{name}（角色0）打电话是部分真实但有误导性的证词。{name}确实看到管家在打电话，但电话内容不是'向绑匪汇报'，而是{name}在跟家人通电话确认家人安全（因为家人被犯罪集团控制）。{name}（服务员）被角色2（保安队长）威胁，被迫在证词中添油加醋，把管家的电话描述成'跟绑匪汇报'。她这样做一方面是为了保护自己，另一方面也是保安队长计划的一部分——让管家看起来更像主谋，而把真正的同谋（保安队长自己）隐藏起来。" }
+                ],
+                truthTellerFixed: [1, 3],
+                lieReasoning: "推理分析：角色1（合作伙伴）和角色3（生意伙伴）说真话。合作伙伴证明张磊为人可靠（这暗示他不是因为生意纠纷被杀），生意伙伴提供了完整的不在场证明。角色0（管家李叔）是核心涉案人，他谎称在监控室值班，但实际上他删除了监控、打开了侧门。角色2（保安队长）也是被威胁的同谋，他故意强调绑匪专业来掩盖自己留下安保漏洞的事实。角色4（服务员）被保安队长威胁，在证词中添油加醋。综合来看：管家李叔虽然有协助绑匪的行为，但他最初是出于保护家人的无奈。然而，他删除监控、开门放行的行为已经构成了故意协助犯罪。虽然犯罪集团是主谋，但管家在本案中是关键的执行者。"
+            },
+            // 案件10: 音乐厅窒息案（凶手索引0）
+            {
+                caseId: 10,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我和孙雅约定演出前在化妆间对台词，这是我们多年来一直保持的工作习惯。", truthTeller: false, roleIntro: "死者孙雅的经纪人，合作多年", lieReason: "{name}声称去化妆间对台词是最精心设计的谎言。实际上{name}作为孙雅的经纪人，多年来一直以各种名义克扣孙雅的演出费用，累计侵吞了数百万元。案发前孙雅刚刚聘请了独立会计查账，{name}的罪行即将败露。案发当晚，{name}以'对台词'为名进入孙雅的化妆间，先是哀求孙雅网开一面，被拒绝后趁其不备，用枕头将孙雅捂死，企图制造心脏病发作的假象。{name}撒谎是为了掩盖自己进入化妆间的真实目的——不是对台词，而是去求饶、谈判，谈判失败后杀人灭口。" },
+                    { text: "孙雅演出前情绪一直很稳定，完全看不出有任何身体或心理上的异常。", truthTeller: true, roleIntro: "演出主办方协调员，全程跟进演出", lieReason: null },
+                    { text: "我给钢琴做过调音，确保演出时音准完美，孙雅对我的工作一直很满意。", truthTeller: true, roleIntro: "专业钢琴调音师，多年来为孙雅服务", lieReason: null },
+                    { text: "我和孙雅虽然已经分手，但我们和平分手，彼此没有任何怨恨，我绝对不会伤害她。", truthTeller: false, roleIntro: "孙雅的前男友，近期已分手", lieReason: "{name}声称与孙雅'和平分手、没有怨恨'是谎言。实际上{name}与孙雅的分手非常不愉快——{name}一直纠缠孙雅，希望复合。案发前一周，{name}还曾到孙雅的公寓楼下堵人，被孙雅的助理报警赶走。{name}之所以撒谎说'和平分手'，是因为他确实有因爱生恨的动机——他虽然不是真凶，但他不想让警方因为他有动机而深入调查他。{name}在案发当晚确实去过音乐厅（想找孙雅谈），但到达时孙雅已经死亡，他惊慌失措离开，事后又怕被怀疑而隐瞒了自己曾到过现场的事实。" },
+                    { text: "我无意中听到{name}（角色0）和孙雅在化妆间激烈争吵，好像是在说什么'账目'、'还钱'之类的话。", truthTeller: false, roleIntro: "音乐厅化妆师，案发时在隔壁化妆间", lieReason: "{name}声称听到{name}（角色0）和孙雅争吵，提到'账目'、'还钱'，这是部分真实但有严重误导性的证词。实际上{name}（化妆师）确实听到了争吵声，但她没有听清具体内容——关于'账目'、'还钱'的描述是她事后自己脑补加上去的。{name}之所以这样做，是因为她私下里欠了角色0（经纪人）一笔钱（此前她向经纪人借钱周转），角色0暗示她如果'配合'证词，这笔钱就可以一笔勾销。{name}在利益诱惑下，把自己听到的争吵声添油加醋地描述出来，虽然她描述的争吵事实是真的，但具体内容是编造的——这构成了有目的的谎言。" }
+                ],
+                truthTellerFixed: [1, 2],
+                lieReasoning: "真相推理：角色1（协调员）和角色2（调音师）说真话。协调员证明孙雅演出前情绪稳定（这反驳了经纪人'孙雅突发心脏病'的嫁祸说法），调音师证明自己只是来调音的，没有作案嫌疑。角色0（经纪人）是凶手，她用'对台词'这个听起来很正常的工作借口进入化妆间，实则是去与孙雅谈判贪污账目问题，谈判失败后杀人灭口。角色3（前男友）撒谎是为了掩盖自己因爱生恨的嫌疑和当晚曾到过现场的事实。角色4（化妆师）撒谎是因为被经纪人收买，在证词中添油加醋，增强'孙雅与经纪人有账目纠纷'这一事实，同时也让自己欠经纪人的钱被一笔勾销。综合证据链，经纪人{name}是凶手。"
+            },
+            // ========== 以下为新增50个案件的证词配置 ==========
+            // 案件11: 网红直播间猝死案（凶手索引1）
+            {
+                caseId: 11,
+                murdererIndex: 1,
+                statements: [
+                    { text: "我是苏糖糖的私人助理，案发那晚我一直在整理直播数据，根本没离开过公司。", truthTeller: true, roleIntro: "苏糖糖的私人助理，负责账号运营", lieReason: null },
+                    { text: "我确实给苏糖糖送过礼物，但我送的是合法渠道购买的化妆品，绝对没有任何问题。", truthTeller: false, roleIntro: "直播间榜一大哥，狂热追求者", lieReason: "{name}声称送的是合法化妆品是谎言。实际上{name}就是那个通过非法渠道购买毒酒并伪装成粉丝礼物寄给苏糖糖的人。他追求苏糖糖多年被拒，因爱生恨，决定用这种隐秘的方式报复。他以为自己伪装成普通粉丝就不会被追查，但法网恢恢，最终警方还是追溯到了礼物的源头。" },
+                    { text: "苏糖糖最近因为直播压力太大，经常失眠需要吃安眠药，我怀疑她是服药过量。", truthTeller: false, roleIntro: "苏糖糖的闺蜜，经常一起聚会", lieReason: "{name}提到安眠药是想误导警方，让警方以为是苏糖糖自己服药过量。实际上苏糖糖并没有失眠的问题，{name}这样说是因为她和{name}（榜一大哥）有秘密关系，两人合谋要除掉苏糖糖，这样榜一大哥的打赏钱就不用还了。" },
+                    { text: "我虽然是苏糖糖的竞争对手，但我不会做这种事，我只是来看看她的直播风格的。", truthTeller: false, roleIntro: "同平台美妆网红，有竞争关系", lieReason: "{name}声称只是来'看看直播风格'是谎言。她在案发当天确实来过直播间，但她是来确认苏糖糖收到有毒礼物的。她与{name}（榜一大哥）有私下交易：只要苏糖糖死了，她就能获得苏糖糖的粉丝资源。她撒谎是为了掩盖自己参与策划的事实。" },
+                    { text: "苏糖糖的前男友有暴力倾向，之前就威胁过要让她'好看'，你们应该去查他。", truthTeller: true, roleIntro: "苏糖糖的前男友，有过冲突", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（助理）和角色4（前男友）说真话——助理证明自己案发时在工作没有作案时间，前男友承认有过冲突但否认杀人。角色1（榜一大哥）是凶手，他送的有毒酒导致了苏糖糖死亡，他撒谎是为了掩盖自己因爱生恨的犯罪动机。角色2（闺蜜）和角色3（竞争对手网红）都在撒谎，她们与榜一大哥有利益关联，试图转移警方视线。"
+            },
+            // 案件12: 马场骑师坠马案（凶手索引1）
+            {
+                caseId: 12,
+                murdererIndex: 1,
+                statements: [
+                    { text: "比赛前我仔细检查过马鞍，确认一切正常才让骑师上马的。", truthTeller: true, roleIntro: "马厩管理员，负责马匹日常护理", lieReason: null },
+                    { text: "马主欠我200万一直不还，那天他让我'帮忙'在马鞍上做点手脚，说只是吓唬骑师。", truthTeller: false, roleIntro: "驯马师，负责训练赛马", lieReason: "{name}声称马主只让他'吓唬'骑师是推卸责任的谎言。实际上马主明确告诉{name}，要在马鞍上做能让骑师坠马的手脚。{name}虽然知道这会要人命，但为了要回200万欠款还是照做了。事后他假装无辜，说自己只是听命行事。案子破了后，{name}才承认他当时就意识到这可能会要人命。" },
+                    { text: "我作为裁判全程目睹了比赛，骑师坠马纯粹是意外，和任何人都没关系。", truthTeller: false, roleIntro: "赛事裁判，负责比赛执法", lieReason: "{name}声称骑师坠马是意外是谎言。实际上他早就知道马主和驯马师有勾结，因为马主赛前给他塞了一个大红包让他'睁一只眼闭一只眼'。他收受贿赂后故意不去检查马鞍，导致事故发生。他撒谎是为了掩盖自己受贿的违法行为。" },
+                    { text: "我那天只是去和马主谈赞助合作的事，根本没接近过马匹。", truthTeller: false, roleIntro: "骑师助手，协助骑师比赛", lieReason: "{name}声称没接近过马匹是谎言。实际上他被驯马师以双倍工资收买，在比赛前偷偷在马鞍的关键部位做了额外的手脚——他不只是松了螺丝，还调整了马鞍的倾斜角度，让马在高速冲刺时更容易失控。{name}撒谎是为了掩盖自己见钱眼开、害死人命的事实。" },
+                    { text: "陈风最近状态不好，我劝过他换一场比赛，但他坚持要上。", truthTeller: true, roleIntro: "马主，赛马所有者", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（马厩管理员）和角色4（马主）说真话——管理员证明他检查过马鞍（但被人动了手脚），马主承认了和骑师的冲突（为情杀提供了动机线索）。角色1（驯马师）是直接凶手，他承认在马鞍上做了手脚，但狡辩说只是'吓唬'。角色2（裁判）撒谎是为了掩盖受贿，角色3（骑师助手）撒谎是为了多拿一份封口费。驯马师为了讨债配合马主谋害骑师，是本案的执行者。"
+            },
+            // 案件13: 电竞酒店触电案（凶手索引1）
+            {
+                caseId: 13,
+                murdererIndex: 1,
+                statements: [
+                    { text: "我那天送餐时敲门没人应，我就把外卖挂在门把手上了。", truthTeller: true, roleIntro: "酒店服务员，负责客房服务", lieReason: null },
+                    { text: "我举报队友打假赛后，他突然变了一个人一样，态度极其恶劣，我觉得他在酝酿什么坏事。", truthTeller: false, roleIntro: "职业选手队友，发现假赛真相", lieReason: "{name}声称举报假赛后张伟'态度恶劣'是在颠倒黑白。实际上是{name}在被张伟举报后，怀恨在心，偷偷在张伟的键盘USB接口处做了手脚，导致张伟触电身亡。{name}还故意在之前就开始疏远张伟，为的就是给自己制造不在场证明。他撒谎是为了把杀人动机推给张伟自己。" },
+                    { text: "我案发那晚一直在自己房间直播剪辑，有几百人看到我了。", truthTeller: false, roleIntro: "电竞酒店老板，房间出租人", lieReason: "{name}声称自己在直播是虚假的不在场证明。实际上他和{name}（队友）有私下协议：张伟死了之后，战队名额和直播打赏都归{name}一半。他默许了{name}的杀人计划，甚至提供了张伟房间的备用钥匙。他撒谎是为了撇清自己和案件的关系。" },
+                    { text: "我欠张伟5万块钱，但我说过会分期还的，我怎么可能因为这点钱杀人？", truthTeller: false, roleIntro: "张伟的粉丝，有债务纠纷", lieReason: "{name}说5万是小钱是谎言。他欠张伟的不只是钱——他还欠张伟一个道歉：他在朋友圈造谣说张伟打假赛，张伟威胁要起诉他诽谤。{name}既想赖账，又怕被起诉，所以他也参与了这场谋杀。他联系了{name}（队友），两人商议'一起解决问题'。他撒谎是为了掩盖自己参与合谋的事实。" },
+                    { text: "我和张伟是多年朋友，那晚我一直在游戏里和他组队，根本不可能害他。", truthTeller: true, roleIntro: "职业选手队友，共同训练多年", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（服务员）和角色4（队友）说真话——服务员证明自己只是送过外卖没进房间，队友证明案发时和张伟在组队。角色1（举报假赛的队友）是被激怒后直接下毒手的人，他在张伟的键盘上动手脚导致张伟触电。角色2（酒店老板）和角色3（粉丝）都有参与合谋——老板提供了钥匙，粉丝出谋划策。本案是一起有预谋的连环杀人案，凶手就是那个'发现假赛并举报'的人。"
+            },
+            // 案件14: 剧本杀店 strangulation案（凶手索引0）
+            {
+                caseId: 14,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我承认我当晚最后一个走，但我离开时王老师还好好的在收拾道具。", truthTeller: false, roleIntro: "剧本杀玩家，当晚表现差被嘲笑", lieReason: "{name}声称离开时王老师'还好好的'是死无对证的谎言。实际上他离开后又悄悄折返回来，趁王老师不备用店里的道具绳子将其勒死。他对被嘲笑这件事怀恨在心，当晚就决定要'让王老师付出代价'。他不仅撒谎说离开时王老师没事，还故意编造说自己在其他玩家面前'表现不好'来博取同情。" },
+                    { text: "打烊前我去检查过所有的房间，确认没有人才离开的。", truthTeller: true, roleIntro: "剧本杀店店长，负责日常管理", lieReason: null },
+                    { text: "我是NPC演员，案发时我在后台卸妆，完全不知道外面发生了什么。", truthTeller: true, roleIntro: "住在店里的NPC演员", lieReason: null },
+                    { text: "那晚我们四个玩家一起离开的，绝对没有单独留下来的情况。", truthTeller: false, roleIntro: "剧本杀玩家，四人之一", lieReason: "{name}说四人一起离开是部分谎言。实际上在离开前，{name}（凶手）以'忘拿东西'为由先行离开了，他是最先离开的那个。他返回店里后行凶，其他三人并不知道。他撒谎是为了配合{name}（凶手）制造的不在场证明。" },
+                    { text: "我和王老师没有任何矛盾，我在剧本杀里表现很好，他夸我推理能力强。", truthTeller: false, roleIntro: "剧本杀玩家，四人之一", lieReason: "{name}声称自己表现好被夸是虚假的。实际上他在游戏里表现很差，被王老师当众批评了推理能力。他觉得在女玩家面前丢了面子，因此对王老师怀恨在心。他参与撒谎是为了给{name}（凶手）制造不在场证明，因为他知道凶手是谁——他们事先有过共谋。" }
+                ],
+                truthTellerFixed: [1, 2],
+                lieReasoning: "分析证词：角色1（店长）和角色2（NPC演员）说真话——店长证明打烊前检查过没人留下，演员证明自己在后台不知情。角色0（表现差的玩家/凶手）撒谎说离开时王老师没事，实际上他折返将王老师勒死。角色3和角色4都在帮他制造不在场证明，说四人一起离开。凶手因为被嘲笑而在深夜返回店内将主持人勒死，是一起冲动型犯罪。"
+            },
+            // 案件15: 美术馆名画调包案（凶手索引0）
+            {
+                caseId: 15,
+                murdererIndex: 0,
+                statements: [
+                    { text: "那幅画是馆里最珍贵的藏品，存放条件极其严格，我每周都会亲自检查一次。", truthTeller: false, roleIntro: "美术馆馆长，负责藏品管理", lieReason: "{name}声称自己'每周亲自检查'是彻头彻尾的谎言。实际上正是他监守自盗，用自己临摹的赝品换走了真迹。他把真迹藏在自己办公室的密室里，赝品放回展厅。他撒谎是因为他是这个调包案的主谋，不仅自己行窃，还勾结外部画商准备私下拍卖。" },
+                    { text: "那幅画在捐赠时确实有专家鉴定过，但我没想到后来会被掉包。", truthTeller: true, roleIntro: "策展人，负责展览策划", lieReason: null },
+                    { text: "我是画的捐赠者，这幅画是我家族三代传下来的，我比任何人都清楚它的真伪。", truthTeller: false, roleIntro: "画作捐赠者，收藏世家", lieReason: "{name}声称自己对画作了如指掌是虚张声势。实际上他在捐赠时就已经把真迹掉包了，真的那幅早就被他卖给了海外买家。他用一幅高仿赝品替换，这样既能套现又不引人怀疑。他撒谎是为了掩盖自己早就开始的犯罪行为。" },
+                    { text: "我有证据证明那幅画在展出期间被换过，因为我在画框隐蔽处做了标记。", truthTeller: false, roleIntro: "画家的后代，对画作有研究", lieReason: "{name}声称自己'做了标记'是捏造的。实际上他根本没有做过任何标记，他的目的是想让大家以为是外部人员作案，好让自己洗清嫌疑。他和{name}（馆长）有私下交易：他提供'真迹来源'的证明，馆长则承诺事成后分他一笔钱。" },
+                    { text: "那幅画我之前来看过展，记得当时光线和现在不一样。", truthTeller: true, roleIntro: "美术馆常客，美术老师", lieReason: null }
+                ],
+                truthTellerFixed: [1, 4],
+                lieReasoning: "分析证词：角色1（策展人）和角色4（常客）说真话——策展人证明捐赠时画作经过鉴定，常客提供了'光线不同'的观察线索（暗示画作被动过）。角色0（馆长）是主谋，他监守自盗用赝品换真迹。角色2（捐赠者）是为了套现而参与掉包，角色3（画家后代）是想分一杯羹。本案是一起有组织的美术品犯罪，馆长是核心人物。"
+            },
+            // 案件16: 寺庙住持毒杀案（凶手索引3）
+            {
+                caseId: 16,
+                murdererIndex: 3,
+                statements: [
+                    { text: "我是云游僧人，案发那晚我在禅房打坐念经，没有离开过。", truthTeller: true, roleIntro: "云游僧人，留宿寺庙", lieReason: null },
+                    { text: "住持师父待我如同亲人，我不可能害他，我昨晚还和他讨论佛法。", truthTeller: false, roleIntro: "云游僧人，三位之一", lieReason: "{name}声称和住持'讨论佛法'是谎言。实际上他昨晚确实去找过住持，但不是讨论佛法——他向住持借100万被拒绝，两人发生了激烈争吵。{name}因借钱被拒而怀恨在心，事后他和凶手透露了住持年轻时的不堪往事，间接推动了谋杀。" },
+                    { text: "我昨晚一直在念经诵佛，为施主们祈福。", truthTeller: false, roleIntro: "云游僧人，三位之一", lieReason: "{name}声称自己'念经祈福'是虚假的。实际上他在半夜时分看到凶手进了住持的禅房，他没有出声阻止，也没有报案——因为他知道住持年轻时的恶行，选择了沉默。他撒谎是为了掩盖自己'知情不报'的行为。" },
+                    { text: "我知道住持有些不可告人的秘密，我选择放下了。", truthTeller: false, roleIntro: "女施主，与住持有特殊关系", lieReason: "{name}声称自己'放下了'是谎言。实际上她知道住持年轻时是人贩子集团成员，这个秘密让她一直感到愤怒。她和凶手有过来往，她故意向凶手透露了住持的这段黑历史，让凶手起了杀心。她撒谎是为了把自己包装成'无辜的旁观者'，掩盖自己推动谋杀的罪行。" },
+                    { text: "我确实是香火店老板，和住持是多年好友，案发那晚我一直在看店。", truthTeller: true, roleIntro: "香火店老板，住持的多年好友", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（云游僧人）和角色4（香火店老板）说真话——云游僧人证明自己没离开过禅房，香火店老板证明自己和住持是好友。角色3（女施主/真凶）说假话——她隐瞒了自己与凶手的关系和推动谋杀的行为。角色1和角色2两位云游僧人都在撒谎，他们或因争吵或因知情不报而隐瞒真相。"
+            },
+            // 案件17: 宠物店仓鼠失踪案（凶手索引1）
+            {
+                caseId: 17,
+                murdererIndex: 1,
+                statements: [
+                    { text: "我发现老板时他已经死了，仓库门是被撬开的，肯定有外人闯入。", truthTeller: false, roleIntro: "宠物店店员，第一发现人", lieReason: "{name}声称有'外人闯入'是伪造的犯罪现场。实际上他和{name}（老板娘）是情人关系，两人发现老板要离婚分财产后，合谋将老板勒死。他们先勒死老板，再伪造了入室抢劫的假象，然后偷走仓鼠制造'贼赃两得'的骗局。{name}撒谎是为了把嫌疑引向虚构的'外人'。" },
+                    { text: "我丈夫最近沉迷赌博，欠了很多钱，我怀疑是赌徒来报复的。", truthTeller: false, roleIntro: "宠物店老板娘，老板妻子", lieReason: "{name}声称是'赌徒报复'是转移视线的谎言。实际上她和店员{name}有婚外情，被老板发现后两人决定先下手为强——在老板发现奸情的当晚就将其勒死。他们用仓库里的工具箱绳子勒死了老板，然后嫁祸给所谓的'赌徒'。她撒谎是想把自己包装成受害者。" },
+                    { text: "我是来买仓鼠的，案发那晚我根本没进过仓库。", truthTeller: true, roleIntro: "仓鼠买家，收藏爱好者", lieReason: null },
+                    { text: "我承认我欠宠物店老板钱，但我发誓我没去过案发现场。", truthTeller: false, roleIntro: "竞争对手宠物店老板，有债务纠纷", lieReason: "{name}声称没去过现场是谎言。实际上他在案发前一周去过宠物店踩点——他和{name}（老板娘）有地下情，两人合谋要除掉老板。他去宠物店不是为了买仓鼠，而是和老板娘密谋如何杀死老板、如何分财产、如何制造不在场证明。他撒谎是为了掩盖自己和老板娘的秘密关系。" },
+                    { text: "我在店里负责日常工作，和老板主要是工作关系，相处还算和睦。", truthTeller: true, roleIntro: "店员，宠物店员工", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（仓鼠买家）和角色4（店员）说真话——买家证明自己只是来买仓鼠没进过仓库，店员证明自己和老板没有矛盾。角色1（老板娘/凶手之一）和{name}（店员/凶手之一）是情人关系，两人在老板发现奸情的当晚将其勒死。角色0（第一发现人/店员）其实也是同谋，他参与分尸。角色3（竞争对手老板）也参与了合谋，负责提供后期掩护。"
+            },
+            // 案件18: 相亲对象溺水案（凶手索引0）
+            {
+                caseId: 18,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我和李小姐是在节目中速配成功的，但后来发现性格不合就和平分手了。", truthTeller: false, roleIntro: "相亲对象，公司老板", lieReason: "{name}声称'和平分手'是最大的谎言。实际上他在和李小姐交往期间隐瞒了自己已婚的事实，被李小姐发现后两人发生激烈争吵。李小姐威胁要向他的妻子揭露真相，{name}在公园湖边假装'和解'时将李小姐推入湖中溺死。他撒谎是为了掩盖自己已婚出轨并杀人的罪行。" },
+                    { text: "录制完节目后我就先离开了，李小姐是后来单独留下的。", truthTeller: true, roleIntro: "节目导演，负责录制", lieReason: null },
+                    { text: "我是节目的摄影师，录制结束后我在整理设备，没注意李小姐什么时候离开的。", truthTeller: true, roleIntro: "摄影师，负责拍摄", lieReason: null },
+                    { text: "我和李小姐分手后偶尔还有联系，那天她打电话说要告诉我一个秘密。", truthTeller: false, roleIntro: "李小姐的前男友，有过恋情", lieReason: "{name}声称李小姐要告诉他'秘密'是捏造的。实际上他根本不知道李小姐和{name}（相亲对象）之间的纠葛。他在分手后一直纠缠李小姐想复合，被拒绝后心怀怨恨。他故意向警方撒谎说李小姐要告诉他秘密，是想让自己听起来像是'被蒙在鼓里的受害者'。" },
+                    { text: "我后来听说李小姐在公园出了事，但我真的不知道细节。", truthTeller: false, roleIntro: "节目导演助理，现场协调", lieReason: "{name}声称'不知道细节'是假装无辜。实际上他在录制节目时看到过{name}（相亲对象）和李小姐在后台争吵，他知道两人之间有问题。当晚他故意留在现场'加班'，看到{name}把李小姐叫出去详谈。他撒谎是因为他被{name}用钱收买了，要他保持沉默。" }
+                ],
+                truthTellerFixed: [1, 2],
+                lieReasoning: "分析证词：角色1（导演）和角色2（摄影师）说真话——他们证明自己在录制结束后各自忙于工作，没有目睹案发经过。角色0（相亲对象/凶手）撒谎说和平分手，实际上他隐瞒已婚身份导致李小姐怀孕并威胁曝光，他在公园假装和解时将李小姐推入湖中。角色3（前男友）和角色4（导演助理）都在撒谎，他们或因纠缠被拒或因受贿而试图掩盖真相。"
+            },
+            // 案件19: 牙医诊所麻醉案（凶手索引2）
+            {
+                caseId: 19,
+                murdererIndex: 2,
+                statements: [
+                    { text: "我那天给病人做麻醉时，手术刀还好好的在消毒柜里，根本没有外借过。", truthTeller: true, roleIntro: "麻醉师，负责手术麻醉", lieReason: null },
+                    { text: "牙科手术刀是专用器械，我那天一整天都没碰过。", truthTeller: false, roleIntro: "诊所护士，负责手术配合", lieReason: "{name}声称自己'没碰过'手术刀是谎言。实际上她和牙医丈夫{name}有染，知道丈夫要杀妻。一天她借口整理器械柜，偷偷把那把特殊材料制成的'隐形指纹'手术刀放在了容易被拿到的地方，方便{name}作案。她撒谎是为了掩盖自己在本案中的辅助作用。" },
+                    { text: "我发现妻子有外遇后非常愤怒，但我绝对没有杀人，我只是想离婚。", truthTeller: false, roleIntro: "牙医的丈夫，发现妻子出轨", lieReason: "{name}声称自己'只想离婚没想杀人'是避重就轻的谎言。实际上他不仅想离婚，还精心策划了这场谋杀：他买通医疗器械推销员，获取了那把特殊材料的手术刀，趁妻子不备将其刺死。他花大价钱搞来凶器、规划逃跑路线、伪造不在场证明——这绝非一时冲动，而是蓄谋已久的杀人计划。" },
+                    { text: "诊所的器械管理很严格，谁借用了什么我都有记录。", truthTeller: false, roleIntro: "医疗器械推销员，有商业往来", lieReason: "{name}声称'有记录可查'是虚张声势。实际上他收了牙医丈夫{name}的巨额贿赂，提供了那把特殊凶器，并帮他伪造了购买记录。他知道这种凶器一旦被用来杀人，警方很难追溯。他撒谎是为了掩盖自己'帮助杀人'的共谋行为。" },
+                    { text: "我那天休息没有去诊所，我在外地的母亲家过夜。", truthTeller: true, roleIntro: "牙医本人，受害者", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（麻醉师）和角色4（牙医/受害者）说真话——麻醉师证明器械管理没问题，牙医本人无法为自己作证但她确实是受害者。角色2（牙医丈夫/凶手）承认发现出轨但否认杀人，实际上他就是策划并执行这场谋杀的人。角色1（护士）和角色3（推销员）都参与了共谋——护士提供了凶器，推销员提供了渠道。丈夫因被妻子发现出轨而精心策划杀妻，是一起高智商犯罪。"
+            },
+            // 案件20: 潜水俱乐部窒息案（凶手索引0）
+            {
+                caseId: 20,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我那天潜完水就正常离开了，根本没注意到什么异常。", truthTeller: false, roleIntro: "潜水教练，负责教学指导", lieReason: "{name}声称自己'没注意异常'是心虚的谎言。实际上他在潜水教学时，趁学员不注意，在学员的呼吸器二接头处做了手脚——他用细针堵住了部分气孔，让学员在水下呼吸困难。他是受到潜水俱乐部老板的胁迫才这样做的，但他选择沉默不报警。他撒谎是为了保护自己不被牵连。" },
+                    { text: "潜水前我明明检查过装备没问题，怎么会在水下出事呢？", truthTeller: true, roleIntro: "潜水学员，投诉教练的人", lieReason: null },
+                    { text: "我们俱乐部一直严格按规定维护装备，不可能存在安全隐患。", truthTeller: false, roleIntro: "潜水俱乐部老板，场馆负责人", lieReason: "{name}声称'严格按规定维护'是虚假宣传。实际上俱乐部为了省钱，长期忽视装备维护，{name}早就知道呼吸器等装备存在老化问题但拒绝更换。因为学员的投诉让教练受到批评，老板怕事态扩大影响生意，就逼迫教练想办法'让投诉的人闭嘴'。他撒谎是为了掩盖俱乐部长期忽视安全的管理责任。" },
+                    { text: "我是死者的生意伙伴，我们合作多年，我一直劝他要小心水肺运动的危险性。", truthTeller: true, roleIntro: "死者商业伙伴，有合作项目", lieReason: null },
+                    { text: "那天我确实和死者有过争执，但那只是商业上的分歧，和潜水事故无关。", truthTeller: false, roleIntro: "潜水俱乐部工作人员，负责装备管理", lieReason: "{name}声称争执'和事故无关'是此地无银三百两。实际上他在装备检查时就被死者质疑过'为什么不去维护装备'，两人发生过激烈口角。他虽然不是直接下手的人，但他被{name}（老板）授意，在检查记录上造假，掩盖了装备老化的真相。他撒谎是为了逃避责任。" }
+                ],
+                truthTellerFixed: [1, 3],
+                lieReasoning: "分析证词：角色1（潜水学员）和角色3（商业伙伴）说真话——学员证明自己检查过装备没问题，伙伴证明和死者没有私人恩怨。角色0（潜水教练/直接凶手）是受老板胁迫在呼吸器上动手脚的人，他撒谎是为了避免被追究。角色2（俱乐部老板）是幕后主使，他逼迫教练就范。角色4（装备管理员）在检查记录上造假帮助掩盖。这是一起因管理层失职导致的命案。"
+            },
+            // 案件21: 网红餐厅食物中毒案（凶手索引2）
+            {
+                caseId: 21,
+                murdererIndex: 2,
+                statements: [
+                    { text: "我的餐厅一直选用最新鲜的食材，绝不可能有问题。", truthTeller: false, roleIntro: "网红餐厅老板，场馆负责人", lieReason: "{name}声称'选用最新鲜食材'是虚假宣传。实际上他的餐厅为了节省成本，长期从非正规渠道采购过期变质的食材原料。竞争对手发现这个秘密后，想通过揭露来打击他。他撒谎是为了掩盖自己经营餐厅的违法行为。" },
+                    { text: "那批食材我亲自把关过，质量绝对没问题，是有人故意陷害我。", truthTeller: false, roleIntro: "网红餐厅厨师长，技术负责人", lieReason: "{name}声称自己'亲自把关'是推卸责任的谎言。实际上他被竞争对手收买，故意在食材中掺入过期调料，导致大规模食物中毒。他这样做一方面是为了报复老板（因为老板一直拒绝给他涨工资），另一方面也收取了竞争对手的'好处费'。他撒谎是为了逃脱'投毒'的罪名。" },
+                    { text: "我和{name}（厨师长）是老相识了，我不可能去害他。", truthTeller: true, roleIntro: "食材供应商，长期合作", lieReason: null },
+                    { text: "餐厅出事后我第一时间赶到了现场，帮忙处理善后事宜。", truthTeller: true, roleIntro: "餐厅经理，现场管理", lieReason: null },
+                    { text: "我听说那孕妇是在吃了变质蘑菇后出事的，但我的餐厅绝对没用过那种菇。", truthTeller: false, roleIntro: "餐厅经理，负责后厨管理", lieReason: "{name}声称'没用过那种菇'是此地无银三百两。实际上他的餐厅确实用过那种变质蘑菇，但他在事故后第一时间销毁了证据。他说这话的目的是想误导警方，让警方去查其他餐厅而不是他们。他撒谎是为了掩盖餐厅后厨管理混乱的真相。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（供应商）和角色3（餐厅经理）说真话——供应商证明自己提供的食材没问题，经理证明出事后积极处理。角色1（厨师长/投毒者）是被竞争对手收买后故意在食材中掺入过期调料的直接凶手。角色0（餐厅老板）为了压低成本长期默许使用过期食材。角色4（后厨经理）撒谎是为了转移视线，避免餐厅被追责。本案是一起因商业竞争和管理失职引发的公共安全事件。"
+            },
+            // 案件22: 赛车场撞人案（凶手索引2）
+            {
+                caseId: 22,
+                murdererIndex: 2,
+                statements: [
+                    { text: "地下赛车场的安保一直很松，那晚出事纯粹是意外。", truthTeller: true, roleIntro: "赛车手，专业车手", lieReason: null },
+                    { text: "我当晚一直在维修站处理车辆，没有离开过，监控可以作证。", truthTeller: false, roleIntro: "车队经理，负责车队运营", lieReason: "{name}声称自己'没离开过维修站'是虚假陈述。实际上他在事故发生前悄悄去过停车场——他在死者赛车的刹车油管上做了手脚，然后若无其事地回到维修站。他和{name}（未婚妻）有秘密协议：只要赛车手死亡，他就帮未婚夫还清赌债，并拿到一笔'封口费'。他撒谎是为了掩盖自己参与谋杀的事实。" },
+                    { text: "我从未踏足过停车场，更不可能去动别人的赛车。", truthTeller: false, roleIntro: "赛车场安保，负责安全管理", lieReason: "{name}声称自己'没去过停车场'是心虚的谎言。实际上他收了{name}（车队经理）的钱，在赛车场关门后故意'忘记'锁上停车场的门，方便{name}作案。他还故意关闭了停车场的监控，让{name}的行动不被记录。他撒谎是为了掩盖自己收受贿赂、玩忽职守的行为。" },
+                    { text: "我知道{name}（未婚妻）对他有感情，但我绝不会因为感情纠纷去伤害任何人。", truthTeller: false, roleIntro: "赛车手的未婚妻，有感情纠葛", lieReason: "{name}声称自己'不会伤害任何人'是虚假的。实际上她才是这起谋杀案的策划者。她知道未婚夫欠下巨额赌债，想用杀死对手的方式来让未婚夫获胜拿奖金。她买通了车队经理，由车队经理亲自下手执行。她撒谎是为了把自己包装成'无辜的旁观者'。" },
+                    { text: "那晚我确实去了维修站想找{name}（赛车手），但他不在那里。", truthTeller: true, roleIntro: "赛车场常客，观众之一", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（赛车手/死者）和角色4（常客）说真话——赛车手证明安保确实松懈（这是事故发生的前提），常客证明自己去过维修站找人。角色2（未婚妻/策划者）才是真正的幕后主使，她策划并买通车队经理杀人。角色1（车队经理/执行者）是被收买后在刹车油管上动手脚的人。角色3（安保）是收受贿赂后故意放行和关闭监控的人。这是一起因感情纠纷和赌债引发的买凶杀人案。"
+            },
+            // 案件23: 图书馆古籍焚毁案（凶手索引2）
+            {
+                caseId: 23,
+                murdererIndex: 2,
+                statements: [
+                    { text: "那天晚上我正常下班回家了，图书馆的火灾和我没有任何关系。", truthTeller: true, roleIntro: "图书馆管理员，负责借阅管理", lieReason: null },
+                    { text: "火灾发生时我正在巡逻，确实看到古籍区有火光。", truthTeller: false, roleIntro: "夜班保安，负责夜间安保", lieReason: "{name}声称自己'看到火光'是虚张声势。实际上他在火灾发生前就离开了岗位跑去睡觉，因为他经常在值夜班时偷懒。火灾发生后他被惊醒才赶去现场。他撒谎是为了掩盖自己擅离职守的失职行为。" },
+                    { text: "我对馆里的古籍做过详细鉴定，那些被烧毁的古籍中有几本是赝品。", truthTeller: false, roleIntro: "古籍修复师，负责修复工作", lieReason: "{name}声称被烧毁的古籍中有赝品是转移视线的谎言。实际上他就是监守自盗的人——那些'被烧毁'的珍本被他偷走藏在家里，火灾是他故意制造的，想烧毁证据。他买通了夜班保安让保安不要锁门，方便他潜入纵火。他撒谎是为了掩盖自己盗窃馆藏的罪行。" },
+                    { text: "那几本古籍我上个月还见过，不可能是赝品，你在胡说。", truthTeller: true, roleIntro: "经常来借阅的研究人员", lieReason: null },
+                    { text: "图书馆的古籍保护一直做得很好，这次火灾纯属意外。", truthTeller: false, roleIntro: "图书馆行政人员，负责后勤", lieReason: "{name}声称'保护做得很好'是虚假宣传。实际上图书馆的古籍保护资金被挪用了——他和其他几个馆员一起私分了保护经费，导致该换的防火设备没换，该装的监控没装。火灾发生后他们又想统一口径，说这是'意外'。他撒谎是为了掩盖管理层挪用公款、玩忽职守的问题。" }
+                ],
+                truthTellerFixed: [0, 3],
+                lieReasoning: "分析证词：角色0（管理员）和角色3（研究员）说真话——管理员证明自己正常下班没有嫌疑，研究员证明那些古籍确实是真的。角色2（古籍修复师/纵火犯）是监守自盗并制造火灾毁灭证据的凶手。角色1（夜班保安）因为擅离职守导致火灾没能及时发现而撒谎。角色4（行政人员）因为挪用保护资金而撒谎。这是一起因贪欲引发的故意毁坏文物案。"
+            },
+            // 案件24: 按摩店按摩女死亡案（凶手索引2）
+            {
+                caseId: 24,
+                murdererIndex: 2,
+                statements: [
+                    { text: "我们店有严格规定，男按摩师不能单独和女客户在包厢里。", truthTeller: true, roleIntro: "按摩店店长，负责管理", lieReason: null },
+                    { text: "那天我确实和王总发生过争执，但他是个老顾客，我不可能动手。", truthTeller: false, roleIntro: "男按摩师，与死者有冲突", lieReason: "{name}声称自己'不可能动手'是心虚的辩解。实际上他在争执中被王总推了一把摔倒在地，导致手腕受伤——他的指纹留在了现场。争吵后他害怕被追究，慌称自己'只是摔倒'。他以为这样就能脱罪，但法医发现他手腕有伤，证明他确实在场。" },
+                    { text: "我喝多了去按摩店只是想放松一下，根本没对任何人动过手。", truthTeller: false, roleIntro: "常客王总，VIP会员", lieReason: "{name}声称自己'没动过手'是颠倒黑白的谎言。实际上他在包厢里对女按摩师动手动脚遭到激烈反抗后，恼羞成怒地抓住女按摩师的头颈部用力一摔，导致其颈椎骨折当场死亡。他以为自己是VIP，花点钱就能私了，没想到出了人命。他撒谎是为了逃脱'过失杀人'的罪名。" },
+                    { text: "按摩师出事时我确实在店里，但我一直在前台接待。", truthTeller: true, roleIntro: "按摩店员工，当班前台", lieReason: null },
+                    { text: "女按摩师生前曾告诉我，她和男朋友感情很好，不可能是情杀。", truthTeller: false, roleIntro: "女按摩师的男友，有过争吵", lieReason: "{name}声称'感情很好'是虚假的。实际上他和女按摩师经常因为金钱问题吵架，女按摩师还威胁要和他分手。他知道女按摩师出事那晚他不在场，但他故意撒谎说'感情很好'，想让警方排除自己的嫌疑。他实际上是本案的凶手——他和女按摩师争吵后一时冲动将其推倒，导致其颈椎骨折。" }
+                ],
+                truthTellerFixed: [0, 3],
+                lieReasoning: "分析证词：角色0（店长）和角色3（前台）说真话——店长证明有严格规定，前台证明自己一直在前台。角色2（王总/凶手）是在按摩时对女按摩师动手动脚并失手将其摔死的凶手，他撒谎是为了逃脱罪责。角色1（男按摩师）虽然不是凶手但他在场撒谎是因为害怕被牵连。角色4（男友）也参与了撒谎，他隐瞒了和女按摩师的真实感情状况。这是一起因'咸猪手'引发的过失杀人案。"
+            },
+            // 案件25: 健身房教练猝死案（凶手索引1）
+            {
+                caseId: 25,
+                murdererIndex: 1,
+                statements: [
+                    { text: "我那天因为身体不舒服提前下班了，根本不在健身房。", truthTeller: true, roleIntro: "健身房老板，场馆负责人", lieReason: null },
+                    { text: "健身教练平时身体很好，他的死和我的蛋白粉绝对没有关系。", truthTeller: false, roleIntro: "合作教练，曾与死者有矛盾", lieReason: "{name}声称蛋白粉'没有问题'是此地无银三百两。实际上他在健身教练的蛋白粉里掺入了违禁兴奋剂，导致教练心脏骤停。他是受到{name}（健身房老板）的威胁和利诱才这样做的：老板说如果他不去举报健身教练，老板就会找人去举报他'打假拳'的事。他为了自保只能照做。他撒谎是为了掩盖自己'投毒杀人'的罪行。" },
+                    { text: "富婆{name}经常来健身房，动不动就喜欢对教练们动手动脚的。", truthTeller: false, roleIntro: "常客富婆，有不当行为", lieReason: "{name}提到富婆'动手动脚'是想转移视线。实际上她确实对健身教练表达过好感，但被教练拒绝了。她并没有因爱生恨去杀人。{name}提起这件事，是想误导警方认为富婆有杀人动机，从而把自己的嫌疑洗清。" },
+                    { text: "我发现丈夫和健身房老板有染后，决定要离婚揭露他们。", truthTeller: false, roleIntro: "健身教练的妻子，发现丈夫出轨", lieReason: "{name}声称自己'要揭露他们'是给自己脸上贴金。实际上她早就发现丈夫和老板有染，但她不想离婚——因为她依赖丈夫的收入。她知道老板要除掉丈夫的计划后，选择了沉默——她甚至暗自希望丈夫死掉，这样她就能继承财产。她撒谎是想把自己包装成'无辜的受害者'。" },
+                    { text: "那个富婆确实纠缠过{name}（死者），但他一直拒绝。", truthTeller: true, roleIntro: "健身房会员，知情者", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（健身房老板）和角色4（会员）说真话——老板证明自己不在场，会员证明富婆确实纠缠过死者但被拒绝。角色1（合作教练/直接凶手）是被老板威胁后投毒的人，他在死者蛋白粉里掺入违禁药物导致其心脏骤停。角色2（富婆）被栽赃但她确实有过骚扰行为。角色3（妻子）知道丈夫和老板的奸情但不揭发，暗自希望丈夫死掉以便继承财产。"
+            },
+            // 案件26: 照相馆暗房窒息案（凶手索引1）
+            {
+                caseId: 26,
+                murdererIndex: 1,
+                statements: [
+                    { text: "我父亲年纪大了，眼睛不好使，那天我去帮他整理了一下胶片。", truthTeller: true, roleIntro: "照相馆老板的女儿，帮忙打理", lieReason: null },
+                    { text: "我离开时父亲还好好的在暗房里工作，没有任何异常。", truthTeller: false, roleIntro: "照相馆学徒，在店内工作", lieReason: "{name}声称'没有任何异常'是死无对证的谎言。实际上他就是杀害老板的人——他在暗房里趁老板不备，用厚重的棉被将老板捂死。他之所以要杀老板，是因为老板发现了他偷拍女顾客私密照片用于贩卖的违法行为，要报警处理。他为灭口而杀人，事后还假装无辜离开。他撒谎是为了掩盖自己'盗窃兼杀人'的罪行。" },
+                    { text: "我确实去过照相馆，但只是取我预定的照片。", truthTeller: false, roleIntro: "胶片收藏家，顾客", lieReason: "{name}声称只是'取照片'是虚假陈述。实际上他是来和老板谈生意的——他想买断老板偷拍的那些女性照片的使用权，被老板拒绝。他虽然没有杀人，但他知道{name}（学徒）要杀老板的计划，因为他就是给学徒提供偷拍设备的人。他撒谎是为了撇清自己和这件事的关联。" },
+                    { text: "照相馆老板去世后，我帮他女儿处理了一些后事。", truthTeller: true, roleIntro: "老板的老朋友，邻居", lieReason: null },
+                    { text: "我和{name}（学徒）不熟，只是点头之交而已。", truthTeller: false, roleIntro: "老朋友的儿子，有往来", lieReason: "{name}声称和学徒'不熟'是虚假的。实际上他和学徒经常一起喝酒，学徒把自己的困境告诉了他——学徒担心老板报警，他当时还'仗义'地说'不会出卖朋友'。但当老板真的死后，他为了自保，选择了沉默。他撒谎是因为他害怕被牵连进这起命案。" }
+                ],
+                truthTellerFixed: [0, 3],
+                lieReasoning: "分析证词：角色0（老板女儿）和角色3（老朋友）说真话——女儿证明自己帮父亲整理过胶片，老朋友证明帮忙处理过后事。角色1（学徒/凶手）是杀人灭口的凶手，他偷拍女性照片贩卖被发现后为阻止老板报警而将其捂死。角色2（胶片收藏家）虽然没杀人但他提供了偷拍设备。角色4（老朋友儿子）虽然也没杀人但他事先知道学徒的计划却选择沉默。"
+            },
+            // 案件27: 网吧青年猝死案（凶手索引2）
+            {
+                caseId: 27,
+                murdererIndex: 2,
+                statements: [
+                    { text: "那个青年在网吧连续上网三天三夜猝死，完全是他自己不爱惜身体。", truthTeller: true, roleIntro: "网吧老板，场馆负责人", lieReason: null },
+                    { text: "我确实和死者吵过架，但那是因为他在网吧里吸烟被我制止。", truthTeller: false, roleIntro: "网民同伴，死者朋友", lieReason: "{name}声称只是'因为吸烟'吵架是避重就轻。实际上他和死者是网络游戏里的战友，那天他发现死者偷偷向游戏客服举报他'开挂'，导致他被封号。他和死者大吵一架后怀恨在心。当晚他联系了{name}（网吧管理员），让{name}帮忙'教训'死者。他撒谎是为了掩盖自己参与合谋的事实。" },
+                    { text: "我确实在死者喝的水里下了药，但那只是想让他拉肚子出丑，没想要他的命。", truthTeller: false, roleIntro: "网吧管理员，与死者有冲突", lieReason: "{name}声称'只想让他拉肚子'是推卸责任的谎言。实际上他受{name}（网民同伴）指使，在死者喝的水里下了能导致心脏骤停的违禁药物。他知道这种药物可能致命，但他认为'只是吓唬一下'。死者喝了水后果然心脏骤停死亡。他撒谎是因为他不想承担'杀人'的罪名。" },
+                    { text: "我和死者是网友关系，那天我根本不在网吧。", truthTeller: false, roleIntro: "网吧常客，网民群体", lieReason: "{name}声称自己'根本不在网吧'是虚假陈述。实际上他和{name}（网民同伴）、{name}（网吧管理员）是一个小团体，他们经常一起在网吧玩游戏。当晚他们发现死者'出卖'了同伴后，商量要'教训'死者。他虽然没有亲自下毒，但他参与了策划，并在事后帮忙毁灭证据。他撒谎是为了逃脱共谋的罪名。" },
+                    { text: "我发现死者出事时，他已经在地上抽搐了，我马上叫了救护车。", truthTeller: true, roleIntro: "死者父亲，接到通知赶到", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（网吧老板）和角色4（死者父亲）说真话——老板证明死者连续上网导致身体透支，父亲证明发现时死者已经抽搐。角色2（网吧管理员/下毒者）是被网民同伴指使后直接下毒的人，他在死者水中投入违禁药物导致其心脏骤停。角色1（网民同伴）是策划者和指使者。角色3（常客）虽然没直接参与但他参与商量并事后帮忙掩盖。这是一起因网络游戏矛盾引发的伤害致死案。"
+            },
+            // 案件28: 寺庙素斋馆中毒案（凶手索引3）
+            {
+                caseId: 28,
+                murdererIndex: 3,
+                statements: [
+                    { text: "我们素斋馆用的都是纯天然有机食材，绝对不存在安全问题。", truthTeller: false, roleIntro: "素斋馆老板，场馆负责人", lieReason: "{name}声称'纯天然有机'是虚假宣传。实际上他的素斋馆为了节省成本，长期用普通蔬菜冒充有机蔬菜卖给消费者。知名素食博主发现了这个秘密，准备发视频揭露。{name}为了阻止博主曝光，和{name}（摄影师）合谋将博主毒死。他撒谎是为了掩盖自己欺骗消费者的行为。" },
+                    { text: "我在直播过程中一直和博主互动，完全没注意到有什么异常。", truthTeller: false, roleIntro: "素斋馆厨师，负责烹饪", lieReason: "{name}声称自己'没注意异常'是装傻充愣。实际上他早就知道老板要用有毒食材害死博主——他在老板的授意下，故意把博主那碗汤里的食材换成了有问题的批次。他说这话是想把自己包装成'不知情者'，逃脱共谋的罪名。" },
+                    { text: "博主出事那天的食材都是新鲜的，我亲眼看着她吃下去的。", truthTeller: true, roleIntro: "素斋馆服务员，负责上菜", lieReason: null },
+                    { text: "我承认博主生前确实威胁过要曝光素斋馆的问题，但我发誓我绝对没有下毒。", truthTeller: false, roleIntro: "博主摄影师，合作关系", lieReason: "{name}声称自己'没有下毒'是此地无银三百两。实际上他和老板早就串通好了——他负责把博主引到素斋馆来，老板负责在食材里下毒。当博主喝下有毒的汤后毒性发作死亡。他以为自己能瞒天过海，但法医在汤里检测出了毒物。他撒谎是因为他就是这起谋杀的实际执行者之一。" },
+                    { text: "我曾经偶然看到博主和摄影师在后台争吵，但不知道具体内容。", truthTeller: true, roleIntro: "素斋馆常客，旁观者", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（服务员）和角色4（常客）说真话——服务员证明自己亲眼看着博主吃下去，常客证明看到博主和摄影师争吵。角色3（摄影师/真凶）是在博主汤里下毒的执行者，他和老板合谋毒死了博主。角色0（素斋馆老板）是策划者和主使者。角色1（厨师）在老板授意下配合调换了有问题的食材。这是一起因欺诈被曝光而引发的买凶杀人案。"
+            },
+            // 案件29: 理发店烫发烧伤致死案（凶手索引0）
+            {
+                caseId: 29,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我确实因为去买零食离开过一会儿，但回来时烫发机还是正常的。", truthTeller: false, roleIntro: "烫发师，操作失误者", lieReason: "{name}承认自己离开去买零食是心虚的表现。实际上他离开去买零食时，烫发机已经因为操作不当而开始升温。他作为专业烫发师，明知烫发机不能无人看管却擅离职守。他回来后发现机器起火但已经来不及了。他撒谎是因为他知道自己操作失误导致了女顾客的死亡。" },
+                    { text: "按照规定，烫发机旁边应该随时有人值守，但那天员工们都很忙。", truthTeller: false, roleIntro: "理发店老板，管理失职", lieReason: "{name}声称'员工们都很忙'是推卸管理责任的谎言。实际上理发店长期人手不足，{name}为了省钱拒绝招聘更多员工。他明知存在安全隐患却不改进，导致悲剧发生。事故发生后他想嫁祸给烫发师，让烫发师独自承担责任。他撒谎是为了掩盖自己管理失职的问题。" },
+                    { text: "我们店使用的烫发机都是正规渠道采购的，有完整的合格证明。", truthTeller: true, roleIntro: "烫发机供应商，设备提供方", lieReason: null },
+                    { text: "女顾客进店时我提醒过她烫发需要小心，但她坚持要做。", truthTeller: true, roleIntro: "理发店员工，协助操作", lieReason: null },
+                    { text: "那个烫发机是二手货，早就该淘汰了，老板为了省钱一直在用。", truthTeller: false, roleIntro: "女顾客的丈夫，提出质疑", lieReason: "{name}声称机器是'二手货'是想把责任推给理发店。实际上这款烫发机确实是二手的，但是从正规渠道采购的合格产品。{name}这样说是因为他怀疑妻子的死不是意外，想给理发店施压获取赔偿。他没有杀人动机，只是在事故发生后想趁机敲一笔。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（供应商）和角色3（店员）说真话——供应商证明设备来源正规，店员证明自己提醒过女顾客。角色0（烫发师/直接责任人）因擅离职守导致烫发机起火烧伤女顾客致死。角色1（理发店老板）为了省钱长期忽视安全管理，是事故发生的深层原因。角色4（丈夫）虽然想推责但他不是凶手，只是在事后想趁机索赔。"
+            },
+            // 案件30: 游泳馆溺水案（凶手索引1）
+            {
+                caseId: 30,
+                murdererIndex: 1,
+                statements: [
+                    { text: "按规定救生员必须随时在岗，那天我临时走开了一会儿。", truthTeller: true, roleIntro: "游泳馆救生员，临时工", lieReason: null },
+                    { text: "我那天游泳时感觉到水有点凉，就提前上岸了。", truthTeller: false, roleIntro: "游泳馆老板，场馆负责人", lieReason: "{name}声称自己'感觉水凉提前上岸'是虚假陈述。实际上他在事故发生前就已经离开了游泳馆——他和{name}（闺蜜）有秘密交易：只要女顾客'意外'死亡，他就能获得一笔保险赔偿分成。他指使闺蜜买通救生员，让救生员在关键时刻'走开一会儿'。他撒谎是为了撇清自己和这起命案的关联。" },
+                    { text: "女顾客生前确实和{name}（救生员）发生过争执，但那是正常的工作摩擦。", truthTeller: false, roleIntro: "游泳馆常客，旁观者", lieReason: "{name}声称争执只是'工作摩擦'是避重就轻。实际上他和女顾客也有矛盾——他曾追求女顾客被拒。他知道闺蜜要'教训'女顾客的计划后，主动提供了女顾客的作息时间和游泳习惯。他说这话是想误导警方，让大家以为是情杀或仇杀，而忽略真正的保险诈骗动机。" },
+                    { text: "我承认我欠女顾客10万块钱，但我已经和她达成还款协议了。", truthTeller: false, roleIntro: "女顾客的闺蜜，有债务纠纷", lieReason: "{name}声称已经'达成还款协议'是虚假的。实际上她根本不想还钱——她和游泳馆老板有私情，两人合谋要除掉女顾客独吞遗产。她花了5万买通救生员，让救生员在关键时刻离开。她以为女顾客'意外'淹死后，10万债务就一笔勾销了，还能分到保险金。她撒谎是因为她就是这起谋杀案的策划者和指使者。" },
+                    { text: "游泳馆的救生员配置是符合规定的，临时离岗也情有可原。", truthTeller: true, roleIntro: "游泳馆安全主管，负责安全", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（救生员/被买通者）和角色4（安全主管）说真话——救生员承认临时走开，安全主管证明救生员配置符合规定。角色1（游泳馆老板/策划者之一）和角色3（闺蜜/策划者和指使者）是合谋骗保杀人的凶手——闺蜜买通救生员，让其在关键时刻离开，导致女顾客溺水后无人施救。角色2（常客）虽然和女顾客有矛盾但他不是真凶，只是在事后想浑水摸鱼。"
+            },
+            // 案件31: 花店老板娘毒杀案（凶手索引2）
+            {
+                caseId: 31,
+                murdererIndex: 2,
+                statements: [
+                    { text: "我确实是给老板娘送过花，但只是正常的生意往来。", truthTeller: false, roleIntro: "花店员工，负责配送", lieReason: "{name}声称只是'生意往来'是心虚的辩解。实际上他和老板娘有婚外情，被老板娘的女儿{name}发现后，两人矛盾激化。女儿在{name}送的花束包装纸上涂了毒药，想借刀杀人——她知道母亲接触包装纸后会中毒。她让{name}去送花是想让自己有不在场证明。她撒谎是因为她知道花束被动过手脚，却故意不说。" },
+                    { text: "我确实和老王有不正当关系，但那天晚上我只是去拿我的东西。", truthTeller: false, roleIntro: "隔壁老王，与老板娘有染", lieReason: "{name}承认和老王有染是欲盖弥彰。他送的花束被女儿偷偷涂了毒药，他完全不知情——他以为自己只是照常送花。他承认有染是想转移视线，让警方以为是情杀。实际上他就是被女儿利用的'工具人'。他撒谎是因为他怕被当成凶手。" },
+                    { text: "我和老王确实有一些生意上的往来，案发那天我是去花店取东西的。", truthTeller: true, roleIntro: "花店老板娘，受害者", lieReason: null },
+                    { text: "老板娘最近和老王走得很近，我隐约感觉到会有事情发生。", truthTeller: false, roleIntro: "花店供应商，察觉异常", lieReason: "{name}声称'隐约感觉到'是想表现自己'先知先觉'。实际上他和老板娘有债务纠纷——老板娘欠他货款一直不还。他看到老板娘和老王走得近后，故意在朋友圈造谣说老板娘'出轨'，想给老板娘施压快点还钱。他这样说并不是他真的知道谁会杀人，而是想趁机浑水摸鱼。他撒谎是因为他怕被牵连进命案。" },
+                    { text: "那天老板娘收到老王的花时，我还帮她插到花瓶里了。", truthTeller: true, roleIntro: "花店员工，帮忙处理", lieReason: null }
+                ],
+                truthTellerFixed: [4],
+                lieReasoning: "分析证词：角色2（老板娘/受害者）和角色4（员工）说真话——老板娘承认和老王的关系，员工证明帮忙把花插到花瓶里。角色2（女儿/真凶）因为恨母亲背叛父亲，同时恨老王勾引母亲，在老王送的花束包装纸上涂了毒药，导致老板娘接触后中毒死亡。角色0（花店员工）被女儿利用送花，是不知情的工具人。角色1（老王）也只是被利用的'送花工具'。这是一起因家庭矛盾引发的借刀杀人案。"
+            },
+            // 案件32: 高尔夫球童死亡案（凶手索引1）
+            {
+                caseId: 32,
+                murdererIndex: 1,
+                statements: [
+                    { text: "我看到{name}（球童）坠落的地方护栏确实松动了，但那不是我弄的。", truthTeller: true, roleIntro: "球场设计师，参与建设", lieReason: null },
+                    { text: "我承认我那天晚上去过第18洞附近，但只是去看看风景。", truthTeller: false, roleIntro: "球童主管，负责球童管理", lieReason: "{name}声称只是'看风景'是此地无银三百两。实际上他和会员王总有秘密交易：王总追求球童小芳被拒，威胁要让小芳'失业'。球童主管为了讨好王总，第18洞的观景台年久失修，他在案发前特意去'检查'了一下——然后'不小心'松动了护栏螺丝。他以为这样就能神不知鬼不觉，没想到小芳正好走到那里坠亡。他撒谎是因为他就是杀人凶手。" },
+                    { text: "球童小芳的工作态度一直很认真，我对她的死感到非常遗憾。", truthTeller: false, roleIntro: "会员王总，VIP顾客", lieReason: "{name}声称'感到遗憾'是虚情假意。实际上他就是这起谋杀的策划者和指使者——他追求小芳被拒后恼羞成怒，威胁球童主管想办法'让小芳闭嘴'。球童主管为了讨好这个VIP，就在护栏上动了手脚。他说'遗憾'是想给自己塑造'无辜'的形象。他撒谎是因为他不想承认自己'追求被拒就杀人'的卑劣动机。" },
+                    { text: "我和{name}（会员王总）只是普通的生意伙伴关系，没有私下往来。", truthTeller: false, roleIntro: "球童室友，证人", lieReason: "{name}声称只是'生意伙伴'是虚假陈述。实际上他和王总经常一起吃喝玩乐，王总还借给他20万块钱。当晚他看到王总在第18洞附近徘徊，他知道王总和球童主管在密谋什么。他没有报警，而是选择了沉默。他撒谎是因为他怕说出来会得罪王总，影响他还钱。" },
+                    { text: "我那天晚上确实听到楼上有响动，但没太在意。", truthTeller: true, roleIntro: "球场巡逻员，负责安保", lieReason: null }
+                ],
+                truthTellerFixed: [0, 4],
+                lieReasoning: "分析证词：角色0（球场设计师）和角色4（巡逻员）说真话——设计师证明护栏确实松动，巡逻员听到过异常响动。角色1（球童主管/直接凶手）是松动了护栏螺丝导致小芳坠亡的执行者。角色2（会员王总/策划者和指使者）是因为追求被拒而策划杀人的幕后主使。角色3（球童室友）虽然没直接参与但他事先知情却沉默不言。这是一个因追求被拒引发的职场谋杀案。"
+            },
+            // 案件33: 纹身店纹身过敏案（凶手索引0）
+            {
+                caseId: 33,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我确实给客人用过那批色料，但每位客人我都有做皮试。", truthTeller: false, roleIntro: "纹身师，操作者", lieReason: "{name}声称自己'有做皮试'是虚假的。实际上他为了赶时间，没有给女顾客做皮试就直接纹身了。他知道那批色料有质量问题，但为了省钱和赶工期，他选择冒险。他说'做皮试'是想推卸操作失误的责任。他撒谎是因为他的疏忽直接导致了顾客的过敏性休克死亡。" },
+                    { text: "那批问题色料早就该下架了，但纹身师舍不得扔。", truthTeller: true, roleIntro: "纹身店老板，负责采购", lieReason: null },
+                    { text: "我是供应商，那批色料出厂时是合格的，有检测报告。", truthTeller: false, roleIntro: "纹身色料供应商，负责销售", lieReason: "{name}声称'出厂合格'是推卸责任的谎言。实际上他明知道那批货是'工厂尾货'——质量不稳定，所以才会以低价处理。他为了尽快清库存，故意把有问题的那批货混在合格品里卖给了纹身店。他说'有检测报告'是想撇清自己的责任。" },
+                    { text: "女顾客生前确实说过自己对某些化妆品过敏，但我以为只是说说而已。", truthTeller: false, roleIntro: "女顾客的母亲，知情者", lieReason: "{name}声称女顾客'说过过敏'是想证明纹身师有过失。实际上女顾客只是偶尔抱怨，并没有医学意义上的过敏史。{name}这样说是因为她想追究纹身店的责任，获取更多赔偿。她在女顾客出事后特意夸大其词，说'早就说过过敏'。她撒谎是因为她想多要赔偿金。" },
+                    { text: "我到现场时，看到纹身师一直在做心肺复苏，很努力在救人。", truthTeller: true, roleIntro: "纹身店常客，证人", lieReason: null }
+                ],
+                truthTellerFixed: [1, 4],
+                lieReasoning: "分析证词：角色1（纹身店老板）和角色4（纹身店常客）说真话——老板证明问题色料早就该下架，常客证明纹身师确实在尽力救人。角色0（纹身师/直接责任人）因赶时间而跳过皮试直接纹身，导致顾客过敏性休克死亡。角色2（供应商）为了清库存把有问题的货混在合格品里卖。角色3（女顾客母亲）虽然想多要赔偿但她不是真凶，只是在事后夸大其词。"
+            },
+            // 案件34: 鬼屋演员吓死案（凶手索引2）
+            {
+                caseId: 34,
+                murdererIndex: 2,
+                statements: [
+                    { text: "鬼屋里经常有游客被吓到，但从来没有出过人命。", truthTeller: false, roleIntro: "鬼屋负责人，场馆管理", lieReason: "{name}声称'从来没出人命'是想掩盖管理失职。实际上鬼屋为了追求恐怖效果，经常让演员用辣椒水等刺激性物品'增强效果'。这种做法早就存在安全隐患，但负责人为了吸引更多游客默许了这种行为。他撒谎是想推卸管理责任。" },
+                    { text: "我承认我在小李的面具上涂了辣椒水，但那只是恶作剧，没想到他有心脏病。", truthTeller: false, roleIntro: "扮鬼演员，同事", lieReason: "{name}承认'恶作剧'是想减轻罪责。实际上他和小李有深厚的积怨——小李抢了他的角色机会，让他在同事面前很没面子。他想通过这个'恶作剧'让小李出丑，没想到小李有先天性心脏病，被辣椒水刺激后引发心脏病发作当场死亡。他以为'恶作剧'就能逃脱法律制裁。他撒谎是因为他不想承认自己实际上是想借机杀人。" },
+                    { text: "出事时我不在现场，我正在后台换衣服准备下一场。", truthTeller: false, roleIntro: "当天最后离开的员工", lieReason: "{name}声称自己'在换衣服'是虚假的不在场证明。实际上他在出事前就看到了{name}（扮鬼演员）的异常举动，知道他要'教训'小李。他没有阻止，也没有报告，而是选择了旁观。他留在现场是为了'看热闹'。他撒谎是因为他怕被牵连进这起命案。" },
+                    { text: "小李确实心脏不好，但他一直隐瞒病史，我完全不知道。", truthTeller: true, roleIntro: "鬼屋演员，死者同事", lieReason: null },
+                    { text: "我那天因为身体不舒服提前下班了，不清楚发生了什么。", truthTeller: true, roleIntro: "鬼屋负责人，管理方", lieReason: null }
+                ],
+                truthTellerFixed: [3, 4],
+                lieReasoning: "分析证词：角色3（演员/死者同事）和角色4（负责人）说真话——演员证明小李确实有心脏病，负责人证明自己提前下班不知情。角色2（扮鬼演员/凶手）因为和小李有积怨，用辣椒水涂面具导致其心脏病发死亡，他狡辩说只是'恶作剧'。角色0（鬼屋负责人）是默许危险做法的幕后推手。角色1（最后离开的员工）虽然没直接参与但他事先知道却选择旁观不说。这是一起因职场矛盾引发的过失致死案。"
+            },
+            // 案件35: 蹦床乐园摔伤致死案（凶手索引1）
+            {
+                caseId: 35,
+                murdererIndex: 1,
+                statements: [
+                    { text: "蹦床的安全护栏是符合国家安全标准的，不存在安全隐患。", truthTeller: false, roleIntro: "蹦床教练，现场指导", lieReason: "{name}声称'符合标准'是虚假宣传。实际上他为了多收几个孩子进场玩，擅自拆除了部分护栏——他说'这样能多放几个孩子进来，每个孩子多收10块钱'。他在利益驱动下忽视了安全规则。他说这话是想推卸安全责任。" },
+                    { text: "我承认那晚护栏确实不见了，但我不知道是谁拆的。", truthTeller: false, roleIntro: "蹦床安全员，负责安全", lieReason: "{name}声称'不知道是谁拆的'是此地无银三百两。实际上他就是拆护栏的人——他和蹦床教练是表兄弟，蹦床教练让他'帮忙'把护栏拆了，说是要'增加客流'。他为了帮表哥，擅自拆掉了护栏，导致孩子飞出坠落死亡。他撒谎是因为他不想承担过失致死的罪名。" },
+                    { text: "我孩子出事那天，蹦床乐园明明说护栏是好的，怎么突然就不见了？", truthTeller: true, roleIntro: "孩子母亲，提出质疑", lieReason: null },
+                    { text: "蹦床乐园为了省钱，长期不更换老化的设备，这是管理问题。", truthTeller: true, roleIntro: "蹦床厂家代表，设备提供方", lieReason: null },
+                    { text: "我虽然在现场，但没有看到孩子坠落的过程。", truthTeller: false, roleIntro: "蹦床乐园老板，场馆负责人", lieReason: "{name}声称'没看到坠落过程'是装傻充愣。实际上他就是让员工拆护栏的幕后指使者——他为了多赚钱，长期让员工擅自拆掉护栏多容纳孩子。当晚他也在现场，看到护栏不见了却没有阻止。他撒谎是因为他不想承认自己为了赚钱而忽视安全的本质。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（孩子母亲）和角色3（蹦床厂家代表）说真话——母亲质疑护栏突然不见，厂家代表指出设备老化问题。角色1（安全员/直接责任人）是擅自拆除护栏导致孩子坠落的执行者。角色0（蹦床教练）和角色4（蹦床乐园老板）都是为了多赚钱而默许和指使拆除安全设施的人。这是一起因管理失职和贪婪引发的过失致死案。"
+            },
+            // 案件36: 茶馆茶艺师猝死案（凶手索引2）
+            {
+                caseId: 36,
+                murdererIndex: 2,
+                statements: [
+                    { text: "我确实欠茶馆老板货款，但那是正常的商业纠纷，我不可能杀人。", truthTeller: false, roleIntro: "茶叶供应商，有债务纠纷", lieReason: "{name}声称只是'商业纠纷'是想大事化小。实际上他被茶馆老板拖欠货款三年，多次催款被拒后怀恨在心。他故意在供给茶馆的茶叶里掺入慢性毒素，想让茶馆出现'食品安全问题'来报复。他以为这样做既能讨回货款，又能搞垮茶馆。没想到茶艺师每日品茶，毒素在她体内积累最终在表演时发作死亡。他撒谎是因为他不想承认自己在茶叶里下毒的事实。" },
+                    { text: "茶艺师出事时我正好在附近，帮忙叫了救护车。", truthTeller: true, roleIntro: "茶馆老板，场馆负责人", lieReason: null },
+                    { text: "那天的茶叶是我亲自准备的，每一步都严格把关。", truthTeller: false, roleIntro: "泡茶助手，协助服务", lieReason: "{name}声称'严格把关'是虚假的。实际上她注意到茶叶颜色有点不对，但老板说'别多管闲事'，她就没有追问。她是个胆小怕事的人，不想得罪老板。事故发生后她害怕被牵连，故意说自己'严格把关'来撇清关系。她撒谎是因为她怕承担责任。" },
+                    { text: "茶艺师的前男友最近一直纠缠她，我怀疑是那个人报复。", truthTeller: true, roleIntro: "茶艺师前男友，有过冲突", lieReason: null },
+                    { text: "我确实在供货合同上签过字，但我对茶叶的质量不负责任。", truthTeller: false, roleIntro: "茶叶供应商，负责配送", lieReason: "{name}声称'不负责任'是推卸合同的谎言。实际上他和茶馆老板的债务纠纷已经持续多年，他在绝望之下采取了极端手段——在茶叶里掺入慢性毒素。他在签字确认供货时就已经计划好了这一切。他撒谎是因为他不想承认自己在茶叶里下毒来报复的犯罪行为。" }
+                ],
+                truthTellerFixed: [1, 3],
+                lieReasoning: "分析证词：角色1（茶馆老板）和角色3（前男友）说真话——老板证明自己在现场帮忙救人了，前男友虽然和茶艺师有冲突但他没有杀人动机和时间。角色2（茶叶供应商/真凶）因为被拖欠货款三年而怀恨在心，在茶叶里掺入慢性毒素导致茶艺师中毒死亡。角色0（供应商/同谋）虽然签字的是他但他只是被利用的，真正的下毒者还是角色2。泡茶助手虽然知道茶叶有问题但选择沉默。这是一起因商业纠纷引发的报复杀人案。"
+            },
+            // 案件37: 魔术道具店窒息案（凶手索引0）
+            {
+                caseId: 37,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我们三个魔术师当晚确实去找老板退货了，但没说几句就走了。", truthTeller: false, roleIntro: "魔术师同行，三人之一", lieReason: "{name}声称'没说几句就走了'是避重就轻。实际上当晚三人去找老板退货时发生激烈争吵，争吵中{name}失手用道具箱的绑带勒住了老板的脖子。{name}是武术爱好者出身，力气很大，他一时冲动就...勒死老板后其他两人吓坏了，帮忙把尸体放回原处才离开。他说'没说几句就走了'是想把自己包装成'旁观者'。" },
+                    { text: "老板卖给我的道具确实是以次充好，我有购买凭证。", truthTeller: true, roleIntro: "魔术师同行，三人之一", lieReason: null },
+                    { text: "道具箱的绑带本来就容易解开，我只是碰巧拉了一下而已。", truthTeller: false, roleIntro: "魔术师同行，三人之一", lieReason: "{name}声称'碰巧拉了一下'是狡辩。实际上他在争吵中确实拉了绑带——他以为这只是吓唬老板，没想到力度没控制好，绑带勒住了老板的脖子导致其窒息。他说'碰巧'是想减轻自己的罪责。他和{name}（第一个动手的魔术师）是同伴，他帮忙把尸体放回去是因为他们三人是固定搭挡，不想同伴被捕。" },
+                    { text: "我和老板没有任何矛盾，我只是来看看新到的道具而已。", truthTeller: false, roleIntro: "魔术师同行，三人之一", lieReason: "{name}声称'没有任何矛盾'是虚假陈述。实际上他和老板也有积怨——老板曾经嘲笑他的魔术'过时了'。他在退货争吵时虽然没有直接动手，但他全程在场并帮忙处理了尸体。他选择沉默是想保住整个魔术团队的声誉。他撒谎是因为他不想被牵连进这起命案。" },
+                    { text: "我店里确实有条绑带不见了，但我以为是被偷了。", truthTeller: true, roleIntro: "魔术道具店老板，受害者", lieReason: null }
+                ],
+                truthTellerFixed: [1, 4],
+                lieReasoning: "分析证词：角色1（魔术师之一）和角色4（魔术道具店老板/受害者）说真话——魔术师证明道具确实是以次充好，老板证明自己的绑带不见了。角色0（魔术师之一/直接凶手）在退货争吵中失手用绑带勒死了老板。角色2和角色3虽然没直接动手但他们帮忙处理了尸体，三人共同构成了犯罪现场。这是一起因退货纠纷引发的冲动杀人案。"
+            },
+            // 案件38: KTV公主被杀案（凶手索引3）
+            {
+                caseId: 38,
+                murdererIndex: 3,
+                statements: [
+                    { text: "公主出事时我确实在包厢外面，但我没有进去过。", truthTeller: false, roleIntro: "KTV经理，负责管理", lieReason: "{name}声称自己'没有进去'是虚假陈述。实际上他当时就在包厢里——他和公主有过节，想要'教训'公主。他进入包厢后看到公主已经被人杀害，吓了一跳就跑出来了。他说'没进去过'是想撇清自己和命案的关联。" },
+                    { text: "我确实经常来这个KTV，但我那晚是先走的，和公主的死无关。", truthTeller: false, roleIntro: "公主的男朋友，有情感纠葛", lieReason: "{name}声称自己'先走的'是虚假的不在场证明。实际上他和{name}（好姐妹）合谋要除掉公主——他嫌公主赚的钱都给了家里，自己却没得到多少。他和闺蜜商定：让闺蜜在公主的酒里下迷药，等公主昏迷后他再用酒杯砸死公主伪造现场。他撒谎是想把杀人罪责推到闺蜜身上。" },
+                    { text: "公主最近确实和男朋友关系不好，我还劝过她。", truthTeller: true, roleIntro: "当晚消费最高的客户，证人", lieReason: null },
+                    { text: "我承认我嫉妒公主每个月赚得比我多，但我发誓我没有害她。", truthTeller: false, roleIntro: "公主的好姐妹，有嫉妒心", lieReason: "{name}承认嫉妒是想避重就轻。实际上她才是这起谋杀案的核心策划者——她和公主的男朋友有私情，两人商量要'处理掉'公主独吞她的财产。她在公主的酒里下了迷药，等公主昏迷后，男友用包厢里的酒杯将其砸死。她以为这样做就能瞒天过海。她撒谎是因为她不想承认自己策划杀人的罪行。" },
+                    { text: "我确实在包厢里看到公主倒在地上，旁边全是酒杯碎片。", truthTeller: true, roleIntro: "KTV服务员，现场目击者", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（消费最高的客户）和角色4（KTV服务员）说真话——客户证明公主和男友关系不好，服务员看到了犯罪现场。角色3（公主好姐妹/核心策划者）和角色1（公主男友/执行者）是合谋杀人的凶手——闺蜜在酒里下迷药，男友用酒杯砸死公主。角色0（KTV经理）虽然和公主有过节但他不是真凶，只是在场者。这是一起因嫉妒和婚外情引发的谋杀案。"
+            },
+            // 案件39: 盲人按摩师被杀案（凶手索引2）
+            {
+                caseId: 39,
+                murdererIndex: 2,
+                statements: [
+                    { text: "我丈夫虽然眼睛看不见，但他耳朵特别灵，我根本不敢做坏事。", truthTeller: false, roleIntro: "按摩师妻子，与供应商有染", lieReason: "{name}声称自己'不敢做坏事'是此地无银三百两。实际上她和精油供应商老王有染，被丈夫发现后丈夫假装看不见在收集证据。她和老王商量'不能让他把证据公开'，于是两人在深夜以送精油为由进入按摩店，用精油瓶将丈夫砸死。她撒谎是想掩盖自己和老王合谋杀夫的罪行。" },
+                    { text: "陈明确实发现了一些不该发现的事情，但我不至于杀人灭口。", truthTeller: false, roleIntro: "精油供应商，与妻子有染", lieReason: "{name}声称'不至于杀人灭口'是装无辜的谎言。实际上他和妻子确实合谋要杀死按摩师——因为按摩师发现了他和妻子的奸情并在暗中收集证据。他们担心按摩师的证据公开后会身败名裂。他谎称只是'送精油'是想撇清自己和命案的关联。他撒谎是因为他不想承认自己杀人的事实。" },
+                    { text: "我确实和妻子关系紧张，但那只是因为她乱花钱。", truthTeller: true, roleIntro: "盲人按摩师，受害者", lieReason: null },
+                    { text: "我丈夫生前确实说过感觉到有人在背后议论他。", truthTeller: false, roleIntro: "按摩师徒弟，知情者", lieReason: "{name}声称按摩师'感觉到议论'是想误导警方。实际上按摩师生前确实怀疑妻子和老王有染，他假装看不见是在收集证据。徒弟知道这件事，但他以为师父只是'疑神疑鬼'。他这样说是想把警方的注意力引向'情杀'的方向，从而掩盖他自己也参与其中的事实——他一直觊觎按摩店的经营权。" },
+                    { text: "按摩师出事时我正好请假回老家了，不在现场。", truthTeller: true, roleIntro: "按摩店老板，场馆负责人", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（盲人按摩师/受害者）和角色4（按摩店老板）说真话——按摩师是受害者，老板证明案发时自己不在场。角色2（按摩师妻子/策划者之一）和角色3（精油供应商/执行者）是合谋杀夫的凶手——他们以送精油为由进入按摩店，用精油瓶将按摩师砸死。角色0（按摩师徒弟）虽然不是直接凶手但他觊觎店面的经营权，对师父的死负有间接责任。这是一起因婚外情和利益纠纷引发的谋杀案。"
+            },
+            // 案件40: 攀岩俱乐部坠崖案（凶手索引0）
+            {
+                caseId: 40,
+                murdererIndex: 0,
+                statements: [
+                    { text: "我们供应商提供的绳索都是经过质量检测的，绝对符合安全标准。", truthTeller: false, roleIntro: "攀岩设备供应商，销售方", lieReason: "{name}声称'符合安全标准'是以次充好的虚假宣传。实际上他明知这批货是假冒伪劣产品（所谓的'工厂尾货'），但为了消化库存还是卖给了攀岩俱乐部。他和俱乐部老板有长期合作关系，知道老板贪便宜，所以把有质量问题的货推销给了他。他撒谎是想逃避'销售假冒伪劣产品'的刑事责任。" },
+                    { text: "我确实知道俱乐部老板贪便宜买了便宜货，但我只是负责安装。", truthTeller: true, roleIntro: "攀岩俱乐部老板，场馆负责人", lieReason: null },
+                    { text: "出事那天我和朋友去攀岩了，根本不在俱乐部。", truthTeller: false, roleIntro: "教练的好友，案发当天一起", lieReason: "{name}声称自己'不在俱乐部'是虚假的不在场证明。实际上他和{name}（教练）是好朋友，他知道{name}最近被俱乐部老板压榨得很厉害——老板不仅拖欠工资，还威胁要开除他。{name}虽然不在现场，但他帮教练出谋划策：如何制造'意外'让俱乐部'出点事'来报复老板。他撒谎是因为他不想被牵连进这起命案。" },
+                    { text: "那条安全绳是老板亲自采购的，我当时就说这货有问题。", truthTeller: true, roleIntro: "教练，负责教学和安全", lieReason: null },
+                    { text: "俱乐部为了省钱，长期忽视设备更新，这是事故的根本原因。", truthTeller: false, roleIntro: "学员，事故目击者", lieReason: "{name}声称'设备问题是根本原因'是夸大其词。实际上他当天也在攀岩，他在出发前就注意到自己的安全绳有点'不对劲'，但他以为'应该没事'就没声张。他这样说是因为他想转移视线，让警方去追究俱乐部的责任，而忽略他自己的疏忽——他明明发现问题却没上报，最终导致教练使用了那条有质量问题的绳子。他是这起事故的间接责任人。" }
+                ],
+                truthTellerFixed: [1, 3],
+                lieReasoning: "分析证词：角色1（俱乐部老板）和角色3（教练）说真话——老板承认自己采购了便宜货，教练证明自己曾指出质量问题。角色0（供应商/罪魁祸首）明知货有问题还卖出去，是导致事故发生的根源。角色2（教练好友）虽然不在现场但参与策划，是共谋。角色4（学员）虽然不是直接凶手但他发现问题后没有上报，也是间接责任人。这是一起因贪图便宜和管理失职引发的坠亡事故。"
+            },
+            // 案件41: 密室逃脱窒息案（凶手索引0）
+            {
+                caseId: 41,
+                murdererIndex: 0,
+                statements: [
+                    { text: "密室逃脱游戏确实很刺激，但我不会为了吓人就去堵通风口。", truthTeller: false, roleIntro: "密室老板，场馆负责人", lieReason: "{name}声称自己'不会去堵通风口'是此地无银三百两。实际上他确实为了增加'恐怖感'而用塑料板封堵了通风口——他说'反正只有一个小时，不会有事的'。结果密室里二氧化碳浓度升高，有呼吸系统疾病的玩家窒息死亡。他撒谎是想掩盖自己'为了生意而忽视安全'的管理失职行为。" },
+                    { text: "我出事前确实感觉到有点闷，但我以为是紧张造成的。", truthTeller: false, roleIntro: "NPC演员，负责扮演角色", lieReason: "{name}声称'以为是紧张'是装傻充愣。实际上他当天就发现通风口被堵了，但老板说'别多管闲事'，他就没出声。他怕得罪老板所以选择沉默。当有玩家开始感觉不舒服时，他以为那只是'演技太好'。他撒谎是想推卸'知情不报'的责任。" },
+                    { text: "密室的通风系统是符合规定的，我每次来检查都没问题。", truthTeller: true, roleIntro: "密室安全检查员，定期检查", lieReason: null },
+                    { text: "我那天因为害怕，提前从密室逃出来了，所以没事。", truthTeller: true, roleIntro: "玩家之一，幸存者", lieReason: null },
+                    { text: "老板为了省钱，长期不维护通风系统，我早就提醒过。", truthTeller: false, roleIntro: "其他三名玩家之一", lieReason: "{name}声称自己'早就提醒过'是想撇清关系。实际上他当天确实感觉到有点闷，但以为是游戏太紧张。他这样说是因为他想证明自己'早就知道有问题'，从而把责任推给老板。他不是真凶，但他在发现异常后没有及时采取行动。他撒谎是因为他害怕被追究疏忽的责任。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（安全检查员）和角色3（幸存玩家）说真话——检查员证明通风系统原本是合格的，幸存玩家证明自己提前逃出来了。角色0（密室老板/直接责任人）为了增加恐怖感而封堵通风口，导致玩家窒息死亡。角色1（NPC演员）虽然发现通风口被堵但选择沉默不报告。角色4（其他玩家）虽然不是直接凶手但他发现问题后也没有采取行动。这是一起因管理失职和侥幸心理引发的窒息死亡案。"
+            },
+            // 案件42: 美甲店顾客死亡案（凶手索引1）
+            {
+                caseId: 42,
+                murdererIndex: 1,
+                statements: [
+                    { text: "我们店使用的指甲油都是正规渠道采购的，有质量保证。", truthTeller: false, roleIntro: "美甲店老板，场馆负责人", lieReason: "{name}声称'正规渠道采购'是虚假宣传。实际上她知道店里用的指甲油有问题——因为她和女顾客的丈夫{name}有私情，两人商量要在指甲油里掺入慢性毒素除掉妻子。她说'正规采购'是想推卸责任，掩盖自己参与谋杀的事实。" },
+                    { text: "我给那位女顾客涂指甲油时一直很仔细，不可能有问题。", truthTeller: false, roleIntro: "美甲师，负责服务", lieReason: "{name}声称自己'一直很仔细'是此地无银三百两的谎言。实际上她和{name}（美甲店老板）是同谋——老板让她在给女顾客涂指甲油时偷偷掺入慢性毒素。她怕被老板开除，又贪图老板给的好处，就照做了。她撒谎是想掩盖自己在指甲油里掺毒的罪行。" },
+                    { text: "我妻子最近身体一直不好，医生说她需要静养。", truthTeller: true, roleIntro: "女顾客的丈夫，涉案人员", lieReason: null },
+                    { text: "我确实给女顾客推荐过那款指甲油，但那是她自己选择的。", truthTeller: false, roleIntro: "美甲店学徒，负责协助", lieReason: "{name}声称'是她自己选择的'是想撇清自己。实际上她知道老板和美甲师在指甲油里掺了东西，但她不敢举报——因为她是新来的学徒，怕被老板开除。她也收了老板给的'封口费'。她撒谎是因为她想让自己看起来'不知情'，掩盖自己'知情不报'的事实。" },
+                    { text: "我那晚去美甲店只是想做护理，根本不知道会出事。", truthTeller: true, roleIntro: "女顾客本人，受害者", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（女顾客丈夫）和角色4（女顾客/受害者）说真话——丈夫承认妻子身体不好，受害者确实是自己去做护理的。角色1（美甲师/核心执行者）在老板指使下在指甲油里掺了慢性毒素。角色0（美甲店老板/策划者）和角色3（美甲店学徒/协助者）都是同谋——老板与女顾客丈夫有私情，想除掉妻子。这是一起因婚外情和利益纠纷引发的投毒杀人案。"
+            },
+            // 案件43: 溜冰场撞人致死案（凶手索引2）
+            {
+                caseId: 43,
+                murdererIndex: 2,
+                statements: [
+                    { text: "溜冰场一直有规定不允许在冰面上追逐，但有些小孩就是不听。", truthTeller: false, roleIntro: "溜冰教练，现场管理", lieReason: "{name}声称'规定不允许追逐'是推卸责任的谎言。实际上他当天看到王某带着儿子在冰面上追逐时，不仅没有制止，反而为了讨好王某这个VIP客户而假装没看见。他说'小孩不听'是想把责任推给小孩和家长，掩盖自己'为了讨好客户而忽视安全职责'的行为。" },
+                    { text: "我当时就在旁边，看到孩子撞人的全过程，确实是追逐导致的。", truthTeller: true, roleIntro: "溜冰场保安，在场巡逻", lieReason: null },
+                    { text: "我儿子平时就很调皮，那天他确实在追着别的孩子玩。", truthTeller: false, roleIntro: "小孩父亲，VIP顾客", lieReason: "{name}承认儿子'在追逐'是想减轻罪责。实际上他不仅没有制止儿子追逐，反而怂恿儿子'追上去吓吓他'——他以为这只是一场'恶作剧'，没想到儿子真的把对方撞飞了。事后他想嫁祸给溜冰场，说是溜冰场的安全管理问题。他撒谎是因为他不想承认自己'教唆小孩故意撞人'的过失行为。" },
+                    { text: "溜冰场的地面确实有点滑，但这不是导致事故的原因。", truthTeller: true, roleIntro: "被撞男子，年轻人", lieReason: null },
+                    { text: "溜冰场的地面维护一直做得不好，我早就在网上给过差评。", truthTeller: false, roleIntro: "溜冰场常客，网友", lieReason: "{name}声称自己'早给过差评'是马后炮式的自我保护。他这样说是想误导警方：既然溜冰场'一直维护不好'，那事故就是溜冰场的责任，与他和他儿子无关。他不是这起事故的直接责任人，但他在事发后故意夸大溜冰场的问题，想帮儿子和自己逃脱民事赔偿责任。" }
+                ],
+                truthTellerFixed: [1, 3],
+                lieReasoning: "分析证词：角色1（溜冰场保安）和角色3（被撞男子）说真话——保安证明是追逐导致的碰撞，被撞男子证明地面维护其实还行。角色2（小孩父亲/主要责任人）是怂恿儿子追逐并导致他人死亡的人——他以为只是'恶作剧'没想到出了人命。角色0（溜冰教练）为了讨好VIP客户而没有制止小孩的危险行为。角色4（常客）虽然不是直接责任人但他在事后想通过抹黑溜冰场来帮肇事者开脱。这是一起因熊孩子教育和VIP傲慢引发的过失致死案。"
+            },
+            // 案件44: 采茶姑娘坠落案（凶手索引3）
+            {
+                caseId: 44,
+                murdererIndex: 3,
+                statements: [
+                    { text: "我女儿生前确实和茶叶加工厂老板走得比较近，但这不代表我会害她。", truthTeller: true, roleIntro: "采茶姑娘的母亲，证人", lieReason: null },
+                    { text: "茶园主确实对采茶姑娘很好，还给她涨过工资。", truthTeller: false, roleIntro: "采茶领队，负责管理", lieReason: "{name}声称茶园主'对姑娘很好'是虚假宣传。实际上他早就知道茶园主和姑娘有不正当关系，而且他知道姑娘最近在和未婚夫闹分手——因为她发现自己被茶园主玩弄了感情。他假装不知情，是想保住自己'知情不报'的名声。他撒谎是因为他怕被牵连进这起命案。" },
+                    { text: "我承认我和未婚妻之间有些矛盾，但我发誓我没有害她。", truthTeller: false, roleIntro: "采茶姑娘的未婚夫，有外遇", lieReason: "{name}承认'有矛盾'是想避重就轻。实际上他才是这起谋杀的策划者和执行者——他在深夜潜入茶山，偷偷破坏了姑娘的竹筐，导致其在采茶时坠落死亡。他这样做是因为他发现姑娘和茶园主的关系后恼羞成怒，加上他欠债累累，不想还钱。他发誓'没害她'是想用谎言掩盖自己'因爱生恨、杀未婚妻'的罪行。" },
+                    { text: "那座茶山有些陡坡比较危险，我们一直有在提醒采茶工注意安全。", truthTeller: true, roleIntro: "茶园主，场馆负责人", lieReason: null },
+                    { text: "采茶姑娘出事前几天，我确实看到有人在夜里去过茶山。", truthTeller: false, roleIntro: "茶叶加工厂老板，有私情", lieReason: "{name}声称'看到有人在夜里去茶山'是捏造证据。他实际上知道是未婚夫干的——因为他和未婚夫有过接触，知道未婚夫对姑娘变心的事一清二楚。他故意编造'看到可疑人影'，是想转移警方视线，让警方去追查所谓的'外人'。他撒谎是因为他不想被牵连进这起命案——他虽然和姑娘有不正当关系，但杀人的事他没参与。" }
+                ],
+                truthTellerFixed: [0, 3],
+                lieReasoning: "分析证词：角色0（采茶姑娘母亲）和角色3（茶园主）说真话——母亲证明女儿和茶园主走得近，茶园主证明自己有提醒安全。角色3（未婚夫/真凶）因为发现未婚妻和茶园主有染，加上欠债，恼羞成怒之下破坏了竹筐导致未婚妻坠落死亡。角色1（采茶领队）知道茶园主和姑娘的关系但选择沉默。角色4（茶叶加工厂老板）虽然和姑娘有染但他不是凶手，他只是撒撒谎想把嫌疑引向'外人'。"
+            },
+            // 案件45: 钓场钓鱼猝死案（凶手索引2）
+            {
+                caseId: 45,
+                murdererIndex: 2,
+                statements: [
+                    { text: "钓场一直有规定不允许在钓鱼区域吃东西，这是为了保护水质。", truthTeller: false, roleIntro: "钓场老板，场馆负责人", lieReason: "{name}声称'规定不允许吃东西'是虚假规定。实际上钓场为了吸引顾客，长期默许大家在钓鱼区域吃东西、喝东西。他明知这个'规定'形同虚设，却拿它当借口推卸安全责任。他撒谎是因为他怕被追究管理失职的责任。" },
+                    { text: "我确实欠死者200万，但我已经分期还了一部分了。", truthTeller: false, roleIntro: "死者生意伙伴，有债务纠纷", lieReason: "{name}承认欠钱是想减轻罪责。实际上他和死者除了200万的债务纠纷外，还有更深的仇恨——他曾经行贿死者想拿下一个项目，但死者拒绝了他。他一直怀恨在心。当他得知死者有高血压后，他从黑市买了一种能导致血压飙升的药物，偷偷掺入死者的鱼饵添加剂里。他说'分期还了'是想让大家觉得他有诚意还钱，而不是'杀人逃债'。" },
+                    { text: "死者那天钓鱼时确实喝了酒，我劝过他少喝点。", truthTeller: true, roleIntro: "死者钓友，在场证人", lieReason: null },
+                    { text: "渔具店卖的鱼饵添加剂是正规产品，我自己也用。", truthTeller: false, roleIntro: "渔具店老板，供应商", lieReason: "{name}声称'自己也用'是想证明产品质量没问题。实际上他的渔具店确实有进货正规产品，但{name}（生意伙伴）用来下毒的那批货，是从黑市买的'特殊添加剂'——根本不是从他店里买的。他说'自己也用'是想撇清自己和这起命案的关联。他不是凶手，只是在事故发生后想通过撒谎来保护自己的生意。" },
+                    { text: "死者的身体一直不好，医生早就说过他不能情绪激动。", truthTeller: true, roleIntro: "死者钓友，知情者", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（死者钓友一）和角色4（死者钓友二）说真话——两人都在场，证明死者喝了酒且身体不好。角色2（生意伙伴/真凶）欠死者200万不还，还因为行贿被拒而怀恨在心，用黑市买的药物下毒导致死者血压飙升心脏骤停。角色0（钓场老板）虽然管理失职但不是直接凶手。角色3（渔具店老板）虽然不是凶手但他在事后想通过撒谎来保护生意。这是一起因债务纠纷和行贿被拒引发的杀人案。"
+            },
+            // 案件46: 陶艺工作室坍塌案（凶手索引2）
+            {
+                caseId: 46,
+                murdererIndex: 2,
+                statements: [
+                    { text: "工作室的电路确实是需要定期检查的，但我不是专业的电工。", truthTeller: false, roleIntro: "陶艺工作室老板，场馆负责人", lieReason: "{name}声称'不是专业电工'是推卸管理责任的谎言。实际上他为了省钱，长期不维护工作室的电路，明知道线路老化却不肯花钱更换。他把责任推给所谓'专业问题'，是想掩盖自己'为了省钱而忽视安全'的本质。他说'不是专业电工'是想让电工{name}去顶罪。" },
+                    { text: "我确实给工作室修过电路，但那天窑炉出事和我没关系。", truthTeller: false, roleIntro: "电工，负责维修", lieReason: "{name}声称'和我没关系'是此地无银三百两。实际上他的儿子曾经被陶艺师的学生欺负过，他一直咽不下这口气。某天晚上他悄悄潜入工作室，故意在窑炉的电路接线上做了手脚——他以为这样能'神不知鬼不觉'地报复陶艺师的学生，没想到直接导致了陶艺师的死亡。他撒谎是因为他不想承认自己'为了报复而蓄意破坏电路'的罪行。" },
+                    { text: "工作室的电路确实有点老化，但我以为不会出事。", truthTeller: true, roleIntro: "陶艺师学徒，在场者", lieReason: null },
+                    { text: "我那天刚好不在工作室，电路的事我不清楚。", truthTeller: true, roleIntro: "陶艺师本人，受害者", lieReason: null },
+                    { text: "陶艺师平时对学生很严格，有些学生会记仇。", truthTeller: false, roleIntro: "窑炉设备供应商，设备提供方", lieReason: "{name}声称'学生会记仇'是想转移视线。实际上他和老板有矛盾——他提供的窑炉设备一直有质量问题，老板拖欠他货款不还。他知道老板为了省钱不肯换设备，就故意说'学生会记仇'，想误导警方去查学生而不是查他。他不是凶手，但在老板拖欠货款后他确实想过报复——虽然他没直接动手。他在事故发生后想通过撒谎来逃脱自己设备质量问题的责任。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（陶艺师学徒）和角色3（陶艺师/受害者）说真话——学徒证明电路确实老化，陶艺师是受害者本人。角色2（电工/真凶）因为儿子被欺负而怀恨在心，故意破坏电路导致窑炉坍塌砸死陶艺师。角色0（陶艺工作室老板）为了省钱长期不维护电路，是事故发生的深层原因。角色4（窑炉设备供应商）虽然和老板有矛盾但他不是直接凶手，只是想借机逃避设备质量问题的责任。这是一起因校园矛盾和管理失职引发的过失致死案。"
+            },
+            // 案件47: 棋牌室老人猝死案（凶手索引3）
+            {
+                caseId: 47,
+                murdererIndex: 3,
+                statements: [
+                    { text: "我确实看到老人赢了很多钱，但那是他的手气好。", truthTeller: false, roleIntro: "同桌牌友之一", lieReason: "{name}声称'手气好'是避重就轻。实际上他看到老人赢钱后，眼红得不得了——他输了很多钱，急需翻本。看到老人赢了这么多，他心里不平衡，事后偷偷在老人的茶杯里下了能导致血压飙升的药物。他说'手气好'是想转移视线，让大家以为这只是'运气游戏'，而忽略他'下毒害人'的嫌疑。" },
+                    { text: "棋牌室的通风一直不好，那天人又多又闷。", truthTeller: true, roleIntro: "同桌牌友之二", lieReason: null },
+                    { text: "我确实赢了老人的钱，但我发誓我没有动过任何手脚。", truthTeller: true, roleIntro: "同桌牌友之三", lieReason: null },
+                    { text: "我承认我看到有人往老人茶杯里加过东西，但我以为那是普通的茶叶。", truthTeller: false, roleIntro: "棋牌室老板，场馆负责人", lieReason: "{name}承认'看到有人加东西'是想把自己包装成'旁观者'。实际上他就是下毒的人——他看到老人赢了太多钱，担心老人赢了钱就跑（因为老人平时只带固定金额来打牌），他想留住老人多打几圈多赚点'桌费'。于是他在老人茶杯里下了能让人血压飙升的药物，想让老人'输几把'。他没想到老人喝完茶后情绪一激动，直接心脏病发作死亡。他撒谎是因为他不想承认自己'为了多赚桌费而毒害人'的罪行。" },
+                    { text: "我那晚确实有事先走了，不在现场。", truthTeller: false, roleIntro: "第四名牌友", lieReason: "{name}声称'有事先走了'是虚假的不在场证明。实际上他就是下毒的那个牌友——他和{name}（棋牌室老板）是同伙，两人商量好：老板负责下毒，他负责在老人茶杯里'加点料'让老人'输几把'。他以为这样就能让老人把赢的钱都吐出来。没想到老人心脏病发作死亡。他撒谎是因为他不想承认自己和老板合谋在茶里下毒的事实。" }
+                ],
+                truthTellerFixed: [1, 2],
+                lieReasoning: "分析证词：角色1（牌友二）和角色2（牌友三）说真话——两人都在场，证明通风不好但自己没有动手。角色3（棋牌室老板/主要凶手）和角色4（牌友四/共谋）是合谋下毒的人——老板负责下毒，牌友帮忙掩护，老人喝完茶后血压飙升心脏病发作死亡。角色0（牌友一）虽然看到了异常但他不是直接下毒的人，只是在事后想浑水摸鱼。这是一起因贪图小利引发的过失致死案。"
+            },
+            // 案件48: 自习室学生被推案（凶手索引3）
+            {
+                caseId: 48,
+                murdererIndex: 3,
+                statements: [
+                    { text: "自习室的管理员确实有疏忽，那天晚上三楼楼梯口没有亮灯。", truthTeller: false, roleIntro: "死者男朋友，嫌疑人之一", lieReason: "{name}声称管理员'疏忽'是转移视线。实际上他和{name}（竞争对手）都在撒谎——他知道竞争对手和死者之间有矛盾，也知道竞争对手一直在暗中使绊子。但他不是在推嫌疑人——他这样说是因为他想让大家以为死者是因为'楼梯口没灯'而失足跌落，而不是被人推下去的。他是想保护竞争对手，因为他怀疑竞争对手有动机。他撒谎是想混淆警方的调查方向。" },
+                    { text: "我和死者是考研竞争对手，但我们只是公平竞争，没有私人恩怨。", truthTeller: false, roleIntro: "死者竞争对手，嫌疑人之一", lieReason: "{name}声称'没有私人恩怨'是此地无银三百两。实际上她对死者的怨恨由来已久——她成绩不如死者，却看到死者稳拿导师名额。她假装和死者做朋友，取得信任后在楼梯口将其推下。她说'公平竞争'是想掩盖自己'因嫉妒而杀人'的卑劣动机。" },
+                    { text: "管理员那晚确实在值班，但三楼区域不在他的巡逻范围内。", truthTeller: true, roleIntro: "自习室管理员，负责安全管理", lieReason: null },
+                    { text: "我确实和死者有竞争关系，但考研是公平竞争，我没必要害她。", truthTeller: false, roleIntro: "室友，证人", lieReason: "{name}声称'没必要害她'是心虚的辩解。实际上她和竞争对手也有矛盾——她们都想考进张教授的研究生，名额只有一个。她明明看到竞争对手在案发前和死者'做朋友'，却选择沉默不说。她以为这样就能除掉一个竞争对手，没想到竞争对手直接把死者推下了楼梯。她撒谎是因为她不想承认自己'知情不报、坐山观虎斗'的冷漠。" },
+                    { text: "我那天晚上在三楼楼梯口看到有人推了死者一把，然后就跑掉了。", truthTeller: true, roleIntro: "自习室夜归学生，目击者", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（管理员）和角色4（夜归学生/目击者）说真话——管理员证明三楼不在巡逻范围，目击者看到有人推了死者一把。角色3（竞争对手/凶手）因为和张教授名额的竞争关系，假意和死者做朋友后在楼梯口将其推下致死。角色0（死者男朋友）和角色1（室友）虽然不是直接凶手但他们都在撒谎——男朋友想转移视线，室友明明知道竞争对手和死者'做朋友'的动机却知情不报。这是一起因考研竞争引发的谋杀案。"
+            },
+            // 案件49: 射箭馆误伤致死案（凶手索引0）
+            {
+                caseId: 49,
+                murdererIndex: 0,
+                statements: [
+                    { text: "射箭馆的安全规程很严格，任何弓箭都必须妥善保管。", truthTeller: false, roleIntro: "射箭教练，负责教学", lieReason: "{name}声称'安全规程很严格'是此地无银三百两。实际上他欠下百万赌债，被妻子发现后要离婚。他不想分财产给妻子，于是买通安全员，让安全员'疏忽'忘了收好弓箭——他自己在妻子来体验时'不小心'把弓箭留在了弦上，导致妻子被射穿喉咙死亡。他说'安全规程严格'是想把责任推给安全员，掩盖自己'为了独吞财产而杀妻'的罪行。" },
+                    { text: "那天我确实因为太忙忘了收弓箭，但没想到会出事。", truthTeller: false, roleIntro: "射箭馆安全员，负责安全", lieReason: "{name}承认'忘了收'是想减轻罪责。实际上他被教练买通，故意没有收好那支致命的箭——他知道教练要用这支箭杀妻。他收了教练的钱，答应配合。他以为这样就能神不知鬼不觉，没想到教练的妻子真的被射死了。他撒谎是因为他不想承认自己'被买通后过失致死'的罪行。" },
+                    { text: "射箭馆的安全措施确实需要改进，这是行业普遍问题。", truthTeller: true, roleIntro: "射箭馆负责人，管理方", lieReason: null },
+                    { text: "我那天去射箭馆只是想让老公陪我练练箭，没想到会出事。", truthTeller: false, roleIntro: "射箭教练的妻子，受害者", lieReason: "{name}声称'让老公陪练箭'是想把自己包装成'无辜受害者'。实际上她是去'抓奸'的——她早就怀疑老公有外遇，想去确认。当她看到老公和另一个女人在射箭馆'约会'时，她怒不可遏，冲上去要质问。结果老公为了掩盖出轨，用那支没来得及收的箭射死了她。她撒谎是因为她不想承认自己是去'抓奸'而不是单纯的'练箭'。" },
+                    { text: "教练和他妻子的关系一直不好，我劝过他早点解决。", truthTeller: true, roleIntro: "射箭馆常客，知情者", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（射箭馆负责人）和角色4（射箭馆常客）说真话——负责人承认安全措施需要改进，常客证明教练和妻子关系不好。角色0（射箭教练/真凶）欠赌债不想分财产给妻子，买通安全员后故意把箭留在弦上，趁妻子来'抓奸'时将其射死。角色1（安全员）被买通后故意没有收好弓箭。角色3（妻子/受害者）虽然不是凶手但她去射箭馆其实是'抓奸'而非单纯的'练箭'。这是一起因婚外情和财产纠纷引发的谋杀案。"
+            },
+            // 案件50: 跆拳道馆重伤案（凶手索引1）
+            {
+                caseId: 50,
+                murdererIndex: 1,
+                statements: [
+                    { text: "跆拳道训练本来就有风险，家长送孩子来时都签过免责协议的。", truthTeller: false, roleIntro: "跆拳道馆馆长，负责管理", lieReason: "{name}声称'签过免责协议'是推卸法律责任的借口。实际上免责协议在法律上是无效的——如果场馆存在管理过失，仍需承担责任。他这样说是因为他知道自己和教练都有问题：教练故意安排力量悬殊的对练，场馆明知有危险却没有制止。他说'签过协议'是想吓唬家长放弃追责。" },
+                    { text: "我承认我踢的力量大了点，但那是正常训练反应。", truthTeller: false, roleIntro: "跆拳道师兄，执行者", lieReason: "{name}声称'正常训练反应'是想减轻罪责。实际上他被教练张某威胁：要么'好好配合'让小学员'受点教训'，要么就被跆拳道馆开除。他为了保住自己的位置，只能照做——他一脚踢在小学员腹部，导致其内脏破裂死亡。他以为这只是'配合教练工作'，没想到会出人命。他撒谎是因为他不想承认自己'执行上级命令而踢死人'的罪行。" },
+                    { text: "我儿子明明一直很听话，怎么可能会和人结仇？", truthTeller: true, roleIntro: "小学员的父亲，质疑方", lieReason: null },
+                    { text: "教练张某和明明的家长有过冲突，但那只是工作上的小矛盾。", truthTeller: true, roleIntro: "跆拳道馆教练，负责教学", lieReason: null },
+                    { text: "我儿子出事那天，教练确实安排了力量悬殊的对练，我当场就反对过。", truthTeller: false, roleIntro: "小学员的母亲，质疑方", lieReason: "{name}声称自己'当场反对'是想把自己包装成'尽责的家长'。实际上她当时确实提出过质疑，但教练说'这是专业训练，家长不要干涉'，她就沉默了——她怕得罪教练影响儿子学跆拳道。她事后说'当场反对'，是想证明自己'已经尽力了'，从而把责任全推给教练和跆拳道馆。她撒谎是因为她不想承认自己作为家长'知情不报、沉默纵容'的过失。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（小学员父亲）和角色3（跆拳道教练）说真话——父亲证明儿子很乖，教练承认和学员家长有工作矛盾。角色1（跆拳道师兄/直接凶手）被教练威胁后执行了对练，他一脚踢死小学员是这起命案的直接执行者。角色0（馆长）为了讨好教练和避免投诉而默许这种危险训练方式。角色4（小学员母亲）虽然质疑过但最终沉默，是间接责任人。这是一起因职场矛盾和家长纵容引发的过失致死案。"
+            },
+            // 案件51: 陶艺展刺杀死案（凶手索引3）
+            {
+                caseId: 51,
+                murdererIndex: 3,
+                statements: [
+                    { text: "陶艺展的安保确实做得不好，任何人都能轻易接近展品。", truthTeller: false, roleIntro: "陶艺家徒弟，负责布展", lieReason: "{name}声称'安保不好'是转移视线。实际上他和{name}（前女友）有联系——他欠前女友的钱一直不还，前女友威胁要让他在陶艺圈混不下去。他故意向前女友透露了展览的时间和地点，说'李某罪有应得'。他以为这样就能借刀杀人，让前女友去'教训'李某。他撒谎是因为他不想承认自己'出卖师父信息、间接导致师父被杀'的罪行。" },
+                    { text: "我和李某早就没关系了，我去展览只是想看看他的作品而已。", truthTeller: false, roleIntro: "陶艺家前女友，有旧怨", lieReason: "{name}声称'只是想看作品'是此地无银三百两。实际上她早就计划好要去展览'找李某算账'——李某当年玩弄她的感情后把她抛弃，她在圈子里丢尽了脸。她在展览上假装祝贺，趁李某不备用藏在包里的陶艺刀将其刺死。她说'没关系了'是想打消大家的怀疑，把自己包装成'偶然路过'的旁观者。她撒谎是因为她就是这起谋杀的策划者和执行者。" },
+                    { text: "展览当天我负责协调工作，根本没注意到有异常。", truthTeller: true, roleIntro: "策展人，负责展览策划", lieReason: null },
+                    { text: "我和李某是收藏合作关系，他倒台对我没有任何好处。", truthTeller: true, roleIntro: "收藏家，有商业往来", lieReason: null },
+                    { text: "李某这人确实得罪过不少人，展览安保确实应该加强。", truthTeller: false, roleIntro: "陶艺家徒弟，负责布展", lieReason: "{name}声称'安保应该加强'是马后炮式的自我保护。他其实早就知道前女友要来'找麻烦'，因为他给前女友通风报信了。他说'安保应该加强'，是想误导警方，让大家以为是'安保问题'而不是'有人蓄意谋杀'。他不是凶手，但在师父被杀案中扮演了'帮凶'的角色。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（策展人）和角色3（收藏家）说真话——策展人证明展览当天没什么异常，收藏家证明和李某是正常商业合作关系。角色3（陶艺家前女友/凶手）因为被抛弃而怀恨在心，在展览上假装祝贺后用陶艺刀将李某刺死。角色0和角色4（陶艺家徒弟）其实是同一个人（原文重复了），他和前女友有债务纠纷，故意向前女友通风报信想借刀杀人。这是一起因感情纠纷引发的谋杀案。"
+            },
+            // 案件52: 拳击馆KO致死案（凶手索引3）
+            {
+                caseId: 52,
+                murdererIndex: 1,
+                statements: [
+                    { text: "业余拳击比赛有医务监督在场，选手的安全是有保障的。", truthTeller: false, roleIntro: "拳击馆老板，场馆负责人", lieReason: "{name}声称'安全有保障'是虚假宣传。实际上他当晚故意让医务监督'提前下班'——因为他知道蓝方选手要在比赛中'做点事情'，他不希望有人干扰。他和蓝方选手的教练有私下协议：只要蓝方'意外'打死红方，拳击馆就能获得一笔赌金分成。他撒谎是想掩盖自己'为了赌钱而故意制造比赛事故'的罪行。" },
+                    { text: "红方确实有心脏病家族史，但这是他的隐私，我没有义务告诉对手。", truthTeller: false, roleIntro: "蓝方选手，执行者", lieReason: "{name}声称'没有义务告诉对手'是故意误导。实际上他早就知道红方有心脏病家族史，他的教练也明确告诉过他——这是他和教练事先安排好的：利用红方的心脏病家族史，在比赛中'意外'击打其心脏位置，让对方'意外'心脏骤停。他撒谎是为了掩盖自己'故意违规杀人'的罪行。" },
+                    { text: "红方和蓝方都是专业拳手，这场比赛是公平竞技。", truthTeller: false, roleIntro: "比赛裁判，负责执法", lieReason: "{name}声称'公平竞技'是以退为进的谎言。实际上他收了蓝方教练的贿赂，故意在执法时'睁一只眼闭一只眼'，给蓝方留出'可乘之机'。他明明看到蓝方击打了红方的心脏位置（这是违规动作），却没有吹停比赛。他说'公平竞技'是想把自己包装成'公正的裁判'，掩盖自己'受贿后放水'的行为。" },
+                    { text: "红方确实有心脏病，但他在比赛前没有申报。", truthTeller: true, roleIntro: "红方教练，有过失", lieReason: null },
+                    { text: "蓝方那场比赛的表现确实很反常，医务监督应该及时叫停的。", truthTeller: true, roleIntro: "拳击馆工作人员，证人", lieReason: null }
+                ],
+                truthTellerFixed: [3, 4],
+                lieReasoning: "分析证词：角色3（红方教练）和角色4（拳击馆工作人员）说真话——红方教练证明红方确实有心脏病但没申报，工作人员证明蓝方表现确实反常。角色1（蓝方选手/凶手）说假话——他隐瞒了自己事先知道红方病史、故意击打其心脏的罪行。角色0（拳击馆老板）和角色2（比赛裁判）都收了蓝方教练的好处，在各自岗位上放水配合。这是一起因赌拳和受贿引发的故意伤害致死案。"
+            },
+            // 案件53: 拳击擂台毒杀案（凶手索引3）
+            {
+                caseId: 53,
+                murdererIndex: 3,
+                statements: [
+                    { text: "运动员服用营养品是正常的，我给他蛋白粉是为了帮他补充营养。", truthTeller: false, roleIntro: "拳击手经纪人，负责管理", lieReason: "{name}声称'帮他补充营养'是此地无银三百两。实际上他和拳击手妻子有染，两人密谋要除掉拳击手独吞财产——拳击手发现了他们的奸情，准备离婚并起诉他们。他从黑市买了一种能导致肌肉溶解的毒素，掺入拳击手的蛋白粉里。他说'补充营养'是想掩盖自己'下毒杀人'的罪行。" },
+                    { text: "我确实给拳击手准备过蛋白粉，但那是正常的营养搭配。", truthTeller: false, roleIntro: "营养师，负责营养搭配", lieReason: "{name}声称'正常营养搭配'是假装无辜。实际上他被拳击手经纪人买通，负责在蛋白粉里掺入那种致命毒素——经纪人说'只是让他拉几天肚子，没事的'。他以为真的只是'恶作剧'，没想到拳击手喝了后毒素发作死亡。他撒谎是因为他不想承认自己'在营养品里掺毒'的罪行。" },
+                    { text: "拳击手确实发现陪练在打假赛，我们正准备向赛事方举报。", truthTeller: true, roleIntro: "拳击手本人，受害者", lieReason: null },
+                    { text: "陪练打假赛确实不对，但这和拳击手的死有什么关系？", truthTeller: false, roleIntro: "陪练，有打假赛行为", lieReason: "{name}声称'和死没关系'是此地无银三百两。实际上他和拳击手妻子有染，两人知道拳击手要举报假赛的事，就合计先下手为强——让拳击手经纪人搞点'东西'让拳击手'出点状况'。他假装不知道毒素的事，但实际上他是整个谋杀计划的知情者和参与者。他撒谎是因为他不想承认自己'参与合谋杀夫'的罪行。" },
+                    { text: "拳击手那天状态很好，休息也很充足，谁能想到会出事呢。", truthTeller: true, roleIntro: "拳击馆保洁员，证人", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（拳击手/受害者）和角色4（拳击馆保洁员）说真话——拳击手证明了举报假赛的背景，保洁员证明拳击手当天状态正常。角色3（陪练/凶手）和角色0（拳击手经纪人/主要凶手）是合谋杀人的搭档——经纪人从黑市买毒素交给营养师下在蛋白粉里，陪练和经纪人有染并参与密谋。营养师虽然被利用但他确实是下毒的执行者。这是一起因婚外情和赌拳引发的谋杀案。"
+            },
+            // 案件54: 漂流胜地翻船案（凶手索引1）
+            {
+                caseId: 54,
+                murdererIndex: 1,
+                statements: [
+                    { text: "漂流项目确实有危险性，但我们有专业教练和安全员保障游客安全。", truthTeller: false, roleIntro: "漂流教练，负责安全", lieReason: "{name}声称'专业教练和安全员保障安全'是此地无银三百两。实际上他和漂流胜地老板是老同学，老板欠他50万一直不还。老板知道死者丈夫要'处理'妻子拿保险赔偿后，就让漂流教练'配合一下'——在漂流前'不小心'没给死者系紧救生衣。漂流教练收了死者丈夫的5万块好处费后照做了。他说'有安全保障'是想推卸自己在事故中的责任。" },
+                    { text: "我确实给妻子买了巨额保险，但那是正常的家庭保险规划。", truthTeller: false, roleIntro: "死者丈夫，有嫌疑", lieReason: "{name}声称'正常保险规划'是此地无银三百两。实际上他欠下巨额赌债，被妻子发现后要离婚。他不想分财产给妻子，就和漂流教练合谋：在漂流前'不小心'没给妻子系紧救生衣，然后在漂流时'意外'翻船，让妻子'意外'溺亡以获取保险赔偿。他以为这样就能神不知鬼不觉。他撒谎是因为他就是这起骗保杀妻案的策划者和主谋。" },
+                    { text: "漂流时确实水流很急，那天水流比平时更湍急。", truthTeller: true, roleIntro: "漂流胜地安全员，负责安全", lieReason: null },
+                    { text: "漂流前的安全讲解是很详细的，游客应该都知道要系紧救生衣。", truthTeller: true, roleIntro: "船夫，负责撑船", lieReason: null },
+                    { text: "我当时在岸边等妻子，没有参与漂流，不知道发生了什么。", truthTeller: false, roleIntro: "死者丈夫的朋友，同行者", lieReason: "{name}声称'在岸边等待'是推卸责任的谎言。实际上他收了死者丈夫的钱，在漂流时故意'落后'让死者丈夫和妻子单独在一条船上——这样方便丈夫动手。他说'不知道发生了什么'是想撇清自己和这起骗保杀妻案的关联。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（漂流胜地安全员）和角色3（船夫）说真话——安全员证明当天水流湍急，船夫证明有做安全讲解。角色1（死者丈夫/凶手和策划者）因为欠赌债不想分财产给妻子，和漂流教练合谋骗保杀妻。角色0（漂流教练/执行者）收了死者丈夫的钱，在漂流前故意没给死者系紧救生衣。角色4（朋友）收了好处配合行动。安全讲解虽然做了但执行时被人动了手脚。这是一起因赌债和骗保引发的谋杀案。"
+            },
+            // 案件55: 漂流河落水溺亡案（凶手索引2）
+            {
+                caseId: 55,
+                murdererIndex: 2,
+                statements: [
+                    { text: "景区的漂流项目有正规运营资质，安全措施是到位的。", truthTeller: false, roleIntro: "漂流景区管理员，负责管理", lieReason: "{name}声称'安全措施到位'是虚假宣传。实际上他和刺激项目承包商有利益输送——承包商给了一笔好处费，让他在检查时'睁一只眼闭一只眼'。承包商知道哥哥大刘和弟弟小刘的矛盾，故意在漂流前'检查'了小刘的漂流艇，然后'不小心'松动了安全锁扣。他说'安全到位'是想推卸管理责任。" },
+                    { text: "漂流前我们都有检查安全设备的习惯，那天也确实检查过。", truthTeller: false, roleIntro: "刺激项目承包商，负责设备", lieReason: "{name}声称'检查过设备'是避重就轻。实际上他确实检查过漂流艇，但他在检查时'不小心'松动了弟弟的漂流艇安全锁扣——因为哥哥大刘提前告诉了他兄弟俩的矛盾，让他'配合一下'。他说'检查过'是想把自己包装成'尽职的专业人员'，掩盖自己'帮助哥哥谋杀弟弟'的罪行。" },
+                    { text: "我和弟弟的遗产纠纷是走法律程序的，我没有必要杀人。", truthTeller: false, roleIntro: "死者的哥哥，有遗产纠纷", lieReason: "{name}声称'没必要杀人'是此地无银三百两。实际上他就是这起谋杀的策划者和执行者——他不想等弟弟继承父母的遗产，他想独吞。他知道弟弟每天都会去茶山最陡的区域采茶，就提前和承包商商量好，让承包商在漂流前'检查'时松动了弟弟的漂流艇安全锁扣。他说'走法律程序'是想把自己包装成'守法的公民'，掩盖自己'为了独吞遗产而杀弟'的罪行。" },
+                    { text: "我那天确实和哥哥有过争吵，但那只是因为家务事。", truthTeller: true, roleIntro: "死者的弟弟，受害者", lieReason: null },
+                    { text: "景区的安全巡查确实有漏洞，这是我们需要改进的地方。", truthTeller: true, roleIntro: "景区安全巡逻员，负责巡逻", lieReason: null }
+                ],
+                truthTellerFixed: [3, 4],
+                lieReasoning: "分析证词：角色3（死者弟弟/受害者）和角色4（安全巡逻员）说真话——弟弟承认和哥哥有争吵，巡逻员承认安全巡查有漏洞。角色2（哥哥/凶手和策划者）为了独吞父母遗产（弟弟继承60%他只继承40%），提前和承包商商量好，让承包商在漂流前松动了弟弟的漂流艇安全锁扣，导致弟弟在漂流时坠落死亡。角色0（景区管理员）和角色1（承包商）虽然不是直接凶手但他们分别收受好处后放水和协助，是这起命案的间接帮凶。这是一起因遗产纠纷引发的谋杀案。"
+            },
+            // 案件56: 雪场缆车坠落案（凶手索引0）
+            {
+                caseId: 56,
+                murdererIndex: 0,
+                statements: [
+                    { text: "缆车的制动系统是定期检查的，那天出事前一切正常。", truthTeller: false, roleIntro: "缆车维修工，负责维修", lieReason: "{name}声称'定期检查一切正常'是此地无银三百两。实际上他被滑雪场拖欠工资半年，多次讨要无果后，他一气之下在缆车的制动系统上做了手脚——他以为'只是让缆车停摆吓吓他们'，没想到制动失灵导致缆车坠落造成人员死亡。他说'一切正常'是想掩盖自己'因为被欠薪而报复性破坏设备'的罪行。" },
+                    { text: "缆车操作员确实是按规定操作的，那天没有任何违规操作。", truthTeller: true, roleIntro: "缆车操作员，负责操作", lieReason: null },
+                    { text: "滑雪场为了省钱，长期不维护设备，这是事故的根本原因。", truthTeller: true, roleIntro: "滑雪场安全主管，负责安全", lieReason: null },
+                    { text: "缆车供应商提供的设备确实质量不错，但再好的设备也需要维护。", truthTeller: false, roleIntro: "缆车设备供应商，负责供应", lieReason: "{name}声称'需要维护'是想推卸设备质量的责任。实际上他的设备确实质量不错，但滑雪场为了省钱长期不维护。供应商知道这一点，却没有采取措施——他不想得罪滑雪场这个大客户。他说'需要维护'是想把责任推给滑雪场的管理层，掩盖自己在'明知不维护却继续供货'的问题上的失职。" },
+                    { text: "缆车维修工最近确实因为工资问题和场方有矛盾，但这不代表他会报复。", truthTeller: false, roleIntro: "滑雪场经理，管理层", lieReason: "{name}声称'不代表他会报复'是以退为进的说法。实际上他早就知道维修工会报复——因为维修工说过'你们不让我好过，我也不让你们好过'。但经理为了省钱拒绝补发工资，导致矛盾激化。事故发生后经理想甩锅给维修工个人，说'只是个人恩怨'，想掩盖'管理层失职导致矛盾激化'的根本问题。" }
+                ],
+                truthTellerFixed: [1, 2],
+                lieReasoning: "分析证词：角色1（缆车操作员）和角色2（滑雪场安全主管）说真话——操作员证明自己按规定操作，安全主管证明滑雪场长期不维护设备。角色0（缆车维修工/直接凶手）因为被拖欠工资半年而报复，在制动系统上动手脚导致缆车坠落。角色3（缆车设备供应商）和角色4（滑雪场经理）虽然不是直接凶手但他们一个是'明知不维护却继续供货'，一个是'拒绝补发工资导致矛盾激化'，都是这起事故的间接责任人。这是一起因劳资纠纷引发的报复性犯罪。"
+            },
+            // 案件57: 雪地摩托翻车案（凶手索引1）
+            {
+                caseId: 57,
+                murdererIndex: 1,
+                statements: [
+                    { text: "雪地摩托的速度很快，事故原因可能是驾驶不当。", truthTeller: false, roleIntro: "雪地摩托店主，场馆负责人", lieReason: "{name}声称'驾驶不当'是转移视线。实际上他收了商业伙伴的好处，对维修员在摩托上动手脚的事睁一只眼闭一只眼——他明明知道维修员在刹车线上做了手脚，却故意不处理。他说'驾驶不当'是想把责任推给死者，掩盖自己收受贿赂、失职不报的罪行。" },
+                    { text: "死者的刹车线确实是被人割断的，但我没有动机这么做。", truthTeller: false, roleIntro: "雪地摩托维修员，有嫌疑", lieReason: "{name}声称'没有动机'是此地无银三百两。实际上他就是割断刹车线的人——他和{name}（死者商业伙伴）有秘密协议：只要他帮忙在死者的摩托上动手脚，{name}就能免除他欠下的20万债务。他在利益的驱动下照做了，导致死者在骑行时刹车失灵翻车身亡。他说'没有动机'是想掩盖自己'为了免除债务而帮助杀人'的罪行。" },
+                    { text: "我和{name}（死者）确实有工程款纠纷，但我已经起诉他了。", truthTeller: true, roleIntro: "死者商业伙伴，有债务纠纷", lieReason: null },
+                    { text: "雪地摩托的安全检查是到位的，刹车系统没有问题。", truthTeller: false, roleIntro: "雪场巡逻员，负责安全", lieReason: "{name}声称'安全检查到位'是虚假宣传。实际上他收了店主的好处，在巡逻时'没注意到'刹车线的异常——他明明看到有人在摩托旁边鬼鬼祟祟，但为了不得罪店主，他选择了沉默。他说'检查到位'是想推卸自己在巡逻时失职的责任。" },
+                    { text: "雪场的安全标志确实不够明显，这是我们需要改进的地方。", truthTeller: true, roleIntro: "雪场巡逻员的同事，现场目击者", lieReason: null }
+                ],
+                truthTellerFixed: [2, 4],
+                lieReasoning: "分析证词：角色2（死者商业伙伴/策划者）和角色4（巡逻员同事/目击者）说真话——商业伙伴承认有工程款纠纷（这是动机线索），巡逻员同事承认安全标志不够明显（这是间接原因）。角色1（雪地摩托维修员/直接凶手）被商业伙伴收买，免除20万债务作为交换条件，在死者摩托的刹车线上动手脚导致其翻车身亡。角色0（雪地摩托店主）和角色3（雪场巡逻员）虽然不是直接凶手但他们明知有问题却不处理，是间接责任人。这是一起因债务纠纷和利益交换引发的谋杀案。"
+            },
+            // 案件58: 卡丁车馆碰撞致死案（凶手索引1）
+            {
+                caseId: 58,
+                murdererIndex: 1,
+                statements: [
+                    { text: "卡丁车馆一直有规定不允许危险驾驶，事故原因可能是游客不守规矩。", truthTeller: false, roleIntro: "卡丁车馆老板，场馆负责人", lieReason: "{name}声称'游客不守规矩'是推卸责任的借口。实际上他和维修员有矛盾——维修员揭露他在设备采购中吃回扣，他想报复维修员。他故意在维修员负责的卡丁车上'发现问题后不处理'，导致观众被撞死亡。他说'游客不守规矩'是想把责任推给游客，掩盖自己在设备管理上的失职。" },
+                    { text: "卡丁车的方向盘确实被人动过手脚，但我没有参与。", truthTeller: false, roleIntro: "车辆维修员，有嫌疑", lieReason: "{name}声称'没有参与'是此地无银三百两。实际上他被{name}（场馆安全员）和观众席上的神秘人有关系——神秘人找到安全员说要'处理'自己的仇人，安全员又找到维修员帮忙。维修员收了钱后在方向盘连杆上做了手脚，导致车手无法控制车辆撞向观众。他说'没有参与'是想掩盖自己'为了钱而帮助杀人'的罪行。" },
+                    { text: "我确实是正常参加比赛，没有做任何违规动作。", truthTeller: true, roleIntro: "当事车手，参赛者", lieReason: null },
+                    { text: "车手当时确实失控了，但原因可能是车辆本身的问题。", truthTeller: true, roleIntro: "场馆安全员，负责安全", lieReason: null },
+                    { text: "我和{name}（观众席上的神秘人）确实认识，但我们只是普通朋友。", truthTeller: false, roleIntro: "车手朋友，知情者", lieReason: "{name}声称'只是普通朋友'是避重就轻。实际上他就是观众席上那个神秘人和车手之间的牵线人——神秘人想除掉自己在生意上的竞争对手，车手欠神秘人一笔钱。两人商量好：只要车手'不小心'在比赛中'失控'撞向目标，神秘人就帮车手还清债务。车手照做了，但没想到真的撞死了人。他撒谎是因为他不想承认自己'为了免除债务而帮助撞人'的罪行。" }
+                ],
+                truthTellerFixed: [2, 3],
+                lieReasoning: "分析证词：角色2（当事车手/被利用者）和角色3（场馆安全员/共谋之一）说真话——车手证明自己没有违规动作，安全员证明车确实失控了（暗示车辆有问题）。角色1（车辆维修员/直接凶手）被观众席上的神秘人买通后，在方向盘连杆上动手脚导致车手无法控制撞死观众。角色0（卡丁车馆老板）和角色4（车手朋友/牵线人）虽然不是直接凶手但他们一个是'发现问题不处理'，一个是'为免除债务而参与合谋'。这是一起因债务纠纷和商业报复引发的伤害致死案。"
+            },
+            // 案件59: 真人CS中弹身亡案（凶手索引2）
+            {
+                caseId: 59,
+                murdererIndex: 2,
+                statements: [
+                    { text: "彩弹枪的安全标准是统一的，射击力度过大可能是设备老化造成的。", truthTeller: false, roleIntro: "比赛裁判，负责执法", lieReason: "{name}声称'设备老化'是推卸责任的借口。实际上他收了{name}（场地老板）的好处，在检查设备时'没注意到'彩弹枪被调过——老板为了省钱故意用工业弹丸替换了部分合规彩弹。他说'设备老化'是想把责任推给'时间长了设备自然老化'这个客观因素，掩盖场地'为了省钱而私自替换弹丸'的违法行为。" },
+                    { text: "彩弹枪确实被人动过手脚，但那是场馆的问题。", truthTeller: true, roleIntro: "场地安全员，负责检查", lieReason: null },
+                    { text: "彩弹和真枪的区别很大，正常情况下不可能打死人。", truthTeller: false, roleIntro: "场地老板，场馆负责人", lieReason: "{name}声称'不可能打死人'是此地无银三百两。实际上他确实为了省钱，私自用工业级的弹丸替换了部分合规彩弹——工业弹丸的冲击力是合规彩弹的三到四倍。他以为'反正打不死人'就铤而走险，没想到真的打死了人。他说'不可能打死人'是想掩盖自己'为了省钱而置游客安全于不顾'的贪婪本质。" },
+                    { text: "死者和我是商业竞争对手，有动机，但绝不是我去杀的人。", truthTeller: false, roleIntro: "场地常客，有竞争关系", lieReason: "{name}声称自己'有动机但没参与'是避重就轻。实际上他和死者确实有商业竞争关系，他也确实对死者恨之入骨——死者抢走了他一个大客户导致他损失惨重。但他和这起事故没有直接关系，他只是碰巧看到过老板在设备上动手脚，却没有阻止。他撒谎是因为他怕被牵连进这起命案。" },
+                    { text: "死者的头盔确实被工业弹丸击穿了，这说明冲击力过大。", truthTeller: true, roleIntro: "法医，鉴定人员", lieReason: null }
+                ],
+                truthTellerFixed: [1, 4],
+                lieReasoning: "分析证词：角色1（场地安全员）和角色4（法医）说真话——安全员证明彩弹枪确实被动过手脚，法医证明死者是被工业弹丸击穿头盔导致死亡。角色2（场地老板/直接责任人）为了省钱私自用工业弹丸替换合规彩弹，是导致这起死亡事故的直接原因。角色0（比赛裁判）收了老板的好处没有尽到检查责任。角色3（场地常客）虽然和死者有竞争关系但他不是直接凶手，只是碰巧看到却没有阻止。这是一起因贪婪和管理失职引发的过失致死案。"
+            },
+            // 案件60: 蹦极事故坠落案（凶手索引3）
+            {
+                caseId: 60,
+                murdererIndex: 3,
+                statements: [
+                    { text: "蹦极是一项极限运动，有风险是正常的，游客应该了解这一点。", truthTeller: false, roleIntro: "蹦极教练，负责教学", lieReason: "{name}声称'风险正常'是推卸责任的借口。实际上他和{name}（景区安全员）是表兄弟，安全员欠他钱一直不还。当{name}（游客闺蜜）和男友想让游客'意外死亡'时，他们找到了安全员帮忙——安全员让蹦极教练'配合一下'，在帮游客系绑带时故意没系紧。教练收了好处费后照做了，导致游客在蹦极时绑带滑脱坠落死亡。" },
+                    { text: "蹦极设备确实需要定期检查，但我们一直有在维护。", truthTeller: true, roleIntro: "蹦极设备供应商，负责供应", lieReason: null },
+                    { text: "游客在体验前我们都有详细讲解安全须知，她当时表示理解。", truthTeller: true, roleIntro: "景区安全员，负责安全", lieReason: null },
+                    { text: "我和{name}（游客闺蜜）是多年好友，我们只是约好一起体验蹦极。", truthTeller: false, roleIntro: "游客闺蜜，执行者之一", lieReason: "{name}声称'只是好友约好一起体验'是此地无银三百两。实际上她和游客男友有私情，被游客发现后她就和男友商量要'解决'掉游客。游客很有钱，{name}和男友觊觎她的财产已经很久了。她让男友找人在帮游客系绑带时故意没系紧，导致游客在蹦极时坠落死亡。她说'只是好友约好一起体验'是想把自己包装成'无辜的旁观者'，掩盖自己'为了财产和男友合谋杀友'的罪行。" },
+                    { text: "闺蜜确实和游客男友有不正当关系，但她们的死没有直接关联。", truthTeller: false, roleIntro: "游客男友，策划者", lieReason: "{name}承认和闺蜜'有不正当关系'是想避重就轻。实际上他和闺蜜密谋要除掉游客——游客是他的未婚妻，但他更喜欢闺蜜，而且他觊觎游客家的财产。他和闺蜜商定：只要游客'意外'死亡，他就能继承财产并和闺蜜在一起。他找到景区安全员帮忙，安全员又找到蹦极教练配合，在帮游客系绑带时故意没系紧。他说'没有直接关联'是想把责任推给'意外事故'，掩盖自己'为了财产和私情而杀未婚妻'的罪行。" }
+                ],
+                truthTellerFixed: [1, 2],
+                lieReasoning: "分析证词：角色1（蹦极设备供应商）和角色2（景区安全员/共谋之一）说真话——供应商证明设备有在维护，安全员证明讲解过安全须知（但执行时被人动了手脚）。角色3（游客闺蜜/核心策划者和执行者之一）和角色4（游客男友/策划者和主谋）是合谋杀人的搭档——男友觊觎游客财产，闺蜜想和男友长久在一起，两人商定后买通安全员和蹦极教练，在帮游客系绑带时故意没系紧导致游客坠落死亡。蹦极教练是收受贿赂后执行的人。这是一起因财产和婚外情引发的谋杀案。"
+            }
+        ];
+
+        // ==================== 游戏状态 ====================
+        let gameState = {
+            currentCase: null,
+            characters: [],
+            selectedSuspect: null,
+            hintUsed: false,
+            hintCharacterIndex: null,
+            gameOver: false,
+            isVictory: false,
+            wrongAttempts: 0  // 失败次数，达到2次则游戏结束
+        };
+
+        // ==================== 工具函数 ====================
+
+        // 随机打乱数组
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // 随机选择n个元素
+        function randomSelect(array, n) {
+            const shuffled = shuffleArray(array);
+            return shuffled.slice(0, n);
+        }
+
+        // ==================== 游戏逻辑 ====================
+
+        // 初始化游戏
+        function initGame() {
+            // 重置状态
+            gameState = {
+                currentCase: null,
+                characters: [],
+                selectedSuspect: null,
+                hintUsed: false,
+                hintCharacterIndex: null,
+                gameOver: false,
+                isVictory: false,
+                wrongAttempts: 0
+            };
+
+            // 生成游戏数据
+            generateGameData();
+
+            // 验证游戏逻辑（确保2真3假）
+            validateGameLogic();
+
+            // 渲染UI
+            renderGame();
+        }
+
+        // 验证游戏逻辑：确保恰好2人说真话，3人说谎，凶手说假话
+        function validateGameLogic() {
+            const truthTellers = gameState.characters.filter(c => c.isTruthTeller).length;
+            const liars = gameState.characters.filter(c => !c.isTruthTeller).length;
+
+            // 获取凶手索引
+            const testimonyConfig = testimoniesConfig.find(t => t.caseId === gameState.currentCase.id);
+            const murdererIdx = testimonyConfig.murdererIndex;
+            const murdererIsLiar = !gameState.characters[murdererIdx].isTruthTeller;
+
+            console.log('========== 游戏逻辑验证 ==========');
+            console.log('真话者数量:', truthTellers, '(应为 2)');
+            console.log('假话者数量:', liars, '(应为 3)');
+            console.log('凶手是否为假话者:', murdererIsLiar, '(应为 true)');
+            console.log('==================================');
+
+            // 严格确保2真3假（这是强制性的游戏规则）
+            if (truthTellers !== 2 || liars !== 3 || !murdererIsLiar) {
+                console.error('⚠️ 游戏逻辑异常！重新生成...');
+                generateGameData();
+            }
+        }
+
+        // 生成游戏数据
+        function generateGameData() {
+            // 随机选择一个案件
+            const caseData = randomSelect(casesDB, 1)[0];
+            gameState.currentCase = caseData;
+
+            // 获取对应的证词配置
+            const testimonyConfig = testimoniesConfig.find(t => t.caseId === caseData.id);
+
+            // 随机选择5个角色（从角色池库中）
+            const selectedTemplates = randomSelect(characterPool, 5);
+
+            // 构建角色数组 - 直接使用证词配置中的 truthTellerFixed 来确定谁讲真话
+            // murdererIndex 固定为凶手，该角色一定说谎
+            gameState.characters = selectedTemplates.map((template, index) => {
+                // 从证词配置中获取此索引位置的证词数据
+                const statementData = testimonyConfig.statements[index];
+
+                // 是否说真话：根据 truthTellerFixed 配置来确定
+                const isTruthTeller = testimonyConfig.truthTellerFixed.includes(index);
+
+                // 替换证词和 lieReason 中的 {name} 占位符
+                // {name} 指说话者自己的名字
+                let statementText = statementData.text.replace(
+                    /\{name\}/g,
+                    template.name
+                );
+
+                // 证词中如果有"角色X"的引用，需要替换为对应角色名
+                // 例如："角色0"、"角色1" → 替换为对应角色名
+                for (let i = 0; i < 5; i++) {
+                    const rolePattern = new RegExp(`角色${i}`, 'g');
+                    statementText = statementText.replace(rolePattern, selectedTemplates[i].name);
+                }
+
+                // 处理 lieReason 中的占位符
+                let lieReasonText = null;
+                if (statementData.lieReason) {
+                    lieReasonText = statementData.lieReason.replace(
+                        /\{name\}/g,
+                        template.name
+                    );
+                    // 同样替换 lieReason 中对其他角色的引用
+                    for (let i = 0; i < 5; i++) {
+                        const rolePattern = new RegExp(`角色${i}`, 'g');
+                        lieReasonText = lieReasonText.replace(rolePattern, selectedTemplates[i].name);
+                    }
+                }
+
+                return {
+                    ...template,
+                    role: statementData.roleIntro,
+                    statement: statementText,
+                    isTruthTeller: isTruthTeller,
+                    lieReason: lieReasonText
+                };
+            });
+
+            // 同时处理推理分析文本中的占位符
+            gameState.currentReasoning = testimonyConfig.lieReasoning;
+            for (let i = 0; i < 5; i++) {
+                const rolePattern = new RegExp(`角色${i}`, 'g');
+                gameState.currentReasoning = gameState.currentReasoning.replace(rolePattern, selectedTemplates[i].name);
+            }
+        }
+
+        // 渲染游戏界面
+        function renderGame() {
+            // 渲染案件
+            document.getElementById('caseTitle').textContent = gameState.currentCase.title;
+            document.getElementById('caseBackground').textContent = gameState.currentCase.background;
+
+            // 渲染角色卡牌
+            const grid = document.getElementById('charactersGrid');
+            grid.innerHTML = '';
+
+            gameState.characters.forEach((char, index) => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.dataset.index = index;
+
+                // 如果被提示高亮
+                if (gameState.hintCharacterIndex === index) {
+                    card.classList.add('hint-highlight');
+                }
+
+                // 如果被选中
+                if (gameState.selectedSuspect === index) {
+                    card.classList.add('selected');
+                }
+
+                card.innerHTML = `
+                    <div class="character-avatar">${char.emoji}</div>
+                    <div class="character-name">${char.name}</div>
+                    <div class="character-role">${char.role}</div>
+                    <div class="character-intro">${char.intro}</div>
+                    <div class="statement-label">📜 证词：</div>
+                    <div class="character-statement">"${char.statement}"</div>
+                `;
+
+                card.addEventListener('click', () => selectCharacter(index));
+                grid.appendChild(card);
+            });
+
+            // 更新按钮状态
+            updateButtons();
+
+            // 隐藏结果和解析
+            document.getElementById('resultSection').classList.remove('show', 'victory', 'defeat');
+            document.getElementById('analysisSection').classList.remove('show');
+        }
+
+        // 选择嫌疑人
+        function selectCharacter(index) {
+            if (gameState.gameOver) return;
+
+            gameState.selectedSuspect = index;
+            renderGame();
+        }
+
+        // 使用提示
+        function useHint() {
+            if (gameState.hintUsed || gameState.gameOver) return;
+
+            gameState.hintUsed = true;
+
+            // 使用证词配置中的 murdererIndex
+            const testimonyConfig = testimoniesConfig.find(t => t.caseId === gameState.currentCase.id);
+            const realMurdererIdx = testimonyConfig.murdererIndex;
+
+            // 找到一个说假话的角色（排除凶手）进行提示
+            // 这样提示不会直接透露凶手，只告诉玩家一名撒谎者
+            const liars = gameState.characters
+                .map((char, index) => ({ char, index }))
+                .filter(item => !item.char.isTruthTeller && item.index !== realMurdererIdx);
+
+            if (liars.length > 0) {
+                const hintedLiar = randomSelect(liars, 1)[0];
+                gameState.hintCharacterIndex = hintedLiar.index;
+            }
+
+            updateButtons();
+            renderGame();
+        }
+
+        // 提交答案
+        function submitAnswer() {
+            if (gameState.selectedSuspect === null || gameState.gameOver) return;
+
+            // 使用证词配置中的 murdererIndex 作为真凶索引
+            const testimonyConfig = testimoniesConfig.find(t => t.caseId === gameState.currentCase.id);
+            const realMurdererIdx = testimonyConfig.murdererIndex;
+
+            const isCorrect = gameState.selectedSuspect === realMurdererIdx;
+
+            if (isCorrect) {
+                gameState.gameOver = true;
+                gameState.isVictory = true;
+                showResult(true, realMurdererIdx);
+                showAnalysis();
+            } else {
+                // 回答错误
+                gameState.wrongAttempts++;
+
+                if (gameState.wrongAttempts === 1) {
+                    // 第一次错误：给一次重试机会
+                    showResult(false, realMurdererIdx, true);
+                    // 清除选择，允许重新选择
+                    gameState.selectedSuspect = null;
+                    gameState.gameOver = false;
+                    document.getElementById('resultSection').classList.remove('show');
+                    updateButtons();
+                    renderGame();
+                } else {
+                    // 第二次错误：游戏结束
+                    gameState.gameOver = true;
+                    gameState.isVictory = false;
+                    showResult(false, realMurdererIdx, false);
+                }
+            }
+        }
+
+        // 显示结果
+        // isRetry 参数表示是否还有重试机会
+        function showResult(isVictory, realMurdererIdx, isRetry = false) {
+            const resultSection = document.getElementById('resultSection');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+
+            resultSection.classList.remove('victory', 'defeat');
+
+            if (isVictory) {
+                resultSection.classList.add('victory');
+                resultTitle.textContent = '🎉 恭喜你，推理正确！';
+                resultMessage.textContent = '你成功找出了真正的凶手！下方是完整推理分析。';
+            } else {
+                resultSection.classList.add('defeat');
+                if (isRetry) {
+                    // 还有重试机会
+                    resultTitle.textContent = '❌ 答错了！但不要放弃...';
+                    resultMessage.innerHTML = `真正的凶手<span style="color:#ff6b6b;font-weight:bold;">并不是这个人</span>，你还有<span style="color:#e6b800;font-weight:bold;">1次机会</span>！<br>仔细分析证词，再想想吧！`;
+                } else {
+                    // 没有重试机会了
+                    resultTitle.textContent = '❌ 回答错误！';
+                    resultMessage.textContent = `真正的凶手是 ${gameState.characters[realMurdererIdx].name}（${gameState.characters[realMurdererIdx].role}），点击"重新开局"再试一次吧！`;
+                }
+            }
+
+            resultSection.classList.add('show');
+        }
+
+        // 显示完整解析
+        function showAnalysis() {
+            const analysisSection = document.getElementById('analysisSection');
+
+            // 确认凶手角色（使用证词配置中的 murdererIndex）
+            const testimonyConfig = testimoniesConfig.find(t => t.caseId === gameState.currentCase.id);
+            const murdererIdx = testimonyConfig.murdererIndex;
+            const murdererChar = gameState.characters[murdererIdx];
+
+            // 真假话复盘（清晰标注每一人）
+            let truthLieHTML = `
+                <p><strong>本局案件：</strong>${gameState.currentCase.title}</p>
+                <p style="margin-top:12px;"><strong>🔵 真话者（2人）：</strong></p>
+                <ul class="truth-list">
+                    ${gameState.characters
+                        .filter(c => c.isTruthTeller)
+                        .map(c => `<li><strong>${c.name}</strong>（${c.role}）— 其证词与案件事实完全相符</li>`)
+                        .join('')}
+                </ul>
+                <p style="margin-top:12px;"><strong>🔴 假话者（3人）：</strong></p>
+                <ul class="lie-list">
+                    ${gameState.characters
+                        .filter(c => !c.isTruthTeller)
+                        .map((c, idx) => {
+                            const isMurderer = c === murdererChar;
+                            return `<li><strong>${c.name}</strong>（${c.role}）${isMurderer ? ' — <span style="color:#ff4444;">【真凶】</span>' : ''}</li>`;
+                        })
+                        .join('')}
+                </ul>
+            `;
+            document.getElementById('truthLieAnalysis').innerHTML = truthLieHTML;
+
+            // 假话者撒谎动机分析（每人单独详细说明）
+            const lieMotiveHTML = gameState.characters
+                .filter(c => !c.isTruthTeller)
+                .map((c, idx) => {
+                    const isMurderer = c === murdererChar;
+                    return `
+                        <div class="character-motive" style="${isMurderer ? 'border: 2px solid #ff4444; background: rgba(255,68,68,0.1);' : ''}">
+                            <strong>${c.name}（${c.role}）${isMurderer ? ' — ⚠️ 真凶' : ''}</strong>
+                            <p style="margin-top:8px;">${c.lieReason}</p>
+                        </div>
+                    `;
+                })
+                .join('');
+            document.getElementById('lieMotiveAnalysis').innerHTML = lieMotiveHTML;
+
+            // 凶手完整作案动机（从案件配置中获取）
+            document.getElementById('murdererAnalysis').innerHTML = `
+                <p><strong>凶手确认：</strong>${murdererChar.name}（${murdererChar.role}）</p>
+                <p style="margin-top:10px;"><strong>完整作案过程与动机：</strong></p>
+                <p style="margin-top:8px;">${gameState.currentCase.motive}</p>
+            `;
+
+            // 完整推理逻辑（使用预处理后的 currentReasoning）
+            document.getElementById('reasoningAnalysis').innerHTML = `
+                <p style="font-size:1.02rem; line-height:1.8;">${gameState.currentReasoning}</p>
+            `;
+
+            analysisSection.classList.add('show');
+        }
+
+        // 重置游戏（重新开局）
+        function resetGame() {
+            document.getElementById('resultSection').classList.remove('show', 'victory', 'defeat');
+            document.getElementById('analysisSection').classList.remove('show');
+            initGame();
+        }
+
+        // 开始游戏：从欢迎界面进入游戏
+        function startGame() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('gameMain').classList.remove('hidden');
+            initGame();
+        }
+
+        // 返回主界面：从游戏回到欢迎界面
+        function backToWelcome() {
+            document.getElementById('gameMain').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            // 清除当前游戏结果
+            if (document.getElementById('resultSection')) {
+                document.getElementById('resultSection').classList.remove('show', 'victory', 'defeat');
+            }
+            if (document.getElementById('analysisSection')) {
+                document.getElementById('analysisSection').classList.remove('show');
+            }
+        }
+
+        // 更新按钮状态
+        function updateButtons() {
+            const btnHint = document.getElementById('btnHint');
+            const btnSubmit = document.getElementById('btnSubmit');
+
+            btnHint.disabled = gameState.hintUsed || gameState.gameOver;
+            btnSubmit.disabled = gameState.selectedSuspect === null || gameState.gameOver;
+        }
+
+        // ==================== 启动游戏 ====================
+        // 页面加载时只显示欢迎界面，不自动开始游戏
+        // 玩家点击"开始破案"按钮后进入游戏
+    </script>
+</body>
+</html>

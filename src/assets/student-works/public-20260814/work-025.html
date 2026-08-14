@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>72小时——震后余生</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;font-family:'Microsoft YaHei','PingFang SC',sans-serif}
+#game{width:100vw;height:100vh;max-width:1200px;max-height:800px;position:relative;overflow:hidden;background:#1a1a2e}
+#bg{position:absolute;top:0;left:0;width:100%;height:100%;transition:opacity 1s;z-index:0}
+#bg-layer{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.6}
+#top-bar{position:absolute;top:0;left:0;right:0;height:44px;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:10;color:#fff;font-size:14px}
+#top-bar .time{color:#ff6b6b;font-weight:bold}
+#timer-bar{position:absolute;top:44px;left:0;right:0;height:3px;background:rgba(255,255,255,0.1);z-index:10}
+#timer-fill{height:100%;background:#ff6b6b;transition:width 0.1s linear;width:0%}
+#status-panel{position:absolute;left:15px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;gap:8px;background:rgba(0,0,0,0.75);padding:15px;border-radius:12px;min-width:160px}
+#status-panel .avatar{width:60px;height:60px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid rgba(255,255,255,0.3)}
+.stat-row{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}
+.stat-row .icon{width:18px;text-align:center}
+.stat-row .bar-bg{flex:1;height:8px;background:rgba(255,255,255,0.15);border-radius:4px;overflow:hidden}
+.stat-row .bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
+.bar-hp{background:#ff6b6b}.bar-water{background:#4ecdc4}.bar-food{background:#ffe66d}.bar-spirit{background:#a29bfe}
+#dialog-box{position:absolute;bottom:60px;left:20px;right:20px;background:rgba(0,0,0,0.85);border-radius:12px;padding:15px 20px;z-index:10;min-height:100px;border:1px solid rgba(255,255,255,0.15)}
+#speaker{color:#ffd93d;font-size:14px;font-weight:bold;margin-bottom:6px}
+#dialog-text{color:#fff;font-size:15px;line-height:1.6;min-height:40px}
+#choices{position:absolute;bottom:60px;left:20px;right:20px;z-index:11;display:flex;flex-direction:column;gap:8px}
+.choice-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:12px 18px;border-radius:8px;cursor:pointer;font-size:14px;text-align:left;transition:all 0.2s}
+.choice-btn:hover{background:rgba(255,215,0,0.2);border-color:#ffd93d}
+#btn-bar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:12}
+.func-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#ccc;padding:6px 16px;border-radius:20px;cursor:pointer;font-size:12px;transition:all 0.2s}
+.func-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
+.screen{position:absolute;top:0;left:0;width:100%;height:100%;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.9)}
+.screen.hidden{display:none}
+.screen-title{color:#ffd93d;font-size:42px;font-weight:bold;margin-bottom:6px;text-shadow:0 0 30px rgba(255,215,0,0.5)}
+.screen-subtitle{color:#aaa;font-size:16px;margin-bottom:30px}
+.screen-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:12px 50px;border-radius:8px;cursor:pointer;font-size:16px;margin:6px;transition:all 0.2s;min-width:200px;text-align:center}
+.screen-btn:hover{background:rgba(255,215,0,0.2);border-color:#ffd93d;color:#ffd93d}
+.screen-btn.small{padding:8px 20px;font-size:13px;min-width:auto}
+.char-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.char-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:20px;width:220px;cursor:pointer;transition:all 0.3s;text-align:center}
+.char-card:hover{border-color:#ffd93d;background:rgba(255,215,0,0.1);transform:translateY(-3px)}
+.char-card .char-avatar{font-size:48px;margin-bottom:10px}
+.char-card .char-name{color:#ffd93d;font-size:18px;font-weight:bold;margin-bottom:6px}
+.char-card .char-desc{color:#aaa;font-size:12px;line-height:1.5}
+.char-card .char-stats{color:#ccc;font-size:11px;margin-top:8px;text-align:left}
+.modal{position:absolute;top:0;left:0;width:100%;height:100%;z-index:30;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;padding:30px;overflow-y:auto}
+.modal.hidden{display:none}
+.modal-title{color:#ffd93d;font-size:24px;font-weight:bold;margin-bottom:15px}
+.modal-close{position:absolute;top:15px;right:20px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer}
+.knowledge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;width:100%;max-width:900px;margin-top:10px}
+.knowledge-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:14px 16px}
+.knowledge-card.locked{opacity:0.4}
+.knowledge-card .kc-title{color:#ffd93d;font-size:14px;font-weight:bold;margin-bottom:4px}
+.knowledge-card .kc-desc{color:#ccc;font-size:12px;line-height:1.5}
+.knowledge-card .kc-from{color:#888;font-size:11px;margin-top:4px}
+.save-slots{display:flex;gap:15px;flex-wrap:wrap;justify-content:center}
+.save-slot{width:220px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:15px;text-align:center}
+.save-slot .slot-num{color:#ffd93d;font-size:16px;font-weight:bold;margin-bottom:6px}
+.save-slot .slot-info{color:#aaa;font-size:12px;margin-bottom:10px;min-height:32px}
+.endings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;width:100%;max-width:700px;margin-top:10px}
+.ending-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:14px;text-align:center}
+.ending-card.locked{opacity:0.4}
+.ending-card .ending-rank{font-size:28px;margin-bottom:4px}
+.ending-card .ending-name{color:#ffd93d;font-size:14px;font-weight:bold}
+.ending-card .ending-desc{color:#aaa;font-size:11px;margin-top:4px}
+#tip-popup{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:25;background:rgba(0,0,0,0.9);border:2px solid #ffd93d;border-radius:12px;padding:20px 30px;text-align:center;max-width:500px}
+#tip-popup.hidden{display:none}
+#tip-popup .tip-icon{font-size:36px;margin-bottom:8px}
+#tip-popup .tip-title{color:#ffd93d;font-size:16px;font-weight:bold;margin-bottom:6px}
+#tip-popup .tip-text{color:#fff;font-size:14px;line-height:1.5}
+#tip-popup .tip-btn{background:#ffd93d;color:#000;border:none;padding:8px 30px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:bold;margin-top:12px}
+.ending-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:15;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;background:rgba(0,0,0,0.7)}
+.ending-bg .ending-rank-icon{font-size:64px;margin-bottom:10px}
+.ending-bg .ending-title{color:#ffd93d;font-size:28px;font-weight:bold;margin-bottom:8px}
+.ending-bg .ending-text{color:#ccc;font-size:14px;line-height:1.6;max-width:500px;margin-bottom:16px}
+.ending-bg .ending-knowledge{color:#4ecdc4;font-size:13px;text-align:left;max-width:500px;background:rgba(0,0,0,0.5);padding:15px;border-radius:8px;margin-bottom:16px}
+.ending-bg .ending-knowledge li{margin:4px 0}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-8px,5px)}40%{transform:translate(8px,-3px)}60%{transform:translate(-5px,8px)}80%{transform:translate(5px,-5px)}}
+</style>
+</head>
+<body>
+<div id="game">
+<div id="bg"><div id="bg-layer"></div></div>
+<div id="top-bar"><span class="time" id="hour-display">第0小时</span><span id="countdown">距离救援还有 72 小时</span></div>
+<div id="timer-bar"><div id="timer-fill"></div></div>
+<div id="status-panel">
+<div class="avatar" id="char-avatar">👤</div>
+<div class="stat-row"><span class="icon">❤️</span><div class="bar-bg"><div class="bar-fill bar-hp" id="bar-hp" style="width:80%"></div></div><span id="val-hp">80</span></div>
+<div class="stat-row"><span class="icon">💧</span><div class="bar-bg"><div class="bar-fill bar-water" id="bar-water" style="width:60%"></div></div><span id="val-water">60</span></div>
+<div class="stat-row"><span class="icon">🍞</span><div class="bar-bg"><div class="bar-fill bar-food" id="bar-food" style="width:80%"></div></div><span id="val-food">80</span></div>
+<div class="stat-row"><span class="icon">🧠</span><div class="bar-bg"><div class="bar-fill bar-spirit" id="bar-spirit" style="width:40%"></div></div><span id="val-spirit">40</span></div>
+</div>
+<div id="dialog-box"><div id="speaker"></div><div id="dialog-text"></div></div>
+<div id="choices"></div>
+<div id="btn-bar">
+<button class="func-btn" onclick="showMenu()">菜单</button>
+<button class="func-btn" onclick="showSave()">存档</button>
+<button class="func-btn" onclick="showLoad()">读档</button>
+<button class="func-btn" onclick="showKnowledge()">知识图鉴</button>
+</div>
+<div id="tip-popup" class="hidden"><div class="tip-icon">💡</div><div class="tip-title">防灾小贴士</div><div class="tip-text" id="tip-content"></div><button class="tip-btn" onclick="closeTip()">知道了</button></div>
+<div id="screen-title" class="screen">
+<div class="screen-title">72小时</div>
+<div class="screen-subtitle">—— 震后余生 ——</div>
+<button class="screen-btn" onclick="startGame()">开始游戏</button>
+<button class="screen-btn" onclick="continueGame()">继续游戏</button>
+<button class="screen-btn" onclick="showKnowledge()">知识图鉴</button>
+<button class="screen-btn" onclick="showEndings()">结局收集</button>
+</div>
+<div id="screen-select" class="screen hidden">
+<div class="screen-title" style="font-size:28px">选择角色</div>
+<div class="screen-subtitle">每个人都是这场灾难的幸存者</div>
+<div class="char-cards">
+<div class="char-card" onclick="selectChar(0)"><div class="char-avatar">👩‍🎓</div><div class="char-name">林小雨</div><div class="char-desc">17岁女高中生<br>被困学校教学楼废墟</div><div class="char-stats">❤️体力80 💧水源40 🍞食物20 🧠精神60</div></div>
+<div class="char-card" onclick="selectChar(1)"><div class="char-avatar">👨‍💼</div><div class="char-name">陈建国</div><div class="char-desc">35岁上班族<br>被困写字楼电梯间</div><div class="char-stats">❤️体力70 💧水源30 🍞食物50 🧠精神80</div></div>
+<div class="char-card" onclick="selectChar(2)"><div class="char-avatar">👵</div><div class="char-name">赵奶奶</div><div class="char-desc">68岁退休老人<br>被困自家老房子</div><div class="char-stats">❤️体力50 💧水源60 🍞食物80 🧠精神40</div></div>
+</div>
+<button class="screen-btn small" style="margin-top:16px" onclick="backToTitle()">返回</button>
+</div>
+<div id="modal-knowledge" class="modal hidden"><button class="modal-close" onclick="closeModal('modal-knowledge')">✕</button><div class="modal-title">📚 防灾知识图鉴</div><div class="knowledge-grid" id="knowledge-grid"></div></div>
+<div id="modal-endings" class="modal hidden"><button class="modal-close" onclick="closeModal('modal-endings')">✕</button><div class="modal-title">🏆 结局收集</div><div class="endings-grid" id="endings-grid"></div></div>
+<div id="modal-save" class="modal hidden"><button class="modal-close" onclick="closeModal('modal-save')">✕</button><div class="modal-title">💾 存档</div><div class="save-slots" id="save-slots"></div></div>
+<div id="modal-load" class="modal hidden"><button class="modal-close" onclick="closeModal('modal-load')">✕</button><div class="modal-title">📂 读档</div><div class="save-slots" id="load-slots"></div></div>
+<div id="modal-menu" class="modal hidden"><button class="modal-close" onclick="closeModal('modal-menu')">✕</button><div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:50px">
+<button class="screen-btn" onclick="closeModal('modal-menu');saveGameAuto()">返回游戏</button>
+<button class="screen-btn" onclick="closeModal('modal-menu');showSave()">存档</button>
+<button class="screen-btn" onclick="closeModal('modal-menu');showLoad()">读档</button>
+<button class="screen-btn" onclick="closeModal('modal-menu');showKnowledge()">知识图鉴</button>
+<button class="screen-btn" onclick="closeModal('modal-menu');toTitle()">返回标题</button>
+</div></div>
+</div>
+<script>
+// ==================== 游戏数据 ====================
+var CHARACTERS=[{name:'林小雨',avatar:'👩‍🎓',desc:'17岁女高中生',location:'学校教学楼废墟',hp:80,water:40,food:20,spirit:60},{name:'陈建国',avatar:'👨‍💼',desc:'35岁上班族',location:'写字楼电梯间',hp:70,water:30,food:50,spirit:80},{name:'赵奶奶',avatar:'👵',desc:'68岁退休老人',location:'自家老房子',hp:50,water:60,food:80,spirit:40}];
+var KNOWLEDGE_CARDS=[{id:0,title:'伏地、遮挡、抓牢',desc:'地震时最核心的自我保护动作。立即趴下，躲在坚固桌子下，双手抓牢桌腿，保护头部和颈部。',from:'通用知识'},{id:1,title:'不要乘坐电梯',desc:'地震时和震后都不要使用电梯！电力可能中断，电梯可能变形卡住。走楼梯，但要先确认楼梯结构安全。',from:'陈建国故事线'},{id:2,title:'远离窗户和玻璃',desc:'地震时窗户玻璃可能碎裂飞溅，造成严重割伤。远离窗户、镜子和其他玻璃制品。',from:'通用知识'},{id:3,title:'敲击管道求救',desc:'被困时用硬物敲击金属管道或墙壁，声音比大声呼救传得更远、更省力。国际求救信号：三短三长三短。',from:'林小雨故事线'},{id:4,title:'保存手机电量',desc:'被困后立即将手机调至省电模式，关闭后台应用，降低屏幕亮度。定时开机查看信号，不要一直开机耗电。',from:'陈建国故事线'},{id:5,title:'应急包必备物品',desc:'水（每人每天至少4升）、不易腐食物、手电筒（备用电池）、哨子、急救包、常用药品、保暖衣物、重要文件复印件。',from:'赵奶奶故事线'},{id:6,title:'余震防范',desc:'主震后往往伴随多次余震。不要立即返回建筑物内，余震可能造成二次坍塌。在安全开阔地带等待。',from:'通用知识'},{id:7,title:'止血急救',desc:'用干净的布或衣物直接按压伤口止血。如果血液浸透，在上面再加一层布，不要揭开原来的布。抬高受伤部位。',from:'林小雨故事线'},{id:8,title:'节约用水',desc:'被困时优先满足饮水需求。小口慢饮，不要一次喝完。尿液在极端情况下可以用于降温（不要直接饮用）。',from:'通用知识'},{id:9,title:'保持体温',desc:'失温是震后生存的主要威胁之一。用衣物、报纸、纸板等覆盖身体保暖。避免直接接触冰冷地面。',from:'赵奶奶故事线'},{id:10,title:'不要使用明火',desc:'地震后可能有燃气泄漏，使用打火机或火柴可能引发爆炸。用手电筒照明，不要点燃蜡烛。',from:'陈建国故事线'},{id:11,title:'国际求救信号',desc:'SOS：三短三长三短（可用声音、光线、敲击）。被困时重复发出此信号，间隔一分钟再重复。',from:'林小雨故事线'},{id:12,title:'精神自救',desc:'被困时保持冷静至关重要。可以回忆美好往事、默念数字、做深呼吸来缓解焦虑。意志力是生存的关键。',from:'赵奶奶故事线'},{id:13,title:'判断建筑安全',desc:'震后进入建筑物前，检查是否有裂缝、倾斜、异常声响。远离有明显损伤的建筑，余震可能导致坍塌。',from:'通用知识'},{id:14,title:'收集雨水',desc:'如果被困期间下雨，用容器或衣物收集雨水是重要的水源补充。但注意保暖，避免淋湿导致失温。',from:'赵奶奶故事线'},{id:15,title:'固定家具',desc:'地震前将高大家具（书柜、衣柜）固定在墙上，热水器等重物加固。平时做好预防胜过震后补救。',from:'通用知识'},{id:16,title:'家庭逃生计划',desc:'每个家庭应提前制定逃生路线，约定震后会合地点。定期进行防灾演练，确保每位家庭成员都知道该怎么做。',from:'通用知识'},{id:17,title:'不要慌张奔跑',desc:'地震时不要盲目奔跑，尤其是室内。跑动中更容易被掉落物砸伤。先伏地掩护，震后再有序撤离。',from:'通用知识'},{id:18,title:'关注特殊人群',desc:'老人、儿童、残疾人在地震中是弱势群体。如果条件允许，在确保自身安全的前提下帮助身边的人。',from:'林小雨故事线'},{id:19,title:'震后防疫',desc:'地震后水源可能被污染，务必饮用干净水。注意伤口消毒，防止感染。关注官方发布的防疫信息。',from:'通用知识'}];
+var ENDINGS=[{id:0,char:0,rank:'S',name:'希望之光',desc:'林小雨和同学在48小时内成功获救，两人都平安无事。',unlockKnow:[3,7,11,18]},{id:1,char:0,rank:'A',name:'艰难的抉择',desc:'获救了，但同学因伤势过重截肢。林小雨陷入深深的自责。',unlockKnow:[3,18]},{id:2,char:0,rank:'B',name:'无声的告别',desc:'体力耗尽，林小雨在救援到达前离开了人世。',unlockKnow:[3]},{id:3,char:1,rank:'S',name:'团圆',desc:'陈建国成功联系到救援队，72小时内获救，与家人团聚。',unlockKnow:[1,4,10]},{id:4,char:1,rank:'A',name:'遗憾',desc:'获救了，但同事因伤势过重没能挺过来。',unlockKnow:[1,10]},{id:5,char:1,rank:'B',name:'最后一通电话',desc:'体力耗尽前，陈建国给家人打了最后一通电话。',unlockKnow:[4]},{id:6,char:2,rank:'S',name:'旺财的奇迹',desc:'赵奶奶在旺财的帮助下成功找到逃生通道，62小时后获救。',unlockKnow:[5,9,12,14]},{id:7,char:2,rank:'A',name:'等待',desc:'72小时后救援队找到了赵奶奶，她虽然虚弱但还活着。',unlockKnow:[9,12]},{id:8,char:2,rank:'B',name:'安详的梦',desc:'赵奶奶在睡梦中安详地离开了。旺财一直守在她身边。',unlockKnow:[12]}];
+
+// ==================== 剧情数据 ====================
+var STORIES=[[
+  {hour:0,event:'地震发生',bg:'school',dialogue:[{s:'旁白',t:'下午2点28分，教室突然剧烈摇晃起来。天花板上的灯管噼啪作响，墙皮纷纷剥落。'},{s:'旁白',t:'林小雨还没来得及反应，就被掀翻在地。课桌倾倒，书本散落一地。'},{s:'林小雨',t:'啊——！！'},{s:'旁白',t:'一阵剧烈的晃动过后，世界安静了。林小雨发现自己被压在翻倒的课桌下，周围一片漆黑。'},{s:'林小雨',t:'好痛……我的腿……发生了什么……'},{s:'林小雨',t:'有人吗？有谁在吗？'}],choices:[{text:'大声呼救',eff:{hp:-8,spirit:-5},next:1,tip:'大声呼救会快速消耗体力，而且声音在废墟中传播有限。更好的做法是敲击金属管道或墙壁，声音传得更远、更省力。'},{text:'先冷静下来，观察周围环境',eff:{hp:-2,spirit:5},next:2,tip:''}]},
+  {hour:1,event:'',bg:'school',dialogue:[{s:'林小雨',t:'救命啊！有人吗！救命——'},{s:'旁白',t:'林小雨声嘶力竭地喊了很久，但回应她的只有寂静。她的嗓子开始发痛。'},{s:'???',t:'咳……咳……'},{s:'林小雨',t:'谁？！谁在那里？'},{s:'张明',t:'是我……张明……我的腿被压住了……好疼……'},{s:'旁白',t:'林小雨的同班同学张明也被困在附近，他的腿被一块水泥板压住了。不远处可以看到一个掉落的急救包。'}],choices:[{text:'冒险去拿急救包，帮张明包扎',eff:{hp:-10,water:-5,spirit:10},next:3,tip:'救助他人是高尚的行为，但在地震废墟中移动非常危险。需要先评估自身安全和移动路径的稳定性。'},{text:'用言语安慰张明，但先不移动',eff:{spirit:-5},next:4,tip:''}]},
+  {hour:2,event:'',bg:'school',dialogue:[{s:'旁白',t:'林小雨冷静下来，开始观察周围。课桌为她撑起了一个小空间，旁边有金属暖气管道。'},{s:'林小雨',t:'我记得老师说过的……地震时先躲到桌子下面……然后……'},{s:'林小雨',t:'可以敲击管道！'}],choices:[{text:'用鞋子敲击暖气管道',eff:{hp:-2,spirit:5},next:4,tip:''},{text:'继续大声呼救',eff:{hp:-5,spirit:-5},next:5,tip:'敲击管道比大声呼救更有效！声音在固体中传播比空气中远得多，且更省力。'}]},
+  {hour:3,event:'余震！',bg:'school_quake',dialogue:[{s:'林小雨',t:'我拿到了！张明，你忍着点，我帮你包扎……'},{s:'旁白',t:'突然，地面再次剧烈震动——余震来了！天花板上的碎石纷纷掉落。'},{s:'林小雨',t:'又来了！'},{s:'旁白',t:'一块松动的天花板碎片正朝张明砸去！'}],choices:[{text:'先保护自己，躲到课桌下',eff:{hp:-5,spirit:-15},next:5,tip:'在余震中保护自己是第一位的。只有保证自己安全，才能更好地帮助他人。但看着同学受伤会带来巨大的心理负担。'},{text:'扑过去护住张明',eff:{hp:-15,spirit:10},next:5,tip:'在确保自身有基本安全的前提下帮助他人。用身体护住伤者时，自己也要尽量寻找遮蔽物。'}],timeLimit:8},
+  {hour:4,event:'',bg:'school',dialogue:[{s:'旁白',t:'张明因为林小雨的帮助，情绪稳定了一些。但两人的水源都不多了。'},{s:'林小雨',t:'张明，你喝点水吧。'},{s:'张明',t:'不……你留着吧……你也需要……'},{s:'旁白',t:'林小雨的嗓子已经干得发不出大声了。但敲击管道似乎传出了有节奏的声音。'}],choices:[{text:'把自己的水分一半给张明',eff:{water:-10,spirit:8},next:6,tip:'在生存困境中，互助能提升精神力量。但需要合理分配有限的水源，计算好至少72小时的用量。'},{text:'保留水源，告诉张明再坚持一下',eff:{spirit:-5},next:6,tip:''}]},
+  {hour:5,event:'',bg:'school',dialogue:[{s:'旁白',t:'时间缓慢流逝。林小雨用之前学到的方法，有节奏地敲击着管道——三短、三长、三短。'},{s:'林小雨',t:'S……O……S……S……O……S……'},{s:'旁白',t:'突然，远处传来了敲击声的回应！'},{s:'林小雨',t:'（激动）有人！有人听到我们了！'},{s:'旁白',t:'但此时体力已经消耗很多，需要决定下一步。'}],choices:[{text:'继续有节奏地敲击，保持联系',eff:{hp:-5,spirit:10},next:7,tip:''},{text:'保存体力，间歇性敲击',eff:{hp:-2,spirit:3},next:7,tip:''}]},
+  {hour:6,event:'救援接近',bg:'school_light',dialogue:[{s:'旁白',t:'回应声越来越近，还能听到隐约的人声和机械声。救援队正在靠近！'},{s:'林小雨',t:'张明！你听到了吗！他们来了！'},{s:'张明',t:'听到了……谢谢你……小雨……'},{s:'旁白',t:'林小雨的体力已经接近极限，但希望就在眼前。'}],choices:[{text:'用尽全力最后一次敲击，发出明确信号',eff:{hp:-8,spirit:10},next:8,tip:'在救援接近时，发出明确信号至关重要。但要控制好最后的力量，确保能撑到救援到达。'},{text:'保存体力，静静等待救援',eff:{hp:-2,spirit:3},next:8,tip:''}]},
+  {hour:8,event:'结局',bg:'school_rescue',dialogue:[{s:'旁白',t:'救援队终于找到了林小雨和张明。阳光透过废墟的缝隙照射进来，那是生命的希望。'},{s:'救援队员',t:'找到幸存者了！快！担架！'},{s:'林小雨',t:'（虚弱地笑了）我们……做到了……'}],choices:[],ending:0},
+  {hour:8,event:'结局',bg:'school_rescue',dialogue:[{s:'旁白',t:'救援队终于找到了林小雨和张明。可惜张明因为伤势过重……'},{s:'林小雨',t:'对不起……张明……对不起……'},{s:'救援队员',t:'你已经做得很好了，孩子。'}],choices:[],ending:1},
+  {hour:8,event:'结局',bg:'school_dark',dialogue:[{s:'旁白',t:'体力终于耗尽了。林小雨的手从管道上滑落，周围重新陷入沉寂。'},{s:'旁白',t:'在救援队到达前的一小时，她安静地闭上了眼睛。'},{s:'旁白',t:'—— 如果当时选择敲击管道而不是大声呼救，也许结局会不一样。'}],choices:[],ending:2}
+],[
+  {hour:0,event:'地震发生',bg:'office',dialogue:[{s:'旁白',t:'下午2点28分，陈建国正在写字楼12层的电梯间等待电梯。'},{s:'旁白',t:'突然，整栋大楼剧烈晃动。灯管爆裂，墙皮脱落，电梯门扭曲变形。'},{s:'陈建国',t:'地震！！'},{s:'旁白',t:'陈建国本能地冲向楼梯间。身后的走廊坍塌了，他被困在楼梯间的一个狭小角落。'},{s:'陈建国',t:'呼……呼……手机还有信号！'}],choices:[{text:'先给家人打电话报平安',eff:{hp:-2,spirit:15},next:1,tip:'在地震后第一时间联系家人报平安可以缓解巨大的心理压力，但也要注意手机电量，优先发送短信更为省电。'},{text:'立即拨打119求救',eff:{hp:-2,spirit:-5},next:2,tip:''}]},
+  {hour:1,event:'',bg:'office',dialogue:[{s:'陈建国',t:'喂？老婆！我没事！我被困在楼梯间了——'},{s:'妻子',t:'建国！你没事就好！孩子们都安全，你放心！'},{s:'陈建国',t:'好……好……我爱你们……'},{s:'旁白',t:'挂了电话，陈建国感觉心里踏实了一些。但手机电量只剩15%了。'},{s:'旁白',t:'他还隐约听到了隔壁传来同事的呼救声。'}],choices:[{text:'拨打119求救',eff:{hp:-1,spirit:5},next:3,tip:''},{text:'先查看同事的情况',eff:{hp:-5,spirit:8},next:3,tip:'在确保自身安全的前提下帮助他人是正确的。但在地震废墟中移动需要格外小心，防止余震造成二次伤害。'}]},
+  {hour:2,event:'',bg:'office',dialogue:[{s:'陈建国',t:'喂！119吗？我在地震中被困在XX写字楼12层楼梯间！'},{s:'119',t:'收到！我们已经记录了你的位置，救援队正在赶来的路上。请保持冷静，保存体力！'},{s:'旁白',t:'打完电话，陈建国发现手机电量只剩8%了。他必须做出选择。'}],choices:[{text:'开启省电模式，定时开机查看',eff:{spirit:5},next:3,tip:''},{text:'保持开机，随时等待救援电话',eff:{spirit:3},next:3,tip:'手机电量是被困时的生命线。开启省电模式、关闭后台应用、降低亮度、定时开关机，可以大幅延长待机时间。'}]},
+  {hour:3,event:'余震！',bg:'office_quake',dialogue:[{s:'旁白',t:'余震来袭！楼梯间剧烈摇晃，周围的碎石纷纷掉落。'},{s:'陈建国',t:'又来！'},{s:'旁白',t:'旁边有一个灭火器，可以用来撬开一些障碍物。但使用不当可能引发坍塌。'},{s:'同事',t:'建国！帮帮我！我这边有东西松动了！'}],choices:[{text:'用灭火器撬开障碍物，救同事',eff:{hp:-15,spirit:10},next:5,tip:'在废墟中移动障碍物需要专业判断。盲目撬动可能导致结构失稳，引发二次坍塌。如果条件不允许，先确保自身安全再寻求帮助。'},{text:'先确保自己安全，等余震过去',eff:{hp:-3,spirit:-8},next:5,tip:''}],timeLimit:8},
+  {hour:4,event:'',bg:'office',dialogue:[{s:'旁白',t:'余震过去了。陈建国按照计划，将手机设置为省电模式，每小时开机5分钟查看信号。'},{s:'陈建国',t:'水不多了……得省着点。'},{s:'旁白',t:'他在楼梯间找到了一瓶被遗忘的矿泉水，还有半包饼干。'}],choices:[{text:'制定严格的饮食计划，每天定量',eff:{spirit:5},next:6,tip:''},{text:'先吃饱喝足，保证当前体力',eff:{water:-10,food:-15,hp:10},next:6,tip:'在不确定被困时间的情况下，需要严格规划水和食物的分配。一天至少需要1-2升水，优先保证饮水。'}]},
+  {hour:5,event:'',bg:'office',dialogue:[{s:'旁白',t:'陈建国听到远处有挖掘的声音。救援队可能正在接近！'},{s:'陈建国',t:'（开机）还是没有信号……'},{s:'旁白',t:'经过几小时的等待，体力消耗很大。精神也处于高度紧张中。'}],choices:[{text:'用手机闪光灯发出SOS信号',eff:{hp:-2,spirit:8},next:7,tip:''},{text:'保存电量，用敲击声传递信号',eff:{hp:-3,spirit:5},next:7,tip:''}]},
+  {hour:6,event:'救援接近',bg:'office_light',dialogue:[{s:'旁白',t:'声音越来越近了！可以听到救援队员的呼喊声。'},{s:'救援队员',t:'这里有人吗？！有人能听到吗？！'},{s:'陈建国',t:'（用尽全力）在这里！！12楼楼梯间！！'},{s:'旁白',t:'希望就在眼前。陈建国握紧了手机，那上面有家人的照片。'}],choices:[{text:'用尽全力发出声音回应',eff:{hp:-8,spirit:10},next:8,tip:''},{text:'保存体力，用敲击声回应',eff:{hp:-3,spirit:5},next:8,tip:''}]},
+  {hour:8,event:'结局',bg:'office_rescue',dialogue:[{s:'旁白',t:'救援队成功找到了陈建国和他的同事。两人都获救了。'},{s:'陈建国',t:'谢谢……谢谢你们……'},{s:'旁白',t:'在救护车上，陈建国再次拨通了妻子的电话。'},{s:'陈建国',t:'我出来了。我回家了。'}],choices:[],ending:3},
+  {hour:8,event:'结局',bg:'office_rescue',dialogue:[{s:'旁白',t:'救援队找到了陈建国，可惜他的同事没能挺过去。'},{s:'陈建国',t:'如果我当时……能再多做一点……'},{s:'救援队员',t:'你已经尽力了。这不是你的错。'}],choices:[],ending:4},
+  {hour:8,event:'结局',bg:'office_dark',dialogue:[{s:'旁白',t:'手机的最后一丝电量耗尽前，陈建国拨通了家里。'},{s:'陈建国',t:'老婆……孩子们……爸爸爱你们……'},{s:'旁白',t:'通话在哽咽中中断。信号永远消失了。'}],choices:[],ending:5}
+],[
+  {hour:0,event:'地震发生',bg:'home',dialogue:[{s:'旁白',t:'下午2点28分，赵奶奶正在厨房里准备下午的茶水。'},{s:'旁白',t:'突然，房子剧烈摇晃，柜子上的碗碟哗啦啦地摔碎一地。'},{s:'赵奶奶',t:'哎呀！怎么回事！'},{s:'旁白',t:'赵奶奶被震倒在地，一个沉重的柜子倒下来压住了她的腿。小狗旺财在旁边狂吠。'},{s:'赵奶奶',t:'旺财……别怕……奶奶没事……'}],choices:[{text:'尝试推开柜子，把腿抽出来',eff:{hp:-15,spirit:5},next:1,tip:'被重物压住时，不要强行拖拽被压的肢体，可能造成更严重的挤压伤。如果无法自行脱困，保存体力等待救援更为安全。'},{text:'保持不动，安抚旺财',eff:{hp:-2,spirit:8},next:2,tip:''}]},
+  {hour:1,event:'',bg:'home',dialogue:[{s:'旁白',t:'赵奶奶的腿传来阵阵剧痛。她想起柜子里有止痛药，但吃药需要水。'},{s:'赵奶奶',t:'旺财……去看看能不能找到水……'},{s:'旁白',t:'旺财似乎听懂了，跑到厨房叼来了一个塑料水壶。'},{s:'赵奶奶',t:'好孩子……真是好孩子……'}],choices:[{text:'服用止痛药，缓解疼痛',eff:{water:-10,hp:5,spirit:10},next:3,tip:'在缺水环境下，服药需要谨慎。止痛药会消耗宝贵的水源。如果疼痛可忍受，建议优先保证饮水。'},{text:'忍着疼痛，先不服用药物',eff:{spirit:-5},next:3,tip:''}]},
+  {hour:2,event:'',bg:'home',dialogue:[{s:'旁白',t:'赵奶奶保留了一些体力，开始观察周围。厨房里还有不少存粮，米缸和泡菜坛子都没碎。'},{s:'赵奶奶',t:'还好……吃的够……'},{s:'旁白',t:'旺财突然跑到一个角落，对着墙壁狂吠，还不停地刨地。'},{s:'赵奶奶',t:'旺财，你发现什么了？'}],choices:[{text:'忽略旺财，先保存体力',eff:{spirit:-3},next:4,tip:''},{text:'仔细观察旺财指向的地方',eff:{hp:-5,spirit:8},next:4,tip:'动物的直觉有时比人类敏锐。地震后动物行为异常是常见现象，它们可能感知到人类无法察觉的变化。'}]},
+  {hour:3,event:'余震+下雨',bg:'home_rain',dialogue:[{s:'旁白',t:'外面开始下雨了。雨水从屋顶的裂缝滴落下来。余震让房子又摇晃了几下。'},{s:'赵奶奶',t:'下雨了……这是好事还是坏事……'},{s:'旁白',t:'雨水可以收集作为水源，但也会让身体变冷，失温的风险增加了。'}],choices:[{text:'用容器收集雨水',eff:{water:15,hp:-5,spirit:5},next:5,tip:'雨水是重要的水源补充。但要注意保暖，淋湿后体温会快速下降。用衣物遮住身体，只让容器暴露在外接水。'},{text:'用衣物盖住身体保暖，不收集雨水',eff:{hp:5,spirit:-3},next:5,tip:''}],timeLimit:10},
+  {hour:4,event:'',bg:'home',dialogue:[{s:'旁白',t:'时间一分一秒过去。赵奶奶感觉越来越冷，身体在发抖。'},{s:'赵奶奶',t:'我年轻的时候啊……可不怕冷……'},{s:'旁白',t:'她开始回忆往事——年轻时在田里干活的日子，和老伴相识的那个夏天。'},{s:'赵奶奶',t:'老头子……你要是还在就好了……'}],choices:[{text:'继续回忆往事，保持精神清醒',eff:{spirit:10},next:6,tip:''},{text:'闭上眼睛休息一下',eff:{hp:5,spirit:-5},next:6,tip:'在低温环境下睡着可能再也醒不过来。保持清醒至关重要。回忆往事、默念数字、做简单计算都是保持清醒的好方法。'}]},
+  {hour:5,event:'',bg:'home',dialogue:[{s:'旁白',t:'旺财再次跑到那个角落，这次刨得更卖力了。'},{s:'旁白',t:'赵奶奶发现那里的墙壁似乎有些松动，而且隐约有光线透进来。'},{s:'赵奶奶',t:'难道……那里可以出去？'},{s:'旁白',t:'但爬过去需要消耗大量体力，而且腿还在疼。'}],choices:[{text:'鼓起勇气，朝那个方向爬过去',eff:{hp:-15,spirit:15},next:7,tip:''},{text:'留在原地，等待救援',eff:{hp:-2,spirit:-5},next:7,tip:''}]},
+  {hour:6,event:'救援接近',bg:'home_light',dialogue:[{s:'旁白',t:'赵奶奶跟着旺财，在松动的墙壁后面发现了一条通往外面的窄小通道！'},{s:'赵奶奶',t:'旺财……你真是奶奶的福星……'},{s:'旁白',t:'外面隐约可以看到救援队的灯光和听到人声。'}],choices:[{text:'用尽全力爬出去，迎接救援',eff:{hp:-10,spirit:10},next:8,tip:''},{text:'留在通道内，等待救援人员发现',eff:{hp:-2,spirit:3},next:8,tip:''}]},
+  {hour:8,event:'结局',bg:'home_rescue',dialogue:[{s:'旁白',t:'赵奶奶在旺财的引导下，成功从废墟中爬了出来。救援人员发现了她。'},{s:'救援队员',t:'老奶奶！您没事吧！'},{s:'赵奶奶',t:'没事……多亏了旺财……'},{s:'旁白',t:'旺财摇着尾巴，在赵奶奶身边转来转去。阳光照在一人一狗身上，温暖而明亮。'}],choices:[],ending:6},
+  {hour:8,event:'结局',bg:'home_rescue',dialogue:[{s:'旁白',t:'72小时后，救援队终于找到了赵奶奶。她虽然虚弱，但还活着。'},{s:'赵奶奶',t:'终于……等到你们了……'},{s:'救援队员',t:'您真坚强，奶奶。'}],choices:[],ending:7},
+  {hour:8,event:'结局',bg:'home_dark',dialogue:[{s:'旁白',t:'赵奶奶感觉越来越困，眼皮越来越重。'},{s:'赵奶奶',t:'旺财……奶奶有点累了……先睡一会儿……'},{s:'旁白',t:'旺财趴在她身边，发出低低的呜咽声。'},{s:'旁白',t:'如果能再坚持一下，如果能保持清醒……'}],choices:[],ending:8}
+]];
+
+var BG_COLORS={school:'linear-gradient(135deg, #2c1810 0%, #3d2b1f 30%, #1a0f0a 60%, #4a3728 100%)',school_quake:'linear-gradient(135deg, #1a0a05 0%, #2c1810 40%, #0d0503 100%)',school_light:'linear-gradient(135deg, #3d2b1f 0%, #5a4535 40%, #2c1810 100%)',school_rescue:'linear-gradient(135deg, #5a4535 0%, #8b7355 40%, #ffd93d 100%)',school_dark:'linear-gradient(135deg, #0a0505 0%, #1a0f0a 50%, #050202 100%)',office:'linear-gradient(135deg, #1a1a2e 0%, #2d2d44 30%, #16162b 60%, #3d3d5c 100%)',office_quake:'linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 40%, #050510 100%)',office_light:'linear-gradient(135deg, #2d2d44 0%, #4a4a6a 40%, #1a1a2e 100%)',office_rescue:'linear-gradient(135deg, #3d3d5c 0%, #6a6a8a 40%, #ffd93d 100%)',office_dark:'linear-gradient(135deg, #050510 0%, #0d0d1a 50%, #020208 100%)',home:'linear-gradient(135deg, #3d2b1f 0%, #5a4030 30%, #2c1810 60%, #6b5040 100%)',home_rain:'linear-gradient(135deg, #1a1515 0%, #2c2525 40%, #3d3535 100%)',home_light:'linear-gradient(135deg, #5a4030 0%, #7a6040 40%, #ffd93d 100%)',home_rescue:'linear-gradient(135deg, #6b5040 0%, #9b8060 40%, #ffd93d 100%)',home_dark:'linear-gradient(135deg, #0a0505 0%, #1a0f0a 50%, #050202 100%)'};
+
+// ==================== 游戏状态 ====================
+var gameState={charIndex:-1,currentNodeIdx:0,hour:0,hp:0,water:0,food:0,spirit:0,isPlaying:false,unlockedKnowledge:new Set(),unlockedEndings:new Set(),acquiredKnowledge:new Set()};
+var dialogueTimer=null;
+
+// ==================== 初始化 ====================
+function init(){
+  var d=JSON.parse(localStorage.getItem('quake72_unlocks')||'{"know":[],"end":[]}');
+  gameState.unlockedKnowledge=new Set(d.know);
+  gameState.unlockedEndings=new Set(d.end);
+  renderKnowledgeGrid();
+  renderEndingsGrid();
+  document.getElementById('screen-title').classList.remove('hidden');
+  document.getElementById('screen-select').classList.add('hidden');
+  document.getElementById('status-panel').style.display='none';
+  document.getElementById('dialog-box').style.display='none';
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('btn-bar').style.display='none';
+  document.getElementById('top-bar').style.display='none';
+  document.getElementById('timer-bar').style.display='none';
+}
+
+function saveUnlocks(){
+  localStorage.setItem('quake72_unlocks',JSON.stringify({know:[...gameState.unlockedKnowledge],end:[...gameState.unlockedEndings]}));
+}
+
+function setBackground(bgId){
+  document.getElementById('bg-layer').style.background=BG_COLORS[bgId]||BG_COLORS.school;
+}
+
+function addQuakeEffect(){
+  var bg=document.getElementById('bg');
+  bg.style.animation='none';
+  bg.offsetHeight;
+  bg.style.animation='shake 0.5s ease-in-out';
+}
+
+function updateStats(){
+  document.getElementById('val-hp').textContent=Math.max(0,gameState.hp);
+  document.getElementById('val-water').textContent=Math.max(0,gameState.water);
+  document.getElementById('val-food').textContent=Math.max(0,gameState.food);
+  document.getElementById('val-spirit').textContent=Math.max(0,gameState.spirit);
+  document.getElementById('bar-hp').style.width=Math.max(0,gameState.hp)+'%';
+  document.getElementById('bar-water').style.width=Math.max(0,gameState.water)+'%';
+  document.getElementById('bar-food').style.width=Math.max(0,gameState.food)+'%';
+  document.getElementById('bar-spirit').style.width=Math.max(0,gameState.spirit)+'%';
+}
+
+function updateTopBar(){
+  document.getElementById('hour-display').textContent='第'+gameState.hour+'小时';
+  document.getElementById('countdown').textContent='距离救援还有 '+Math.max(0,72-gameState.hour)+' 小时';
+}
+
+function setCharAvatar(){
+  document.getElementById('char-avatar').textContent=CHARACTERS[gameState.charIndex].avatar;
+}
+
+// ==================== 游戏流程 ====================
+function startGame(){
+  document.getElementById('screen-title').classList.add('hidden');
+  document.getElementById('screen-select').classList.remove('hidden');
+}
+
+function selectChar(idx){
+  gameState.charIndex=idx;
+  var c=CHARACTERS[idx];
+  gameState.hp=c.hp; gameState.water=c.water; gameState.food=c.food; gameState.spirit=c.spirit;
+  gameState.hour=0; gameState.currentNodeIdx=0; gameState.isPlaying=true;
+  gameState.acquiredKnowledge=new Set();
+  document.getElementById('screen-select').classList.add('hidden');
+  document.getElementById('status-panel').style.display='flex';
+  document.getElementById('dialog-box').style.display='block';
+  document.getElementById('btn-bar').style.display='flex';
+  document.getElementById('top-bar').style.display='flex';
+  document.getElementById('timer-bar').style.display='block';
+  document.getElementById('timer-fill').style.width='0%';
+  setCharAvatar(); updateStats(); updateTopBar(); showNode();
+}
+
+function continueGame(){
+  var d=JSON.parse(localStorage.getItem('quake72_autosave')||'null');
+  if(!d){alert('没有找到存档！');return;}
+  gameState.charIndex=d.charIndex; gameState.currentNodeIdx=d.currentNodeIdx;
+  gameState.hour=d.hour; gameState.hp=d.hp; gameState.water=d.water;
+  gameState.food=d.food; gameState.spirit=d.spirit; gameState.isPlaying=true;
+  gameState.acquiredKnowledge=new Set(d.acquiredKnowledge||[]);
+  document.getElementById('screen-title').classList.add('hidden');
+  document.getElementById('screen-select').classList.add('hidden');
+  document.getElementById('status-panel').style.display='flex';
+  document.getElementById('dialog-box').style.display='block';
+  document.getElementById('btn-bar').style.display='flex';
+  document.getElementById('top-bar').style.display='flex';
+  document.getElementById('timer-bar').style.display='block';
+  setCharAvatar(); updateStats(); updateTopBar(); showNode();
+}
+
+function backToTitle(){
+  document.getElementById('screen-select').classList.add('hidden');
+  document.getElementById('screen-title').classList.remove('hidden');
+}
+
+function showNode(){
+  var story=STORIES[gameState.charIndex];
+  var node=story[gameState.currentNodeIdx];
+  if(!node){gameOver();return;}
+  gameState.hour=node.hour;
+  updateTopBar();
+  setBackground(node.bg);
+  if(node.event)addQuakeEffect();
+  if(node.timeLimit){
+    document.getElementById('timer-fill').style.transition='width '+node.timeLimit+'s linear';
+    document.getElementById('timer-fill').style.width='100%';
+    setTimeout(function(){
+      if(document.getElementById('choices').children.length>0)handleChoice(0);
+    },node.timeLimit*1000);
+  }else{
+    document.getElementById('timer-fill').style.transition='none';
+    document.getElementById('timer-fill').style.width='0%';
+  }
+  playDialogue(node.dialogue,function(){
+    if(node.ending!==undefined){showEnding(node.ending);}
+    else if(node.choices.length>0){showChoices(node.choices,node.timeLimit||0);}
+  });
+}
+
+function playDialogue(lines,callback){
+  clearTimeout(dialogueTimer);
+  var i=0;
+  var speakerEl=document.getElementById('speaker');
+  var textEl=document.getElementById('dialog-text');
+  document.getElementById('choices').innerHTML='';
+  function showLine(){
+    if(i>=lines.length){callback();return;}
+    var line=lines[i];
+    speakerEl.textContent=line.s;
+    textEl.textContent='';
+    var j=0;
+    var chars=line.t;
+    function typeChar(){
+      if(j<chars.length){textEl.textContent+=chars[j];j++;dialogueTimer=setTimeout(typeChar,40);}
+      else{i++;dialogueTimer=setTimeout(showLine,800);}
+    }
+    typeChar();
+  }
+  showLine();
+}
+
+function showChoices(choices,timeLimit){
+  clearTimeout(dialogueTimer);
+  var container=document.getElementById('choices');
+  container.innerHTML='';
+  choices.forEach(function(c,i){
+    var btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.textContent=c.text;
+    if(timeLimit>0)btn.innerHTML+='<span style="float:right;color:#ff6b6b;font-size:12px">⏱'+timeLimit+'s</span>';
+    btn.onclick=function(){handleChoice(i);};
+    container.appendChild(btn);
+  });
+}
+
+function handleChoice(idx){
+  var story=STORIES[gameState.charIndex];
+  var node=story[gameState.currentNodeIdx];
+  var choice=node.choices[idx];
+  if(choice.eff){
+    gameState.hp=Math.max(0,Math.min(100,gameState.hp+(choice.eff.hp||0)));
+    gameState.water=Math.max(0,Math.min(100,gameState.water+(choice.eff.water||0)));
+    gameState.food=Math.max(0,Math.min(100,gameState.food+(choice.eff.food||0)));
+    gameState.spirit=Math.max(0,Math.min(100,gameState.spirit+(choice.eff.spirit||0)));
+  }
+  updateStats();
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('timer-fill').style.transition='none';
+  document.getElementById('timer-fill').style.width='0%';
+  if(choice.tip){
+    showTip(choice.tip,function(){
+      gameState.currentNodeIdx=choice.next;
+      showNode();
+    });
+  }else{
+    gameState.currentNodeIdx=choice.next;
+    showNode();
+  }
+  saveGameAuto();
+}
+
+function showTip(text,callback){
+  document.getElementById('tip-content').textContent=text;
+  document.getElementById('tip-popup').classList.remove('hidden');
+  document.getElementById('tip-popup')._callback=callback;
+}
+
+function closeTip(){
+  document.getElementById('tip-popup').classList.add('hidden');
+  var cb=document.getElementById('tip-popup')._callback;
+  if(cb)cb();
+}
+
+function showEnding(endingId){
+  var ending=ENDINGS[endingId];
+  gameState.isPlaying=false;
+  gameState.unlockedEndings.add(endingId);
+  (ending.unlockKnow||[]).forEach(function(k){gameState.unlockedKnowledge.add(k);});
+  gameState.acquiredKnowledge.forEach(function(k){gameState.unlockedKnowledge.add(k);});
+  saveUnlocks();
+  document.getElementById('status-panel').style.display='none';
+  document.getElementById('dialog-box').style.display='none';
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('btn-bar').style.display='none';
+  document.getElementById('top-bar').style.display='none';
+  document.getElementById('timer-bar').style.display='none';
+  var rankBg={S:'school_rescue',A:'school_rescue',B:'school_dark'};
+  if(gameState.charIndex===0)rankBg={S:'school_rescue',A:'school_rescue',B:'school_dark'};
+  else if(gameState.charIndex===1)rankBg={S:'office_rescue',A:'office_rescue',B:'office_dark'};
+  else rankBg={S:'home_rescue',A:'home_rescue',B:'home_dark'};
+  setBackground(rankBg[ending.rank]);
+  var rankEmoji={S:'🌟',A:'⭐',B:'💔'};
+  var bg=document.getElementById('bg');
+  var old=bg.querySelector('.ending-bg');
+  if(old)old.remove();
+  var endingDiv=document.createElement('div');
+  endingDiv.className='ending-bg';
+  var knowList=(ending.unlockKnow||[]).map(function(k){return '<li>'+KNOWLEDGE_CARDS[k].title+'</li>';}).join('');
+  endingDiv.innerHTML='<div class="ending-rank-icon">'+rankEmoji[ending.rank]+'</div><div class="ending-title">'+ending.name+'</div><div class="ending-text">'+ending.desc+'</div><div class="ending-knowledge"><strong>📚 本局获得的防灾知识：</strong><ul>'+knowList+'</ul></div><button class="screen-btn" onclick="toTitle()">返回标题</button>';
+  bg.appendChild(endingDiv);
+}
+
+function gameOver(){
+  var endingId=gameState.charIndex===0?2:gameState.charIndex===1?5:8;
+  showEnding(endingId);
+}
+
+function toTitle(){
+  clearTimeout(dialogueTimer);
+  gameState.isPlaying=false;
+  document.getElementById('status-panel').style.display='none';
+  document.getElementById('dialog-box').style.display='none';
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('btn-bar').style.display='none';
+  document.getElementById('top-bar').style.display='none';
+  document.getElementById('timer-bar').style.display='none';
+  document.getElementById('dialog-text').textContent='';
+  document.getElementById('speaker').textContent='';
+  var bg=document.getElementById('bg');
+  var old=bg.querySelector('.ending-bg');
+  if(old)old.remove();
+  document.getElementById('screen-title').classList.remove('hidden');
+  document.getElementById('screen-select').classList.add('hidden');
+  setBackground('school');
+  document.getElementById('timer-fill').style.width='0%';
+  renderKnowledgeGrid();
+  renderEndingsGrid();
+}
+
+// ==================== 存档系统 ====================
+function saveGameAuto(){
+  if(!gameState.isPlaying)return;
+  var d={charIndex:gameState.charIndex,currentNodeIdx:gameState.currentNodeIdx,hour:gameState.hour,hp:gameState.hp,water:gameState.water,food:gameState.food,spirit:gameState.spirit,acquiredKnowledge:[...gameState.acquiredKnowledge]};
+  localStorage.setItem('quake72_autosave',JSON.stringify(d));
+}
+
+function saveGame(slot){
+  var d={charIndex:gameState.charIndex,currentNodeIdx:gameState.currentNodeIdx,hour:gameState.hour,hp:gameState.hp,water:gameState.water,food:gameState.food,spirit:gameState.spirit,acquiredKnowledge:[...gameState.acquiredKnowledge],time:new Date().toLocaleString('zh-CN'),charName:CHARACTERS[gameState.charIndex].name};
+  localStorage.setItem('quake72_save_'+slot,JSON.stringify(d));
+  alert('存档成功！');
+  showSave();
+}
+
+function loadGame(slot){
+  var d=JSON.parse(localStorage.getItem('quake72_save_'+slot)||'null');
+  if(!d){alert('该存档为空！');return;}
+  gameState.charIndex=d.charIndex; gameState.currentNodeIdx=d.currentNodeIdx;
+  gameState.hour=d.hour; gameState.hp=d.hp; gameState.water=d.water;
+  gameState.food=d.food; gameState.spirit=d.spirit; gameState.isPlaying=true;
+  gameState.acquiredKnowledge=new Set(d.acquiredKnowledge||[]);
+  closeModal('modal-load');
+  document.getElementById('screen-title').classList.add('hidden');
+  document.getElementById('screen-select').classList.add('hidden');
+  document.getElementById('status-panel').style.display='flex';
+  document.getElementById('dialog-box').style.display='block';
+  document.getElementById('btn-bar').style.display='flex';
+  document.getElementById('top-bar').style.display='flex';
+  document.getElementById('timer-bar').style.display='block';
+  var bg=document.getElementById('bg');
+  var old=bg.querySelector('.ending-bg');
+  if(old)old.remove();
+  setCharAvatar(); updateStats(); updateTopBar(); showNode();
+}
+
+function showSave(){
+  renderSaveSlots('save-slots','save');
+  document.getElementById('modal-save').classList.remove('hidden');
+}
+
+function showLoad(){
+  renderSaveSlots('load-slots','load');
+  document.getElementById('modal-load').classList.remove('hidden');
+}
+
+function renderSaveSlots(containerId,action){
+  var container=document.getElementById(containerId);
+  container.innerHTML='';
+  for(var i=0;i<3;i++){
+    var d=JSON.parse(localStorage.getItem('quake72_save_'+i)||'null');
+    var slot=document.createElement('div');
+    slot.className='save-slot';
+    slot.innerHTML='<div class="slot-num">存档 '+(i+1)+'</div><div class="slot-info">'+(d?d.charName+' | 第'+d.hour+'小时<br>'+d.time:'空')+'</div>'+(action==='save'?'<button class="screen-btn small" onclick="saveGame('+i+')">保存</button>':(d?'<button class="screen-btn small" onclick="loadGame('+i+')">读取</button>':'<button class="screen-btn small" disabled>空</button>'));
+    container.appendChild(slot);
+  }
+}
+
+// ==================== 模态框 ====================
+function showMenu(){document.getElementById('modal-menu').classList.remove('hidden');}
+function showKnowledge(){renderKnowledgeGrid();document.getElementById('modal-knowledge').classList.remove('hidden');}
+function showEndings(){renderEndingsGrid();document.getElementById('modal-endings').classList.remove('hidden');}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+
+function renderKnowledgeGrid(){
+  var grid=document.getElementById('knowledge-grid');
+  grid.innerHTML='';
+  KNOWLEDGE_CARDS.forEach(function(card){
+    var unlocked=gameState.unlockedKnowledge.has(card.id);
+    var div=document.createElement('div');
+    div.className='knowledge-card'+(unlocked?'':' locked');
+    div.innerHTML='<div class="kc-title">'+(unlocked?card.title:'???')+'</div><div class="kc-desc">'+(unlocked?card.desc:'通关对应角色后解锁')+'</div><div class="kc-from">来源：'+card.from+'</div>';
+    grid.appendChild(div);
+  });
+}
+
+function renderEndingsGrid(){
+  var grid=document.getElementById('endings-grid');
+  grid.innerHTML='';
+  var rankEmoji={S:'🌟',A:'⭐',B:'💔'};
+  ENDINGS.forEach(function(ending){
+    var unlocked=gameState.unlockedEndings.has(ending.id);
+    var div=document.createElement('div');
+    div.className='ending-card'+(unlocked?'':' locked');
+    div.innerHTML='<div class="ending-rank">'+(unlocked?rankEmoji[ending.rank]:'❓')+'</div><div class="ending-name">'+(unlocked?ending.name:'???')+'</div><div class="ending-desc">'+(unlocked?ending.desc:CHARACTERS[ending.char].name+'线')+'</div>';
+    grid.appendChild(div);
+  });
+}
+
+init();
+</script>
+</body>
+</html>

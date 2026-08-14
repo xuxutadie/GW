@@ -1,0 +1,11 @@
+*.ps1
+*.bat
+*.vbs
+*.txt
+server.js
+space-landing.html
+视频测试.html
+video/屏幕录制*.mp4
+node_modules/
+.DS_Store
+Thumbs.db

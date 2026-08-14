@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>真假卡牌辨谎 - 校园推理游戏</title>
+    <style>
+        /* ===== 全局重置 ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f5f9ff 50%, #e8f4fd 100%);
+            min-height: 100vh;
+            color: #2c3e50;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(52, 152, 219, 0.15);
+            padding: 30px 40px;
+            border: 2px solid #bbdefb;
+        }
+        /* ===== 顶部信息栏 ===== */
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #bbdefb;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 2.2em;
+            color: #1565c0;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .header h1::before, .header h1::after { content: "🔍"; margin: 0 10px; font-size: 0.9em; }
+        .info-bar {
+            display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;
+            margin-top: 15px; font-size: 1.05em;
+        }
+        .info-item {
+            background: #e3f2fd; padding: 8px 18px; border-radius: 20px;
+            border: 1px solid #90caf9; color: #0d47a1; font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .info-item:hover { transform: translateY(-2px); }
+        .info-item.rule { background: #fff8e1; border-color: #ffb300; color: #ef6c00; }
+        .info-item.hint-info { background: #e8f5e9; border-color: #66bb6a; color: #2e7d32; }
+        .scene-desc { margin-top: 15px; font-size: 0.95em; color: #546e7a;
+            font-style: italic; line-height: 1.6; }
+        /* ===== 卡片区 ===== */
+        .cards-area {
+            display: flex; justify-content: center; flex-wrap: wrap;
+            gap: 20px; padding: 25px 10px; min-height: 280px;
+        }
+        .card {
+            width: 180px; background: #ffffff; border: 3px solid #e0e0e0;
+            border-radius: 16px; padding: 20px 15px; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden; text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(52, 152, 219, 0.25);
+            border-color: #90caf9;
+        }
+        .card.selected-culprit {
+            border-color: #e53935;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffebee 100%);
+            box-shadow: 0 8px 20px rgba(229, 57, 53, 0.3);
+            transform: translateY(-4px);
+        }
+        .card.selected-accomplice {
+            border-color: #ff9800;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+            transform: translateY(-4px);
+        }
+        .card.hint-innocent {
+            border-color: #66bb6a;
+            background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
+        }
+        .card.hint-truth {
+            border-color: #29b6f6;
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+        }
+        .card.disabled { cursor: not-allowed; opacity: 0.75; filter: grayscale(0.3); }
+        /* 角标 */
+        .card.selected-culprit::before,
+        .card.selected-accomplice::before,
+        .card.hint-innocent::before,
+        .card.hint-truth::before {
+            position: absolute; top: 10px; right: 10px;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85em; font-weight: bold; color: #fff;
+            animation: checkmark-pop 0.3s ease-out;
+            z-index: 2;
+        }
+        .card.selected-culprit::before {
+            background: #e53935; content: "主犯";
+            box-shadow: 0 2px 8px rgba(229, 57, 53, 0.4);
+            font-size: 0.75em;
+        }
+        .card.selected-accomplice::before {
+            background: #ff9800; content: "帮凶";
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+            font-size: 0.75em;
+        }
+        .card.hint-innocent::before { background: #66bb6a; content: "✓"; box-shadow: 0 2px 8px rgba(102, 187, 106, 0.4); }
+        .card.hint-truth::before { background: #29b6f6; content: "★"; box-shadow: 0 2px 8px rgba(41, 182, 246, 0.4); }
+        @keyframes checkmark-pop {
+            0% { transform: scale(0) rotate(-180deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+        .card.selected::before { background: #e53935; box-shadow: 0 2px 8px rgba(229, 57, 53, 0.4); }
+        .card.hint-innocent::before { background: #66bb6a; box-shadow: 0 2px 8px rgba(102, 187, 106, 0.4); }
+        .card.hint-truth::before { background: #29b6f6; box-shadow: 0 2px 8px rgba(41, 182, 246, 0.4); }
+        .card-avatar {
+            width: 80px; height: 80px; border-radius: 50%;
+            margin: 0 auto 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 2em; font-weight: bold;
+            color: #fff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .card-name { font-size: 1.2em; font-weight: 700; color: #1565c0; margin-bottom: 8px; }
+        .card-role { font-size: 0.85em; color: #78909c; margin-bottom: 10px; }
+        .card-quote {
+            font-size: 0.9em; color: #455a64; line-height: 1.5;
+            padding: 10px; background: #f5f9ff; border-radius: 10px;
+            border-left: 3px solid #90caf9; font-style: italic;
+        }
+        /* ===== 选择计数 ===== */
+        .selection-count { text-align: center; font-size: 0.95em; color: #546e7a;
+            margin-top: 5px; font-weight: 500; }
+        .selection-count .count-num { color: #e53935; font-size: 1.2em; font-weight: bold; }
+        /* ===== 结果提示 ===== */
+        .result-message {
+            text-align: center; font-size: 1.3em; font-weight: bold;
+            padding: 15px 20px; margin: 20px auto; border-radius: 12px;
+            min-height: 60px; display: flex; align-items: center;
+            justify-content: center; transition: all 0.3s; max-width: 800px;
+        }
+        .result-message.correct { background: #e8f5e9; color: #2e7d32; border: 2px solid #66bb6a; }
+        .result-message.wrong { background: #ffebee; color: #c62828; border: 2px solid #ef5350; }
+        .result-message.info { background: #e3f2fd; color: #1565c0; border: 2px dashed #64b5f6; }
+        /* ===== 按钮区 ===== */
+        .button-area {
+            display: flex; justify-content: center; flex-wrap: wrap;
+            gap: 15px; padding: 20px 0 10px;
+            border-top: 2px dashed #bbdefb; margin-top: 15px;
+        }
+        .btn {
+            padding: 12px 28px; font-size: 1em; font-weight: 600;
+            border: none; border-radius: 10px; cursor: pointer;
+            transition: all 0.25s ease; color: #fff; min-width: 130px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            font-family: inherit;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); }
+        .btn:active:not(:disabled) { transform: translateY(0); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-submit { background: linear-gradient(135deg, #4caf50, #388e3c); }
+
+        .btn-hint { background: linear-gradient(135deg, #2196f3, #1565c0); }
+        .btn-next { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
+        .btn-restart { background: linear-gradient(135deg, #f44336, #c62828); }
+        /* ===== 动画：正确闪烁 ===== */
+        @keyframes blink-green {
+            0%, 100% { background: #e8f5e9; border-color: #66bb6a; transform: translateY(-4px) scale(1.05); box-shadow: 0 8px 20px rgba(102, 187, 106, 0.5); }
+            50% { background: #c8e6c9; border-color: #2e7d32; transform: translateY(-4px) scale(1.08); box-shadow: 0 12px 28px rgba(46, 125, 50, 0.6); }
+        }
+        .card.blink-correct { animation: blink-green 0.5s ease-in-out 3; }
+        /* ===== 动画：错误抖动 ===== */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            15%, 45%, 75% { transform: translateX(-8px); }
+            30%, 60%, 90% { transform: translateX(8px); }
+        }
+        .card.shake-wrong, .result-message.shake-wrong { animation: shake 0.5s ease-in-out; }
+        .card.shake-wrong { border-color: #e53935; }
+        /* ===== 通关弹窗 ===== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 30, 60, 0.7); display: none;
+            align-items: center; justify-content: center;
+            z-index: 1000; backdrop-filter: blur(4px);
+        }
+        .modal-overlay.show { display: flex; animation: fade-in 0.3s ease; }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        .modal {
+            background: #fff; border-radius: 20px; padding: 40px 50px;
+            text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 3px solid #bbdefb; max-width: 90%;
+            animation: modal-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modal-pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal h2 { color: #1565c0; font-size: 2.2em; margin-bottom: 15px; }
+        .modal p { color: #546e7a; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6; }
+        .modal .trophy { font-size: 4em; margin-bottom: 10px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* ===== 关卡选择弹窗 — 美化版 ===== */
+        .modal.level-menu {
+            max-width: 920px;
+            padding: 30px 35px;
+        }
+        .level-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .level-menu-title {
+            color: #1565c0;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 0;
+        }
+        .level-menu-progress {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #0d47a1;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+        .level-menu-desc {
+            text-align: center;
+            color: #546e7a;
+            font-size: 0.95em;
+            margin: 6px 0 18px 0;
+        }
+        .level-menu-filter {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .filter-btn {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            color: #546e7a;
+            font-family: inherit;
+        }
+        .filter-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        .filter-btn.active { background: #1976d2; color: #fff; border-color: #1565c0; }
+        .level-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+            gap: 14px;
+            max-height: 55vh;
+            overflow-y: auto;
+            padding: 12px;
+            background: #f5f9ff;
+            border-radius: 14px;
+            border: 1px solid #bbdefb;
+        }
+        .level-menu-grid::-webkit-scrollbar { width: 8px; }
+        .level-menu-grid::-webkit-scrollbar-track { background: #e3f2fd; border-radius: 4px; }
+        .level-menu-grid::-webkit-scrollbar-thumb { background: #64b5f6; border-radius: 4px; }
+        .level-card {
+            position: relative;
+            border-radius: 12px;
+            padding: 14px 10px 10px 10px;
+            cursor: pointer;
+            text-align: center;
+            color: #fff;
+            border: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+            font-family: inherit;
+            overflow: hidden;
+        }
+        .level-card:hover {
+            transform: translateY(-4px) scale(1.04);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .level-card.passed { opacity: 0.92; }
+        .level-card-number {
+            font-size: 1.7em;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+        .level-card-difficulty {
+            font-size: 0.78em;
+            opacity: 0.95;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .level-card-info {
+            font-size: 0.72em;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+        .level-card-check {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 1.4em;
+            animation: checkmark-pop 0.4s ease-out;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .level-card-random {
+            background: linear-gradient(135deg, #ff9800, #e65100, #ff5722, #ff9800);
+            background-size: 200% 200%;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        /* 难度主题色 */
+        .diff-入门 { background: linear-gradient(135deg, #81c784, #43a047); }
+        .diff-简单 { background: linear-gradient(135deg, #4fc3f7, #1976d2); }
+        .diff-中等 { background: linear-gradient(135deg, #ba68c8, #7b1fa2); }
+        .diff-困难 { background: linear-gradient(135deg, #ff8a65, #d84315); }
+        .diff-挑战 { background: linear-gradient(135deg, #e53935, #b71c1c); }
+        .diff-大师 { background: linear-gradient(135deg, #6a1b9a, #311b92); color: #ffe082; }
+
+        .close-btn-row {
+            margin-top: 20px;
+            text-align: center;
+        }
+        /* ===== 游戏说明弹窗 ===== */
+        .help-modal { max-width: 620px; width: 92%; background: #ffffff; border-radius: 20px; padding: 0; overflow: hidden; }
+        .help-header {
+            background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%);
+            padding: 22px 28px; color: #fff;
+        }
+        .help-title { font-size: 1.6em; margin: 0; font-weight: 900; letter-spacing: 2px; }
+        .help-content { padding: 20px 28px 10px 28px; max-height: 62vh; overflow-y: auto; }
+        .help-section {
+            background: #f5f9ff; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px;
+            border-left: 4px solid #42a5f5;
+        }
+        .help-subtitle { font-size: 1.1em; color: #1565c0; margin: 0 0 8px 0; font-weight: 700; }
+        .help-text { color: #37474f; line-height: 1.8; margin: 0; font-size: 0.95em; }
+        .help-list { color: #37474f; line-height: 2; margin: 0; padding-left: 22px; font-size: 0.95em; }
+        .help-list li { margin-bottom: 4px; }
+        .help-example { background: #fff8e1; border-radius: 10px; padding: 14px 18px; margin-top: 8px; }
+        .help-example p { margin: 6px 0; line-height: 1.8; color: #5d4037; font-size: 0.93em; }
+        .help-example-answer { background: #fff; padding: 10px 14px; border-radius: 8px; margin-top: 10px !important; color: #1565c0 !important; border: 2px dashed #bbdefb; }
+        .tag { display: inline-block; padding: 2px 10px; border-radius: 8px; color: #fff; font-size: 0.85em; font-weight: 700; }
+        .tag-red { background: #e53935; }
+        .tag-orange { background: #ff9800; }
+        /* ===== 顶部右上角帮助按钮 ===== */
+        .header-help-btn {
+            position: absolute; top: 12px; right: 16px;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: linear-gradient(135deg, #42a5f5, #1565c0);
+            color: #fff; border: none; font-size: 1.1em; font-weight: 900;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+            transition: all 0.2s ease; font-family: inherit;
+        }
+        .header-help-btn:hover { transform: scale(1.1) rotate(360deg); box-shadow: 0 6px 16px rgba(21, 101, 192, 0.4); }
+        .header h1 { position: relative; }
+        /* ===== 首页帮助按钮 ===== */
+        .home-help-btn {
+            background: transparent; border: 2px solid #42a5f5; color: #1565c0;
+            padding: 12px 34px; font-size: 1em; font-weight: 700; border-radius: 50px;
+            cursor: pointer; transition: all 0.2s ease; font-family: inherit; letter-spacing: 2px;
+        }
+        .home-help-btn:hover { background: #e3f2fd; transform: translateY(-2px); }
+        /* ===== 首页清除进度按钮 ===== */
+        .home-clear-btn {
+            background: transparent; border: 1px solid #bdbdbd; color: #757575;
+            padding: 6px 18px; font-size: 0.85em; font-weight: 600; border-radius: 50px;
+            cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+        }
+        .home-clear-btn:hover { background: #ffebee; color: #c62828; border-color: #ef5350; }
+        /* ===== 首页 ===== */
+        .home-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .home-card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 48px 40px 36px 40px;
+            box-shadow: 0 20px 60px rgba(21, 101, 192, 0.15);
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: home-fade-in 0.6s ease-out;
+        }
+        @keyframes home-fade-in {
+            0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .home-logo {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 24px auto;
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 50%, #1565c0 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 36px rgba(21, 101, 192, 0.3);
+            animation: home-logo-bounce 2s ease-in-out infinite;
+            font-size: 3.5em;
+        }
+        @keyframes home-logo-bounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
+        .home-title {
+            font-size: 2.8em;
+            color: #1565c0;
+            margin-bottom: 8px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px rgba(21, 101, 192, 0.15);
+        }
+        .home-subtitle {
+            font-size: 1.15em;
+            color: #5c6bc0;
+            margin-bottom: 28px;
+            letter-spacing: 4px;
+            font-weight: 600;
+        }
+        .home-desc {
+            background: linear-gradient(135deg, #e3f2fd 0%, #e8eaf6 100%);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            color: #37474f;
+            line-height: 2;
+            font-size: 1.05em;
+        }
+        .home-info {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .home-info-item {
+            background: #f5f9ff;
+            border: 2px solid #bbdefb;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            color: #1565c0;
+            font-weight: 600;
+        }
+        .home-info-item strong {
+            color: #e53935;
+            font-size: 1.15em;
+        }
+        .home-start-btn {
+            background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%);
+            color: #fff;
+            border: none;
+            padding: 18px 56px;
+            font-size: 1.3em;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(21, 101, 192, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 4px;
+            font-family: inherit;
+        }
+        .home-start-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 14px 40px rgba(21, 101, 192, 0.5);
+        }
+        .home-start-btn:active {
+            transform: translateY(-1px) scale(1.01);
+        }
+        .home-footer {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px dashed #e3f2fd;
+        }
+        .home-progress {
+            color: #78909c;
+            font-size: 0.95em;
+        }
+        .home-progress-label {
+            color: #42a5f5;
+            font-weight: 600;
+        }
+        @media (max-width: 768px) {
+            .home-card {
+                padding: 32px 20px 28px 20px;
+            }
+            .home-title {
+                font-size: 2em;
+            }
+            .home-start-btn {
+                padding: 16px 40px;
+                font-size: 1.1em;
+            }
+        }
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .game-container { padding: 20px; }
+            .header h1 { font-size: 1.6em; }
+            .card { width: 160px; }
+            .info-bar { gap: 10px; }
+            .info-item { padding: 6px 12px; font-size: 0.9em; }
+            .btn { padding: 10px 18px; min-width: 110px; font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== 首页 ===== -->
+    <div class="home-screen" id="home-screen">
+        <div class="home-card">
+            <div class="home-logo">
+                <span style="font-size:1.2em;">🔍</span>
+            </div>
+            <h1 class="home-title">真假卡牌辨谎</h1>
+            <div class="home-subtitle">校园推理游戏</div>
+            <div class="home-desc">
+                <p>每个人都在说，或真或假，</p>
+                <p>你能找出<strong style="color:#e53935;">主犯</strong>和<strong style="color:#ff9800;">帮凶</strong>吗？</p>
+            </div>
+            <div class="home-info">
+                <div class="home-info-item">📚 共 <strong>40</strong> 关</div>
+                <div class="home-info-item">🎲 无限随机关卡</div>
+                <div class="home-info-item">💡 两次提示机会</div>
+            </div>
+            <button class="home-start-btn" id="home-start-btn">
+                ▶ 开始游戏
+            </button>
+            <div style="margin-top: 14px;">
+                <button class="home-help-btn" id="home-help-btn">
+                    📖 游戏说明
+                </button>
+            </div>
+            <div class="home-footer">
+                <div class="home-progress" id="home-progress">
+                    <span class="home-progress-label">暂无通关记录</span>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="home-clear-btn" id="home-clear-btn">🗑️ 清除进度</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-container" id="game-container" style="display:none;">
+        <!-- 顶部：标题 + 规则 + 提示次数 -->
+        <div class="header">
+            <h1>真假卡牌辨谎
+                <button class="header-help-btn" id="header-help-btn" title="查看游戏说明">？</button>
+            </h1>
+            <div class="info-bar">
+                <div class="info-item">关卡：<span id="level-num">1</span> / <span id="level-total">10</span>
+                    <span style="color:#90a4ae;font-size:0.85em;">( <span id="level-difficulty">简单</span> )</span>
+                </div>
+                <div class="info-item rule">📋 本关只有 <span id="truth-count">1</span> 人说真话</div>
+                <div class="info-item hint-info">💡 剩余提示：<span id="hint-count">2</span> 次</div>
+            </div>
+            <div class="scene-desc" id="scene-desc">
+                教室物品失窃案正在调查中！请通过分析每个嫌疑人的证词，
+                找出隐藏在人群中的 <strong style="color:#e53935;">主犯</strong> 和 <strong style="color:#ff9800;">帮凶</strong>。
+            </div>
+        </div>
+
+        <!-- 卡片区 -->
+        <div class="cards-area" id="cards-area"></div>
+
+        <!-- 选择计数 -->
+        <div class="selection-count">
+            <span id="selected-count-text">🔴 还没选主犯 &nbsp;·&nbsp; 🟠 还没选帮凶</span>
+        </div>
+
+        <!-- 结果提示 -->
+        <div class="result-message info" id="result-message">🤔 点击卡片选择你认为的主犯和帮凶，然后点击「提交答案」。</div>
+
+        <!-- 按钮区 -->
+        <div class="button-area">
+            <button class="btn btn-submit" id="btn-submit">提交答案</button>
+            <button class="btn btn-hint" id="btn-hint">使用提示 (2)</button>
+            <button class="btn btn-next" id="btn-next" style="display:none;">下一关 →</button>
+            <button class="btn" id="btn-random" style="background: linear-gradient(135deg, #ffb300, #f57c00);">🎲 随机新关</button>
+            <button class="btn" id="btn-menu" style="background: linear-gradient(135deg, #5c6bc0, #3949ab);">📑 选择关卡</button>
+            <button class="btn btn-restart" id="btn-restart">重新开局</button>
+            <button class="btn" id="btn-home" style="background: linear-gradient(135deg, #26a69a, #00897b);">🏠 返回首页</button>
+        </div>
+    </div>
+
+    <!-- 通关弹窗 -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="trophy">🏆</div>
+            <h2 id="win-title">恭喜通关！</h2>
+            <p id="win-text">你成功破解了所有案件，成为了真正的校园名侦探！<br><em style="color:#1565c0;">——真相只有一个。</em></p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-next" onclick="hideModal()">继续玩</button>
+                <button class="btn" onclick="showLevelMenu()" style="background: linear-gradient(135deg, #5c6bc0, #3949ab);">选择关卡</button>
+                <button class="btn" onclick="generateRandomLevel(); hideModal();" style="background: linear-gradient(135deg, #ffb300, #f57c00);">🎲 随机关卡</button>
+                <button class="btn btn-restart" onclick="restartGame()">🔄 重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关卡选择弹窗（美化版） -->
+    <div class="modal-overlay" id="level-menu-overlay" style="display:none;">
+        <div class="modal level-menu">
+            <div class="level-menu-header">
+                <h2 class="level-menu-title">� 关卡列表</h2>
+                <div class="level-menu-progress" id="level-menu-progress">已通关：0 / 10</div>
+            </div>
+            <div class="level-menu-desc">
+                点击任意关卡开始挑战 &nbsp;·&nbsp; 已通关的关卡会显示 ★ 标记
+            </div>
+            <div class="level-menu-filter" id="level-menu-filter">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="入门">入门</button>
+                <button class="filter-btn" data-filter="简单">简单</button>
+                <button class="filter-btn" data-filter="中等">中等</button>
+                <button class="filter-btn" data-filter="困难">困难</button>
+                <button class="filter-btn" data-filter="挑战">挑战</button>
+                <button class="filter-btn" data-filter="大师">大师</button>
+            </div>
+            <div id="level-menu-grid" class="level-menu-grid"></div>
+            <div class="close-btn-row">
+                <button class="btn btn-restart" onclick="hideLevelMenu()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏说明弹窗 -->
+    <div class="modal-overlay" id="help-modal" style="display:none;">
+        <div class="modal help-modal">
+            <div class="help-header">
+                <h2 class="help-title">📖 游戏说明</h2>
+            </div>
+            <div class="help-content">
+                <div class="help-section">
+                    <h3 class="help-subtitle">🎯 游戏目标</h3>
+                    <p class="help-text">每一关有几个角色，其中<strong style="color:#e53935;">1 个主犯</strong> + <strong style="color:#ff9800;">1 个帮凶</strong>，其他人都是无辜者。你需要通过分析证词，找出真凶！</p>
+                </div>
+                <div class="help-section">
+                    <h3 class="help-subtitle">💡 关键规则</h3>
+                    <p class="help-text"><strong style="color:#1565c0;">本关只有 N 人说真话</strong>（每关顶部会显示具体人数）。说真话的人永远不说谎；说谎的人说的话一定是假的。你要根据这个规则推理。</p>
+                </div>
+                <div class="help-section">
+                    <h3 class="help-subtitle">🖱️ 怎么操作</h3>
+                    <ul class="help-list">
+                        <li><strong>第 1 次点击卡片</strong>：标为 <span class="tag tag-red">主犯</span></li>
+                        <li><strong>第 2 次点击其他卡片</strong>：标为 <span class="tag tag-orange">帮凶</span></li>
+                        <li><strong>再次点击已选卡片</strong>：取消选择</li>
+                        <li><strong>提交答案</strong>：主犯和帮凶都要同时猜中才算通关</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h3 class="help-subtitle">🤔 举个例子</h3>
+                    <div class="help-example">
+                        <p><strong>小明说：</strong>"我没有偷东西。"</p>
+                        <p><strong>小红说：</strong>"是小明偷的。"</p>
+                        <p class="help-example-answer">🔍 分析：小明和小红说的话正好相反，所以一定有一人说真话、一人说谎。如果本关只有 1 人说真话，那其他人说的就全是假话。这样就可以锁定主犯帮凶啦！</p>
+                    </div>
+                </div>
+                <div class="help-section">
+                    <h3 class="help-subtitle">🎮 其他按钮</h3>
+                    <ul class="help-list">
+                        <li><strong>💡 使用提示</strong>：共 2 次，随机排除无辜者，或直接告诉你谁说真话</li>
+                        <li><strong>🎲 随机新关</strong>：自动生成全新案件</li>
+                        <li><strong>📑 选择关卡</strong>：查看所有关卡，选择挑战</li>
+                        <li><strong>🏠 返回首页</strong>：回到游戏首页</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="close-btn-row">
+                <button class="btn btn-restart" onclick="hideHelp()">✅ 我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+/* ======================================================
+ * 真假卡牌辨谎 · 核心逻辑脚本（扩展版）
+ * ----------------------------------------------------- */
+
+// -------- 素材池：用于随机关卡生成 --------
+const RANDOM_NAMES = [
+    "梓轩", "可欣", "浩然", "雨桐", "子墨", "若曦",
+    "天宇", "佳怡", "思远", "梓涵", "俊杰", "语嫣",
+    "小轩", "小琳", "小龙", "小瑶", "小欣", "小婷",
+    "小明", "小颖", "小豪", "小萱", "小凯", "小颖"
+];
+const RANDOM_ROLES = [
+    "班长", "学习委员", "体育委员", "文艺委员", "宣传委员",
+    "生活委员", "纪律委员", "普通同学", "课代表", "社团团长",
+    "学生会成员", "社团干事", "小记者", "实验室助理",
+    "图书管理员", "啦啦队成员", "学生会干事", "活动策划"
+];
+const PALETTE = [
+    "#42a5f5", "#ec407a", "#66bb6a", "#ffa726", "#ab47bc",
+    "#26a69a", "#5c6bc0", "#ef5350", "#8d6e63", "#78909c",
+    "#ff7043", "#29b6f6", "#d4e157", "#81c784", "#7986cb"
+];
+const RANDOM_SCENES = [
+    "班级班费被人偷走了。",
+    "教室的多媒体投影仪被人动过手脚。",
+    "图书馆的限量版漫画不翼而飞。",
+    "食堂的加餐券被人偷走了一摞。",
+    "体育器材室的钥匙被人复制了。",
+    "实验室的贵重试剂被人动过。",
+    "校长办公室的保险箱被人撬开了。",
+    "老师的讲义被人偷看过并外泄。",
+    "校运会的奖杯神秘失踪了。",
+    "学生活动中心的募捐箱被人撬开过。",
+    "公告栏里的通知被人撕掉了。",
+    "考试试题被人偷偷泄露。",
+    "新生军训的物资被人偷走。",
+    "社团招新海报被人恶意涂改。",
+    "演讲比赛的奖品被人换掉。",
+    "广播站的话筒被人动过手脚。",
+    "餐厅的收费机出现异常。",
+    "教室的窗帘被人偷偷破坏。",
+    "班级的纪念册被人涂花。",
+    "校庆纪念品被盗走。"
+];
+// 证词模板（变量名 {me}, {culprit}, {accomplice}, {other}）
+// 真话者模板：以真实事实为基础
+const TRUTH_QUOTES_SELF = [
+    "我与此事无关，我一直在忙自己的事。",
+    "我没有参与此事，我可以发誓。",
+    "我一直和同学们在一起，根本没机会做。",
+    "我没有接近过现场。",
+    "我对这件事一无所知。"
+];
+const TRUTH_QUOTES_ACCUSE_CULPRIT = [
+    "我看到{culprit}鬼鬼祟祟地出现在现场附近。",
+    "{culprit}绝对有参与，我亲眼看到他了。",
+    "我确实看到{culprit}离开了现场。",
+    "{culprit}在事发前后的行为很可疑。"
+];
+const TRUTH_QUOTES_ACCUSE_ACCOMPLICE = [
+    "{accomplice}也出现在现场附近，我看到了。",
+    "我看到{accomplice}和{culprit}一起走了。",
+    "{accomplice}的行为让我感到可疑。"
+];
+const TRUTH_QUOTES_DEFEND_INNOCENT = [
+    "{other}是清白的，我可以保证。",
+    "我相信{other}的人品，他不会做这种事。",
+    "{other}一直和我在一起，他根本没机会做。"
+];
+// 假话者模板（包括主犯、帮凶、无关说谎者）
+const LIE_QUOTES_SELF = [
+    "我一直和同学在一起，根本没机会做这件事。",
+    "我没有接近过现场。",
+    "我一直在自己的位置上，没做过坏事。",
+    "我对这件事完全不知情。"
+];
+const LIE_QUOTES_FRAME = [
+    "我敢打赌是{other}干的。",
+    "{other}看起来就不像好人。",
+    "我怀疑是{other}做的。",
+    "{other}在事发前后的行为很奇怪。"
+];
+const LIE_QUOTES_DEFEND_PARTNER = [
+    "{culprit}是无辜的，我可以证明。",
+    "{accomplice}一直和我在一起，他不可能作案。",
+    "我相信{culprit}的人品。"
+];
+
+// ---------- 10 关：手工关卡 ----------
+const LEVELS = [
+    {
+        truthCount: 1, truthTellers: [1], culpritIndex: 0, accompliceIndex: 3,
+        difficulty: "入门",
+        scene: "自习课上，讲台上的粉笔盒神秘失踪了！",
+        characters: [
+            { name: "阿明", role: "班长", quote: "我没有偷东西，这件事和我无关。", color: "#42a5f5" },
+            { name: "小雪", role: "学习委员", quote: "我看到阿明鬼鬼祟祟地翻讲台抽屉。", color: "#ec407a" },
+            { name: "小阳", role: "体育委员", quote: "小雪和我一直在一起，她不可能作案。", color: "#66bb6a" },
+            { name: "小豪", role: "普通同学", quote: "我什么都不知道，别问我。", color: "#ffa726" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [4], culpritIndex: 1, accompliceIndex: 2,
+        difficulty: "简单",
+        scene: "图书馆里，有人偷走了新到的限量版漫画。",
+        characters: [
+            { name: "林浩", role: "数学课代表", quote: "我一直在图书馆复习，有同学可以作证。", color: "#5c6bc0" },
+            { name: "陈璐", role: "文艺委员", quote: "我没有偷东西，你有证据吗？", color: "#ef5350" },
+            { name: "王磊", role: "纪律委员", quote: "陈璐是无辜的，我相信她。", color: "#8d6e63" },
+            { name: "赵敏", role: "宣传委员", quote: "小偷一定是林浩或王磊其中之一。", color: "#26a69a" },
+            { name: "周婷", role: "生活委员", quote: "我亲眼看见陈璐拿走了那本书。", color: "#ab47bc" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [0, 3], culpritIndex: 4, accompliceIndex: 1,
+        difficulty: "中等",
+        scene: "放学之后，教室内的多媒体投影仪被人动过手脚。",
+        characters: [
+            { name: "苏晴", role: "学习委员", quote: "我看到吴海在放学后回到教室。", color: "#42a5f5" },
+            { name: "郑伟", role: "体育委员", quote: "我和苏晴当时在操场跑步，没回过教室。", color: "#ff7043" },
+            { name: "徐莉", role: "文艺委员", quote: "孙娜肯定是清白的，我和她一直在一起。", color: "#ab47bc" },
+            { name: "孙娜", role: "宣传委员", quote: "郑伟下午根本没去操场，他在撒谎。", color: "#66bb6a" },
+            { name: "吴海", role: "普通同学", quote: "我放学就回家了，没回教室。", color: "#ffa726" },
+            { name: "马强", role: "班长", quote: "我敢打赌苏晴和孙娜都在说谎。", color: "#78909c" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [2], culpritIndex: 0, accompliceIndex: 4,
+        difficulty: "简单",
+        scene: "运动会上，第一名的奖杯不翼而飞。",
+        characters: [
+            { name: "张伟", role: "运动员", quote: "我一直和李娜在一起，没有机会拿奖杯。", color: "#ef5350" },
+            { name: "李娜", role: "运动员", quote: "我和张伟在训练，真的没碰奖杯。", color: "#ec407a" },
+            { name: "王芳", role: "裁判", quote: "张伟和李娜根本没有一直在一起，我看见张伟独自离开过。", color: "#29b6f6" },
+            { name: "赵阳", role: "志愿者", quote: "我看到的是王芳把奖杯藏了起来。", color: "#66bb6a" },
+            { name: "孙磊", role: "教练", quote: "赵阳说的是真的，王芳有问题。", color: "#ffa726" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [1, 5], culpritIndex: 3, accompliceIndex: 6,
+        difficulty: "中等",
+        scene: "期中考试的试卷被提前泄露，有人偷偷复印了答案。",
+        characters: [
+            { name: "钱程", role: "数学课代表", quote: "我敢保证，孙涛和我一起在图书馆学习。", color: "#42a5f5" },
+            { name: "孙涛", role: "英语课代表", quote: "钱程说的是真话，我们一直在一起。", color: "#66bb6a" },
+            { name: "李雯", role: "语文课代表", quote: "我看到杨帆鬼鬼祟祟地在办公室门口张望。", color: "#ec407a" },
+            { name: "杨帆", role: "物理课代表", quote: "我绝对没有接近过老师办公室。", color: "#ef5350" },
+            { name: "周一", role: "化学课代表", quote: "李雯和杨帆都在撒谎，他俩是一伙的。", color: "#8d6e63" },
+            { name: "吴双", role: "生物课代表", quote: "李雯确实看见杨帆了。", color: "#ab47bc" },
+            { name: "郑三", role: "历史课代表", quote: "我什么都没看见也没做。", color: "#ffa726" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [3], culpritIndex: 1, accompliceIndex: 2,
+        difficulty: "困难",
+        scene: "教室内的窗帘被人恶意毁坏。",
+        characters: [
+            { name: "陈明", role: "班长", quote: "我没有做这件事，我是无辜的。", color: "#29b6f6" },
+            { name: "李波", role: "副班长", quote: "是陈明干的，他一直对班级有意见。", color: "#ef5350" },
+            { name: "刘浩", role: "学习委员", quote: "李波说的是真话，我也怀疑他。", color: "#8d6e63" },
+            { name: "赵华", role: "普通同学", quote: "如果我没看错，真正做这件事的是李波和刘浩中的一人。", color: "#66bb6a" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [0], culpritIndex: 2, accompliceIndex: 4,
+        difficulty: "困难",
+        scene: "实验室的化学试剂瓶被人打翻，现场一片狼藉。",
+        characters: [
+            { name: "周凯", role: "化学课代表", quote: "我当时在走廊里看到了张磊和另一个人。", color: "#42a5f5" },
+            { name: "李婷", role: "物理课代表", quote: "周凯在撒谎，我没看到他在走廊。", color: "#ec407a" },
+            { name: "张磊", role: "学生", quote: "我一直和李婷在教室里，完全不知道发生了什么。", color: "#ef5350" },
+            { name: "王琪", role: "班长", quote: "张磊是无辜的，周凯在诬陷好人。", color: "#ffa726" },
+            { name: "刘洋", role: "学生", quote: "我支持周凯的说法，张磊确实去过走廊。", color: "#8d6e63" },
+            { name: "陈芳", role: "学习委员", quote: "周凯在撒谎，其实就是周凯和王琪干的。", color: "#66bb6a" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [1, 4, 6], culpritIndex: 0, accompliceIndex: 5,
+        difficulty: "困难",
+        scene: "学校的电脑机房密码被泄露，学生资料被恶意删除。",
+        characters: [
+            { name: "张明", role: "信息课代表", quote: "我没有接近过机房，我一直在图书馆学习。", color: "#ef5350" },
+            { name: "李雨", role: "学习委员", quote: "我看到张明在机房附近徘徊了很久。", color: "#42a5f5" },
+            { name: "王强", role: "班长", quote: "李雨看错了，张明今天根本没来学校。", color: "#8d6e63" },
+            { name: "赵鹏", role: "体育委员", quote: "我看到王强和张明一起进过机房。", color: "#ffa726" },
+            { name: "孙浩", role: "普通同学", quote: "赵鹏在撒谎，王强今天和我一起在操场。", color: "#66bb6a" },
+            { name: "周丽", role: "宣传委员", quote: "我确实没看到张明，但我相信赵鹏。", color: "#ab47bc" },
+            { name: "吴敏", role: "文艺委员", quote: "周丽在帮赵鹏掩盖事实，张明确实进过机房。", color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [0, 2], culpritIndex: 3, accompliceIndex: 1,
+        difficulty: "中等",
+        scene: "食堂的免费加餐券被人偷走了一摞。",
+        characters: [
+            { name: "林晓", role: "生活委员", quote: "我看到陈勇和另一个人在食堂门口徘徊。", color: "#42a5f5" },
+            { name: "陈勇", role: "体育委员", quote: "我没有接近过食堂窗口，一直在操场训练。", color: "#ef5350" },
+            { name: "王芳", role: "学习委员", quote: "我相信林晓的话，她的记忆力一直很好。", color: "#66bb6a" },
+            { name: "李华", role: "文艺委员", quote: "我一直和陈勇在一起，我们都没去过食堂。", color: "#ab47bc" },
+            { name: "赵敏", role: "宣传委员", quote: "我看到林晓自己一个人在食堂里，她才可疑。", color: "#ff7043" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [2, 5], culpritIndex: 0, accompliceIndex: 6,
+        difficulty: "挑战",
+        scene: "校长室的保险箱被撬开了，里面的奖学金现金不翼而飞！",
+        characters: [
+            { name: "孙浩", role: "学生会主席", quote: "我一直忙于学生会事务，没有时间做这种事。", color: "#ef5350" },
+            { name: "李晓", role: "学生会副主席", quote: "我和孙浩一直在一起，他不可能作案。", color: "#ec407a" },
+            { name: "王浩", role: "教师助理", quote: "我看到孙浩确实独自去过校长室附近。", color: "#42a5f5" },
+            { name: "张磊", role: "保安", quote: "王浩是我的同事，他绝对不会撒谎。", color: "#ffa726" },
+            { name: "赵静", role: "秘书", quote: "我觉得王浩和张磊合谋做了这件事。", color: "#ab47bc" },
+            { name: "刘敏", role: "校医", quote: "我相信王浩的人品，他没撒谎。", color: "#66bb6a" },
+            { name: "陈明", role: "清洁员", quote: "我什么都不知道，我只是打扫卫生的。", color: "#8d6e63" }
+        ]
+    },
+    // ========== 第 11~30 关（扩展部分）==========
+    {
+        truthCount: 1, truthTellers: [2], culpritIndex: 0, accompliceIndex: 4,
+        difficulty: "简单",
+        scene: "学校食堂的免费加餐券被人偷走了一摞。",
+        characters: [
+            { name: "小周", role: "学生",   quote: "我一直和朋友们在教室，根本没去过食堂。", color: "#ef5350" },
+            { name: "小吴", role: "学生",   quote: "小周一直和我在一起，他没偷东西。",       color: "#ec407a" },
+            { name: "小郑", role: "食堂阿姨", quote: "我亲眼看见小周偷偷从窗口拿走了一摞券。", color: "#42a5f5" },
+            { name: "小王", role: "学生",   quote: "我觉得小偷是小郑，她的眼神很诡异。",       color: "#ab47bc" },
+            { name: "小李", role: "学生",   quote: "我什么都没看见，我只是来吃午餐的。",       color: "#ffa726" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [1, 4], culpritIndex: 0, accompliceIndex: 3,
+        difficulty: "中等",
+        scene: "学校实验室的一台贵重显微镜被人弄坏了。",
+        characters: [
+            { name: "小张", role: "学生",     quote: "我只是路过实验室，什么都没碰过。",       color: "#ef5350" },
+            { name: "小刘", role: "实验课代表", quote: "我看到小张在事发前一个人进入了实验室。", color: "#42a5f5" },
+            { name: "小陈", role: "学生",     quote: "小刘和小张是好朋友，他在帮小张撒谎。",     color: "#8d6e63" },
+            { name: "小杨", role: "学生",     quote: "我是和小张一起回宿舍的，他没去过实验室。", color: "#ff7043" },
+            { name: "小赵", role: "学生",     quote: "我确实看到小张一个人进了实验室。",       color: "#66bb6a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [3, 5], culpritIndex: 2, accompliceIndex: 0,
+        difficulty: "中等",
+        scene: "学校的社团活动室被人翻得一团糟。",
+        characters: [
+            { name: "小林", role: "社团团长", quote: "我一直在会议室开会，有很多人可以作证。", color: "#ff7043" },
+            { name: "小黄", role: "社团成员", quote: "小林确实没离开过会议室。",               color: "#ec407a" },
+            { name: "小冯", role: "社团成员", quote: "我觉得是小黄干的，她最近总是偷偷摸摸的。", color: "#ef5350" },
+            { name: "小卫", role: "社团成员", quote: "事发时我在走廊，我看到小林进了活动室。", color: "#42a5f5" },
+            { name: "小蒋", role: "社团成员", quote: "我什么都不知道，我一直在自己的位置。", color: "#ab47bc" },
+            { name: "小沈", role: "社团成员", quote: "小卫没有撒谎，小林确实去过活动室。",    color: "#66bb6a" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [4], culpritIndex: 2, accompliceIndex: 1,
+        difficulty: "困难",
+        scene: "学校档案室的试卷被人偷走了一套。",
+        characters: [
+            { name: "小韩", role: "课代表", quote: "我昨天一整天都在图书馆复习。",        color: "#5c6bc0" },
+            { name: "小杨", role: "课代表", quote: "我可以为小韩作证，他和我在一起。",   color: "#ef5350" },
+            { name: "小朱", role: "课代表", quote: "我没进过档案室，我一直待在教室里。",   color: "#ef5350" },
+            { name: "小秦", role: "课代表", quote: "我怀疑是小朱或小杨干的。",            color: "#8d6e63" },
+            { name: "小尤", role: "管理员", quote: "我亲眼看到小朱进了档案室，小杨也没去图书馆。", color: "#42a5f5" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [1, 4, 6], culpritIndex: 0, accompliceIndex: 5,
+        difficulty: "困难",
+        scene: "学校电脑机房的密码被泄露，学生资料被恶意删除。",
+        characters: [
+            { name: "小张", role: "信息课代表", quote: "我没有接近过机房。",                    color: "#ef5350" },
+            { name: "小李", role: "学习委员", quote: "我看到小张在机房附近徘徊了很久。",        color: "#42a5f5" },
+            { name: "小王", role: "班长",     quote: "小张今天根本没来学校。",                   color: "#8d6e63" },
+            { name: "小赵", role: "体育委员", quote: "我看到小王和小张一起进过机房。",          color: "#ff7043" },
+            { name: "小孙", role: "普通同学", quote: "小赵在撒谎，小王今天和我一起在操场。",    color: "#66bb6a" },
+            { name: "小周", role: "宣传委员", quote: "我确实没看到小张，但我相信小赵。",        color: "#ab47bc" },
+            { name: "小吴", role: "文艺委员", quote: "周丽在帮赵掩盖事实，张明确实进过机房。",  color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [2, 5], culpritIndex: 0, accompliceIndex: 6,
+        difficulty: "困难",
+        scene: "校长办公室的保险箱被人撬开了。",
+        characters: [
+            { name: "小孙", role: "学生会主席", quote: "我一直在学生会事务上忙，没时间做这个。", color: "#ef5350" },
+            { name: "小李", role: "学生会副主", quote: "我和小孙一直在一起，他不可能作案。",     color: "#ec407a" },
+            { name: "小王", role: "教师助理", quote: "我看到小孙确实独自去过校长室附近。",     color: "#42a5f5" },
+            { name: "小张", role: "保安",     quote: "小王是我的同事，他绝对不会撒谎。",       color: "#ffa726" },
+            { name: "小赵", role: "秘书",     quote: "我觉得小王和小张合谋做了这件事。",       color: "#ab47bc" },
+            { name: "小刘", role: "校医",     quote: "我相信小王的人品，他没撒谎。",            color: "#66bb6a" },
+            { name: "小陈", role: "清洁员", quote: "我什么都不知道，我只是在打扫。",          color: "#8d6e63" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [3], culpritIndex: 0, accompliceIndex: 2,
+        difficulty: "困难",
+        scene: "教室内的窗帘被人恶意毁坏。",
+        characters: [
+            { name: "小杨", role: "班长", quote: "我当时在老师办公室，没在教室。",         color: "#ef5350" },
+            { name: "小柳", role: "副班长", quote: "小杨一直和我在一起，他不可能作案。",     color: "#ec407a" },
+            { name: "小曹", role: "学习委员", quote: "我也和小杨在一起，他一直在帮我。",     color: "#ff7043" },
+            { name: "小严", role: "普通同学", quote: "我看到小杨一个人偷偷摸摸地回了教室，小柳和小曹都在撒谎。", color: "#42a5f5" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [0, 3], culpritIndex: 4, accompliceIndex: 1,
+        difficulty: "中等",
+        scene: "运动会上，第一名的奖杯不翼而飞。",
+        characters: [
+            { name: "小苏", role: "裁判员", quote: "我看到小吴在颁奖后台徘徊。",            color: "#42a5f5" },
+            { name: "小郑", role: "运动员", quote: "我和小苏当时在操场跑步，他根本没去后台。", color: "#ef5350" },
+            { name: "小徐", role: "工作人员", quote: "小孙肯定是清白的，他一直在忙。",      color: "#ab47bc" },
+            { name: "小孙", role: "运动员", quote: "小郑下午根本没去操场，他在撒谎。",       color: "#66bb6a" },
+            { name: "小吴", role: "普通同学", quote: "我放学就回宿舍了，没回学校。",         color: "#ffa726" },
+            { name: "小马", role: "啦啦队", quote: "我打赌小苏和小孙都在说谎。",             color: "#78909c" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [0, 2], culpritIndex: 3, accompliceIndex: 1,
+        difficulty: "中等",
+        scene: "食堂的免费加餐券被人偷走了。",
+        characters: [
+            { name: "小林", role: "生活委员", quote: "我看到陈勇和另一个人在食堂门口徘徊。", color: "#42a5f5" },
+            { name: "陈勇", role: "体育委员", quote: "我没有接近过食堂窗口。",                color: "#ef5350" },
+            { name: "小芳", role: "学习委员", quote: "我相信小林的话。",                       color: "#66bb6a" },
+            { name: "小李", role: "文艺委员", quote: "我一直和陈勇在一起，我们都没去食堂。",   color: "#ab47bc" },
+            { name: "小敏", role: "宣传委员", quote: "小林自己在食堂里，她才可疑。",           color: "#ff7043" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [2, 5, 7], culpritIndex: 0, accompliceIndex: 3,
+        difficulty: "挑战",
+        scene: "学校的贵重图书被人从图书馆悄悄带走了。",
+        characters: [
+            { name: "小秦", role: "学生",     quote: "我那天一直在宿舍睡觉，同学可以作证。", color: "#ef5350" },
+            { name: "小尤", role: "学生",     quote: "我和小秦一直在一起，他没去过图书馆。", color: "#ec407a" },
+            { name: "小许", role: "图书馆管理员", quote: "我看到小秦一个人在图书馆的藏书区出现过。", color: "#42a5f5" },
+            { name: "小何", role: "学生",     quote: "小尤说得对，小秦根本没去过图书馆。",  color: "#ff7043" },
+            { name: "小吕", role: "学生",     quote: "我敢打赌是小许自己在监守自盗。",       color: "#ab47bc" },
+            { name: "小施", role: "学生",     quote: "我也看到小秦确实进了图书馆。",          color: "#66bb6a" },
+            { name: "小张", role: "学生",     quote: "小施在帮小许撒谎，他们是一伙的。",     color: "#8d6e63" },
+            { name: "小孔", role: "学生",     quote: "小施是个老实人，他没撒谎。",             color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [3, 6], culpritIndex: 1, accompliceIndex: 4,
+        difficulty: "困难",
+        scene: "学校活动中心的募捐箱被人撬开过。",
+        characters: [
+            { name: "小曹", role: "学生会干事", quote: "我一直和小严一起在整理活动物资。",   color: "#5c6bc0" },
+            { name: "小严", role: "学生会干事", quote: "曹说得对，我可以为他作证。",          color: "#ef5350" },
+            { name: "小华", role: "志愿者",   quote: "我怀疑是小曹和小严其中一人做的。",     color: "#8d6e63" },
+            { name: "小金", role: "志愿者",   quote: "我看到小严独自离开了募捐箱所在的房间。", color: "#42a5f5" },
+            { name: "小魏", role: "志愿者",   quote: "我什么都不知道，我一直和小华在一起。", color: "#ff7043" },
+            { name: "小陶", role: "志愿者",   quote: "小金在撒谎，我可以作证。",              color: "#ab47bc" },
+            { name: "小姜", role: "志愿者",   quote: "小陶在帮小严掩盖，小严确实离开了房间。", color: "#66bb6a" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [1, 4, 8], culpritIndex: 0, accompliceIndex: 5,
+        difficulty: "挑战",
+        scene: "校庆活动上，校长珍藏的纪念品被人掉包了。",
+        characters: [
+            { name: "小谢", role: "学生会主席", quote: "我一直在前台招待来宾，没时间做别的事。", color: "#ef5350" },
+            { name: "小邹", role: "学生会副主", quote: "我看到小谢确实在中途去过存放台。",     color: "#42a5f5" },
+            { name: "小喻", role: "学生会干事", quote: "邹一直在帮小谢掩盖事实。",              color: "#ec407a" },
+            { name: "小柏", role: "学生会干事", quote: "我和小喻一直在一起忙。",                color: "#8d6e63" },
+            { name: "小水", role: "学生会干事", quote: "我确实看到小谢独自接近了存放台。",       color: "#66bb6a" },
+            { name: "小窦", role: "学生会干事", quote: "水在撒谎，我可以为小谢作证。",           color: "#ff7043" },
+            { name: "小张", role: "学生会干事", quote: "窦说得对，小谢一直在忙。",             color: "#ab47bc" },
+            { name: "小章", role: "学生会干事", quote: "小谢确实离开了过前台。",               color: "#78909c" },
+            { name: "小韦", role: "学生会干事", quote: "小章没有撒谎，小谢离开过。",             color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [0, 5], culpritIndex: 3, accompliceIndex: 6,
+        difficulty: "中等",
+        scene: "期中考试答案被人偷偷在网上泄露了。",
+        characters: [
+            { name: "小钱", role: "数学课代表", quote: "我保证孙涛没有去过老师办公室附近。",   color: "#ef5350" },
+            { name: "孙涛", role: "英语课代表", quote: "钱说得对，我一直和他在一起。",          color: "#ec407a" },
+            { name: "小李", role: "语文课代表", quote: "我看到杨帆鬼鬼祟祟的。",               color: "#ec407a" },
+            { name: "杨帆", role: "物理课代表", quote: "我绝对没有接近过老师办公室。",         color: "#ef5350" },
+            { name: "周一", role: "化学课代表", quote: "李和帆都在撒谎。",                     color: "#8d6e63" },
+            { name: "吴双", role: "生物课代表", quote: "钱说的是真话，孙涛没去过老师办公室。",  color: "#66bb6a" },
+            { name: "郑三", role: "历史课代表", quote: "我什么都没看见，也没做。",              color: "#ffa726" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [2, 4], culpritIndex: 0, accompliceIndex: 5,
+        difficulty: "中等",
+        scene: "学生的手机在体育课时被人偷走了。",
+        characters: [
+            { name: "小何", role: "学生", quote: "我一直在操场跑道上练习，没回教室。",          color: "#ef5350" },
+            { name: "小吕", role: "学生", quote: "我和小何一起在跑道。",                       color: "#ec407a" },
+            { name: "小施", role: "学生", quote: "我看到小何在上课中途独自回了教学楼。",        color: "#42a5f5" },
+            { name: "小张", role: "学生", quote: "小施是个骗子，我看到他在翻别人的书包。",      color: "#ab47bc" },
+            { name: "小孔", role: "学生", quote: "我确实也看到小何离开了操场。",                color: "#66bb6a" },
+            { name: "小曹", role: "学生", quote: "我没看到任何事情，我只是和小吕在一起。",      color: "#ff7043" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [4], culpritIndex: 1, accompliceIndex: 3,
+        difficulty: "中等",
+        scene: "学校的多媒体投影仪被人动过手脚。",
+        characters: [
+            { name: "小严", role: "班长", quote: "我昨天一整下午都在图书馆复习。",              color: "#5c6bc0" },
+            { name: "小魏", role: "课代表", quote: "我没有进过教室，我一直跟朋友们在一起。",    color: "#ef5350" },
+            { name: "小蒋", role: "学习委员", quote: "小魏和我在一起，他没去过教室。",          color: "#ec407a" },
+            { name: "小沈", role: "体育委员", quote: "我只是去教室拿了一下水杯，别的都没做。",  color: "#ff7043" },
+            { name: "小韩", role: "卫生委员", quote: "我亲眼看见小魏和小沈一起进了教室并关了灯。", color: "#42a5f5" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [0, 5, 7], culpritIndex: 2, accompliceIndex: 4,
+        difficulty: "挑战",
+        scene: "学校的公告栏被人贴了谣言传单。",
+        characters: [
+            { name: "小周", role: "学生会干事", quote: "我看到小吴和小郑在公告栏附近贴东西。", color: "#42a5f5" },
+            { name: "小吴", role: "学生会干事", quote: "我只是路过公告栏，没贴任何东西。",     color: "#ec407a" },
+            { name: "小郑", role: "学生会干事", quote: "我一直和小徐在一起，根本没去过公告栏。", color: "#ef5350" },
+            { name: "小徐", role: "学生会干事", quote: "小郑确实和我一直在一起。",               color: "#ff7043" },
+            { name: "小冯", role: "学生会干事", quote: "我只是帮小周发传单，没做别的事。",       color: "#8d6e63" },
+            { name: "小陈", role: "学生会干事", quote: "我亲眼看到小吴贴了传单。",              color: "#66bb6a" },
+            { name: "小褚", role: "学生会干事", quote: "我觉得小周和小陈在合伙诬陷小吴。",       color: "#ab47bc" },
+            { name: "小卫", role: "学生会干事", quote: "小冯是在帮小周掩盖，他看到的不是传单。", color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [2, 4], culpritIndex: 0, accompliceIndex: 3,
+        difficulty: "中等",
+        scene: "班级班会记录本被人偷偷篡改了。",
+        characters: [
+            { name: "小蒋", role: "班长", quote: "我一直在讲台上主持班会，没有时间去改记录本。", color: "#ef5350" },
+            { name: "小沈", role: "副班长", quote: "我和小蒋一直在一起。",                        color: "#ec407a" },
+            { name: "小韩", role: "学习委员", quote: "我在教室后面，看到小蒋离开了讲台好几次。", color: "#42a5f5" },
+            { name: "小杨", role: "文艺委员", quote: "我一直在自己的座位上。",                   color: "#ff7043" },
+            { name: "小朱", role: "卫生委员", quote: "小韩说的是真话，我确实也看到小蒋到处走。", color: "#66bb6a" },
+            { name: "小秦", role: "学生", quote: "我认为是小杨在做坏事。",                      color: "#ab47bc" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [2, 5, 8], culpritIndex: 0, accompliceIndex: 4,
+        difficulty: "挑战",
+        scene: "毕业纪念册被人偷偷涂花了。",
+        characters: [
+            { name: "小尤", role: "班长", quote: "我一直和同学们在一起，没时间搞破坏。",       color: "#ef5350" },
+            { name: "小许", role: "副班长", quote: "小尤一直和我在一起，他没时间。",           color: "#ec407a" },
+            { name: "小何", role: "学习委员", quote: "我看到小尤独自离开过人群去放纪念册的地方。", color: "#42a5f5" },
+            { name: "小吕", role: "课代表", quote: "我也看到小尤回来过，他一直在人群里。",     color: "#ec407a" },
+            { name: "小施", role: "课代表", quote: "我只是帮小许搬了一下东西，别的什么都没做。", color: "#ff7043" },
+            { name: "小张", role: "课代表", quote: "小何说的是事实，小尤确实独自离开过。",      color: "#66bb6a" },
+            { name: "小孔", role: "学生", quote: "我和小施一直在聊天。",                       color: "#ab47bc" },
+            { name: "小曹", role: "学生", quote: "我觉得是小何在诬陷别人。",                   color: "#8d6e63" },
+            { name: "小严", role: "学生", quote: "小吕肯定在撒谎，我和小吕在一起，他根本没看到。", color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [1, 3], culpritIndex: 0, accompliceIndex: 5,
+        difficulty: "困难",
+        scene: "学校餐厅的收银机被人动过手脚，钱少了。",
+        characters: [
+            { name: "小魏", role: "学生", quote: "我只是来打饭的，没靠近过收银机。",           color: "#ef5350" },
+            { name: "小蒋", role: "学生", quote: "我看到小魏在收银机附近停留过很久。",         color: "#42a5f5" },
+            { name: "小沈", role: "学生", quote: "小蒋在诬陷好人，小魏一直和我在一起。",       color: "#ec407a" },
+            { name: "小韩", role: "学生", quote: "我相信小蒋的人品，他不会说谎。",             color: "#66bb6a" },
+            { name: "小杨", role: "学生", quote: "我可以为小沈作证，小魏没去过收银机。",       color: "#8d6e63" },
+            { name: "小朱", role: "学生", quote: "我什么都没看见，只记得吃饭了。",              color: "#ff7043" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [0, 3, 6], culpritIndex: 2, accompliceIndex: 5,
+        difficulty: "困难",
+        scene: "体育器材室的足球被人弄破了好几个。",
+        characters: [
+            { name: "小秦", role: "体育委员", quote: "我看到小王和小尤在器材室附近捣鼓。",    color: "#42a5f5" },
+            { name: "小尤", role: "学生", quote: "我没有去过器材室。",                        color: "#ec407a" },
+            { name: "小王", role: "学生", quote: "我一直和小李一起打球，没进过器材室。",       color: "#ef5350" },
+            { name: "小李", role: "学生", quote: "我确实看到小王进过器材室。",                 color: "#66bb6a" },
+            { name: "小张", role: "学生", quote: "我看到小秦自己一个人在器材室里面。",         color: "#ab47bc" },
+            { name: "小孔", role: "学生", quote: "我什么都没做，别问我。",                    color: "#ff7043" },
+            { name: "小曹", role: "学生", quote: "小尤和小王都在撒谎，我看到他们两个一起进过器材室。", color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [1, 4], culpritIndex: 0, accompliceIndex: 2,
+        difficulty: "困难",
+        scene: "老师办公室被人偷偷进入过。",
+        characters: [
+            { name: "小严", role: "学生", quote: "我昨天一整天都在图书馆，有同学可以作证。",   color: "#ef5350" },
+            { name: "小魏", role: "学生", quote: "我昨天真的看到小严进了老师办公室。",        color: "#42a5f5" },
+            { name: "小蒋", role: "学生", quote: "我和小严一直在一起在图书馆，小魏在说谎。", color: "#ec407a" },
+            { name: "小沈", role: "学生", quote: "我也在图书馆，小蒋确实没撒谎。",            color: "#ab47bc" },
+            { name: "小韩", role: "学生", quote: "小魏说的是真话，我也看到小严了。",           color: "#66bb6a" },
+            { name: "小杨", role: "学生", quote: "我什么都不知道，我只是在教室。",             color: "#ffa726" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [2, 4, 7], culpritIndex: 0, accompliceIndex: 5,
+        difficulty: "挑战",
+        scene: "学校公告栏的表扬名单被人涂改了。",
+        characters: [
+            { name: "小朱", role: "学生", quote: "我一直在图书馆和同学们复习。",               color: "#ef5350" },
+            { name: "小杨", role: "学生", quote: "小朱确实一直在图书馆。",                     color: "#ec407a" },
+            { name: "小秦", role: "学生", quote: "我看到小朱独自出现在公告栏附近。",           color: "#42a5f5" },
+            { name: "小尤", role: "学生", quote: "我是和小杨在一起的，没去过公告栏。",         color: "#ab47bc" },
+            { name: "小许", role: "学生", quote: "我确实看到小朱在公告栏附近停留过。",        color: "#66bb6a" },
+            { name: "小何", role: "学生", quote: "我没去过公告栏，大家都知道。",               color: "#ff7043" },
+            { name: "小吕", role: "学生", quote: "小秦和小许都是在诬告小朱。",                 color: "#8d6e63" },
+            { name: "小施", role: "学生", quote: "我和小秦一起看到的，小朱确实去了公告栏。", color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [3, 5, 8], culpritIndex: 0, accompliceIndex: 2,
+        difficulty: "大师",
+        scene: "校长办公室的电脑被人用过，数据被篡改。",
+        characters: [
+            { name: "小张", role: "学生会主席", quote: "我一直在学生会办公室开会，有很多人可以作证。", color: "#ef5350" },
+            { name: "小孔", role: "学生会副主席", quote: "小张说得对，他一直和我在一起。",     color: "#ec407a" },
+            { name: "小曹", role: "学生会干事", quote: "我和小张孔一起在忙。",                  color: "#ff7043" },
+            { name: "小严", role: "教师助理", quote: "我看到小张确实独自去过校长办公室。",     color: "#42a5f5" },
+            { name: "小魏", role: "教师助理", quote: "严助理不可能看到小张，因为我和严助理一起在。", color: "#ab47bc" },
+            { name: "小蒋", role: "学生", quote: "严助理说的是实话，我也看到了。",             color: "#66bb6a" },
+            { name: "小沈", role: "学生", quote: "我和小魏一直在忙。",                         color: "#8d6e63" },
+            { name: "小韩", role: "学生", quote: "魏助理说的是真话，严助理不可能看到小张。",  color: "#ab47bc" },
+            { name: "小杨", role: "学生", quote: "我也看到小张去了校长办公室。",               color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [2, 5, 7], culpritIndex: 1, accompliceIndex: 4,
+        difficulty: "大师",
+        scene: "学校的荣誉奖杯陈列柜被人撬开，奖杯失踪了。",
+        characters: [
+            { name: "小朱", role: "学生", quote: "我一直和小杨在一起，没碰过陈列柜。",         color: "#5c6bc0" },
+            { name: "小杨", role: "学生", quote: "我和小秦一直在一起。",                        color: "#ef5350" },
+            { name: "小秦", role: "学生", quote: "我看到小杨独自在陈列柜附近徘徊过。",         color: "#42a5f5" },
+            { name: "小尤", role: "学生", quote: "小秦说的不对，小杨一直和我在一起。",        color: "#ec407a" },
+            { name: "小许", role: "学生", quote: "我只是路过，什么都没做。",                    color: "#ff7043" },
+            { name: "小何", role: "学生", quote: "我也看到小杨独自在陈列柜附近。",             color: "#66bb6a" },
+            { name: "小吕", role: "学生", quote: "我相信小朱和小杨的人品。",                    color: "#ab47bc" },
+            { name: "小施", role: "学生", quote: "小许在帮小杨隐瞒，小杨确实去过陈列柜。",     color: "#26a69a" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [0, 3], culpritIndex: 4, accompliceIndex: 1,
+        difficulty: "中等",
+        scene: "学生的自行车被人故意放了气。",
+        characters: [
+            { name: "小林", role: "学生", quote: "我看到小吴放学之后回到了车棚。",            color: "#42a5f5" },
+            { name: "小郑", role: "学生", quote: "我和小林当时在操场跑步，没回教学楼。",       color: "#ef5350" },
+            { name: "小徐", role: "学生", quote: "小孙肯定是清白的。",                          color: "#ab47bc" },
+            { name: "小孙", role: "学生", quote: "小郑下午根本没去操场，他在撒谎。",           color: "#66bb6a" },
+            { name: "小吴", role: "学生", quote: "我放学就回家了，没回学校。",                  color: "#ffa726" },
+            { name: "小马", role: "学生", quote: "我打赌小林和小孙都在说谎。",                  color: "#78909c" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [2], culpritIndex: 0, accompliceIndex: 4,
+        difficulty: "简单",
+        scene: "校园小卖部的零食被人偷吃了。",
+        characters: [
+            { name: "小李", role: "学生", quote: "我一直和王芳在一起，没机会偷零食。",       color: "#ef5350" },
+            { name: "王芳", role: "学生", quote: "我和小李在训练，真的没去过小卖部。",       color: "#ec407a" },
+            { name: "张伟", role: "学生", quote: "小李和王芳根本没有一直在一起，我看见小李独自离开过。", color: "#42a5f5" },
+            { name: "赵敏", role: "学生", quote: "我看到的是王芳藏起来了零食。",               color: "#66bb6a" },
+            { name: "陈磊", role: "学生", quote: "赵说的是真的。",                             color: "#ffa726" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [0, 2], culpritIndex: 3, accompliceIndex: 1,
+        difficulty: "中等",
+        scene: "学校活动室的音响设备被人弄坏了。",
+        characters: [
+            { name: "小林", role: "生活委员", quote: "我看到陈勇和另一个人在活动室门口徘徊。", color: "#42a5f5" },
+            { name: "陈勇", role: "体育委员", quote: "我没有接近过活动室窗口。",               color: "#ef5350" },
+            { name: "王芳", role: "学习委员", quote: "我相信小林的话，她记忆力一向很好。",     color: "#66bb6a" },
+            { name: "李华", role: "文艺委员", quote: "我一直和陈勇在一起，我们都没去活动室。", color: "#ab47bc" },
+            { name: "赵敏", role: "宣传委员", quote: "我看到小林自己在活动室里面。",           color: "#ff7043" }
+        ]
+    },
+    {
+        truthCount: 1, truthTellers: [1], culpritIndex: 0, accompliceIndex: 3,
+        difficulty: "入门",
+        scene: "教室里的粉笔盒神秘失踪。",
+        characters: [
+            { name: "小李", role: "学生", quote: "我没拿过粉笔盒，这件事和我无关。",         color: "#ef5350" },
+            { name: "小张", role: "学生", quote: "我看到小李鬼鬼祟祟地翻讲台抽屉。",         color: "#42a5f5" },
+            { name: "小王", role: "学生", quote: "小张一直和我在一起，他不可能看到。",       color: "#ec407a" },
+            { name: "小赵", role: "学生", quote: "我什么都不知道，别问我。",                  color: "#ffa726" }
+        ]
+    },
+    {
+        truthCount: 2, truthTellers: [1, 3], culpritIndex: 0, accompliceIndex: 4,
+        difficulty: "中等",
+        scene: "学校的广播室被人非法进入过。",
+        characters: [
+            { name: "小谢", role: "学生", quote: "我一直和同学们在操场上活动，没去过广播室。", color: "#ef5350" },
+            { name: "小邹", role: "学生", quote: "我亲眼看到小谢独自进入了广播室。",          color: "#42a5f5" },
+            { name: "小喻", role: "学生", quote: "我和小谢一直在一起，他根本没去过广播室。",   color: "#ec407a" },
+            { name: "小柏", role: "学生", quote: "小邹说的是实话，我也看到了小谢。",           color: "#66bb6a" },
+            { name: "小水", role: "学生", quote: "我只是路过广播室，没进去。",                 color: "#ff7043" }
+        ]
+    },
+    {
+        truthCount: 3, truthTellers: [2, 5, 7], culpritIndex: 0, accompliceIndex: 3,
+        difficulty: "大师",
+        scene: "校庆纪念品专柜被人砸开，贵重纪念币被人盗走。",
+        characters: [
+            { name: "小窦", role: "学生会主席", quote: "我一直和同事在前台忙，没去过纪念品专柜。", color: "#ef5350" },
+            { name: "小张", role: "学生会干事", quote: "小窦确实一直在前台。",                    color: "#ec407a" },
+            { name: "小章", role: "学生会干事", quote: "我看到小窦在事发前独自接近了纪念品专柜。", color: "#42a5f5" },
+            { name: "小韦", role: "学生会干事", quote: "我一直在协助小窦工作。",                  color: "#ff7043" },
+            { name: "小景", role: "学生会干事", quote: "小章在撒谎，小窦根本没离开过前台。",       color: "#ab47bc" },
+            { name: "小詹", role: "学生会干事", quote: "我也看到小章说的是事实，小窦去过专柜附近。", color: "#66bb6a" },
+            { name: "小毕", role: "学生会干事", quote: "小景和小詹说的都不对，小窦一直在前台。",   color: "#8d6e63" },
+            { name: "小聂", role: "学生会干事", quote: "我相信小章说的，小窦确实去过。",          color: "#26a69a" }
+        ]
+    }
+];
+
+// ---------- 游戏运行时状态 ----------
+let currentLevel = 0;
+let culpritSelected = null;
+let accompliceSelected = null;
+let hintUsed = 0;
+let hintInnocentShown = [];
+let truthTellerShown = false;
+let levelPassed = false;
+let interactionLocked = false;
+let isRandomLevel = false;
+let passedLevelIds = new Set();
+
+// ---------- DOM 引用 ----------
+const cardsAreaEl = document.getElementById("cards-area");
+const levelNumEl = document.getElementById("level-num");
+const truthCountEl = document.getElementById("truth-count");
+const levelTotalEl = document.getElementById("level-total");
+const levelDifficultyEl = document.getElementById("level-difficulty");
+const hintCountEl = document.getElementById("hint-count");
+const selectedCountTextEl = document.getElementById("selected-count-text");
+const resultMessageEl = document.getElementById("result-message");
+const sceneDescEl = document.getElementById("scene-desc");
+const btnSubmit = document.getElementById("btn-submit");
+const btnHint = document.getElementById("btn-hint");
+const btnNext = document.getElementById("btn-next");
+const btnRandom = document.getElementById("btn-random");
+const btnMenu = document.getElementById("btn-menu");
+const btnRestart = document.getElementById("btn-restart");
+const btnHome = document.getElementById("btn-home");
+const homeScreen = document.getElementById("home-screen");
+const gameContainer = document.getElementById("game-container");
+const homeStartBtn = document.getElementById("home-start-btn");
+const homeProgress = document.getElementById("home-progress");
+const modalOverlay = document.getElementById("modal-overlay");
+const levelMenuOverlay = document.getElementById("level-menu-overlay");
+const levelMenuGrid = document.getElementById("level-menu-grid");
+const helpModal = document.getElementById("help-modal");
+const homeHelpBtn = document.getElementById("home-help-btn");
+const headerHelpBtn = document.getElementById("header-help-btn");
+
+// ---------- 工具函数 ----------
+function randInt(n) { return Math.floor(Math.random() * n); }
+function pick(arr) { return arr[randInt(arr.length)]; }
+function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = randInt(i + 1);
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+/* -------- 随机关卡生成器（增强版） -------- */
+function buildRandomLevel() {
+    const numCharacters = 4 + randInt(4); // 4-7
+    const numTruth = 1 + randInt(Math.min(2, numCharacters - 3)); // 1-2
+    const names = shuffle(RANDOM_NAMES).slice(0, numCharacters);
+    const roles = shuffle(RANDOM_ROLES).slice(0, numCharacters);
+    const indices = Array.from({ length: numCharacters }, (_, i) => i);
+    const shuffled = shuffle(indices);
+    const culpritIndex = shuffled[0];
+    const accompliceIndex = shuffled[1];
+    const truthTellers = shuffled.slice(2, 2 + numTruth);
+    const truthSet = new Set(truthTellers);
+
+    // 构造无辜者池（不含我、主犯、帮凶）
+    const innocentPool = (myIdx) => {
+        const result = [];
+        for (let k = 0; k < numCharacters; k++) {
+            if (k !== myIdx && k !== culpritIndex && k !== accompliceIndex) result.push(k);
+        }
+        return result;
+    };
+    const anyOtherPool = (myIdx) => {
+        const result = [];
+        for (let k = 0; k < numCharacters; k++) if (k !== myIdx) result.push(k);
+        return result;
+    };
+
+    const finalCharacters = [];
+    for (let idx = 0; idx < numCharacters; idx++) {
+        let quote;
+        const isTruth = truthSet.has(idx);
+        const isCulprit = idx === culpritIndex;
+        const isAccomplice = idx === accompliceIndex;
+        const culpritName = names[culpritIndex];
+        const accompliceName = names[accompliceIndex];
+
+        if (isTruth) {
+            const roll = Math.random();
+            if (roll < 0.35) {
+                // 指认主犯
+                quote = pick(TRUTH_QUOTES_ACCUSE_CULPRIT).replace(/\{culprit\}/g, culpritName)
+                    .replace(/\{accomplice\}/g, accompliceName);
+            } else if (roll < 0.55) {
+                // 指认帮凶
+                quote = pick(TRUTH_QUOTES_ACCUSE_ACCOMPLICE).replace(/\{culprit\}/g, culpritName)
+                    .replace(/\{accomplice\}/g, accompliceName);
+            } else if (roll < 0.8) {
+                // 辩护无辜者
+                const pool = innocentPool(idx);
+                const t = pool.length === 0 ? anyOtherPool(idx)[0] : pick(pool);
+                quote = pick(TRUTH_QUOTES_DEFEND_INNOCENT).replace(/\{other\}/g, names[t]);
+            } else {
+                // 自辩
+                quote = pick(TRUTH_QUOTES_SELF);
+            }
+        } else if (isCulprit || isAccomplice) {
+            const roll = Math.random();
+            if (roll < 0.35) {
+                // 陷害无辜者
+                const pool = innocentPool(idx);
+                const t = pool.length === 0 ? anyOtherPool(idx)[0] : pick(pool);
+                quote = pick(LIE_QUOTES_FRAME).replace(/\{other\}/g, names[t]);
+            } else if (roll < 0.65) {
+                // 自辩
+                quote = pick(LIE_QUOTES_SELF);
+            } else if (roll < 0.9) {
+                // 为同伙辩护
+                quote = pick(LIE_QUOTES_DEFEND_PARTNER).replace(/\{culprit\}/g, culpritName)
+                    .replace(/\{accomplice\}/g, accompliceName);
+            } else {
+                // 指认真真话者（反咬一口）
+                const pool = truthTellers.filter(t => t !== idx);
+                if (pool.length === 0) quote = pick(LIE_QUOTES_SELF);
+                else quote = pick(LIE_QUOTES_FRAME).replace(/\{other\}/g, names[pick(pool)]);
+            }
+        } else {
+            // 无辜说谎者：混淆视听
+            const roll = Math.random();
+            if (roll < 0.4) {
+                const pool = anyOtherPool(idx);
+                quote = pick(LIE_QUOTES_FRAME).replace(/\{other\}/g, names[pick(pool)]);
+            } else if (roll < 0.7) {
+                quote = pick(LIE_QUOTES_SELF);
+            } else {
+                const pool = anyOtherPool(idx);
+                quote = pick(LIE_QUOTES_DEFEND_PARTNER).replace(/\{culprit\}/g, names[pick(pool)])
+                    .replace(/\{accomplice\}/g, names[pick(pool)]);
+            }
+        }
+        finalCharacters.push({ name: names[idx], role: roles[idx], quote: quote, color: PALETTE[idx % PALETTE.length] });
+    }
+
+    return {
+        truthCount: truthTellers.length,
+        truthTellers: truthTellers,
+        culpritIndex: culpritIndex,
+        accompliceIndex: accompliceIndex,
+        difficulty: "随机",
+        scene: pick(RANDOM_SCENES),
+        characters: finalCharacters,
+        isRandom: true
+    };
+}
+
+/* -------- 进度持久化 -------- */
+const STORAGE_KEY = "liar_card_progress_v3_" + LEVELS.length;
+
+function loadProgress() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            const data = JSON.parse(raw);
+            if (Array.isArray(data)) {
+                // 只接受当前关卡范围内的有效 ID，防止旧数据污染
+                const validIds = data.filter(id => typeof id === "number" && id >= 0 && id < LEVELS.length);
+                passedLevelIds = new Set(validIds);
+            }
+        }
+    } catch (e) { passedLevelIds = new Set(); }
+}
+function saveProgress() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(passedLevelIds))); }
+    catch (e) {}
+}
+function clearProgress() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    passedLevelIds = new Set();
+}
+
+/* -------- 渲染当前关卡 -------- */
+function renderCards() {
+    const level = LEVELS[currentLevel];
+    cardsAreaEl.innerHTML = "";
+    culpritSelected = null;
+    accompliceSelected = null;
+    hintInnocentShown = [];
+    truthTellerShown = false;
+    levelPassed = false;
+    interactionLocked = false;
+
+    level.characters.forEach((char, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.index = index;
+        card.innerHTML =
+            '<div class="card-avatar" style="background:' + char.color + ';">' + char.name.charAt(0) + '</div>'
+            + '<div class="card-name">' + char.name + '</div>'
+            + '<div class="card-role">' + char.role + '</div>'
+            + '<div class="card-quote">"' + char.quote + '"</div>';
+        card.addEventListener("click", () => handleCardClick(index));
+        cardsAreaEl.appendChild(card);
+    });
+
+    levelNumEl.textContent = currentLevel + 1;
+    truthCountEl.textContent = level.truthCount;
+    levelTotalEl.textContent = LEVELS.length;
+    levelDifficultyEl.textContent = level.difficulty || "标准";
+    hintCountEl.textContent = 2 - hintUsed;
+    refreshSelectionDisplay();
+    btnHint.textContent = "使用提示 (" + (2 - hintUsed) + ")";
+    btnHint.disabled = hintUsed >= 2;
+    btnNext.style.display = "none";
+    btnSubmit.disabled = false;
+
+    if (level.scene && sceneDescEl) {
+        sceneDescEl.innerHTML = level.scene
+            + ' 请通过分析每个嫌疑人的证词，找出隐藏在人群中的 '
+            + '<strong style="color:#e53935;">主犯</strong> 和 <strong style="color:#ff9800;">帮凶</strong>。';
+    }
+    setMessage("🤔 点击卡片选择你认为的主犯和帮凶，然后点击「提交答案」。", "info");
+}
+
+/* -------- 卡片点击（先选主犯 → 再选帮凶） -------- */
+function handleCardClick(index) {
+    if (interactionLocked || levelPassed) return;
+    // 已选为当前主犯/帮凶 → 取消选择
+    if (culpritSelected === index) {
+        culpritSelected = null;
+    } else if (accompliceSelected === index) {
+        accompliceSelected = null;
+    } else {
+        // 自动分配：先填主犯，再填帮凶
+        if (culpritSelected === null) {
+            culpritSelected = index;
+        } else if (accompliceSelected === null) {
+            accompliceSelected = index;
+        } else {
+            // 两个都填了 → 替换主犯
+            culpritSelected = index;
+        }
+    }
+    refreshCardUI();
+    refreshSelectionDisplay();
+}
+
+/* -------- 刷新选中状态 -------- */
+function refreshCardUI() {
+    const cards = cardsAreaEl.querySelectorAll(".card");
+    cards.forEach((card, idx) => {
+        card.classList.remove("selected-culprit", "selected-accomplice");
+        if (idx === culpritSelected) card.classList.add("selected-culprit");
+        if (idx === accompliceSelected) card.classList.add("selected-accomplice");
+    });
+}
+
+/* -------- 刷新底部选择计数显示 -------- */
+function refreshSelectionDisplay() {
+    if (!selectedCountTextEl) return;
+    const level = LEVELS[currentLevel];
+    const cName = culpritSelected !== null ? level.characters[culpritSelected].name : null;
+    const aName = accompliceSelected !== null ? level.characters[accompliceSelected].name : null;
+    const cText = cName ? '🔴 主犯：<strong style="color:#c62828;">' + cName + '</strong>' : '🔴 还没选主犯';
+    const aText = aName ? '🟠 帮凶：<strong style="color:#ef6c00;">' + aName + '</strong>' : '🟠 还没选帮凶';
+    selectedCountTextEl.innerHTML = cText + ' &nbsp;·&nbsp; ' + aText;
+}
+
+/* -------- 提交答案 -------- */
+function submitAnswer() {
+    if (levelPassed) return;
+    if (culpritSelected === null || accompliceSelected === null) {
+        setMessage("⚠️ 请同时选好 1 个主犯和 1 个帮凶后再提交。", "info");
+        shakeMessage();
+        return;
+    }
+    const level = LEVELS[currentLevel];
+    const isCorrect = (culpritSelected === level.culpritIndex && accompliceSelected === level.accompliceIndex);
+    isCorrect ? handleCorrect(level) : handleWrong(level);
+}
+
+/* -------- 正确处理 -------- */
+function handleCorrect(level) {
+    levelPassed = true;
+    interactionLocked = true;
+    const cards = cardsAreaEl.querySelectorAll(".card");
+    cards.forEach(card => {
+        const idx = parseInt(card.dataset.index);
+        if (idx === level.culpritIndex || idx === level.accompliceIndex) {
+            card.classList.add("blink-correct");
+            card.style.borderColor = "#2e7d32";
+            card.style.background = "linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)";
+        }
+    });
+    const cName = level.characters[level.culpritIndex].name;
+    const aName = level.characters[level.accompliceIndex].name;
+    setMessage("✅ 回答正确！主犯是 " + cName + "，帮凶是 " + aName + "。推理成功！", "correct");
+    if (!isRandomLevel) {
+        passedLevelIds.add(currentLevel);
+        saveProgress();
+    }
+    setTimeout(() => {
+        interactionLocked = false;
+        btnSubmit.disabled = true;
+        btnNext.style.display = "inline-block";
+    }, 1600);
+}
+
+/* -------- 错误处理 -------- */
+function handleWrong(level) {
+    const cards = cardsAreaEl.querySelectorAll(".card");
+    cards.forEach(card => {
+        const idx = parseInt(card.dataset.index);
+        if (idx === culpritSelected || idx === accompliceSelected) {
+            card.classList.add("shake-wrong");
+            setTimeout(() => card.classList.remove("shake-wrong"), 600);
+        }
+    });
+    shakeMessage();
+    setMessage("❌ 推理错误！请重新分析证词，记住：本关只有 " + level.truthCount + " 人说真话。", "wrong");
+}
+
+/* -------- 重置选择 -------- */
+function resetSelection() {
+    if (levelPassed) return;
+    culpritSelected = null;
+    accompliceSelected = null;
+    refreshCardUI();
+    refreshSelectionDisplay();
+    setMessage("🔄 已清除所有选择，请重新推理。", "info");
+}
+
+/* -------- 使用提示 -------- */
+function useHint() {
+    if (hintUsed >= 2 || levelPassed) return;
+    const level = LEVELS[currentLevel];
+    const cards = cardsAreaEl.querySelectorAll(".card");
+    if (hintUsed === 0) {
+        const innocentPool = [];
+        for (let i = 0; i < level.characters.length; i++) {
+            if (i !== level.culpritIndex && i !== level.accompliceIndex && !hintInnocentShown.includes(i)) {
+                innocentPool.push(i);
+            }
+        }
+        if (innocentPool.length === 0) {
+            setMessage("💡 已无法提示更多无辜者，试试其他方式吧。", "info");
+            return;
+        }
+        const pk = innocentPool[randInt(innocentPool.length)];
+        hintInnocentShown.push(pk);
+        cards[pk].classList.add("hint-innocent");
+        setMessage("💡 提示1：" + level.characters[pk].name + " 是无辜的，可以排除嫌疑。", "info");
+    } else {
+        const truthIdx = level.truthTellers[randInt(level.truthTellers.length)];
+        truthTellerShown = true;
+        cards[truthIdx].classList.add("hint-truth");
+        setMessage("💡 提示2：" + level.characters[truthIdx].name + " 说的是真话，请以此为突破口分析。", "info");
+    }
+    hintUsed++;
+    hintCountEl.textContent = 2 - hintUsed;
+    btnHint.textContent = "使用提示 (" + (2 - hintUsed) + ")";
+    btnHint.disabled = hintUsed >= 2;
+}
+
+/* -------- 下一关 -------- */
+function nextLevel() {
+    if (isRandomLevel) { generateRandomLevel(); return; }
+    if (currentLevel >= LEVELS.length - 1) { showWinModal(); return; }
+    currentLevel++;
+    hintUsed = 0;
+    renderCards();
+}
+
+/* -------- 重新开局 -------- */
+function restartGame() {
+    currentLevel = 0;
+    hintUsed = 0;
+    isRandomLevel = false;
+    modalOverlay.classList.remove("show");
+    renderCards();
+}
+
+/* -------- 生成随机关卡 -------- */
+function generateRandomLevel() {
+    const lv = buildRandomLevel();
+    LEVELS.push(lv);
+    currentLevel = LEVELS.length - 1;
+    isRandomLevel = true;
+    hintUsed = 0;
+    renderCards();
+    setMessage("🎲 随机关卡已生成！证词由逻辑推导，凶手两人合谋。", "info");
+}
+
+/* -------- 关卡菜单（美化版，支持难度筛选） -------- */
+let currentLevelFilter = "all";
+function renderLevelMenuGrid() {
+    levelMenuGrid.innerHTML = "";
+    // 顶部信息
+    const passed = passedLevelIds.size;
+    const total = LEVELS.length;
+    const progressEl = document.getElementById("level-menu-progress");
+    if (progressEl) progressEl.textContent = "已通关：" + passed + " / " + total;
+
+    // 过滤
+    const filtered = LEVELS.map((lv, i) => ({ lv, i }))
+        .filter(item => currentLevelFilter === "all" || item.lv.difficulty === currentLevelFilter);
+
+    filtered.forEach(item => {
+        const lv = item.lv;
+        const i = item.i;
+        const passedLevel = passedLevelIds.has(i);
+        const btn = document.createElement("button");
+        btn.className = "level-card diff-" + (lv.difficulty || "中等");
+        btn.innerHTML = ""
+            + "<div class='level-card-number'>" + (i + 1) + "</div>"
+            + "<div class='level-card-difficulty'>" + (lv.difficulty || "标准") + "</div>"
+            + "<div class='level-card-info'>" + lv.characters.length + "人·" + lv.truthCount + "真</div>"
+            + (passedLevel ? "<div class='level-card-check'>★</div>" : "");
+        btn.title = (lv.difficulty || "标准") + " · " + lv.scene;
+        btn.addEventListener("click", () => {
+            currentLevel = i;
+            isRandomLevel = false;
+            hintUsed = 0;
+            hideLevelMenu();
+            renderCards();
+        });
+        levelMenuGrid.appendChild(btn);
+    });
+
+    // 随机关卡入口
+    const rndBtn = document.createElement("button");
+    rndBtn.className = "level-card level-card-random";
+    rndBtn.innerHTML = ""
+        + "<div class='level-card-number'>🎲</div>"
+        + "<div class='level-card-difficulty'>无限模式</div>"
+        + "<div class='level-card-info'>随机生成</div>";
+    rndBtn.title = "点击生成随机关卡";
+    rndBtn.addEventListener("click", () => { hideLevelMenu(); generateRandomLevel(); });
+    levelMenuGrid.appendChild(rndBtn);
+}
+function showLevelMenu() {
+    currentLevelFilter = "all";
+    document.querySelectorAll(".filter-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.filter === "all");
+    });
+    renderLevelMenuGrid();
+    levelMenuOverlay.style.display = "flex";
+    levelMenuOverlay.classList.add("show");
+}
+function hideLevelMenu() {
+    levelMenuOverlay.style.display = "none";
+    levelMenuOverlay.classList.remove("show");
+}
+// 难度筛选按钮
+document.querySelectorAll(".filter-btn").forEach(b => {
+    b.addEventListener("click", () => {
+        currentLevelFilter = b.dataset.filter;
+        document.querySelectorAll(".filter-btn").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        renderLevelMenuGrid();
+    });
+});
+
+/* -------- 信息提示 -------- */
+function setMessage(text, type) {
+    resultMessageEl.textContent = text;
+    resultMessageEl.className = "result-message " + type;
+}
+function shakeMessage() {
+    resultMessageEl.classList.remove("shake-wrong");
+    void resultMessageEl.offsetWidth;
+    resultMessageEl.classList.add("shake-wrong");
+}
+
+/* -------- 通关弹窗 -------- */
+function showWinModal() { modalOverlay.classList.add("show"); }
+function hideModal() { modalOverlay.classList.remove("show"); }
+
+/* -------- 关卡自校验（仅控制台输出） -------- */
+function checkLevelConsistency() {
+    LEVELS.forEach((lv, i) => {
+        if (lv.truthCount !== lv.truthTellers.length) {
+            console.warn("第 " + (i + 1) + " 关：truthCount 与 truthTellers 不匹配！");
+        }
+        if (lv.truthTellers.includes(lv.culpritIndex) || lv.truthTellers.includes(lv.accompliceIndex)) {
+            console.warn("第 " + (i + 1) + " 关：主犯/帮凶被标记为说真话的人！");
+        }
+    });
+}
+
+/* -------- 事件绑定 -------- */
+btnSubmit.addEventListener("click", submitAnswer);
+btnHint.addEventListener("click", useHint);
+btnNext.addEventListener("click", nextLevel);
+btnMenu.addEventListener("click", showLevelMenu);
+btnRandom.addEventListener("click", generateRandomLevel);
+btnRestart.addEventListener("click", () => { if (confirm("确定要重新开局吗？当前进度将丢失。")) restartGame(); });
+btnHome.addEventListener("click", showHomeScreen);
+homeStartBtn.addEventListener("click", startGame);
+homeHelpBtn.addEventListener("click", showHelp);
+if (headerHelpBtn) headerHelpBtn.addEventListener("click", showHelp);
+const homeClearBtn = document.getElementById("home-clear-btn");
+if (homeClearBtn) {
+    homeClearBtn.addEventListener("click", () => {
+        if (confirm("确定要清除所有通关记录吗？")) {
+            clearProgress();
+            showHomeScreen(); // 刷新首页显示
+            alert("✅ 进度已清除，现在显示 0 / 40 关");
+        }
+    });
+}
+levelMenuOverlay.addEventListener("click", (e) => { if (e.target === levelMenuOverlay) hideLevelMenu(); });
+if (helpModal) helpModal.addEventListener("click", (e) => { if (e.target === helpModal) hideHelp(); });
+
+/* -------- 游戏说明弹窗 -------- */
+function showHelp() {
+    if (helpModal) {
+        helpModal.style.display = "flex";
+        helpModal.classList.add("show");
+    }
+}
+function hideHelp() {
+    if (helpModal) {
+        helpModal.style.display = "none";
+        helpModal.classList.remove("show");
+    }
+}
+
+/* -------- 首页逻辑 -------- */
+function showHomeScreen() {
+    if (gameContainer) gameContainer.style.display = "none";
+    if (homeScreen) {
+        homeScreen.style.display = "flex";
+    }
+    if (homeProgress) {
+        const passed = passedLevelIds.size;
+        const total = LEVELS.length;
+        if (passed > 0) {
+            const percent = Math.round((passed / total) * 100);
+            homeProgress.innerHTML =
+                '<div class="home-progress-label">🏆 已通关 <strong style="color:#e53935;">'
+                + passed + '</strong> / ' + total + ' 关（' + percent + '%）</div>';
+        } else {
+            homeProgress.innerHTML = '<span class="home-progress-label">暂无通关记录，开始你的第一关吧！</span>';
+        }
+    }
+    window.scrollTo(0, 0);
+}
+function startGame() {
+    if (homeScreen) homeScreen.style.display = "none";
+    if (gameContainer) gameContainer.style.display = "block";
+    renderCards();
+    window.scrollTo(0, 0);
+    // 第一次进入游戏自动弹出说明
+    const hasSeenHelp = localStorage.getItem("gameHelpSeen");
+    if (!hasSeenHelp) {
+        setTimeout(() => {
+            showHelp();
+            localStorage.setItem("gameHelpSeen", "true");
+        }, 400);
+    }
+}
+
+/* -------- 初始化 -------- */
+loadProgress();
+checkLevelConsistency();
+showHomeScreen();
+    </script>
+</body>
+</html>

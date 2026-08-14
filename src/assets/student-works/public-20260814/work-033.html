@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天气小课堂 - 超级科普版</title>
+<style>
+/* ========== 全局基础 ========== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:linear-gradient(180deg,#87CEEB 0%,#B0E0F6 50%,#E0F4FF 100%);min-height:100vh;color:#333;overflow-x:hidden}
+.page{display:none;min-height:100vh;padding:25px 18px;animation:fadeIn .5s ease;max-width:960px;margin:0 auto;position:relative}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.page-title{text-align:center;font-size:34px;color:#fff;text-shadow:2px 2px 4px rgba(0,100,180,.3);margin-bottom:20px;margin-top:8px}
+@media(max-width:600px){.page-title{font-size:26px}.home-title h1{font-size:34px}.home-title p{font-size:18px}}
+
+/* ========== 云朵 ========== */
+.cloud{position:fixed;background:rgba(255,255,255,.85);border-radius:50px;z-index:0;pointer-events:none}
+.cloud::before,.cloud::after{content:'';position:absolute;background:inherit;border-radius:50%}
+.c1{width:120px;height:40px;top:8%;left:-150px;animation:cf 18s linear infinite}
+.c1::before{width:50px;height:50px;top:-25px;left:20px}.c1::after{width:70px;height:55px;top:-28px;left:50px}
+.c2{width:160px;height:50px;top:20%;left:-200px;animation:cf 24s linear infinite 6s}
+.c2::before{width:60px;height:60px;top:-30px;left:25px}.c2::after{width:80px;height:65px;top:-35px;left:65px}
+.c3{width:100px;height:35px;top:35%;left:-130px;animation:cf 20s linear infinite 12s}
+.c3::before{width:45px;height:45px;top:-22px;left:15px}.c3::after{width:55px;height:48px;top:-24px;left:40px}
+.c4{width:140px;height:45px;top:55%;left:-180px;animation:cf 22s linear infinite 3s}
+.c4::before{width:55px;height:55px;top:-28px;left:22px}.c4::after{width:75px;height:60px;top:-30px;left:55px}
+.c5{width:90px;height:30px;top:70%;left:-120px;animation:cf 26s linear infinite 9s}
+.c5::before{width:40px;height:40px;top:-20px;left:12px}.c5::after{width:50px;height:42px;top:-22px;left:38px}
+@keyframes cf{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 300px))}}
+
+/* ========== 按钮 ========== */
+.btn{display:inline-block;padding:16px 44px;font-size:22px;color:#fff;background:linear-gradient(135deg,#FFB347,#FF8C42);border:none;border-radius:50px;cursor:pointer;box-shadow:0 6px 20px rgba(255,140,66,.4);transition:transform .2s,box-shadow .2s;letter-spacing:2px;font-weight:bold;user-select:none;text-align:center}
+.btn:hover{transform:scale(1.08);box-shadow:0 8px 25px rgba(255,140,66,.5)}.btn:active{transform:scale(.95)}
+.btn-blue{background:linear-gradient(135deg,#5BB8F5,#3A9FE8);box-shadow:0 6px 20px rgba(58,159,232,.4)}.btn-blue:hover{box-shadow:0 8px 25px rgba(58,159,232,.5)}
+.btn-green{background:linear-gradient(135deg,#6BCB77,#4CAF50);box-shadow:0 6px 20px rgba(76,175,80,.4)}.btn-green:hover{box-shadow:0 8px 25px rgba(76,175,80,.5)}
+.btn-purple{background:linear-gradient(135deg,#BA68C8,#9C27B0);box-shadow:0 6px 20px rgba(156,39,176,.4)}.btn-purple:hover{box-shadow:0 8px 25px rgba(156,39,176,.5)}
+.btn-center{display:block;margin:20px auto}.btn-small{padding:10px 24px;font-size:17px}
+
+/* ========== 首页 ========== */
+.home-title{text-align:center;margin-top:6vh;position:relative;z-index:1}
+.home-title h1{font-size:44px;color:#fff;text-shadow:3px 3px 6px rgba(0,100,180,.3);margin-bottom:10px;letter-spacing:3px}
+.home-title p{font-size:19px;color:#fff;text-shadow:1px 1px 3px rgba(0,100,180,.2);margin-bottom:15px}
+.difficulty-select{display:flex;justify-content:center;gap:12px;margin:20px 0;flex-wrap:wrap}
+.diff-btn{padding:10px 26px;font-size:17px;border:3px solid rgba(255,255,255,.6);background:rgba(255,255,255,.15);color:#fff;border-radius:30px;cursor:pointer;transition:all .3s;font-weight:bold}
+.diff-btn:hover,.diff-btn.active{background:rgba(255,255,255,.9);color:#3A9FE8;border-color:#fff;transform:scale(1.05)}
+
+/* ========== 天气百科 ========== */
+.weather-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:640px){.weather-cards{grid-template-columns:1fr}}
+.weather-card{background:#fff;border-radius:20px;padding:18px;box-shadow:0 8px 28px rgba(0,100,180,.1);cursor:pointer;transition:transform .3s,box-shadow .3s;user-select:none;position:relative;overflow:hidden}
+.weather-card:hover{transform:translateY(-4px);box-shadow:0 10px 35px rgba(0,100,180,.18)}.weather-card:active{transform:scale(.97)}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+.card-emoji{font-size:36px;line-height:1}.card-name{font-size:21px;font-weight:bold;color:#2C3E50}
+.card-brief{font-size:16px;color:#666;line-height:1.5}
+.card-detail{max-height:0;overflow:hidden;transition:max-height .5s ease;font-size:15px;color:#555;line-height:1.7}
+.weather-card.expanded .card-detail{max-height:600px;padding-top:10px}
+.card-tip{background:#FFF8E7;border-left:4px solid #FFB347;padding:8px 12px;border-radius:0 10px 10px 0;margin-top:8px;font-size:14px;color:#8B6914}
+.card-tip::before{content:'💡 '}
+.card-fact{background:#E8F5E9;border-left:4px solid #4CAF50;padding:8px 12px;border-radius:0 10px 10px 0;margin-top:6px;font-size:14px;color:#2E7D32}
+.card-fact::before{content:'🔬 '}
+.card-safe{background:#FFEBEE;border-left:4px solid #EF5350;padding:8px 12px;border-radius:0 10px 10px 0;margin-top:6px;font-size:14px;color:#C62828}
+.card-safe::before{content:'⚠️ '}
+
+/* 天气动画 */
+.weather-anim{height:65px;position:relative;overflow:hidden;border-radius:12px;margin-bottom:8px}
+.anim-sunny{background:linear-gradient(180deg,#FFE082,#FFF8E1)}
+.sun{position:absolute;width:40px;height:40px;background:radial-gradient(circle,#FFD54F 30%,#FFB300 70%);border-radius:50%;top:8px;left:50%;transform:translateX(-50%);animation:sunR 4s linear infinite;box-shadow:0 0 15px rgba(255,179,0,.6)}
+.sun::after{content:'';position:absolute;inset:-6px;border:2px dashed rgba(255,179,0,.5);border-radius:50%;animation:sunRR 6s linear infinite}
+@keyframes sunR{from{transform:translateX(-50%) rotate(0)}to{transform:translateX(-50%) rotate(360deg)}}
+@keyframes sunRR{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
+
+.anim-cloudy{background:linear-gradient(180deg,#E3F2FD,#FFF)}
+.ccloud{position:absolute;background:#fff;border-radius:50%;opacity:.9;animation:cfloat linear infinite}
+.ccloud1{width:45px;height:26px;top:18px;left:-55px;animation-duration:8s}
+.ccloud2{width:36px;height:22px;top:32px;left:-45px;animation-duration:10s;animation-delay:2s}
+.ccloud3{width:30px;height:18px;top:12px;left:-40px;animation-duration:9s;animation-delay:4s}
+@keyframes cfloat{from{transform:translateX(0)}to{transform:translateX(calc(100% + 200px))}}
+
+.anim-overcast{background:linear-gradient(180deg,#B0BEC5,#CFD8DC)}
+.ocloud{position:absolute;background:#90A4AE;border-radius:50%;opacity:.8;animation:ocfloat linear infinite}
+.oc1{width:48px;height:28px;top:16px;left:-65px;animation-duration:7s}
+.oc2{width:38px;height:24px;top:34px;left:-50px;animation-duration:9s;animation-delay:1.5s}
+.oc3{width:52px;height:30px;top:8px;left:-70px;animation-duration:8s;animation-delay:3s}
+@keyframes ocfloat{from{transform:translateX(0)}to{transform:translateX(calc(100% + 250px))}}
+
+.anim-rainy{background:linear-gradient(180deg,#B0BEC5,#CFD8DC)}
+.raindrop{position:absolute;width:3px;height:11px;background:linear-gradient(to bottom,transparent,#42A5F5);border-radius:0 0 3px 3px;animation:rf linear infinite;top:-12px}
+.raindrop:nth-child(1){left:10%;animation-duration:.8s;animation-delay:0s}
+.raindrop:nth-child(2){left:25%;animation-duration:.7s;animation-delay:.3s}
+.raindrop:nth-child(3){left:40%;animation-duration:.9s;animation-delay:.1s}
+.raindrop:nth-child(4){left:55%;animation-duration:.75s;animation-delay:.5s}
+.raindrop:nth-child(5){left:70%;animation-duration:.85s;animation-delay:.2s}
+.raindrop:nth-child(6){left:85%;animation-duration:.8s;animation-delay:.4s}
+.raindrop:nth-child(7){left:15%;animation-duration:.7s;animation-delay:.6s}
+.raindrop:nth-child(8){left:50%;animation-duration:.9s;animation-delay:.15s}
+@keyframes rf{from{transform:translateY(0)}to{transform:translateY(80px)}}
+
+.anim-snowy{background:linear-gradient(180deg,#E3F2FD,#F3F4F6)}
+.snowflake{position:absolute;color:#90CAF9;font-size:15px;animation:sf linear infinite;opacity:.8}
+.snowflake:nth-child(1){left:5%;animation-duration:4s;animation-delay:0s;top:-16px}
+.snowflake:nth-child(2){left:20%;animation-duration:3.5s;animation-delay:.8s;top:-16px;font-size:12px}
+.snowflake:nth-child(3){left:35%;animation-duration:4.5s;animation-delay:.3s;top:-16px;font-size:18px}
+.snowflake:nth-child(4){left:50%;animation-duration:3.8s;animation-delay:1.2s;top:-16px}
+.snowflake:nth-child(5){left:65%;animation-duration:4.2s;animation-delay:.5s;top:-16px;font-size:13px}
+.snowflake:nth-child(6){left:80%;animation-duration:3.6s;animation-delay:1s;top:-16px;font-size:16px}
+.snowflake:nth-child(7){left:45%;animation-duration:4.8s;animation-delay:.2s;top:-16px;font-size:10px}
+.snowflake:nth-child(8){left:90%;animation-duration:3.9s;animation-delay:.7s;top:-16px}
+@keyframes sf{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(80px) rotate(360deg)}}
+
+.anim-foggy{background:linear-gradient(180deg,#ECEFF1,#CFD8DC)}
+.fog-layer{position:absolute;left:0;right:0;height:22px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);border-radius:18px;animation:fogMove linear infinite}
+.fog1{top:12px;animation-duration:5s;animation-delay:0s}
+.fog2{top:30px;animation-duration:6s;animation-delay:1.5s;opacity:.6}
+.fog3{top:45px;animation-duration:4.5s;animation-delay:3s;opacity:.5}
+@keyframes fogMove{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+
+.anim-thunder{background:linear-gradient(180deg,#546E7A,#78909C)}
+.lightning{position:absolute;inset:0;background:rgba(255,255,255,0);animation:lf 3s ease infinite;pointer-events:none}
+.lightning-bolt{position:absolute;top:3px;left:50%;transform:translateX(-50%);font-size:30px;animation:lb 3s ease infinite}
+@keyframes lf{0%,89%,91%,93%,100%{background:rgba(255,255,255,0)}90%{background:rgba(255,255,200,.4)}92%{background:rgba(255,255,200,.3)}}
+@keyframes lb{0%,88%,94%,100%{opacity:0}90%{opacity:1}92%{opacity:1}}
+.tr-drop{position:absolute;width:2px;height:9px;background:linear-gradient(to bottom,transparent,#64B5F6);border-radius:0 0 2px 2px;animation:rf .6s linear infinite;bottom:0}
+.tr-drop:nth-child(3){left:8%;animation-delay:0s}.tr-drop:nth-child(4){left:22%;animation-delay:.2s}
+.tr-drop:nth-child(5){left:35%;animation-delay:.1s}.tr-drop:nth-child(6){left:48%;animation-delay:.3s}
+.tr-drop:nth-child(7){left:62%;animation-delay:.15s}.tr-drop:nth-child(8){left:78%;animation-delay:.25s}
+
+.anim-rainbow{background:linear-gradient(180deg,#E3F2FD,#E8F5E9)}
+.rainbow-arc{position:absolute;width:110px;height:55px;border-radius:55px 55px 0 0;left:50%;bottom:5px;transform:translateX(-50%) scale(0);animation:rbShow 4s ease forwards;background:linear-gradient(180deg,rgba(255,0,0,.4),rgba(255,127,0,.4),rgba(255,255,0,.4),rgba(0,255,0,.4),rgba(0,0,255,.4),rgba(75,0,130,.4),rgba(148,0,211,.4));box-shadow:0 0 8px rgba(255,255,255,.5)}
+@keyframes rbShow{0%{transform:translateX(-50%) scale(0)}100%{transform:translateX(-50%) scale(1)}}
+
+.anim-typhoon{background:linear-gradient(180deg,#455A64,#607D8B)}
+.typhoon-spin{position:absolute;width:50px;height:50px;left:50%;top:50%;transform:translate(-50%,-50%);border:4px solid rgba(255,255,255,.4);border-top-color:rgba(255,255,255,.8);border-radius:50%;animation:tspin 1.5s linear infinite}
+.typhoon-spin::after{content:'';position:absolute;inset:6px;border:3px solid rgba(255,255,255,.3);border-bottom-color:rgba(255,255,255,.7);border-radius:50%;animation:tspin 1s linear infinite reverse}
+@keyframes tspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.anim-hail{background:linear-gradient(180deg,#B0BEC5,#90A4AE)}
+.hail{position:absolute;width:10px;height:10px;background:radial-gradient(circle at 30% 30%,#E0E0E0,#90A4AE);border-radius:50%;animation:hfall linear infinite;top:-12px}
+.hail:nth-child(1){left:15%;animation-duration:.9s;animation-delay:0s}
+.hail:nth-child(2){left:35%;animation-duration:.7s;animation-delay:.2s}
+.hail:nth-child(3){left:55%;animation-duration:1s;animation-delay:.4s}
+.hail:nth-child(4){left:75%;animation-duration:.8s;animation-delay:.1s}
+.hail:nth-child(5){left:25%;animation-duration:.85s;animation-delay:.5s}
+@keyframes hfall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(80px) rotate(180deg)}}
+
+.anim-dew{background:linear-gradient(180deg,#C8E6C9,#E8F5E9)}
+.dewdrop{position:absolute;width:8px;height:12px;background:radial-gradient(ellipse at 40% 30%,rgba(255,255,255,.9),rgba(100,200,255,.4));border-radius:50%;animation:dglisten 2s ease infinite}
+.dewdrop:nth-child(1){left:20%;bottom:10px;animation-delay:0s}
+.dewdrop:nth-child(2){left:40%;bottom:8px;animation-delay:.5s}
+.dewdrop:nth-child(3){left:60%;bottom:12px;animation-delay:1s}
+.dewdrop:nth-child(4){left:80%;bottom:6px;animation-delay:1.5s}
+@keyframes dglisten{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+
+.anim-frost{background:linear-gradient(180deg,#E1F5FE,#E8EAF6)}
+.frost-crystal{position:absolute;color:rgba(144,202,249,.6);font-size:16px;animation:fcrystal 3s ease infinite}
+.frost-crystal:nth-child(1){left:15%;top:10px;animation-delay:0s}
+.frost-crystal:nth-child(2){left:40%;top:25px;animation-delay:.8s}
+.frost-crystal:nth-child(3){left:65%;top:8px;animation-delay:1.6s}
+.frost-crystal:nth-child(4){left:85%;top:30px;animation-delay:2.4s}
+@keyframes fcrystal{0%,100%{opacity:.4;transform:scale(.8) rotate(0)}50%{opacity:.8;transform:scale(1.1) rotate(90deg)}}
+
+.anim-sandstorm{background:linear-gradient(180deg,#D7CCC8,#BCAAA4)}
+.sand-particle{position:absolute;width:3px;height:3px;background:rgba(188,170,164,.8);border-radius:50%;animation:sblow linear infinite}
+.sand-particle:nth-child(1){left:-5%;top:20px;animation-duration:.6s;animation-delay:0s}
+.sand-particle:nth-child(2){left:-10%;top:35px;animation-duration:.5s;animation-delay:.1s}
+.sand-particle:nth-child(3){left:-3%;top:45px;animation-duration:.7s;animation-delay:.2s}
+.sand-particle:nth-child(4){left:-8%;top:15px;animation-duration:.55s;animation-delay:.3s}
+.sand-particle:nth-child(5){left:-6%;top:50px;animation-duration:.65s;animation-delay:.15s}
+.sand-particle:nth-child(6){left:-4%;top:28px;animation-duration:.58s;animation-delay:.35s}
+.sand-particle:nth-child(7){left:-12%;top:40px;animation-duration:.62s;animation-delay:.25s}
+.sand-particle:nth-child(8){left:-2%;top:55px;animation-duration:.52s;animation-delay:.05s}
+@keyframes sblow{from{transform:translateX(0)}to{transform:translateX(300px)}}
+
+/* ========== 天气成因 ========== */
+.cause-container{background:#fff;border-radius:20px;padding:20px;margin-bottom:18px;box-shadow:0 6px 25px rgba(0,100,180,.1)}
+.cause-title{font-size:20px;font-weight:bold;color:#2C3E50;margin-bottom:12px;text-align:center}
+.cause-steps{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;position:relative}
+@media(max-width:600px){.cause-steps{flex-direction:column;align-items:center;gap:15px}}
+.cause-step{flex:1;text-align:center;opacity:.3;transform:scale(.9);transition:all .5s}
+.cause-step.active{opacity:1;transform:scale(1)}
+.step-icon{font-size:32px;margin-bottom:6px;display:block}
+.step-text{font-size:14px;color:#555;line-height:1.4}
+.cause-anim-area{height:85px;position:relative;overflow:hidden;border-radius:12px;margin-bottom:12px;background:linear-gradient(180deg,#E3F2FD,#FFF)}
+.cause-rain-sun{position:absolute;width:26px;height:26px;background:#FFD54F;border-radius:50%;top:8px;left:15px;box-shadow:0 0 8px rgba(255,213,79,.6);animation:csPulse 2s ease infinite}
+.cause-rain-cloud{position:absolute;width:50px;height:22px;background:#B0BEC5;border-radius:18px;top:12px;left:50%;transform:translateX(-50%)}
+.cause-rain-cloud::before{content:'';position:absolute;width:20px;height:20px;background:#B0BEC5;border-radius:50%;top:-8px;left:8px}
+.cause-rain-cloud::after{content:'';position:absolute;width:24px;height:22px;background:#B0BEC5;border-radius:50%;top:-10px;left:18px}
+.cause-rain-drop{position:absolute;width:3px;height:9px;background:#42A5F5;border-radius:0 0 3px 3px;left:50%;top:40px;opacity:0;animation:crDrop 2s ease infinite}
+.cause-water{position:absolute;width:100%;height:12px;background:linear-gradient(90deg,#4FC3F7,#29B6F6);bottom:0;left:0}
+.cause-arrow-up{position:absolute;left:15px;bottom:12px;font-size:18px;color:#FF8C42;animation:caUp 2s ease infinite}
+@keyframes csPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes crDrop{0%{opacity:0;transform:translateY(0)}20%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(45px)}}
+@keyframes caUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.cause-snow-therm{position:absolute;top:8px;left:15px;font-size:24px;animation:thermShake 2s ease infinite}
+.cause-snow-cloud{position:absolute;width:45px;height:20px;background:#CFD8DC;border-radius:16px;top:15px;left:50%;transform:translateX(-50%)}
+.cause-snow-cloud::before{content:'';position:absolute;width:18px;height:18px;background:#CFD8DC;border-radius:50%;top:-7px;left:6px}
+.cause-snow-cloud::after{content:'';position:absolute;width:22px;height:20px;background:#CFD8DC;border-radius:50%;top:-9px;left:16px}
+.cause-snowflake{position:absolute;color:#90CAF9;font-size:12px;left:50%;top:40px;opacity:0;animation:csFlake 2.5s ease infinite}
+@keyframes thermShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+@keyframes csFlake{0%{opacity:0;transform:translateY(0) rotate(0)}30%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(45px) rotate(180deg)}}
+.cause-thunder-cloud1{position:absolute;width:44px;height:18px;background:#78909C;border-radius:14px;top:12px;left:28%}
+.cause-thunder-cloud1::before{content:'';position:absolute;width:18px;height:18px;background:#78909C;border-radius:50%;top:-7px;left:5px}
+.cause-thunder-cloud1::after{content:'';position:absolute;width:20px;height:18px;background:#78909C;border-radius:50%;top:-9px;left:15px}
+.cause-thunder-cloud2{position:absolute;width:40px;height:16px;background:#607D8B;border-radius:12px;top:16px;right:28%}
+.cause-thunder-cloud2::before{content:'';position:absolute;width:16px;height:16px;background:#607D8B;border-radius:50%;top:-6px;left:4px}
+.cause-thunder-cloud2::after{content:'';position:absolute;width:18px;height:16px;background:#607D8B;border-radius:50%;top:-8px;left:13px}
+.cause-thunder-bolt{position:absolute;font-size:24px;top:36px;left:50%;transform:translateX(-50%);opacity:0;animation:ctBolt 2s ease infinite}
+@keyframes ctBolt{0%{opacity:0}20%{opacity:1;transform:translateX(-50%) scale(1.2)}40%{opacity:0}60%{opacity:1;transform:translateX(-50%) scale(1)}80%{opacity:0}100%{opacity:0}}
+
+/* ========== 冷知识页 ========== */
+.fact-list{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+@media(max-width:640px){.fact-list{grid-template-columns:1fr}}
+.fact-card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 6px 22px rgba(0,100,180,.08);transition:transform .3s}
+.fact-card:hover{transform:translateY(-3px)}
+.fact-card h4{font-size:17px;color:#2C3E50;margin-bottom:6px}
+.fact-card p{font-size:15px;color:#666;line-height:1.6}
+
+/* ========== 连连看 ========== */
+.memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:380px;margin:0 auto 20px}
+@media(max-width:400px){.memory-grid{grid-template-columns:repeat(4,1fr);gap:8px;max-width:100%}}
+.memory-card{background:linear-gradient(135deg,#5BB8F5,#3A9FE8);border-radius:14px;height:80px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .3s,background .3s;box-shadow:0 4px 15px rgba(58,159,232,.3);font-size:32px;user-select:none;border:3px solid transparent}
+.memory-card:hover:not(.flipped):not(.matched){transform:scale(1.05);border-color:#FFD54F}
+.memory-card.flipped{background:#fff;border-color:#4CAF50}
+.memory-card.matched{background:#E8F5E9;border-color:#4CAF50;cursor:default;animation:matchPop .4s ease}
+.memory-card .card-content{display:none}.memory-card.flipped .card-content,.memory-card.matched .card-content{display:block}
+.memory-card .card-back{color:#fff;font-size:26px;font-weight:bold}
+.memory-card.flipped .card-back,.memory-card.matched .card-back{display:none}
+@keyframes matchPop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.memory-info{text-align:center;font-size:17px;color:#fff;margin-bottom:12px}
+
+/* ========== 穿衣挑战 ========== */
+.dress-scene{background:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 6px 25px rgba(0,100,180,.1);text-align:center}
+.dress-weather{font-size:44px;margin-bottom:8px}.dress-desc{font-size:19px;color:#2C3E50;margin-bottom:12px;font-weight:bold}
+.dress-items{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+@media(max-width:400px){.dress-items{grid-template-columns:repeat(2,1fr)}}
+.dress-item{background:#F0F7FF;border:3px solid #D0E8FF;border-radius:14px;padding:12px 6px;cursor:pointer;transition:all .2s;font-size:28px;text-align:center;user-select:none}
+.dress-item:hover{border-color:#3A9FE8;transform:scale(1.05);background:#D6EAFF}
+.dress-item.selected{border-color:#FFB347;background:#FFF8E7;transform:scale(1.08);box-shadow:0 4px 15px rgba(255,179,0,.3)}
+.dress-item.correct{border-color:#4CAF50;background:#E8F5E9}.dress-item.wrong{border-color:#F44336;background:#FFEBEE}
+.dress-item-label{font-size:13px;color:#555;margin-top:4px}
+.dress-result{font-size:18px;margin-top:12px;font-weight:bold;min-height:28px}
+
+/* ========== 测验 ========== */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.timer-bar{background:rgba(255,255,255,.2);border-radius:12px;padding:8px 18px;color:#fff;font-size:19px;font-weight:bold;backdrop-filter:blur(5px)}
+.timer-bar.warning{color:#FF5252;animation:timerWarn 1s ease infinite}
+@keyframes timerWarn{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.score-display{background:rgba(255,255,255,.2);border-radius:12px;padding:8px 18px;color:#fff;font-size:19px;font-weight:bold;backdrop-filter:blur(5px)}
+.score-display span{color:#FFB347;font-size:22px}
+.progress-bar{width:100%;height:8px;background:rgba(255,255,255,.3);border-radius:4px;margin-bottom:18px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#FFB347,#FF8C42);border-radius:4px;transition:width .3s;width:0%}
+.quiz-question{background:#fff;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 6px 22px rgba(0,100,180,.1)}
+.quiz-question h3{font-size:19px;color:#2C3E50;margin-bottom:14px;line-height:1.5}
+.quiz-question h3::before{content:attr(data-num)'、';color:#3A9FE8;font-weight:bold}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.options{grid-template-columns:1fr}}
+.option-btn{padding:11px 14px;font-size:16px;color:#444;background:#F0F7FF;border:2px solid #D0E8FF;border-radius:12px;cursor:pointer;transition:all .2s;text-align:center;line-height:1.4}
+.option-btn:hover:not(.disabled){background:#D6EAFF;border-color:#3A9FE8;transform:scale(1.02)}
+.option-btn:active:not(.disabled){transform:scale(.97)}
+.option-btn.correct{background:#E8F5E9;border-color:#4CAF50;color:#2E7D32;font-weight:bold}
+.option-btn.wrong{background:#FFEBEE;border-color:#F44336;color:#C62828}
+.option-btn.disabled{cursor:not-allowed;opacity:.6}.option-btn.correct.disabled,.option-btn.wrong.disabled{opacity:1}
+.quiz-icon{display:inline-block;margin-left:5px;font-size:17px}
+
+/* ========== 跑酷 ========== */
+.runner-wrap{position:relative;width:100%;max-width:800px;margin:0 auto 20px;border-radius:18px;overflow:hidden;box-shadow:0 8px 30px rgba(0,100,180,.2);background:#87CEEB}
+.runner-canvas{display:block;width:100%;height:300px;image-rendering:pixelated;touch-action:none}
+.runner-hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:8px 14px;pointer-events:none;z-index:5}
+.runner-hud-item{background:rgba(0,0,0,.35);color:#fff;padding:5px 12px;border-radius:18px;font-size:14px;font-weight:bold}
+.runner-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)}
+.runner-overlay.hidden{display:none}
+.runner-overlay h2{color:#fff;font-size:26px;margin-bottom:10px;text-shadow:2px 2px 4px rgba(0,0,0,.3)}
+.runner-overlay p{color:rgba(255,255,255,.9);font-size:15px;margin-bottom:16px;text-align:center;padding:0 20px;line-height:1.5}
+.runner-quiz-popup{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+.runner-quiz-popup.hidden{display:none}
+.runner-quiz-box{background:#fff;border-radius:18px;padding:22px;max-width:400px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.runner-quiz-box h3{font-size:19px;color:#2C3E50;margin-bottom:12px;line-height:1.5;text-align:center}
+.runner-quiz-opts{display:flex;flex-direction:column;gap:8px}
+.runner-quiz-opt{padding:10px 14px;font-size:16px;color:#444;background:#F0F7FF;border:2px solid #D0E8FF;border-radius:12px;cursor:pointer;transition:all .2s;text-align:center}
+.runner-quiz-opt:hover{background:#D6EAFF;border-color:#3A9FE8}
+.runner-quiz-opt.correct{background:#E8F5E9;border-color:#4CAF50;color:#2E7D32;font-weight:bold}
+.runner-quiz-opt.wrong{background:#FFEBEE;border-color:#F44336;color:#C62828}
+.runner-controls{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.runner-ctrl-btn{padding:10px 22px;font-size:15px;color:#fff;border:none;border-radius:25px;cursor:pointer;font-weight:bold;transition:transform .2s}
+.runner-ctrl-btn:hover{transform:scale(1.05)}.runner-ctrl-btn:active{transform:scale(.95)}
+
+/* ========== 成绩 ========== */
+.result-card{background:#fff;border-radius:24px;padding:32px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,100,180,.15);max-width:520px;margin:5vh auto 0}
+.result-card h2{font-size:28px;color:#2C3E50;margin-bottom:12px}
+.result-stars{font-size:36px;margin-bottom:12px;min-height:46px}
+.result-score{font-size:60px;font-weight:bold;color:#FFB347;text-shadow:2px 2px 8px rgba(255,179,0,.3);margin:12px 0}
+.result-score small{font-size:22px;color:#999;font-weight:normal}
+.result-stats{display:flex;justify-content:center;gap:25px;margin:18px 0;flex-wrap:wrap}
+.result-stat{text-align:center}.result-stat-value{font-size:26px;font-weight:bold;color:#3A9FE8}.result-stat-label{font-size:13px;color:#888;margin-top:3px}
+.result-comment{font-size:20px;color:#555;margin-bottom:22px;line-height:1.5}
+@keyframes starPop{0%{transform:scale(0);opacity:0}50%{transform:scale(1.3)}100%{transform:scale(1);opacity:1}}
+.star-item{display:inline-block;animation:starPop .4s ease forwards;opacity:0}
+.star-item:nth-child(1){animation-delay:.2s}.star-item:nth-child(2){animation-delay:.4s}.star-item:nth-child(3){animation-delay:.6s}.star-item:nth-child(4){animation-delay:.8s}.star-item:nth-child(5){animation-delay:1s}
+
+/* ========== 导航 ========== */
+.step-nav{display:flex;justify-content:center;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.step-dot{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.3);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;transition:all .3s;border:2px solid rgba(255,255,255,.5)}
+.step-dot.active{background:rgba(255,255,255,.9);color:#3A9FE8;border-color:#fff;transform:scale(1.1)}
+.step-dot.done{background:#4CAF50;border-color:#4CAF50;color:#fff}
+
+.hint-box{background:rgba(255,255,255,.2);border-radius:12px;padding:10px 16px;color:#fff;font-size:15px;text-align:center;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="cloud c4"></div><div class="cloud c5"></div>
+
+<!-- ===== 1. 首页 ===== -->
+<div class="page active" id="page-home">
+  <div class="home-title">
+    <h1>☀️ 天气小课堂 ⛅</h1>
+    <p>一起探索天气的奥秘吧！</p>
+    <div style="font-size:15px;color:rgba(255,255,255,.8);margin-bottom:12px">选择难度，开始冒险！</div>
+    <div class="difficulty-select">
+      <button class="diff-btn active" data-diff="easy" onclick="setDifficulty('easy')">🌱 简单</button>
+      <button class="diff-btn" data-diff="medium" onclick="setDifficulty('medium')">🌿 中等</button>
+      <button class="diff-btn" data-diff="hard" onclick="setDifficulty('hard')">🔥 困难</button>
+    </div>
+    <button class="btn" onclick="goToPage('learn')">开始学习 🚀</button>
+  </div>
+</div>
+
+<!-- ===== 2. 天气百科 ===== -->
+<div class="page" id="page-learn">
+  <div class="step-nav" id="nav-learn"></div>
+  <h2 class="page-title">📖 天气百科全书</h2>
+  <div class="hint-box">👆 点击卡片展开查看详细科普、趣味知识和安全提示！共 13 种天气</div>
+  <div class="weather-cards" id="weather-cards"></div>
+  <button class="btn btn-blue btn-center" onclick="goToPage('cause')">了解天气成因 🔬</button>
+</div>
+
+<!-- ===== 3. 天气成因 ===== -->
+<div class="page" id="page-cause">
+  <div class="step-nav" id="nav-cause"></div>
+  <h2 class="page-title">🔬 天气是怎么形成的？</h2>
+  <div class="hint-box">👇 点击"下一步"，了解各种天气现象的形成过程！</div>
+  <div id="cause-container"></div>
+  <button class="btn btn-green btn-center" onclick="goToPage('facts')">趣味冷知识 🧠</button>
+</div>
+
+<!-- ===== 4. 趣味冷知识 ===== -->
+<div class="page" id="page-facts">
+  <div class="step-nav" id="nav-facts"></div>
+  <h2 class="page-title">🧠 天气趣味冷知识</h2>
+  <div class="hint-box">这些天气小知识，你知道几个？</div>
+  <div class="fact-list" id="fact-list"></div>
+  <button class="btn btn-purple btn-center" onclick="goToPage('memory')">玩个小游戏 🎮</button>
+</div>
+
+<!-- ===== 5. 连连看 ===== -->
+<div class="page" id="page-memory">
+  <div class="step-nav" id="nav-memory"></div>
+  <h2 class="page-title">🎮 天气连连看</h2>
+  <div class="hint-box">🧠 翻开卡片，找到相同的天气配对！</div>
+  <div class="memory-info">配对：<span id="match-count">0</span> / <span id="match-total">8</span> &nbsp;|&nbsp; 步数：<span id="move-count">0</span></div>
+  <div class="memory-grid" id="memory-grid"></div>
+  <div id="memory-msg" style="text-align:center;color:#fff;font-size:19px;margin:8px 0;font-weight:bold;min-height:28px"></div>
+  <div class="runner-controls">
+    <button class="runner-ctrl-btn" style="background:linear-gradient(135deg,#BA68C8,#9C27B0)" onclick="initMemoryGame()">重新开始 🔄</button>
+    <button class="runner-ctrl-btn" style="background:linear-gradient(135deg,#6BCB77,#4CAF50)" onclick="goToPage('dress')" id="memory-next" style="display:none">下一关 👕</button>
+  </div>
+</div>
+
+<!-- ===== 6. 穿衣挑战 ===== -->
+<div class="page" id="page-dress">
+  <div class="step-nav" id="nav-dress"></div>
+  <h2 class="page-title">👕 穿衣搭配挑战</h2>
+  <div class="hint-box">👇 根据天气选衣服，全选对才能拿满分！</div>
+  <div class="dress-scene" id="dress-scene">
+    <div class="dress-weather" id="dress-weather">🌧️</div>
+    <div class="dress-desc" id="dress-desc">下雨天出门，应该穿什么？</div>
+    <div class="dress-items" id="dress-items"></div>
+    <button class="btn btn-blue btn-small dress-check-btn" onclick="checkDressAnswer()">确认选择 ✓</button>
+    <div class="dress-result" id="dress-result"></div>
+  </div>
+  <div style="text-align:center;color:#fff;font-size:17px;margin:8px 0">得分：<span id="dress-score" style="color:#FFB347;font-weight:bold;font-size:20px">0</span> / 30</div>
+  <button class="btn btn-purple btn-center" onclick="goToPage('runner')" id="dress-next" style="display:none">天气跑酷 🏃</button>
+</div>
+
+<!-- ===== 7. 跑酷 ===== -->
+<div class="page" id="page-runner">
+  <div class="step-nav" id="nav-runner"></div>
+  <h2 class="page-title">🏃 天气跑酷大冒险</h2>
+  <div class="hint-box">🎮 空格/点击跳跃！途中遇到天气问题，答对加分！</div>
+  <div class="runner-wrap">
+    <canvas class="runner-canvas" id="runner-canvas"></canvas>
+    <div class="runner-hud">
+      <div class="runner-hud-item" id="r-hud-score">🏆 0</div>
+      <div class="runner-hud-item" id="r-hud-dist">📏 0m</div>
+      <div class="runner-hud-item" id="r-hud-life">❤️❤️❤️</div>
+    </div>
+    <div class="runner-overlay" id="r-overlay">
+      <h2 id="r-overlay-title">🏃 天气跑酷大冒险</h2>
+      <p id="r-overlay-desc">在天气世界中奔跑！跳跃躲避障碍，回答天气问题！<br><br>⬆️ 空格键 / 点击 = 跳跃（支持二段跳）</p>
+      <button class="runner-ctrl-btn" style="background:linear-gradient(135deg,#FFB347,#FF8C42);font-size:19px;padding:12px 36px" onclick="startRunner()">开始冒险 🚀</button>
+    </div>
+    <div class="runner-quiz-popup hidden" id="r-quiz-popup">
+      <div class="runner-quiz-box">
+        <h3 id="r-quiz-q">题目加载中...</h3>
+        <div class="runner-quiz-opts" id="r-quiz-opts"></div>
+      </div>
+    </div>
+  </div>
+  <div class="runner-controls">
+    <button class="runner-ctrl-btn" style="background:linear-gradient(135deg,#FFB347,#FF8C42)" onclick="startRunner()">🔄 重新开始</button>
+    <button class="runner-ctrl-btn" style="background:linear-gradient(135deg,#6BCB77,#4CAF50)" onclick="goToPage('quiz')">进入测验 📝</button>
+  </div>
+</div>
+
+<!-- ===== 8. 测验 ===== -->
+<div class="page" id="page-quiz">
+  <div class="step-nav" id="nav-quiz"></div>
+  <h2 class="page-title">📝 知识大挑战</h2>
+  <div class="quiz-header">
+    <div class="timer-bar" id="timer">⏱️ 时间：--</div>
+    <div class="score-display">得分：<span id="quiz-score">0</span></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div id="quiz-container"></div>
+  <button class="btn btn-green btn-center" id="quiz-result-btn" style="display:none" onclick="goToPage('result')">查看成绩 🏆</button>
+</div>
+
+<!-- ===== 9. 成绩 ===== -->
+<div class="page" id="page-result">
+  <div class="result-card">
+    <h2>🎉 挑战完成！</h2>
+    <div class="result-stars" id="result-stars"></div>
+    <div class="result-score"><span id="final-score">0</span><small> / <span id="max-score">100</span></small></div>
+    <div class="result-stats">
+      <div class="result-stat"><div class="result-stat-value" id="result-accuracy">0%</div><div class="result-stat-label">正确率</div></div>
+      <div class="result-stat"><div class="result-stat-value" id="result-time">--</div><div class="result-stat-label">用时</div></div>
+      <div class="result-stat"><div class="result-stat-value" id="result-bonus">0</div><div class="result-stat-label">游戏奖励</div></div>
+    </div>
+    <div class="result-comment" id="result-comment"></div>
+    <button class="btn" onclick="restartGame()">再玩一次 🔄</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   数据定义
+   ============================================================ */
+var PAGES = ['home','learn','cause','facts','memory','dress','runner','quiz','result'];
+var PAGE_NAMES = {home:'首页',learn:'百科',cause:'成因',facts:'冷知识',memory:'连连看',dress:'穿衣',runner:'跑酷',quiz:'测验',result:'成绩'};
+
+/* 天气百科数据 */
+var weatherData = [
+  {emoji:'☀️',name:'晴天',brief:'阳光充足，适合户外活动。',anim:'anim-sunny',
+   detail:'晴天时天空中云量很少，太阳光可以直接照射到地面。晴天通常气温较高，紫外线也比较强。在夏季晴天，地表温度甚至能达到50°C以上！',
+   tip:'晴天紫外线指数高，出门前30分钟要涂防晒霜，SPF30以上最好。戴帽子和太阳镜也能有效保护。',
+   fact:'地球上每天大约有40%的时间是晴天。沙漠地区一年中晴天可以超过300天！',
+   safe:'长时间在太阳下暴晒可能导致中暑，一定要及时补充水分，每隔30分钟到阴凉处休息。'},
+  {emoji:'⛅',name:'多云',brief:'天空中有一些云朵，阳光时隐时现。',anim:'anim-cloudy',
+   detail:'多云是指天空中有不少云朵，但云层不算太厚，阳光还能透过云层照射下来。多云天气的云量占天空的4/10到8/10之间。',
+   tip:'多云天气气温适中，紫外线比晴天弱，但仍然存在。是户外运动的理想天气！',
+   fact:'多云天气最适合拍照！因为云朵像天然的柔光箱，拍出来的人物照片特别柔和好看。',
+   safe:'虽然舒适，但也要注意防晒。云层只能过滤掉部分紫外线，依然有晒伤的风险。'},
+  {emoji:'☁️',name:'阴天',brief:'天空被厚厚云层遮住，比较阴暗。',anim:'anim-overcast',
+   detail:'阴天时天空被厚厚的低云层完全遮住，阳光几乎无法穿透。天空呈现灰白色，气温通常比晴天低3-5°C。高层云较厚的阴天还可能带来降雨。',
+   tip:'阴天虽然没有太阳，但紫外线依然存在！UVA能穿透云层，长时间户外仍需防护。',
+   fact:'全世界阴天最多的地方是非洲的刚果（金），一年中有超过260天是阴天。中国四川盆地也是著名的阴天多发的地区。',
+   safe:'阴天光线差，出行要注意交通安全。行人穿鲜艳的衣服更容易被司机看到。'},
+  {emoji:'🌧️',name:'雨天',brief:'有雨水从天空降落，需要带伞。',anim:'anim-rainy',
+   detail:'当云层中的水滴或冰晶聚集到足够大、空气无法托住它们时，就会以雨的形式降落。雨水是地球水循环的关键环节，将水从大气层带回地面。',
+   tip:'雨水是水循环的重要部分！雨后空气格外清新，因为雨水冲刷掉了空气中的灰尘和污染物，还会出现美丽的彩虹。',
+   fact:'一滴雨滴从云层落到地面大约需要2分钟。全球每秒钟约有1600万场雷阵雨在进行中！世界上下雨最多的地方是印度的乞拉朋齐，年降雨量超过12000毫米。',
+   safe:'雷雨天千万不要站在大树下避雨！远离金属物体和高处，最好待在室内。雨天路滑，过马路要特别小心。'},
+  {emoji:'❄️',name:'雪天',brief:'气温低，美丽的雪花飘落。',anim:'anim-snowy',
+   detail:'当气温降到0°C以下时，云层中的水蒸气不经过液态，直接凝华成微小的冰晶，这就是雪花。雪花在飘落过程中互相结合，形成各种精美的六角形图案。',
+   tip:'每片雪花的形状都不一样！这是因为每片雪花在形成过程中经历的温度和湿度都略有不同。全世界上没有两片完全相同的雪花！',
+   fact:'雪花一定是六角形的！这是因为水分子在结冰时会排列成正六角形的晶体结构。最大的雪花据说直径超过了38厘米！',
+   safe:'雪天路面积雪结冰非常滑，出门穿防滑鞋。手脸暴露在冷空气中容易冻伤，要做好保暖。不要用舌头舔铁栏杆，会粘住！'},
+  {emoji:'🌫️',name:'雾天',brief:'空气中充满小水滴，能见度很低。',anim:'anim-foggy',
+   detail:'雾其实是靠近地面的云。当夜间地面温度降低，空气中的水蒸气冷却凝结成无数微小水滴，悬浮在空气中就形成了雾。雾的能见度通常不到1公里。',
+   tip:'雾天出门要穿鲜艳的衣服（红、黄、橙色最好），让车辆能看见你。司机要开雾灯、减速慢行，保持车距。',
+   fact:'世界上雾最多的城市之一是伦敦，曾有"雾都"之称。中国重庆也被称为"雾都"，年均雾日超过100天。极地也有一种"冰雾"，由冰晶组成，温度低于-30°C时出现。',
+   safe:'雾天尽量不要在马路边玩耍。能见度低，司机可能看不到你。过马路要走斑马线，确认安全再通过。'},
+  {emoji:'⛈️',name:'雷雨天',brief:'打雷闪电伴随倾盆大雨。',anim:'anim-thunder',
+   detail:'雷暴是强对流天气，云层内部的冰晶和水滴在剧烈运动中产生静电。当正负电荷之间的电压足够大时，就会产生闪电放电，电流瞬间加热空气到3万°C，空气急剧膨胀产生雷声。',
+   tip:'先看到闪电后听到雷声，是因为光速（约30万km/s）远大于声速（约340m/s）。用看到闪电到听到雷声的时间差除以3，就能估算雷电距离（公里）！',
+   fact:'一道闪电的温度可以达到30000°C，是太阳表面温度的5倍！全球每秒约发生100次闪电。最大的超级雷暴单体直径可以超过200公里。',
+   safe:'雷雨天最安全的地方是室内（有避雷针的建筑）。远离大树、电线杆、铁塔等高处物体。不要打电话，不要在水边停留。如果在户外，蹲下身体，双脚并拢。'},
+  {emoji:'🌈',name:'彩虹',brief:'雨后阳光照射，天空出现七色拱桥。',anim:'anim-rainbow',
+   detail:'彩虹是阳光穿过空气中的小水滴时发生的光学现象。光线进入水滴后经历折射、反射、再折射，不同波长的光（不同颜色）折射角度不同，从而将白光分解成七色光谱。',
+   tip:'彩虹的七种颜色从外到内依次是：红、橙、黄、绿、青、蓝、紫。要看到彩虹，必须背对太阳，面向有水滴的方向。通常在清晨或傍晚最容易看到。',
+   fact:'有时候还能看到"双彩虹"！外圈的叫"霓"，颜色顺序和主彩虹相反。月光也能形成彩虹（月虹），但非常暗淡，人眼很难看到。',
+   safe:'彩虹出现说明雨刚停，路面可能还很湿滑，出行仍要注意安全。'},
+  {emoji:'🌀',name:'台风',brief:'巨大的旋转风暴，带来狂风暴雨。',anim:'anim-typhoon',
+   detail:'台风（热带气旋）是在温暖海面上形成的强烈风暴系统。温暖的海水蒸发上升，形成低压中心，周围空气被吸入并旋转，形成直径数百公里的巨大漩涡。风速可达每小时200公里以上。',
+   tip:'台风眼（中心）是相对平静的区域，天气甚至可能放晴！但台风眼壁（外围）的风雨最为猛烈。台风过后往往带来大量降雨，可能引发洪水。',
+   fact:'一个台风一天释放的能量相当于全球发电量的200倍！台风的名字由14个国家轮流命名，比如"海棠""山竹""利奇马"等。西北太平洋是全球台风最活跃的区域。',
+   safe:'台风预警发布后，尽量不要外出。关好门窗，储备食物和水。远离海边、山坡和低洼地区。手机保持充电，关注官方天气预报。'},
+  {emoji:'🧊',name:'冰雹',brief:'从天而降的冰球，大小不一。',anim:'anim-hail',
+   detail:'冰雹是在强对流云中形成的。上升气流将水滴带到零度以下的高空，水滴冻结成冰粒。冰粒在上下气流中反复运动，不断包裹新的水层，越来越大，最终因太重而坠落。',
+   tip:'冰雹通常出现在春夏季节的午后，伴随雷阵雨。大的冰雹直径可以超过5厘米，能把车窗和屋顶砸坏。',
+   fact:'世界上最大的冰雹直径超过20厘米，比一个排球还大！冰雹的核心通常是一个小冰晶或灰尘颗粒。美国每年因冰雹造成的经济损失超过10亿美元。',
+   safe:'冰雹来临时，尽快到室内躲避。如果在户外，用书包或衣服保护头部。千万不要在树下躲避，大冰雹可能打断树枝！'},
+  {emoji:'💧',name:'露水',brief:'清晨草叶上的透明小水珠。',anim:'anim-dew',
+   detail:'在晴朗无风的夜晚，地面和植物表面散热很快，温度降到"露点"以下，空气中的水蒸气就在这些冷表面上凝结成小水珠，这就是露水。',
+   tip:'露水多出现在夏天的清晨。在沙漠中，人们甚至用布收集露水作为饮用水！露水对植物很重要，是干旱地区植物的重要水源。',
+   fact:'古时候人们认为露水有药用价值，中医称之为"天水"。世界上露水最多的地方是秘鲁和智利的沿海沙漠，利用特殊的网可以每天收集大量露水。',
+   safe:'清晨露水让地面很滑，骑车或走路要注意防滑。'},
+  {emoji:'❄️',name:'霜',brief:'清晨看到的白色冰晶覆盖物。',anim:'anim-frost',
+   detail:'当夜间温度降到0°C以下，空气中的水蒸气直接凝华（不经过液态）变成固态冰晶，附着在地面、植物或物体表面，就形成了霜。霜和露水的区别是霜是固态，露水是液态。',
+   tip:'霜多出现在深秋和冬季的清晨。"霜降"是中国二十四节气之一，在每年10月23日左右。霜可以杀死一些害虫，对农业有利。',
+   fact:'霜花和雪花的形状一样，都是六角形！古代农民用"霜"来判断天气，有"霜重见晴天"的说法。南极洲有时会出现美丽的蓝色冰霜。',
+   safe:'霜冻天气要注意保暖，尤其是手脚耳朵等末梢部位。驾车时要小心路面结冰。'},
+  {emoji:'🌪️',name:'沙尘暴',brief:'狂风卷起大量沙尘，天昏地暗。',anim:'anim-sandstorm',
+   detail:'沙尘暴是大风将地面的沙尘大量卷入空中形成的恶劣天气现象。当强风经过干旱少雨、植被稀疏的地区时，就会扬起大量沙尘。沙尘暴能影响到数千公里外的地区。',
+   tip:'沙尘暴来临时，能见度急剧下降，空气质量非常差。外出一定要戴口罩、护目镜，回家后及时洗脸洗手。关好门窗，减少室外活动。',
+   fact:'地球上最大的沙尘暴源区是撒哈拉沙漠，每年约产生20亿吨沙尘！这些沙尘甚至能飘越大西洋到达南美洲。中国的沙尘暴主要来自西北地区的戈壁沙漠。',
+   safe:'沙尘暴预警发布后，尽量待在室内。必须外出时戴N95口罩和护目镜。沙尘暴过后及时清理室内灰尘，检查门窗密封性。'}
+];
+
+/* 天气成因数据 */
+var causeData = [
+  {title:'🌧️ 雨是怎么形成的？',type:'rain',
+   animHtml:'<div class="cause-rain-sun"></div><div class="cause-rain-cloud"></div><div class="cause-rain-drop"></div><div class="cause-water"></div><div class="cause-arrow-up">↑</div>',
+   steps:[{icon:'☀️',text:'太阳照射地面<br>水分蒸发上升'},{icon:'☁️',text:'水蒸气在高空<br>冷却凝结成云'},{icon:'🌫️',text:'云中小水滴<br>不断合并变大'},{icon:'🌧️',text:'水滴太重下落<br>形成降雨'}]},
+  {title:'❄️ 雪是怎么形成的？',type:'snow',
+   animHtml:'<div class="cause-snow-therm">🌡️</div><div class="cause-snow-cloud"></div><div class="cause-snowflake">❄</div>',
+   steps:[{icon:'🌡️',text:'气温降到<br>0°C以下'},{icon:'☁️',text:'水蒸气进入<br>高空云层'},{icon:'💎',text:'直接凝华成<br>六角冰晶'},{icon:'❄️',text:'冰晶聚集飘落<br>变成雪花'}]},
+  {title:'⛈️ 雷电是怎么形成的？',type:'thunder',
+   animHtml:'<div class="cause-thunder-cloud1"></div><div class="cause-thunder-cloud2"></div><div class="cause-thunder-bolt">⚡</div>',
+   steps:[{icon:'☁️',text:'积雨云中<br>冰晶剧烈摩擦'},{icon:'⚡',text:'正负电荷<br>在云层中分离'},{icon:'💥',text:'电荷释放<br>产生闪电'},{icon:'🔊',text:'空气被加热<br>急剧膨胀产生雷声'}]},
+  {title:'🌈 彩虹是怎么形成的？',type:'rainbow',
+   animHtml:'<div class="cause-rain-sun" style="top:8px;left:15px"></div><div style="position:absolute;top:15px;left:50%;transform:translateX(-50%);font-size:20px;opacity:.7">🌧️</div><div class="rainbow-arc" style="position:absolute;width:80px;height:40px;border-radius:40px 40px 0 0;left:55%;bottom:10px;transform:translateX(-50%) scale(0);animation:rbShow 4s ease forwards;background:linear-gradient(180deg,rgba(255,0,0,.3),rgba(255,127,0,.3),rgba(255,255,0,.3),rgba(0,255,0,.3),rgba(0,0,255,.3),rgba(75,0,130,.3),rgba(148,0,211,.3))"></div>',
+   steps:[{icon:'🌧️',text:'下雨后空气中<br>仍有小水滴'},{icon:'☀️',text:'阳光从背后<br>照射水滴'},{icon:'🔮',text:'光线在水滴中<br>发生折射反射'},{icon:'🌈',text:'白光被分解<br>成七色光'}]},
+  {title:'🌀 台风是怎么形成的？',type:'typhoon',
+   animHtml:'<div style="position:absolute;bottom:8px;left:0;right:0;height:16px;background:linear-gradient(90deg,#29B6F6,#0288D1,#29B6F6)"></div><div class="typhoon-spin"></div>',
+   steps:[{icon:'🌊',text:'海水温度≥26.5°C<br>大量蒸发'},{icon:'🔄',text:'水蒸气上升形成<br>低压中心'},{icon:'🌀',text:'地球自转使气流<br>旋转加速'},{icon:'🌪️',text:'形成巨大<br>旋转风暴系统'}]},
+  {title:'🌫️ 雾是怎么形成的？',type:'fog',
+   animHtml:'<div class="fog-layer" style="position:absolute;left:0;right:0;height:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);border-radius:15px;top:15px;animation:fogMove 5s linear infinite"></div><div class="fog-layer" style="position:absolute;left:0;right:0;height:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);border-radius:15px;top:35px;animation:fogMove 6s linear infinite 1.5s"></div><div style="position:absolute;bottom:0;left:0;right:0;height:12px;background:#66BB6A"></div>',
+   steps:[{icon:'🌙',text:'夜间晴朗无风<br>地面散热快'},{icon:'🌡️',text:'近地面温度<br>降到露点以下'},{icon:'💧',text:'水蒸气凝结成<br>无数微小水滴'},{icon:'🌫️',text:'大量水滴悬浮<br>形成雾'}]}
+];
+
+/* 冷知识 */
+var funFacts = [
+  {title:'⚡ 闪电的温度',text:'闪电的瞬间温度可达30000°C，是太阳表面温度的5倍！但闪电持续时间极短，只有约0.001秒。'},
+  {title:'🌧️ 世界上最潮湿的地方',text:'印度乞拉朋齐年平均降雨量超过12000毫米，是北京的20倍！那里一个月的雨量可能比北京一年的还多。'},
+  {title:'❄️ 雪花的秘密',text:'所有雪花都是六角形的！这是水分子结冰时的物理特性决定的。但世界上没有两片完全相同的雪花。'},
+  {title:'🌡️ 最高温纪录',text:'地球上记录到的最高温度是56.7°C（美国死亡谷，1913年）。而最低温度是-89.2°C（南极洲，1983年）。'},
+  {title:'🌈 月亮也能出彩虹',text:'月光也能形成彩虹，叫做"月虹"。月虹非常暗淡，在满月、月亮低悬天空且有水雾时才能看到。'},
+  {title:'🌀 台风命名规则',text:'台风的名字由14个国家和地区轮流提供。如果一个台风造成了特别严重的灾害，它的名字就会被永久"退役"，用新名字替换。'},
+  {title:'💨 风速有多快？',text:'地球上最强的风速记录是每小时484公里（澳大利亚），比高铁还快！12级台风的风速就超过118km/h了。'},
+  {title:'🌡️ 城市热岛效应',text:'城市里的温度通常比郊区高2-3°C！因为建筑物和柏油路吸收了大量热量，而且城市绿化少、汽车排放热量多。'},
+  {title:'💧 一滴雨有多大？',text:'一滴雨的直径约0.5-5毫米，但它含有约100万个云中微小水滴！全球每年有约505000立方公里的水蒸发和降落。'},
+  {title:'🌤️ 天空为什么是蓝色的？',text:'阳光中蓝光的波长较短，容易被大气中的分子散射到四面八方，所以我们从各个方向都能看到蓝光，天空就呈蓝色了。'},
+  {title:'🌪️ 龙卷风的力量',text:'龙卷风内部的风速可达每小时500公里！它的气压非常低，可以把建筑物"吸"起来。不过龙卷风持续时间通常不到10分钟。'},
+  {title:'🌊 海洋影响天气',text:'海洋覆盖地球70%的表面，储存了太阳热量的大部分。厄尔尼诺现象就是海洋温度异常导致的全球天气变化。'},
+  {title:'❄️ 冰雹有多大？',text:'冰雹可以长得很大！世界纪录是直径20厘米，重约1公斤。冰雹在云中上下翻滚，每上升一次就增加一层冰。'},
+  {title:'🌅 为什么晚霞是红色的？',text:'日落时阳光穿过更厚的大气层，蓝光被散射殆尽，只有红橙光能到达我们的眼睛，所以晚霞呈现红橙色。'},
+  {title:'🌫️ 中国的"雾都"',text:'重庆年均雾日超过100天，是中国雾最多的城市。因为重庆三面环山，江水蒸发的水汽不易散去。'},
+  {title:'⚡ 安全小知识',text:'如果在户外遇到雷雨，不要用手机！但躲在汽车里是安全的（法拉第笼效应）。不要触摸金属物体，远离水面和山顶。'}
+];
+
+/* 穿衣挑战 */
+var dressRounds = [
+  {weather:'🌧️',desc:'下雨天出门，应该带什么？',items:[
+    {icon:'☂️',name:'雨伞',c:1},{icon:'🧥',name:'雨衣',c:1},{icon:'🕶️',name:'太阳镜',c:0},
+    {icon:'🧣',name:'围巾',c:0},{icon:'👟',name:'雨鞋',c:1},{icon:'🧤',name:'手套',c:0}]},
+  {weather:'❄️',desc:'下雪天出去玩，应该穿什么？',items:[
+    {icon:'🧥',name:'棉衣',c:1},{icon:'🧣',name:'围巾',c:1},{icon:'🩳',name:'短裤',c:0},
+    {icon:'🧤',name:'手套',c:1},{icon:'🕶️',name:'太阳镜',c:0},{icon:'🥿',name:'凉鞋',c:0}]},
+  {weather:'☀️',desc:'大晴天去郊游，应该准备什么？',items:[
+    {icon:'🧴',name:'防晒霜',c:1},{icon:'🕶️',name:'太阳镜',c:1},{icon:'☂️',name:'雨伞',c:0},
+    {icon:'👕',name:'短袖',c:1},{icon:'🧥',name:'棉衣',c:0},{icon:'🧣',name:'围巾',c:0}]},
+  {weather:'🌫️',desc:'雾天上学，应该怎么做？',items:[
+    {icon:'🟡',name:'穿鲜艳衣服',c:1},{icon:'📱',name:'看手机走路',c:0},{icon:'🚦',name:'看清信号灯',c:1},
+    {icon:'🎧',name:'戴耳机走路',c:0},{icon:'👟',name:'穿防滑鞋',c:1},{icon:'🏃',name:'在马路边跑',c:0}]},
+  {weather:'🌪️',desc:'台风天在家，应该准备什么？',items:[
+    {icon:'🪟',name:'关紧门窗',c:1},{icon:'💧',name:'储水备食',c:1},{icon:'🌳',name:'出门散步',c:0},
+    {icon:'🔋',name:'充满手机',c:1},{icon:'🌊',name:'去海边看浪',c:0},{icon:'🪑',name:'远离窗户坐',c:1}]}
+];
+
+/* 题目库（25题） */
+var questionBank = [
+  {q:'下雪天我们应该穿什么？',opts:['短袖','棉衣','雨衣','拖鞋'],ans:1,diff:'easy'},
+  {q:'雨天出门要带什么？',opts:['太阳镜','雨伞','帽子','书包'],ans:1,diff:'easy'},
+  {q:'为什么先看到闪电后听到雷声？',opts:['闪电更亮','光比声音快','雷声太小','闪电先出现'],ans:1,diff:'easy'},
+  {q:'晴天出门要注意什么？',opts:['防晒','带伞','穿棉衣','开灯'],ans:0,diff:'easy'},
+  {q:'雾天开车应该怎么做？',opts:['加速行驶','开雾灯慢行','关紧车窗','马上停车'],ans:1,diff:'easy'},
+  {q:'彩虹通常有几种颜色？',opts:['5种','6种','7种','8种'],ans:2,diff:'medium'},
+  {q:'雨水最终从哪里来？',opts:['大海','水蒸气','地下水','冰川'],ans:1,diff:'medium'},
+  {q:'台风天我们应该怎么做？',opts:['去海边看浪','待在安全的室内','放风筝','登山'],ans:1,diff:'medium'},
+  {q:'冰雹通常在什么季节最常见？',opts:['冬天','春夏季节','秋天','一年四季'],ans:1,diff:'hard'},
+  {q:'雾是怎么形成的？',opts:['灰尘太多','水蒸气遇冷凝结','空气污染','云层太低'],ans:1,diff:'hard'},
+  {q:'每片雪花的形状有什么特点？',opts:['都一样','都不一样','大部分一样','只有两种'],ans:1,diff:'medium'},
+  {q:'多云和阴天的区别是什么？',opts:['没有区别','云量多少不同','温度不同','风大小不同'],ans:1,diff:'medium'},
+  {q:'天空为什么是蓝色的？',opts:['海水反射','蓝光被大气散射','天空本身是蓝色','太阳是蓝色的'],ans:1,diff:'hard'},
+  {q:'闪电的温度大约是多少？',opts:['1000°C','5000°C','30000°C','100000°C'],ans:2,diff:'hard'},
+  {q:'地球上记录到的最高温度大约是多少？',opts:['37°C','50°C','57°C','80°C'],ans:2,diff:'hard'},
+  {q:'世界上最潮湿的地方在哪里？',opts:['亚马逊','乞拉朋齐','北京','伦敦'],ans:1,diff:'medium'},
+  {q:'露水在什么季节最容易看到？',opts:['冬天','夏天清晨','秋天中午','春天傍晚'],ans:1,diff:'medium'},
+  {q:'城市比郊区热是因为什么效应？',opts:['温室效应','热岛效应','臭氧效应','温室气体'],ans:1,diff:'hard'},
+  {q:'晚霞为什么是红色的？',opts:['太阳变红了','蓝光被散射殆尽','天空染红','云层反射'],ans:1,diff:'hard'},
+  {q:'台风的名字由谁命名？',opts:['一个人','一个国家','14个国家和地区','联合国'],ans:2,diff:'medium'},
+  {q:'沙尘暴主要来自什么地区？',opts:['海边','沙漠戈壁','高山','平原'],ans:1,diff:'medium'},
+  {q:'雷雨天最安全的地方是？',opts:['大树下','汽车内','空旷草地','山顶'],ans:1,diff:'easy'},
+  {q:'台风眼的天气是怎样的？',opts:['暴风雨','相对平静','下大雪','刮龙卷风'],ans:1,diff:'medium'},
+  {q:'霜和露水的区别是什么？',opts:['没有区别','一个是固态一个是液态','颜色不同','出现时间不同'],ans:1,diff:'medium'},
+  {q:'全球每秒约发生多少次闪电？',opts:['10次','50次','100次','1000次'],ans:2,diff:'hard'}
+];
+
+/* 跑酷题目库（20题） */
+var runnerQuestions = [
+  {q:'下雪天应该穿什么？',opts:['短袖','棉衣','雨衣','拖鞋'],ans:1},
+  {q:'雨天出门要带什么？',opts:['太阳镜','雨伞','帽子','书包'],ans:1},
+  {q:'先看到闪电后听到雷声是因为？',opts:['闪电更亮','光比声音快','雷声太小','闪电先出现'],ans:1},
+  {q:'彩虹有几种颜色？',opts:['5种','6种','7种','8种'],ans:2},
+  {q:'雾是怎么形成的？',opts:['灰尘太多','水蒸气遇冷凝结','空气污染','云层太低'],ans:1},
+  {q:'雪花是什么形状？',opts:['都是圆形','都是六角形','都是方形','形状随机'],ans:1},
+  {q:'太阳光最强烈是什么天气？',opts:['阴天','雨天','晴天','雾天'],ans:2},
+  {q:'台风天应该待在哪里？',opts:['海边','安全的室内','树上','屋顶'],ans:1},
+  {q:'雨后可能出现什么？',opts:['彩虹','火山','沙尘暴','龙卷风'],ans:0},
+  {q:'哪种天气能见度最低？',opts:['晴天','多云','雾天','阴天'],ans:2},
+  {q:'闪电温度大约是多少？',opts:['1000°C','5000°C','30000°C','100000°C'],ans:2},
+  {q:'天空为什么是蓝色的？',opts:['海水反射','蓝光被大气散射','天空本身是蓝色','太阳是蓝色的'],ans:1},
+  {q:'城市比郊区热叫什么效应？',opts:['温室效应','热岛效应','臭氧效应','蝴蝶效应'],ans:1},
+  {q:'冰雹通常出现在什么季节？',opts:['冬天','春夏季节','秋天','一年四季'],ans:1},
+  {q:'台风的名字由谁命名？',opts:['一个人','14个国家地区','联合国','电脑随机'],ans:1},
+  {q:'露水出现在什么时候？',opts:['中午','清晨','午夜','傍晚'],ans:1},
+  {q:'霜的温度要求是？',opts:['0°C以上','0°C以下','无所谓','10°C以下'],ans:1},
+  {q:'世界上最潮湿的地方是？',opts:['亚马逊','乞拉朋齐','北京','伦敦'],ans:1},
+  {q:'雷雨天可以躲在什么地方？',opts:['大树下','汽车里','空旷地','山顶'],ans:1},
+  {q:'霜和雪的区别是？',opts:['没有区别','霜在地面雪从天空落下','颜色不同','温度不同'],ans:1}
+];
+
+/* ============================================================
+   游戏状态
+   ============================================================ */
+var gameState = {
+  difficulty:'easy',quizScore:0,dressScore:0,memoryBonus:0,runnerBonus:0,
+  currentQuizQ:0,quizAnswered:0,quizStartTime:0,quizEndTime:0,
+  timerInterval:null,timeLimit:0,memoryMoves:0,memoryMatched:0,
+  dressRound:0,causeSteps:{},totalSteps:9,currentStep:0
+};
+var currentQuestions = [];
+
+/* ============================================================
+   初始化
+   ============================================================ */
+function init() {
+  // 初始化成因步骤
+  for (var i = 0; i < causeData.length; i++) gameState.causeSteps[causeData[i].type] = 1;
+  renderWeatherCards();
+  renderCausePage();
+  renderFunFacts();
+  updateStepNav('home');
+}
+
+function setDifficulty(diff) {
+  gameState.difficulty = diff;
+  var btns = document.querySelectorAll('.diff-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.remove('active');
+    if (btns[i].dataset.diff === diff) btns[i].classList.add('active');
+  }
+}
+
+function goToPage(pageName) {
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+  var target = document.getElementById('page-' + pageName);
+  target.offsetHeight;
+  target.classList.add('active');
+  window.scrollTo(0, 0);
+  var idx = PAGES.indexOf(pageName);
+  gameState.currentStep = idx + 1;
+  updateStepNav(pageName);
+  if (pageName === 'memory') initMemoryGame();
+  if (pageName === 'dress') initDressGame();
+  if (pageName === 'quiz') initQuiz();
+  if (pageName === 'result') showResult();
+}
+
+function updateStepNav(activePage) {
+  var activeIdx = PAGES.indexOf(activePage);
+  var selectors = ['nav-learn','nav-cause','nav-facts','nav-memory','nav-dress','nav-runner','nav-quiz'];
+  for (var s = 0; s < selectors.length; s++) {
+    var el = document.getElementById(selectors[s]);
+    if (!el) continue;
+    el.innerHTML = '';
+    // 子页面映射到步骤编号
+    var pageMap = {'nav-learn':'learn','nav-cause':'cause','nav-facts':'facts','nav-memory':'memory','nav-dress':'dress','nav-runner':'runner','nav-quiz':'quiz'};
+    var curPage = pageMap[selectors[s]];
+    var curIdx = PAGES.indexOf(curPage);
+    for (var p = 1; p < PAGES.length; p++) {
+      var dot = document.createElement('div');
+      dot.className = 'step-dot';
+      if (p === curIdx + 1) dot.classList.add('active');
+      else if (p < curIdx + 1) dot.classList.add('done');
+      dot.textContent = p;
+      el.appendChild(dot);
+    }
+  }
+}
+
+/* ============================================================
+   天气百科
+   ============================================================ */
+function renderWeatherCards() {
+  var container = document.getElementById('weather-cards');
+  container.innerHTML = '';
+  for (var i = 0; i < weatherData.length; i++) {
+    var w = weatherData[i];
+    var card = document.createElement('div');
+    card.className = 'weather-card';
+    card.onclick = function() { this.classList.toggle('expanded'); };
+    var animContent = getAnimContent(w.anim);
+    card.innerHTML = '<div class="weather-anim ' + w.anim + '">' + animContent + '</div>' +
+      '<div class="card-header"><span class="card-emoji">' + w.emoji + '</span><span class="card-name">' + w.name + '</span></div>' +
+      '<div class="card-brief">' + w.brief + '</div>' +
+      '<div class="card-detail">' +
+      '<p>' + w.detail + '</p>' +
+      '<div class="card-tip">' + w.tip + '</div>' +
+      '<div class="card-fact">' + w.fact + '</div>' +
+      '<div class="card-safe">' + w.safe + '</div>' +
+      '</div>';
+    container.appendChild(card);
+  }
+}
+
+function getAnimContent(animClass) {
+  var html = '';
+  switch(animClass) {
+    case 'anim-rainy': for(var i=0;i<8;i++) html+='<div class="raindrop"></div>'; break;
+    case 'anim-snowy': var sf=['❄','❅','❆','❄','❅','❆','❄','❅']; for(var i=0;i<8;i++) html+='<div class="snowflake">'+sf[i]+'</div>'; break;
+    case 'anim-thunder': html+='<div class="lightning"></div><div class="lightning-bolt">⚡</div>'; for(var i=0;i<8;i++) html+='<div class="tr-drop"></div>'; break;
+    case 'anim-cloudy': html+='<div class="ccloud ccloud1"></div><div class="ccloud ccloud2"></div><div class="ccloud ccloud3"></div>'; break;
+    case 'anim-overcast': html+='<div class="ocloud oc1"></div><div class="ocloud oc2"></div><div class="ocloud oc3"></div>'; break;
+    case 'anim-foggy': html+='<div class="fog-layer fog1"></div><div class="fog-layer fog2"></div><div class="fog-layer fog3"></div>'; break;
+    case 'anim-typhoon': html+='<div class="typhoon-spin"></div>'; break;
+    case 'anim-hail': for(var i=0;i<5;i++) html+='<div class="hail"></div>'; break;
+    case 'anim-dew': for(var i=0;i<4;i++) html+='<div class="dewdrop"></div>'; break;
+    case 'anim-frost': for(var i=0;i<4;i++) html+='<div class="frost-crystal">❄</div>'; break;
+    case 'anim-sandstorm': for(var i=0;i<8;i++) html+='<div class="sand-particle"></div>'; break;
+    case 'anim-sunny': html+='<div class="sun"></div>'; break;
+    case 'anim-rainbow': html+='<div class="rainbow-arc"></div>'; break;
+  }
+  return html;
+}
+
+/* ============================================================
+   天气成因
+   ============================================================ */
+function renderCausePage() {
+  var container = document.getElementById('cause-container');
+  container.innerHTML = '';
+  for (var i = 0; i < causeData.length; i++) {
+    var c = causeData[i];
+    var div = document.createElement('div');
+    div.className = 'cause-container';
+    var stepsHtml = '';
+    for (var j = 0; j < c.steps.length; j++) {
+      stepsHtml += '<div class="cause-step' + (j === 0 ? ' active' : '') + '" data-step="' + (j+1) + '"><span class="step-icon">' + c.steps[j].icon + '</span><div class="step-text">' + c.steps[j].text + '</div></div>';
+    }
+    div.innerHTML = '<div class="cause-title">' + c.title + '</div>' +
+      '<div class="cause-anim-area">' + c.animHtml + '</div>' +
+      '<div class="cause-steps" id="' + c.type + '-steps">' + stepsHtml + '</div>' +
+      '<button class="btn btn-small btn-blue btn-center" onclick="nextCauseStep(\'' + c.type + '\')" id="' + c.type + '-btn" style="margin-top:12px">下一步 👉</button>';
+    container.appendChild(div);
+  }
+}
+
+function nextCauseStep(type) {
+  var step = gameState.causeSteps[type];
+  if (step >= 4) {
+    gameState.causeSteps[type] = 1;
+    var steps = document.querySelectorAll('#' + type + '-steps .cause-step');
+    for (var i = 0; i < steps.length; i++) steps[i].classList.remove('active');
+    steps[0].classList.add('active');
+    document.getElementById(type + '-btn').textContent = '重新演示 🔄';
+    return;
+  }
+  gameState.causeSteps[type] = step + 1;
+  var steps = document.querySelectorAll('#' + type + '-steps .cause-step');
+  for (var i = 0; i < steps.length; i++) steps[i].classList.remove('active');
+  steps[step].classList.add('active');
+  if (step + 1 >= 4) document.getElementById(type + '-btn').textContent = '重新演示 🔄';
+}
+
+/* ============================================================
+   趣味冷知识
+   ============================================================ */
+function renderFunFacts() {
+  var container = document.getElementById('fact-list');
+  container.innerHTML = '';
+  for (var i = 0; i < funFacts.length; i++) {
+    var f = funFacts[i];
+    var card = document.createElement('div');
+    card.className = 'fact-card';
+    card.innerHTML = '<h4>' + f.title + '</h4><p>' + f.text + '</p>';
+    container.appendChild(card);
+  }
+}
+
+/* ============================================================
+   连连看
+   ============================================================ */
+var memoryIcons, memoryCards, memoryFlipped, memoryLock;
+function initMemoryGame() {
+  gameState.memoryMoves = 0; gameState.memoryMatched = 0;
+  memoryFlipped = []; memoryLock = false;
+  memoryIcons = ['☀️','🌧️','❄️','⛈️','☁️','🌫️','🌈','🌀'];
+  document.getElementById('match-count').textContent = '0';
+  document.getElementById('match-total').textContent = memoryIcons.length;
+  document.getElementById('move-count').textContent = '0';
+  document.getElementById('memory-msg').textContent = '';
+  document.getElementById('memory-next').style.display = 'none';
+  memoryCards = [];
+  for (var i = 0; i < memoryIcons.length; i++) { memoryCards.push({icon:memoryIcons[i],id:i}); memoryCards.push({icon:memoryIcons[i],id:i}); }
+  for (var i = memoryCards.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = memoryCards[i]; memoryCards[i] = memoryCards[j]; memoryCards[j] = t; }
+  var grid = document.getElementById('memory-grid'); grid.innerHTML = '';
+  for (var i = 0; i < memoryCards.length; i++) {
+    var card = document.createElement('div'); card.className = 'memory-card'; card.dataset.index = i; card.dataset.id = memoryCards[i].id;
+    card.innerHTML = '<span class="card-back">?</span><span class="card-content">' + memoryCards[i].icon + '</span>';
+    card.onclick = function() { flipMemoryCard(this); };
+    grid.appendChild(card);
+  }
+}
+function flipMemoryCard(card) {
+  if (memoryLock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  card.classList.add('flipped'); memoryFlipped.push(card);
+  if (memoryFlipped.length === 2) {
+    gameState.memoryMoves++; document.getElementById('move-count').textContent = gameState.memoryMoves; memoryLock = true;
+    var c1 = memoryFlipped[0], c2 = memoryFlipped[1];
+    if (c1.dataset.id === c2.dataset.id) {
+      setTimeout(function() { c1.classList.remove('flipped'); c1.classList.add('matched'); c2.classList.remove('flipped'); c2.classList.add('matched'); memoryFlipped = []; memoryLock = false; gameState.memoryMatched++; document.getElementById('match-count').textContent = gameState.memoryMatched;
+        if (gameState.memoryMatched >= memoryIcons.length) { gameState.memoryBonus = Math.max(0, 20 - gameState.memoryMoves); document.getElementById('memory-msg').innerHTML = '🎉 配对完成！奖励 +' + gameState.memoryBonus + ' 分！'; document.getElementById('memory-next').style.display = 'inline-block'; }
+      }, 500);
+    } else { setTimeout(function() { c1.classList.remove('flipped'); c2.classList.remove('flipped'); memoryFlipped = []; memoryLock = false; }, 800); }
+  }
+}
+
+/* ============================================================
+   穿衣挑战
+   ============================================================ */
+function initDressGame() {
+  gameState.dressScore = 0; gameState.dressRound = 0;
+  document.getElementById('dress-score').textContent = '0';
+  document.getElementById('dress-next').style.display = 'none';
+  loadDressRound();
+}
+function loadDressRound() {
+  if (gameState.dressRound >= dressRounds.length) {
+    document.getElementById('dress-scene').innerHTML = '<div style="font-size:44px;margin-bottom:12px">🎉</div><div style="font-size:20px;color:#2C3E50;font-weight:bold">穿衣挑战完成！</div><div style="font-size:17px;color:#666;margin-top:8px">你答对了 ' + gameState.dressScore + ' 分！</div>';
+    document.getElementById('dress-next').style.display = 'block'; return;
+  }
+  var round = dressRounds[gameState.dressRound];
+  document.getElementById('dress-weather').textContent = round.weather;
+  document.getElementById('dress-desc').textContent = round.desc;
+  document.getElementById('dress-result').textContent = '';
+  var container = document.getElementById('dress-items'); container.innerHTML = '';
+  for (var i = 0; i < round.items.length; i++) {
+    var item = document.createElement('div'); item.className = 'dress-item'; item.dataset.correct = round.items[i].c ? '1' : '0';
+    item.innerHTML = '<div style="font-size:28px">' + round.items[i].icon + '</div><div class="dress-item-label">' + round.items[i].name + '</div>';
+    item.onclick = function() { if (this.classList.contains('correct') || this.classList.contains('wrong')) return; this.classList.toggle('selected'); };
+    container.appendChild(item);
+  }
+}
+function checkDressAnswer() {
+  var items = document.querySelectorAll('#dress-items .dress-item');
+  var totalCorrect = 0, selectedCorrect = 0;
+  for (var i = 0; i < items.length; i++) { if (items[i].dataset.correct === '1') totalCorrect++; }
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].dataset.correct === '1') { items[i].classList.add('correct'); if (items[i].classList.contains('selected')) selectedCorrect++; }
+    else if (items[i].classList.contains('selected')) items[i].classList.add('wrong');
+  }
+  var roundScore = Math.round((selectedCorrect / totalCorrect) * 6);
+  gameState.dressScore += roundScore;
+  document.getElementById('dress-score').textContent = gameState.dressScore;
+  var result = document.getElementById('dress-result');
+  if (selectedCorrect === totalCorrect) result.innerHTML = '<span style="color:#4CAF50">🎉 完美！+' + roundScore + ' 分</span>';
+  else result.innerHTML = '<span style="color:#FF8C42">👍 +' + roundScore + ' 分</span>';
+  setTimeout(function() { gameState.dressRound++; loadDressRound(); }, 1500);
+}
+
+/* ============================================================
+   测验
+   ============================================================ */
+function initQuiz() {
+  gameState.quizScore = 0; gameState.quizAnswered = 0;
+  document.getElementById('quiz-score').textContent = '0';
+  document.getElementById('quiz-result-btn').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '0%';
+  var count = gameState.difficulty === 'easy' ? 6 : (gameState.difficulty === 'medium' ? 10 : 15);
+  var filtered = [];
+  for (var i = 0; i < questionBank.length; i++) {
+    if (gameState.difficulty === 'easy' && questionBank[i].diff === 'easy') filtered.push(questionBank[i]);
+    else if (gameState.difficulty === 'medium' && (questionBank[i].diff === 'easy' || questionBank[i].diff === 'medium')) filtered.push(questionBank[i]);
+    else if (gameState.difficulty === 'hard') filtered.push(questionBank[i]);
+  }
+  for (var i = filtered.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = filtered[i]; filtered[i] = filtered[j]; filtered[j] = t; }
+  currentQuestions = filtered.slice(0, Math.min(count, filtered.length));
+  gameState.timeLimit = gameState.difficulty === 'easy' ? 0 : (gameState.difficulty === 'medium' ? 120 : 90);
+  gameState.quizStartTime = Date.now();
+  if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+  if (gameState.timeLimit > 0) {
+    var timerEl = document.getElementById('timer'); timerEl.textContent = '⏱️ 时间：' + gameState.timeLimit + 's'; timerEl.classList.remove('warning');
+    gameState.timerInterval = setInterval(function() { var left = gameState.timeLimit - Math.floor((Date.now() - gameState.quizStartTime)/1000);
+      if (left <= 0) { left = 0; clearInterval(gameState.timerInterval); forceEndQuiz(); } timerEl.textContent = '⏱️ 时间：' + left + 's'; if (left <= 10) timerEl.classList.add('warning'); }, 1000);
+  } else { document.getElementById('timer').textContent = '⏱️ 练习模式（不限时）'; }
+  renderQuizQuestions();
+}
+function renderQuizQuestions() {
+  var container = document.getElementById('quiz-container'); container.innerHTML = '';
+  var nums = ['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五'];
+  for (var i = 0; i < currentQuestions.length; i++) {
+    var q = currentQuestions[i]; var div = document.createElement('div'); div.className = 'quiz-question'; div.id = 'quiz-q'+i; div.dataset.answered = 'false';
+    var h3 = document.createElement('h3'); h3.dataset.num = nums[i] || (i+1); h3.textContent = q.q; div.appendChild(h3);
+    var optsDiv = document.createElement('div'); optsDiv.className = 'options';
+    for (var j = 0; j < q.opts.length; j++) { var btn = document.createElement('button'); btn.className = 'option-btn'; btn.textContent = q.opts[j]; btn.onclick = (function(idx,qIdx){return function(){checkQuizAnswer(this,qIdx,idx)};})(j,i); optsDiv.appendChild(btn); }
+    div.appendChild(optsDiv); container.appendChild(div);
+  }
+}
+function checkQuizAnswer(btn,qIdx,optIdx) {
+  var qDiv = document.getElementById('quiz-q'+qIdx); if (qDiv.dataset.answered==='true') return; qDiv.dataset.answered='true';
+  var allBtns = qDiv.querySelectorAll('.option-btn'); for (var i=0;i<allBtns.length;i++) allBtns[i].classList.add('disabled');
+  if (optIdx === currentQuestions[qIdx].ans) { btn.classList.add('correct'); btn.innerHTML = btn.textContent+'<span class="quiz-icon">✅</span>'; gameState.quizScore+=10; document.getElementById('quiz-score').textContent = gameState.quizScore; }
+  else { btn.classList.add('wrong'); btn.innerHTML = btn.textContent+'<span class="quiz-icon">❌</span>'; allBtns[currentQuestions[qIdx].ans].classList.add('correct'); allBtns[currentQuestions[qIdx].ans].innerHTML = allBtns[currentQuestions[qIdx].ans].textContent+'<span class="quiz-icon">✅</span>'; }
+  gameState.quizAnswered++; document.getElementById('progress-fill').style.width = (gameState.quizAnswered/currentQuestions.length*100)+'%';
+  if (gameState.quizAnswered >= currentQuestions.length) { setTimeout(function(){ if (gameState.timerInterval) clearInterval(gameState.timerInterval); document.getElementById('quiz-result-btn').style.display = 'block'; }, 500); }
+}
+function forceEndQuiz() {
+  for (var i=0;i<currentQuestions.length;i++) { var qDiv=document.getElementById('quiz-q'+i); if (qDiv.dataset.answered==='true') continue; qDiv.dataset.answered='true'; var allBtns=qDiv.querySelectorAll('.option-btn'); for (var j=0;j<allBtns.length;j++){allBtns[j].classList.add('disabled'); if(j===currentQuestions[i].ans){allBtns[j].classList.add('correct');allBtns[j].innerHTML=allBtns[j].textContent+'<span class="quiz-icon">✅</span>';}}}
+  gameState.quizAnswered = currentQuestions.length; document.getElementById('progress-fill').style.width = '100%'; document.getElementById('quiz-result-btn').style.display = 'block';
+}
+
+/* ============================================================
+   跑酷游戏引擎
+   ============================================================ */
+(function(){
+  var canvas, ctx, CW = 800, CH = 300, groundY = CH - 45;
+  var gameRunning = false, gamePaused = false, speed = 4, baseSpeed = 4, distance = 0, rScore = 0, lives = 3;
+  var animId = null, obstacleTimer = 0, obstacleInterval = 100;
+  var quizTriggerDist = 500, nextQuizDist = quizTriggerDist, quizAnswered = 0;
+  var player = {x:80,y:0,w:34,h:44,vy:0,grounded:true,jumps:0,maxJumps:2,frame:0};
+  var obstacles = [], bgClouds = [], bgHills = [], bgTrees = [];
+  function init2() {
+    canvas = document.getElementById('runner-canvas'); if (!canvas) return; ctx = canvas.getContext('2d'); resizeCanvas2();
+    for (var i=0;i<5;i++) bgClouds.push({x:Math.random()*CW,y:15+Math.random()*50,s:0.5+Math.random()*0.7,sp:0.2+Math.random()*0.4});
+    for (var i=0;i<8;i++) bgHills.push({x:i*120,w:70+Math.random()*50,h:25+Math.random()*35});
+    for (var i=0;i<6;i++) bgTrees.push({x:i*140+50,h:25+Math.random()*20});
+    window.addEventListener('keydown',function(e){if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();jump2();}});
+    canvas.addEventListener('pointerdown',function(e){e.preventDefault();jump2();});
+    window.addEventListener('resize',resizeCanvas2);
+  }
+  function resizeCanvas2(){var w=canvas.parentElement.clientWidth;canvas.width=CW;canvas.height=CH;canvas.style.width=w+'px';canvas.style.height=(w*CH/CW)+'px';}
+  function jump2(){if(!gameRunning||gamePaused)return;if(player.jumps<player.maxJumps){player.vy=-9;player.grounded=false;player.jumps++;}}
+  window.startRunner = function(){
+    resizeCanvas2(); // 重新调整画布大小（修复页面隐藏时尺寸为0的问题）
+    gameRunning=true;gamePaused=false;speed=baseSpeed;distance=0;rScore=0;lives=3;quizAnswered=0;nextQuizDist=quizTriggerDist;obstacles=[];obstacleTimer=0;
+    player.y=groundY-player.h;player.vy=0;player.grounded=true;player.jumps=0;player.frame=0;
+    document.getElementById('r-overlay').classList.add('hidden');document.getElementById('r-quiz-popup').classList.add('hidden');
+    updateHUD2();if(animId)cancelAnimationFrame(animId);gameLoop2();
+  };
+  function gameLoop2(){if(!gameRunning)return;if(!gamePaused){update2();draw2();}animId=requestAnimationFrame(gameLoop2);}
+  function update2(){
+    player.vy+=0.5;player.y+=player.vy;if(player.y>=groundY-player.h){player.y=groundY-player.h;player.vy=0;player.grounded=true;player.jumps=0;}player.frame+=0.15;
+    distance+=speed*0.1;speed=baseSpeed+distance*0.003;if(speed>10)speed=10;
+    for(var i=0;i<bgClouds.length;i++){bgClouds[i].x-=bgClouds[i].sp*(speed/baseSpeed);if(bgClouds[i].x<-70)bgClouds[i].x=CW+30;}
+    for(var i=0;i<bgHills.length;i++){bgHills[i].x-=speed*0.3;if(bgHills[i].x<-90)bgHills[i].x=CW+70;}
+    for(var i=0;i<bgTrees.length;i++){bgTrees[i].x-=speed*0.5;if(bgTrees[i].x<-25)bgTrees[i].x=CW+25;}
+    obstacleTimer++;var intv=Math.max(45,obstacleInterval-distance*0.05);if(obstacleTimer>=intv){obstacleTimer=0;spawnObs();}
+    for(var i=obstacles.length-1;i>=0;i--){obstacles[i].x-=speed;if(rectC(player.x,player.y,player.w,player.h,obstacles[i].x,obstacles[i].y,obstacles[i].w,obstacles[i].h)){obstacles.splice(i,1);lives--;updateHUD2();if(lives<=0){endRunner2();return;}}else if(obstacles[i].x<-50){obstacles.splice(i,1);rScore+=5;updateHUD2();}}
+    if(distance>=nextQuizDist){nextQuizDist+=quizTriggerDist+Math.random()*300;showRQuiz();}
+    updateHUD2();
+  }
+  function spawnObs(){var types=[{e:'🌧️',w:28,h:36},{e:'❄️',w:28,h:32},{e:'⛈️',w:32,h:40},{e:'🌫️',w:36,h:28},{e:'🌀',w:30,h:30},{e:'🧊',w:26,h:26}];var t=types[Math.floor(Math.random()*types.length)];obstacles.push({x:CW+10,y:groundY-t.h,w:t.w,h:t.h,e:t.e});}
+  function draw2(){
+    var sg=ctx.createLinearGradient(0,0,0,CH);sg.addColorStop(0,'#87CEEB');sg.addColorStop(0.6,'#B0E0F6');sg.addColorStop(1,'#90C695');ctx.fillStyle=sg;ctx.fillRect(0,0,CW,CH);
+    ctx.fillStyle='#A5D6A7';for(var i=0;i<bgHills.length;i++){var h=bgHills[i];ctx.beginPath();ctx.moveTo(h.x,groundY);ctx.quadraticCurveTo(h.x+h.w/2,groundY-h.h,h.x+h.w,groundY);ctx.fill();}
+    ctx.fillStyle='#66BB6A';ctx.fillRect(0,groundY,CW,CH-groundY);ctx.fillStyle='#4CAF50';ctx.fillRect(0,groundY,CW,3);
+    for(var i=0;i<bgTrees.length;i++){var t=bgTrees[i];ctx.fillStyle='#795548';ctx.fillRect(t.x-2,groundY-t.h,4,t.h);ctx.fillStyle='#43A047';ctx.beginPath();ctx.arc(t.x,groundY-t.h,12,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle='rgba(255,255,255,0.6)';for(var i=0;i<bgClouds.length;i++){var c=bgClouds[i];drawCloud2(c.x,c.y,c.s);}
+    for(var i=0;i<obstacles.length;i++){var o=obstacles[i];ctx.font=(o.h-3)+'px serif';ctx.textAlign='center';ctx.fillText(o.e,o.x+o.w/2,o.y+o.h-3);}
+    drawP2();
+  }
+  function drawCloud2(x,y,s){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.arc(20,-4,14,0,Math.PI*2);ctx.arc(-16,2,12,0,Math.PI*2);ctx.arc(9,4,10,0,Math.PI*2);ctx.fill();ctx.restore();}
+  function drawP2(){
+    var px=player.x,py=player.y,f=Math.floor(player.frame)%2;ctx.save();
+    ctx.fillStyle='#FFB347';ctx.fillRect(px+9,py+16,14,18);
+    ctx.fillStyle='#FFCC80';ctx.beginPath();ctx.arc(px+16,py+10,11,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#333';ctx.fillRect(px+12,py+7,3,3);ctx.fillRect(px+19,py+7,3,3);ctx.fillRect(px+13,py+13,5,2);
+    ctx.fillStyle='#5C6BC0';if(player.grounded){if(f===0){ctx.fillRect(px+10,py+34,5,9);ctx.fillRect(px+18,py+34,5,7);}else{ctx.fillRect(px+10,py+34,5,7);ctx.fillRect(px+18,py+34,5,9);}}else{ctx.fillRect(px+8,py+34,5,7);ctx.fillRect(px+20,py+32,5,7);}
+    ctx.fillStyle='#FFCC80';if(player.grounded){if(f===0){ctx.fillRect(px+3,py+18,7,3);ctx.fillRect(px+22,py+24,7,3);}else{ctx.fillRect(px+3,py+24,7,3);ctx.fillRect(px+22,py+18,7,3);}}else{ctx.fillRect(px+1,py+12,7,3);ctx.fillRect(px+24,py+12,7,3);}
+    ctx.restore();
+  }
+  function rectC(x1,y1,w1,h1,x2,y2,w2,h2){return x1<x2+w2&&x1+w1>x2&&y1<y2+h2&&y1+h1>y2;}
+  function updateHUD2(){document.getElementById('r-hud-score').textContent='🏆 '+rScore;document.getElementById('r-hud-dist').textContent='📏 '+Math.floor(distance)+'m';var h='';for(var i=0;i<3;i++)h+=i<lives?'❤️':'🖤';document.getElementById('r-hud-life').textContent=h;}
+  function showRQuiz(){
+    gamePaused=true;var q=runnerQuestions[Math.floor(Math.random()*runnerQuestions.length)];
+    document.getElementById('r-quiz-q').textContent=q.q;var optsDiv=document.getElementById('r-quiz-opts');optsDiv.innerHTML='';
+    for(var i=0;i<q.opts.length;i++){var btn=document.createElement('button');btn.className='runner-quiz-opt';btn.textContent=q.opts[i];
+      btn.onclick=(function(idx,answer){return function(){var allBtns=document.querySelectorAll('.runner-quiz-opt');for(var j=0;j<allBtns.length;j++)allBtns[j].style.pointerEvents='none';
+        if(idx===answer){this.classList.add('correct');rScore+=20;}else{this.classList.add('wrong');allBtns[answer].classList.add('correct');speed=Math.max(baseSpeed*0.6,speed*0.7);lives--;}
+        quizAnswered++;updateHUD2();setTimeout(function(){document.getElementById('r-quiz-popup').classList.add('hidden');if(lives<=0){endRunner2();return;}gamePaused=false;},1000);};})(i,q.ans);
+      optsDiv.appendChild(btn);}
+    document.getElementById('r-quiz-popup').classList.remove('hidden');
+  }
+  function endRunner2(){
+    gameRunning=false;gamePaused=false;if(animId)cancelAnimationFrame(animId);
+    gameState.runnerBonus=rScore+Math.floor(distance*0.5);
+    var overlay=document.getElementById('r-overlay');overlay.classList.remove('hidden');
+    document.getElementById('r-overlay-title').textContent=lives<=0?'💥 冒险结束！':'🏁 冒险完成！';
+    document.getElementById('r-overlay-desc').innerHTML='跑了 <b style="color:#FFB347">'+Math.floor(distance)+'</b> 米！获得 <b style="color:#FFB347">'+rScore+'</b> 分！答对 <b style="color:#FFB347">'+quizAnswered+'</b> 题！<br>奖励总分：<b style="color:#FFB347;font-size:22px">'+gameState.runnerBonus+'</b> 分';
+    overlay.querySelector('button').textContent='再来一次 🔄';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init2);else init2();
+})();
+
+/* ============================================================
+   成绩页
+   ============================================================ */
+function showResult() {
+  gameState.quizEndTime = Date.now();
+  var totalTime = Math.floor((gameState.quizEndTime - gameState.quizStartTime)/1000);
+  var timeStr = (totalTime>=60 ? Math.floor(totalTime/60)+'分' : '') + (totalTime%60) + '秒';
+  var maxScore = currentQuestions.length * 10;
+  var totalScore = gameState.quizScore + gameState.memoryBonus + gameState.dressScore + (gameState.runnerBonus||0);
+  var maxTotal = maxScore + 20 + 30 + 50;
+  document.getElementById('final-score').textContent = totalScore;
+  document.getElementById('max-score').textContent = maxTotal;
+  document.getElementById('result-time').textContent = timeStr || '--';
+  document.getElementById('result-bonus').textContent = gameState.memoryBonus + gameState.dressScore + (gameState.runnerBonus||0);
+  document.getElementById('result-accuracy').textContent = (maxScore>0 ? Math.round(gameState.quizScore/maxScore*100) : 0) + '%';
+  var pct = maxTotal>0 ? totalScore/maxTotal : 0;
+  var stars = pct>=0.9?5:pct>=0.75?4:pct>=0.6?3:pct>=0.4?2:1;
+  var sh='';for(var i=0;i<stars;i++)sh+='<span class="star-item">⭐</span>';
+  document.getElementById('result-stars').innerHTML=sh;
+  var comments=['🌱 不要灰心，再试一次！','💪 继续加油，多学多看！','👍 不错哦！再接再厉！','🌟 太棒了！你是天气小专家！','🏆 太神了！你是天气小博士！'];
+  document.getElementById('result-comment').textContent = comments[stars-1];
+}
+
+/* ============================================================
+   重新开始
+   ============================================================ */
+function restartGame() {
+  gameState = {difficulty:gameState.difficulty,quizScore:0,dressScore:0,memoryBonus:0,runnerBonus:0,currentQuizQ:0,quizAnswered:0,quizStartTime:0,quizEndTime:0,timerInterval:null,timeLimit:0,memoryMoves:0,memoryMatched:0,dressRound:0,causeSteps:{},totalSteps:9,currentStep:0};
+  for (var i=0;i<causeData.length;i++) gameState.causeSteps[causeData[i].type]=1;
+  // 重置成因页步骤
+  for (var i=0;i<causeData.length;i++) { var type=causeData[i].type; var steps=document.querySelectorAll('#'+type+'-steps .cause-step'); for(var j=0;j<steps.length;j++)steps[j].classList.remove('active'); if(steps[0])steps[0].classList.add('active'); var btn=document.getElementById(type+'-btn'); if(btn)btn.textContent='下一步 👉'; }
+  // 重置穿衣
+  var dressScene=document.getElementById('dress-scene');
+  if(dressScene){dressScene.innerHTML='<div class="dress-weather" id="dress-weather">🌧️</div><div class="dress-desc" id="dress-desc">下雨天出门，应该穿什么？</div><div class="dress-items" id="dress-items"></div><button class="btn btn-blue btn-small dress-check-btn" onclick="checkDressAnswer()">确认选择 ✓</button><div class="dress-result" id="dress-result"></div>';}
+  // 收起卡片
+  var cards=document.querySelectorAll('.weather-card.expanded');for(var i=0;i<cards.length;i++)cards[i].classList.remove('expanded');
+  goToPage('home');
+}
+
+/* 启动 */
+init();
+</script>
+</body>
+</html>

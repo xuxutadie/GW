@@ -1,0 +1,1377 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海啸连连看</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 视频背景 */
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        /* 背景遮罩，保证文字清晰 */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 248, 231, 0.25);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 星星装饰 */
+        .star {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #FFD700;
+            border-radius: 50%;
+            opacity: 0.6;
+            box-shadow: 0 0 4px rgba(255, 215, 0, 0.5);
+            z-index: 2;
+        }
+
+        /* ========== 首页样式 ========== */
+        .home-page {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .title-area {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .main-title {
+            font-size: 56px;
+            font-weight: bold;
+            color: #0F4C81;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .wave-icon {
+            width: 48px;
+            height: 48px;
+            fill: #0F4C81;
+        }
+
+        .subtitle {
+            margin-top: 16px;
+            padding: 8px 24px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 16px;
+            color: #1A3A5C;
+            font-size: 18px;
+            display: inline-block;
+        }
+
+        .difficulty-area {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .difficulty-label {
+            color: #1A3A5C;
+            font-size: 18px;
+            margin-bottom: 16px;
+            padding: 6px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .diff-btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 16px;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(15, 76, 129, 0.2);
+            position: relative;
+        }
+
+        .diff-btn::before {
+            content: "";
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            right: 1px;
+            height: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px 15px 0 0;
+            pointer-events: none;
+        }
+
+        .diff-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(15, 76, 129, 0.25);
+        }
+
+        .diff-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(0, 136, 255, 0.4);
+        }
+
+        .diff-easy { background: #4FB3F5; }
+        .diff-medium { background: #2189D6; }
+        .diff-hard { 
+            background: #0A3A66; 
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .start-btn {
+            width: 240px;
+            height: 56px;
+            background: #0088FF;
+            border: none;
+            border-radius: 20px;
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 136, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn::before {
+            content: "";
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            right: 1px;
+            height: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 19px 19px 0 0;
+            pointer-events: none;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 136, 255, 0.4);
+        }
+
+        .help-btn {
+            margin-top: 20px;
+            padding: 10px 28px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #0F4C81;
+            border-radius: 16px;
+            color: #0F4C81;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .help-btn:hover {
+            background: rgba(15, 76, 129, 0.08);
+        }
+
+        .high-score {
+            position: absolute;
+            bottom: 32px;
+            right: 32px;
+            padding: 10px 20px;
+            background: rgba(15, 76, 129, 0.85);
+            border-radius: 16px;
+            color: #FFFFFF;
+            font-size: 15px;
+            backdrop-filter: blur(8px);
+        }
+
+        .high-score span {
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        /* ========== 游戏页面样式 ========== */
+        .game-page {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+        .game-page.show {
+            display: flex;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            height: 64px;
+            background: rgba(15, 76, 129, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid #FFFFFF;
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .game-info {
+            display: flex;
+            gap: 48px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            color: #E0EDF7;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .info-value.warning {
+            color: #FF7A45;
+        }
+
+        .info-value.danger {
+            color: #F54337;
+            animation: breathe 1s infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hint-btn {
+            padding: 8px 20px;
+            background: #0088FF;
+            border: none;
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .hint-btn:hover {
+            background: #0077E6;
+        }
+
+        /* 棋盘区域 */
+        .board-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .board-wrapper {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(6px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 24px rgba(15, 76, 129, 0.12);
+            padding: 20px;
+        }
+
+        .game-board {
+            display: grid;
+            gap: 10px;
+        }
+
+        .tile {
+            background: #F0F5FA;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 2px 4px rgba(15, 76, 129, 0.1);
+            position: relative;
+            overflow: hidden;
+            font-size: 28px;
+        }
+
+        .tile::before {
+            content: "";
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            right: 1px;
+            height: 40%;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 7px 7px 0 0;
+            pointer-events: none;
+        }
+
+        .tile:hover:not(.empty):not(.selected) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(15, 76, 129, 0.15);
+        }
+
+        .tile.selected {
+            border: 2px solid #0088FF;
+            box-shadow: 0 0 8px rgba(0, 136, 255, 0.6);
+        }
+
+        .tile.matched {
+            background: #E8F7EE !important;
+            animation: matchPop 0.3s forwards;
+        }
+
+        @keyframes matchPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(0.9); opacity: 0; }
+        }
+
+        .tile.error {
+            background: #FDECEC !important;
+            animation: shake 0.2s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        .tile.empty {
+            background: rgba(240, 245, 250, 0.3);
+            cursor: default;
+            box-shadow: none;
+        }
+
+        .tile.empty::before {
+            display: none;
+        }
+
+        .tile-icon {
+            font-size: 28px;
+            z-index: 1;
+        }
+
+        /* 连线画布 */
+        .line-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* ========== 结束弹窗 ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 76, 129, 0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #FFFFFF;
+            border-radius: 24px;
+            width: 420px;
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(15, 76, 129, 0.15);
+            position: relative;
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal::before {
+            content: "";
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            right: 1px;
+            height: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 23px 23px 0 0;
+            pointer-events: none;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0F4C81;
+            text-align: center;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal-title svg {
+            width: 32px;
+            height: 32px;
+            fill: #0F4C81;
+        }
+
+        .result-list {
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(15, 76, 129, 0.08);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #5A7A99;
+            font-size: 16px;
+        }
+
+        .result-value {
+            color: #0F4C81;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .result-item.score .result-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .new-record {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .new-record-badge {
+            display: inline-block;
+            padding: 6px 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #FFD700, #F5A623);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .new-record-badge::before {
+            content: "🎉 ";
+            -webkit-text-fill-color: initial;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: none;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .modal-btn.primary {
+            background: #0088FF;
+            color: #FFFFFF;
+            flex: 1.2;
+            box-shadow: 0 2px 8px rgba(0, 136, 255, 0.25);
+        }
+
+        .modal-btn.secondary {
+            background: transparent;
+            border: 1px solid #0F4C81;
+            color: #0F4C81;
+        }
+
+        /* 游戏说明弹窗 */
+        .help-modal .modal {
+            width: 480px;
+        }
+
+        .help-content {
+            color: #1A3A5C;
+            line-height: 1.8;
+            font-size: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .help-content h3 {
+            color: #0F4C81;
+            margin-bottom: 8px;
+            margin-top: 16px;
+            font-size: 17px;
+        }
+
+        .help-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .help-content ul {
+            padding-left: 20px;
+        }
+
+        /* 知识科普弹窗 */
+        .knowledge-modal .modal {
+            width: 460px;
+        }
+
+        .knowledge-icon {
+            font-size: 56px;
+            text-align: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .knowledge-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #0F4C81;
+            text-align: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .knowledge-content {
+            color: #1A3A5C;
+            line-height: 1.8;
+            font-size: 15px;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 24px;
+        }
+
+        .knowledge-content p {
+            margin-bottom: 10px;
+        }
+
+        .knowledge-tip {
+            background: rgba(0, 136, 255, 0.08);
+            border-left: 3px solid #0088FF;
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 12px;
+            font-size: 14px;
+            color: #0F4C81;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 视频背景 -->
+    <video class="bg-video" autoplay muted loop playsinline>
+        <source src="素材.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+
+    <!-- 背景装饰 -->
+    <div class="bg-wave"></div>
+    <div class="star" style="top: 15%; left: 10%;"></div>
+    <div class="star" style="top: 25%; left: 85%;"></div>
+    <div class="star" style="top: 10%; left: 60%;"></div>
+    <div class="star" style="top: 35%; left: 25%;"></div>
+    <div class="star" style="top: 20%; left: 45%;"></div>
+
+    <!-- ========== 首页 ========== -->
+    <div class="home-page" id="homePage">
+        <div class="title-area">
+            <h1 class="main-title">
+                <svg class="wave-icon" viewBox="0 0 24 24">
+                    <path d="M2,12 C4,10 6,14 8,12 C10,10 12,14 14,12 C16,10 18,14 20,12 C22,10 22,10 22,10 L22,22 L2,22 L2,12 Z M2,8 C4,6 6,10 8,8 C10,6 12,10 14,8 C16,6 18,10 20,8 C22,6 22,6 22,6 L22,8 L2,8 Z"/>
+                </svg>
+                海啸连连看
+                <svg class="wave-icon" viewBox="0 0 24 24">
+                    <path d="M2,12 C4,10 6,14 8,12 C10,10 12,14 14,12 C16,10 18,14 20,12 C22,10 22,10 22,10 L22,22 L2,22 L2,12 Z M2,8 C4,6 6,10 8,8 C10,6 12,10 14,8 C16,6 18,10 20,8 C22,6 22,6 22,6 L22,8 L2,8 Z"/>
+                </svg>
+            </h1>
+            <p class="subtitle">学习防灾知识，保护生命安全</p>
+        </div>
+
+        <div class="difficulty-area">
+            <div class="difficulty-label">选择难度</div>
+            <div class="difficulty-buttons">
+                <button class="diff-btn diff-easy active" data-diff="easy">简单</button>
+                <button class="diff-btn diff-medium" data-diff="medium">中等</button>
+                <button class="diff-btn diff-hard" data-diff="hard">困难</button>
+            </div>
+        </div>
+
+        <button class="start-btn" id="startBtn">开始游戏</button>
+        <button class="help-btn" id="helpBtn">游戏说明</button>
+
+        <div class="high-score">
+            最高分：<span id="highScoreDisplay">0</span>
+        </div>
+    </div>
+
+    <!-- ========== 游戏页面 ========== -->
+    <div class="game-page" id="gamePage">
+        <div class="top-bar">
+            <button class="back-btn" id="backBtn">
+                ← 返回
+            </button>
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-label">得分</div>
+                    <div class="info-value" id="scoreDisplay">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">时间</div>
+                    <div class="info-value" id="timeDisplay">120</div>
+                </div>
+            </div>
+            <button class="hint-btn" id="hintBtn">💡 提示</button>
+        </div>
+
+        <div class="board-container" id="boardContainer">
+            <div class="board-wrapper" id="boardWrapper">
+                <div class="game-board" id="gameBoard"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 结束弹窗 ========== -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal">
+            <h2 class="modal-title">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2,12 C4,10 6,14 8,12 C10,10 12,14 14,12 C16,10 18,14 20,12 C22,10 22,10 22,10 L22,22 L2,22 L2,12 Z M2,8 C4,6 6,10 8,8 C10,6 12,10 14,8 C16,6 18,10 20,8 C22,6 22,6 22,6 L22,8 L2,8 Z"/>
+                </svg>
+                游戏结束
+            </h2>
+            <div class="result-list">
+                <div class="result-item score">
+                    <span class="result-label">最终得分</span>
+                    <span class="result-value" id="finalScore">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">用时</span>
+                    <span class="result-value" id="finalTime">0秒</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">难度</span>
+                    <span class="result-value" id="finalDifficulty">简单</span>
+                </div>
+            </div>
+            <div class="new-record hidden" id="newRecordBadge">
+                <span class="new-record-badge">新纪录！</span>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" id="backHomeBtn">返回首页</button>
+                <button class="modal-btn primary" id="restartBtn">再来一局</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 知识科普弹窗 ========== -->
+    <div class="modal-overlay knowledge-modal" id="knowledgeModal">
+        <div class="modal">
+            <div class="knowledge-icon" id="knowledgeIcon">🌊</div>
+            <h2 class="knowledge-title" id="knowledgeTitle">海啸</h2>
+            <div class="knowledge-content" id="knowledgeContent">
+                <p>海啸是由海底地震、火山爆发或海底滑坡引发的具有强大破坏力的海浪。</p>
+                <div class="knowledge-tip">
+                    💡 收到海啸预警后，应立即向高处转移，远离海岸和河口地区。
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="closeKnowledgeBtn" style="flex:1;">继续游戏</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 游戏说明弹窗 ========== -->
+    <div class="modal-overlay help-modal" id="helpModal">
+        <div class="modal">
+            <h2 class="modal-title">
+                <svg viewBox="0 0 24 24" style="width:28px;height:28px;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+                游戏说明
+            </h2>
+            <div class="help-content">
+                <h3>🎮 游戏规则</h3>
+                <ul>
+                    <li>点击两个相同的防灾图标进行消除</li>
+                    <li>两个图标之间的连线不能超过两次转弯</li>
+                    <li>在规定时间内消除所有图标即可获胜</li>
+                </ul>
+                <h3>⏱️ 难度说明</h3>
+                <ul>
+                    <li><b>简单</b>：7×6 棋盘，180秒</li>
+                    <li><b>中等</b>：9×7 棋盘，180秒</li>
+                    <li><b>困难</b>：12×9 棋盘，180秒</li>
+                </ul>
+                <h3>💡 小提示</h3>
+                <ul>
+                    <li>找不到配对时可以点击「提示」按钮</li>
+                    <li>每消除一对得10分，连续消除有额外加分</li>
+                    <li>学习防灾知识，提升安全意识</li>
+                </ul>
+            </div>
+            <div class="modal-buttons" style="margin-top: 24px;">
+                <button class="modal-btn primary" id="closeHelpBtn" style="flex:1;">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 游戏配置 ==========
+        const DIFFICULTY_CONFIG = {
+            easy: { cols: 7, rows: 6, time: 180, tileSize: 64 },
+            medium: { cols: 9, rows: 7, time: 180, tileSize: 56 },
+            hard: { cols: 12, rows: 9, time: 180, tileSize: 48 }
+        };
+
+        const DIFFICULTY_NAMES = {
+            easy: '简单',
+            medium: '中等',
+            hard: '困难'
+        };
+
+        // 防灾主题图标
+        const ICONS = ['🌊', '🏔️', '🌋', '⛈️', '🏠', '🚨', '📡', '🛰️', '🆘', '⛑️', '📻', '🔦', '🧭', '🪖', '📦'];
+
+        // 对应防灾知识库
+        const KNOWLEDGE = {
+            '🌊': {
+                title: '海啸',
+                content: '海啸是由海底地震、火山爆发或海底滑坡引发的具有强大破坏力的海浪。海啸波速极快，可达每小时数百公里，到达岸边时会形成巨大的水墙，造成严重灾害。',
+                tip: '收到海啸预警后，立即向内陆高处转移，切勿贪恋财物；不要去海边看海啸。'
+            },
+            '🏔️': {
+                title: '山体滑坡',
+                content: '山体滑坡是指山体斜坡上的岩土在重力作用下整体向下滑动的现象。暴雨、地震、人类工程活动都可能诱发滑坡，山区雨季尤其需要警惕。',
+                tip: '连续暴雨时避免在山谷、陡峭山坡下停留；发现山坡有裂缝、树木倾斜要立即撤离。'
+            },
+            '🌋': {
+                title: '火山喷发',
+                content: '火山喷发是地球内部岩浆冲出地表的自然现象，会释放火山灰、熔岩和有毒气体。火山灰会影响航空安全，熔岩流会烧毁沿途一切。',
+                tip: '火山喷发时逆风撤离，保护好呼吸道，佩戴防毒面具或湿毛巾捂住口鼻。'
+            },
+            '⛈️': {
+                title: '雷暴天气',
+                content: '雷暴是伴有雷击和闪电的强对流天气，常伴随暴雨、大风甚至冰雹。雷电会造成人员伤亡和电器设备损坏。',
+                tip: '雷雨天气不要在大树下避雨，远离金属物体；室内拔掉电源插头，不要使用淋浴。'
+            },
+            '🏠': {
+                title: '应急避难所',
+                content: '应急避难所是灾害发生时供居民紧急疏散、临时生活的安全场所，通常设在学校、公园、体育馆等开阔坚固的区域，配备基本生活物资。',
+                tip: '提前了解家附近的应急避难所位置和路线，准备好应急包，灾害发生时有序前往。'
+            },
+            '🚨': {
+                title: '防空警报',
+                content: '防空警报分为预先警报、空袭警报和解除警报三种，不同鸣响方式对应不同状态，用于提醒民众采取相应防护措施。',
+                tip: '预先警报：鸣36秒停24秒，反复3遍；听到后立即关闭燃气电源，携带应急包到指定地点。'
+            },
+            '📡': {
+                title: '气象雷达',
+                content: '气象雷达通过发射电磁波探测降水、风暴等天气系统的位置和强度，是监测台风、暴雨、强对流天气的重要工具。',
+                tip: '关注气象部门发布的雷达回波图，可以直观了解降雨分布和移动趋势，提前做好防范。'
+            },
+            '🛰️': {
+                title: '灾害监测卫星',
+                content: '遥感卫星可以从太空监测森林火灾、洪水、地震破坏范围等灾害情况，快速获取灾区影像，为救援决策提供重要数据支持。',
+                tip: '卫星遥感能在交通中断时第一时间获取灾情，是现代防灾减灾不可或缺的技术手段。'
+            },
+            '🆘': {
+                title: '紧急求救信号',
+                content: 'SOS是国际通用的紧急求救信号，可用灯光（三短三长三短）、声音或烟雾发出。被困时正确发出求救信号能大幅提高获救几率。',
+                tip: '野外遇险可在开阔地用石块、树枝摆出SOS字样，白天用烟雾、夜晚用火光吸引注意。'
+            },
+            '⛑️': {
+                title: '急救包',
+                content: '急救包内应配备消毒用品、绷带、止血带、常用药品、剪刀等医疗物资，灾害或意外发生时可用于初步伤口处理，争取救治时间。',
+                tip: '家中和车上都应常备急救包，定期检查药品有效期，学习基本的包扎和止血方法。'
+            },
+            '📻': {
+                title: '应急收音机',
+                content: '灾害发生后手机网络可能中断，手摇或电池供电的应急收音机可以接收官方广播，了解灾情动态和救援指引，是重要的信息获取渠道。',
+                tip: '建议准备一台可手摇充电的应急收音机，放在应急包中，确保断电断网时仍能获取信息。'
+            },
+            '🔦': {
+                title: '应急手电筒',
+                content: '地震、台风等灾害常造成电力中断，手电筒是夜间逃生、黑暗环境搜救的必备工具，应选择防水、续航长的型号。',
+                tip: '床头、门口各放一支手电筒，定期检查电池；推荐手摇发电式，不用担心电池耗尽。'
+            },
+            '🧭': {
+                title: '指南针',
+                content: '指南针是野外辨别方向的基础工具，在手机没电、信号丢失的情况下，配合地图使用可以帮助你找到正确的撤离路线。',
+                tip: '学习使用指南针和地图辨向，不要完全依赖电子设备，关键时刻传统工具更可靠。'
+            },
+            '🪖': {
+                title: '防灾头盔',
+                content: '地震时坠落物是造成伤亡的主要原因之一，防灾头盔可以有效保护头部免受砸伤，是家庭应急物资的重要组成部分。',
+                tip: '家中每人准备一顶防灾头盔，放在床头或方便取用的位置，地震发生时第一时间戴上。'
+            },
+            '📦': {
+                title: '应急物资包',
+                content: '应急物资包应包含至少三天用量的饮用水、压缩食品、药品、手电筒、口哨、雨衣、保暖毯等，满足灾害后基本生存需求。',
+                tip: '建议按每人份准备，放在便于携带的背包中，每半年检查更换一次食品和药品。'
+            }
+        };
+
+        // ========== 游戏状态 ==========
+        let currentDifficulty = 'easy';
+        let board = [];
+        let cols = 0;
+        let rows = 0;
+        let selectedTile = null;
+        let score = 0;
+        let timeLeft = 0;
+        let timer = null;
+        let combo = 0;
+        let highScores = { easy: 0, medium: 0, hard: 0 };
+        let remainingTiles = 0;
+
+        // ========== DOM 元素 ==========
+        const homePage = document.getElementById('homePage');
+        const gamePage = document.getElementById('gamePage');
+        const gameBoard = document.getElementById('gameBoard');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const resultModal = document.getElementById('resultModal');
+        const helpModal = document.getElementById('helpModal');
+        const knowledgeModal = document.getElementById('knowledgeModal');
+        const highScoreDisplay = document.getElementById('highScoreDisplay');
+        let isPaused = false;
+
+        // ========== 初始化 ==========
+        function init() {
+            loadHighScores();
+            updateHighScoreDisplay();
+            bindEvents();
+        }
+
+        function loadHighScores() {
+            const saved = localStorage.getItem('tsunami_highscores');
+            if (saved) {
+                highScores = JSON.parse(saved);
+            }
+        }
+
+        function saveHighScores() {
+            localStorage.setItem('tsunami_highscores', JSON.stringify(highScores));
+        }
+
+        function updateHighScoreDisplay() {
+            highScoreDisplay.textContent = highScores[currentDifficulty];
+        }
+
+        function bindEvents() {
+            // 难度选择
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentDifficulty = btn.dataset.diff;
+                    updateHighScoreDisplay();
+                });
+            });
+
+            // 开始游戏
+            document.getElementById('startBtn').addEventListener('click', startGame);
+
+            // 返回首页
+            document.getElementById('backBtn').addEventListener('click', backToHome);
+            document.getElementById('backHomeBtn').addEventListener('click', backToHome);
+
+            // 再来一局
+            document.getElementById('restartBtn').addEventListener('click', () => {
+                resultModal.classList.remove('show');
+                startGame();
+            });
+
+            // 游戏说明
+            document.getElementById('helpBtn').addEventListener('click', () => {
+                helpModal.classList.add('show');
+            });
+            document.getElementById('closeHelpBtn').addEventListener('click', () => {
+                helpModal.classList.remove('show');
+            });
+
+            // 提示按钮
+            document.getElementById('hintBtn').addEventListener('click', showHint);
+
+            // 点击遮罩关闭说明
+            helpModal.addEventListener('click', (e) => {
+                if (e.target === helpModal) {
+                    helpModal.classList.remove('show');
+                }
+            });
+
+            // 关闭知识弹窗
+            document.getElementById('closeKnowledgeBtn').addEventListener('click', closeKnowledgeModal);
+            knowledgeModal.addEventListener('click', (e) => {
+                if (e.target === knowledgeModal) {
+                    closeKnowledgeModal();
+                }
+            });
+        }
+
+        // ========== 游戏逻辑 ==========
+        function startGame() {
+            const config = DIFFICULTY_CONFIG[currentDifficulty];
+            cols = config.cols;
+            rows = config.rows;
+            timeLeft = config.time;
+            score = 0;
+            combo = 0;
+            selectedTile = null;
+
+            homePage.style.display = 'none';
+            gamePage.classList.add('show');
+
+            generateBoard();
+            renderBoard(config.tileSize);
+            updateScore();
+            updateTime();
+            startTimer();
+        }
+
+        function generateBoard() {
+            const totalTiles = cols * rows;
+            const pairCount = totalTiles / 2;
+            const iconCount = Math.min(ICONS.length, Math.ceil(pairCount / 3));
+            
+            let tiles = [];
+            for (let i = 0; i < pairCount; i++) {
+                const icon = ICONS[i % ICONS.length];
+                tiles.push(icon, icon);
+            }
+
+            // 洗牌
+            for (let i = tiles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+            }
+
+            // 构建二维数组（带外圈空白用于连线）
+            board = [];
+            for (let r = 0; r < rows + 2; r++) {
+                board[r] = [];
+                for (let c = 0; c < cols + 2; c++) {
+                    if (r === 0 || r === rows + 1 || c === 0 || c === cols + 1) {
+                        board[r][c] = null; // 边界空白
+                    } else {
+                        board[r][c] = tiles[(r - 1) * cols + (c - 1)];
+                    }
+                }
+            }
+
+            remainingTiles = totalTiles;
+        }
+
+        function renderBoard(tileSize) {
+            gameBoard.innerHTML = '';
+            gameBoard.style.gridTemplateColumns = `repeat(${cols}, ${tileSize}px)`;
+            gameBoard.style.gridTemplateRows = `repeat(${rows}, ${tileSize}px)`;
+
+            for (let r = 1; r <= rows; r++) {
+                for (let c = 1; c <= cols; c++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.dataset.row = r;
+                    tile.dataset.col = c;
+                    
+                    if (board[r][c]) {
+                        tile.innerHTML = `<span class="tile-icon">${board[r][c]}</span>`;
+                        tile.addEventListener('click', () => handleTileClick(r, c, tile));
+                    } else {
+                        tile.classList.add('empty');
+                    }
+
+                    gameBoard.appendChild(tile);
+                }
+            }
+        }
+
+        function handleTileClick(row, col, element) {
+            if (!board[row][col]) return;
+
+            if (!selectedTile) {
+                selectedTile = { row, col, element };
+                element.classList.add('selected');
+            } else if (selectedTile.row === row && selectedTile.col === col) {
+                element.classList.remove('selected');
+                selectedTile = null;
+            } else {
+                // 检查是否可以连接
+                if (board[selectedTile.row][selectedTile.col] === board[row][col]) {
+                    const path = findPath(selectedTile.row, selectedTile.col, row, col);
+                    if (path) {
+                        matchSuccess(selectedTile, { row, col, element });
+                        return;
+                    }
+                }
+                
+                // 匹配失败
+                element.classList.add('error');
+                selectedTile.element.classList.add('error');
+                combo = 0;
+                
+                setTimeout(() => {
+                    element.classList.remove('error');
+                    selectedTile.element.classList.remove('error');
+                    selectedTile.element.classList.remove('selected');
+                    selectedTile = { row, col, element };
+                    element.classList.add('selected');
+                }, 200);
+            }
+        }
+
+        function matchSuccess(tile1, tile2) {
+            const icon = board[tile1.row][tile1.col];
+            
+            combo++;
+            const bonusScore = 10 + (combo - 1) * 2;
+            score += bonusScore;
+            updateScore();
+
+            tile1.element.classList.remove('selected');
+            tile1.element.classList.add('matched');
+            tile2.element.classList.add('matched');
+
+            board[tile1.row][tile1.col] = null;
+            board[tile2.row][tile2.col] = null;
+
+            setTimeout(() => {
+                tile1.element.classList.remove('matched');
+                tile1.element.classList.add('empty');
+                tile1.element.innerHTML = '';
+                tile2.element.classList.remove('matched');
+                tile2.element.classList.add('empty');
+                tile2.element.innerHTML = '';
+            }, 300);
+
+            selectedTile = null;
+            remainingTiles -= 2;
+
+            if (remainingTiles === 0) {
+                setTimeout(() => {
+                    gameWin();
+                }, 400);
+            } else {
+                // 暂停计时，弹出知识科普
+                setTimeout(() => {
+                    stopTimer();
+                    isPaused = true;
+                    showKnowledgeModal(icon);
+                }, 400);
+            }
+        }
+
+        function showKnowledgeModal(icon) {
+            const data = KNOWLEDGE[icon];
+            if (!data) {
+                closeKnowledgeModal();
+                return;
+            }
+
+            document.getElementById('knowledgeIcon').textContent = icon;
+            document.getElementById('knowledgeTitle').textContent = data.title;
+            document.getElementById('knowledgeContent').innerHTML = `
+                <p>${data.content}</p>
+                <div class="knowledge-tip">💡 ${data.tip}</div>
+            `;
+            knowledgeModal.classList.add('show');
+        }
+
+        function closeKnowledgeModal() {
+            knowledgeModal.classList.remove('show');
+            isPaused = false;
+            if (remainingTiles > 0) {
+                startTimer();
+            }
+        }
+
+        // 连连看路径算法（最多2次转弯）
+        function findPath(r1, c1, r2, c2) {
+            // 直线连接
+            if (canConnectStraight(r1, c1, r2, c2)) {
+                return [[r1, c1], [r2, c2]];
+            }
+
+            // 一次转弯
+            if (board[r1][c2] === null && canConnectStraight(r1, c1, r1, c2) && canConnectStraight(r1, c2, r2, c2)) {
+                return [[r1, c1], [r1, c2], [r2, c2]];
+            }
+            if (board[r2][c1] === null && canConnectStraight(r1, c1, r2, c1) && canConnectStraight(r2, c1, r2, c2)) {
+                return [[r1, c1], [r2, c1], [r2, c2]];
+            }
+
+            // 两次转弯 - 横向扫描
+            for (let c = 0; c < cols + 2; c++) {
+                if (c === c1 || c === c2) continue;
+                if (board[r1][c] === null && board[r2][c] === null &&
+                    canConnectStraight(r1, c1, r1, c) &&
+                    canConnectStraight(r1, c, r2, c) &&
+                    canConnectStraight(r2, c, r2, c2)) {
+                    return [[r1, c1], [r1, c], [r2, c], [r2, c2]];
+                }
+            }
+
+            // 两次转弯 - 纵向扫描
+            for (let r = 0; r < rows + 2; r++) {
+                if (r === r1 || r === r2) continue;
+                if (board[r][c1] === null && board[r][c2] === null &&
+                    canConnectStraight(r1, c1, r, c1) &&
+                    canConnectStraight(r, c1, r, c2) &&
+                    canConnectStraight(r, c2, r2, c2)) {
+                    return [[r1, c1], [r, c1], [r, c2], [r2, c2]];
+                }
+            }
+
+            return null;
+        }
+
+        function canConnectStraight(r1, c1, r2, c2) {
+            if (r1 === r2) {
+                const minC = Math.min(c1, c2);
+                const maxC = Math.max(c1, c2);
+                for (let c = minC + 1; c < maxC; c++) {
+                    if (board[r1][c] !== null) return false;
+                }
+                return true;
+            }
+            if (c1 === c2) {
+                const minR = Math.min(r1, r2);
+                const maxR = Math.max(r1, r2);
+                for (let r = minR + 1; r < maxR; r++) {
+                    if (board[r][c1] !== null) return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        // 提示功能
+        function showHint() {
+            for (let r1 = 1; r1 <= rows; r1++) {
+                for (let c1 = 1; c1 <= cols; c1++) {
+                    if (!board[r1][c1]) continue;
+                    for (let r2 = 1; r2 <= rows; r2++) {
+                        for (let c2 = 1; c2 <= cols; c2++) {
+                            if (r1 === r2 && c1 === c2) continue;
+                            if (!board[r2][c2]) continue;
+                            if (board[r1][c1] !== board[r2][c2]) continue;
+                            
+                            if (findPath(r1, c1, r2, c2)) {
+                                const tile1 = document.querySelector(`.tile[data-row="${r1}"][data-col="${c1}"]`);
+                                const tile2 = document.querySelector(`.tile[data-row="${r2}"][data-col="${c2}"]`);
+                                
+                                tile1.classList.add('selected');
+                                tile2.classList.add('selected');
+                                
+                                setTimeout(() => {
+                                    tile1.classList.remove('selected');
+                                    tile2.classList.remove('selected');
+                                }, 1500);
+                                
+                                score = Math.max(0, score - 5);
+                                updateScore();
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ========== 计时器 ==========
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTime();
+                if (timeLeft <= 0) {
+                    gameOver();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        function updateTime() {
+            timeDisplay.textContent = timeLeft;
+            timeDisplay.classList.remove('warning', 'danger');
+            
+            if (timeLeft <= 10) {
+                timeDisplay.classList.add('danger');
+            } else if (timeLeft <= 30) {
+                timeDisplay.classList.add('warning');
+            }
+        }
+
+        // ========== 游戏结束 ==========
+        function gameWin() {
+            stopTimer();
+            const usedTime = DIFFICULTY_CONFIG[currentDifficulty].time - timeLeft;
+            score += timeLeft * 2; // 剩余时间奖励
+            updateScore();
+            showResult(true, usedTime);
+        }
+
+        function gameOver() {
+            stopTimer();
+            const usedTime = DIFFICULTY_CONFIG[currentDifficulty].time;
+            showResult(false, usedTime);
+        }
+
+        function showResult(isWin, usedTime) {
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalTime').textContent = usedTime + '秒';
+            document.getElementById('finalDifficulty').textContent = DIFFICULTY_NAMES[currentDifficulty];
+
+            // 检查新纪录
+            const newRecordBadge = document.getElementById('newRecordBadge');
+            if (score > highScores[currentDifficulty] && score > 0) {
+                highScores[currentDifficulty] = score;
+                saveHighScores();
+                newRecordBadge.classList.remove('hidden');
+            } else {
+                newRecordBadge.classList.add('hidden');
+            }
+
+            setTimeout(() => {
+                resultModal.classList.add('show');
+            }, 500);
+        }
+
+        function backToHome() {
+            stopTimer();
+            isPaused = false;
+            resultModal.classList.remove('show');
+            knowledgeModal.classList.remove('show');
+            gamePage.classList.remove('show');
+            homePage.style.display = 'flex';
+            updateHighScoreDisplay();
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>
