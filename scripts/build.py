@@ -33,25 +33,25 @@ DIST_DIR = ROOT_DIR / "dist"
 # 页面配置
 PAGES = [
     # (源文件, 输出路径, 标题, 描述, 页面类型, 面包屑, 结构化数据类型)
-    ("index.html", "index.html", None, None, "home", [], ["EducationalOrganization", "WebSite", "FAQPage"]),
-    ("courses/index.html", "courses/index.html", "课程体系｜新起点青少年人工智能", "了解新起点青少年人工智能的课程体系，包括AI应用学习、编程与项目实践、AI赛事训练。", "courses", [{"name":"首页","href":"/"},{"name":"课程体系"}], []),
+    ("index.html", "index.html", None, None, "home", [], ["EducationalOrganization", "WebSite", "Service", "FAQPage"]),
+    ("courses/index.html", "courses/index.html", "课程体系｜新起点青少年人工智能", "了解新起点青少年人工智能的课程体系，包括AI应用学习、编程与项目实践、AI赛事训练。", "courses", [{"name":"首页","href":"/"},{"name":"课程体系"}], ["EducationalOrganization", "CollectionPage", "ItemList", "BreadcrumbList"]),
     ("courses/ai-application.html", "courses/ai-application.html", "AI应用学习课程｜新起点青少年人工智能", "学习AI工具使用，培养AI思维和应用能力，适合贵阳青少年。", "course", [{"name":"首页","href":"/"},{"name":"课程体系","href":"/courses/"},{"name":"AI应用学习"}], ["Course", "BreadcrumbList"]),
     ("courses/programming-foundation.html", "courses/programming-foundation.html", "编程与项目实践课程｜新起点青少年人工智能", "从基础编程到项目制作，培养青少年逻辑思维和实践能力。", "course", [{"name":"首页","href":"/"},{"name":"课程体系","href":"/courses/"},{"name":"编程与项目实践"}], ["Course", "BreadcrumbList"]),
     ("courses/competition-training.html", "courses/competition-training.html", "AI赛事训练与作品指导｜新起点青少年人工智能", "针对白名单赛事的专项训练和作品打磨，贵阳青少年AI竞赛指导。", "course", [{"name":"首页","href":"/"},{"name":"课程体系","href":"/courses/"},{"name":"AI赛事训练"}], ["Course", "BreadcrumbList"]),
-    ("cases/index.html", "cases/index.html", "真实案例｜新起点青少年人工智能", "查看贵阳青少年AI学习真实案例，包括AI应用、编程项目、赛事训练等。", "cases", [{"name":"首页","href":"/"},{"name":"真实案例"}], []),
-    ("competitions/index.html", "competitions/index.html", "赛事指导｜新起点青少年人工智能", "贵阳青少年AI赛事指导服务，了解白名单赛事信息和指导内容。", "competitions", [{"name":"首页","href":"/"},{"name":"赛事指导"}], []),
+    ("cases/index.html", "cases/index.html", "真实案例｜新起点青少年人工智能", "查看贵阳青少年AI学习真实案例，包括AI应用、编程项目、赛事训练等。", "cases", [{"name":"首页","href":"/"},{"name":"真实案例"}], ["CollectionPage", "ItemList", "BreadcrumbList"]),
+    ("competitions/index.html", "competitions/index.html", "赛事指导｜新起点青少年人工智能", "贵阳青少年AI赛事指导服务，了解白名单赛事信息和指导内容。", "competitions", [{"name":"首页","href":"/"},{"name":"赛事指导"}], ["Service", "CollectionPage", "ItemList", "BreadcrumbList"]),
     ("competitions/whitelist-guide.html", "competitions/whitelist-guide.html", "白名单赛事说明｜新起点青少年人工智能", "什么是白名单赛事？如何核验？贵阳家长如何了解竞赛信息？", "article", [{"name":"首页","href":"/"},{"name":"赛事指导","href":"/competitions/"},{"name":"白名单赛事说明"}], ["Article", "BreadcrumbList"]),
     ("works/index.html", "works/index.html", "学生作品｜新起点青少年人工智能", "贵阳青少年AI学习作品展示，包括AI应用和编程项目作品。", "works", [{"name":"首页","href":"/"},{"name":"学生作品"}], []),
     ("works/ai-artwork-collector.html", "works/ai-artwork-collector.html", "AI作品收集平台｜学生作品｜新起点青少年人工智能", "学生网页应用作品：AI作品收集平台，支持学生提交图片、视频和网页作品，老师端统一管理展示。", "work", [{"name":"首页","href":"/"},{"name":"学生作品","href":"/works/"},{"name":"AI作品收集平台"}], ["Article", "BreadcrumbList"]),
-    ("honors/index.html", "honors/index.html", "荣誉与活动｜新起点青少年人工智能", "新起点青少年人工智能荣誉记录和活动展示。", "honors", [{"name":"首页","href":"/"},{"name":"荣誉与活动"}], []),
-    ("questions/index.html", "questions/index.html", "贵阳AI问答｜新起点青少年人工智能", "贵阳家长关于青少年AI学习的常见问题解答。", "questions", [{"name":"首页","href":"/"},{"name":"贵阳AI问答"}], []),
+    ("honors/index.html", "honors/index.html", "荣誉与活动｜新起点青少年人工智能", "新起点青少年人工智能荣誉记录和活动展示。", "honors", [{"name":"首页","href":"/"},{"name":"荣誉与活动"}], ["CollectionPage", "ItemList", "BreadcrumbList"]),
+    ("questions/index.html", "questions/index.html", "贵阳AI问答｜新起点青少年人工智能", "贵阳家长关于青少年AI学习的常见问题解答。", "questions", [{"name":"首页","href":"/"},{"name":"贵阳AI问答"}], ["CollectionPage", "FAQPage", "BreadcrumbList"]),
     ("questions/guiyang-where-learn-ai.html", "questions/guiyang-where-learn-ai.html", "贵阳在哪学AI？｜新起点青少年人工智能", "贵阳青少年AI学习机构选择指南，如何选择合适的AI课程？", "qa", [{"name":"首页","href":"/"},{"name":"贵阳AI问答","href":"/questions/"},{"name":"贵阳在哪学AI？"}], ["FAQPage", "BreadcrumbList"]),
     ("questions/guiyang-kids-learn-ai.html", "questions/guiyang-kids-learn-ai.html", "贵阳哪里有小朋友学AI的地方？｜新起点青少年人工智能", "贵阳适合小朋友学AI的地方，青少年AI启蒙课程建议。", "qa", [{"name":"首页","href":"/"},{"name":"贵阳AI问答","href":"/questions/"},{"name":"小朋友学AI"}], ["FAQPage", "BreadcrumbList"]),
     ("questions/guiyang-youth-ai.html", "questions/guiyang-youth-ai.html", "贵阳青少年人工智能课程主要学什么？｜新起点", "贵阳青少年AI课程内容介绍，AI应用和编程学习内容解析。", "qa", [{"name":"首页","href":"/"},{"name":"贵阳AI问答","href":"/questions/"},{"name":"课程内容"}], ["FAQPage", "BreadcrumbList"]),
     ("questions/guiyang-ai-competition.html", "questions/guiyang-ai-competition.html", "贵阳有哪些AI比赛可以参加？｜新起点青少年人工智能", "贵阳青少年可参加的AI比赛介绍，白名单赛事信息。", "qa", [{"name":"首页","href":"/"},{"name":"贵阳AI问答","href":"/questions/"},{"name":"AI比赛"}], ["FAQPage", "BreadcrumbList"]),
     ("questions/guiyang-whitelist-competition.html", "questions/guiyang-whitelist-competition.html", "贵阳家长如何了解白名单赛事？｜新起点", "贵阳家长白名单赛事核验指南，如何辨别正规竞赛。", "qa", [{"name":"首页","href":"/"},{"name":"贵阳AI问答","href":"/questions/"},{"name":"白名单赛事"}], ["FAQPage", "BreadcrumbList"]),
     ("questions/guiyang-technology-talent.html", "questions/guiyang-technology-talent.html", "贵阳科技特长生相关信息如何核验？｜新起点", "贵阳科技特长生政策信息核验方法，以官方信息为准。", "qa", [{"name":"首页","href":"/"},{"name":"贵阳AI问答","href":"/questions/"},{"name":"科技特长生"}], ["FAQPage", "BreadcrumbList"]),
-    ("about/index.html", "about/index.html", "关于我们｜新起点青少年人工智能", "了解新起点青少年人工智能：贵阳本地AI教育品牌，教学理念与服务。", "about", [{"name":"首页","href":"/"},{"name":"关于我们"}], ["BreadcrumbList"]),
+    ("about/index.html", "about/index.html", "关于我们｜新起点青少年人工智能", "了解新起点青少年人工智能：贵阳本地AI教育品牌，教学理念与服务。", "about", [{"name":"首页","href":"/"},{"name":"关于我们"}], ["EducationalOrganization", "AboutPage", "BreadcrumbList"]),
     ("contact/index.html", "contact/index.html", "联系我们｜新起点青少年人工智能", "联系新起点青少年人工智能，通过官方抖音号咨询贵阳青少年AI课程与试听安排。", "contact", [{"name":"首页","href":"/"},{"name":"联系我们"}], ["BreadcrumbList"]),
     ("privacy.html", "privacy.html", "隐私说明｜新起点青少年人工智能", "新起点青少年人工智能网站隐私说明。", "page", [], []),
 ]
@@ -83,6 +83,137 @@ def public_url(site_config, out_path):
     if out_path.endswith("/index.html"):
         return domain + "/" + out_path[:-10]
     return domain + "/" + out_path
+
+
+def organization_schema(site_config):
+    """生成统一的教育机构结构化数据，所有页面共用同一份品牌事实。"""
+    brand = site_config["brand"]
+    contact = site_config.get("contact", {})
+    domain = brand["domain"].rstrip("/")
+    org = {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "@id": domain + "/#organization",
+        "name": brand["fullName"],
+        "alternateName": brand.get("shortName"),
+        "url": brand["domain"],
+        "description": brand["description"],
+        "telephone": contact.get("phones", [None])[0],
+        "areaServed": [
+            {"@type": "AdministrativeArea", "name": area}
+            for area in brand.get("serviceDistricts", [])
+        ] or {"@type": "City", "name": brand["serviceArea"]},
+        "address": [
+            {
+                "@type": "PostalAddress",
+                "addressLocality": "贵阳市",
+                "addressRegion": campus.get("area"),
+                "streetAddress": campus.get("address"),
+                "addressCountry": "CN"
+            }
+            for campus in contact.get("campuses", [])
+        ],
+        "knowsAbout": brand.get("courseContent", []),
+        "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "青少年学生",
+            "audienceType": brand.get("suitableAge")
+        }
+    }
+    company_entity = brand.get("companyEntity", "")
+    if company_entity and "待补充" not in company_entity:
+        org["legalName"] = company_entity
+    return {k: v for k, v in org.items() if v}
+
+
+def service_schema(site_config, url, name=None, description=None):
+    """生成课程和赛事服务结构化数据。"""
+    brand = site_config["brand"]
+    return {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": name or brand["coreService"],
+        "description": description or brand["description"],
+        "provider": {
+            "@type": "EducationalOrganization",
+            "@id": brand["domain"].rstrip("/") + "/#organization",
+            "name": brand["fullName"]
+        },
+        "areaServed": [
+            {"@type": "AdministrativeArea", "name": area}
+            for area in brand.get("serviceDistricts", [])
+        ],
+        "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "青少年学生",
+            "audienceType": brand.get("suitableAge")
+        },
+        "url": url,
+        "serviceType": brand.get("competitionServices", []) if "赛事" in (name or "") else brand.get("courseContent", [])
+    }
+
+
+def get_collection_items(page_type, site_config, content):
+    """根据页面类型生成可用于 ItemList 的条目。"""
+    brand = site_config["brand"]
+    domain = brand["domain"].rstrip("/")
+
+    if page_type == "courses":
+        return [
+            {
+                "name": item["title"],
+                "description": item["summary"],
+                "url": domain + "/courses/"
+            }
+            for item in site_config.get("courses", [])
+        ]
+
+    if page_type == "competitions":
+        return [
+            {
+                "name": item["title"],
+                "description": item["summary"],
+                "url": domain + item["url"]
+            }
+            for item in site_config.get("competitions", [])
+        ]
+
+    if page_type == "cases":
+        return [
+            {
+                "name": item["title"],
+                "description": item["summary"],
+                "url": domain + item["url"]
+            }
+            for item in site_config.get("cases", [])
+        ]
+
+    if page_type == "honors":
+        return [
+            {
+                "name": item["title"],
+                "description": item["summary"],
+                "url": domain + item["url"]
+            }
+            for item in site_config.get("honors", [])
+        ]
+
+    if page_type == "questions":
+        links = re.findall(
+            r'<a[^>]*href="([^"]+)"[^>]*class="[^"]*related-link[^"]*"[^>]*>.*?<strong>(.*?)</strong>.*?<p[^>]*>(.*?)</p>',
+            content,
+            re.DOTALL
+        )
+        return [
+            {
+                "name": strip_html(title),
+                "description": strip_html(summary),
+                "url": domain + href
+            }
+            for href, title, summary in links
+        ]
+
+    return []
 
 
 def extract_faq_items(content, page_type):
@@ -156,27 +287,73 @@ def generate_jsonld(page_config, site_config, url, content, title, desc):
     jsonld_parts = []
 
     if "EducationalOrganization" in schema_types:
-        org = {
-            "@context": "https://schema.org",
-            "@type": "EducationalOrganization",
-            "name": site_config["brand"]["fullName"],
-            "url": site_config["brand"]["domain"],
-            "description": site_config["brand"]["description"],
-            "areaServed": {
-                "@type": "City",
-                "name": site_config["brand"]["serviceArea"]
-            }
-        }
-        jsonld_parts.append(json.dumps(org, ensure_ascii=False))
+        jsonld_parts.append(json.dumps(organization_schema(site_config), ensure_ascii=False))
 
     if "WebSite" in schema_types:
         website = {
             "@context": "https://schema.org",
             "@type": "WebSite",
+            "@id": site_config["brand"]["domain"].rstrip("/") + "/#website",
             "name": site_config["brand"]["fullName"],
-            "url": site_config["brand"]["domain"]
+            "url": site_config["brand"]["domain"],
+            "publisher": {
+                "@type": "EducationalOrganization",
+                "@id": site_config["brand"]["domain"].rstrip("/") + "/#organization"
+            },
+            "inLanguage": "zh-CN"
         }
         jsonld_parts.append(json.dumps(website, ensure_ascii=False))
+
+    if "AboutPage" in schema_types:
+        about_page = {
+            "@context": "https://schema.org",
+            "@type": "AboutPage",
+            "name": title.split("｜")[0],
+            "url": url,
+            "description": desc,
+            "about": {
+                "@type": "EducationalOrganization",
+                "@id": site_config["brand"]["domain"].rstrip("/") + "/#organization",
+                "name": site_config["brand"]["fullName"]
+            },
+            "inLanguage": "zh-CN"
+        }
+        jsonld_parts.append(json.dumps(about_page, ensure_ascii=False))
+
+    if "CollectionPage" in schema_types:
+        collection_page = {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": title.split("｜")[0],
+            "url": url,
+            "description": desc,
+            "isPartOf": {
+                "@type": "WebSite",
+                "@id": site_config["brand"]["domain"].rstrip("/") + "/#website"
+            },
+            "inLanguage": "zh-CN"
+        }
+        jsonld_parts.append(json.dumps(collection_page, ensure_ascii=False))
+
+    if "ItemList" in schema_types:
+        items = get_collection_items(page_type, site_config, content)
+        if items:
+            item_list = {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "name": title.split("｜")[0],
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": index + 1,
+                        "url": item["url"],
+                        "name": item["name"],
+                        "description": item["description"]
+                    }
+                    for index, item in enumerate(items)
+                ]
+            }
+            jsonld_parts.append(json.dumps(item_list, ensure_ascii=False))
 
     if "BreadcrumbList" in schema_types and page_config[5]:
         bc_items = []
@@ -200,7 +377,7 @@ def generate_jsonld(page_config, site_config, url, content, title, desc):
 
     if "FAQPage" in schema_types:
         faq_items = extract_faq_items(content, page_type)
-        if page_type == "home" and not faq_items:
+        if page_type in ["home", "questions"] and not faq_items:
             faq_items = [(item["question"], item["answer"]) for item in site_config.get("faqHome", [])]
         if faq_items:
             faq = {
@@ -227,13 +404,27 @@ def generate_jsonld(page_config, site_config, url, content, title, desc):
             "@type": "Course",
             "name": course_name,
             "description": desc,
+            "audience": {
+                "@type": "EducationalAudience",
+                "educationalRole": "青少年学生",
+                "audienceType": site_config["brand"].get("suitableAge")
+            },
             "provider": {
                 "@type": "EducationalOrganization",
-                "name": site_config["brand"]["fullName"],
-                "sameAs": site_config["brand"]["domain"]
+                "@id": site_config["brand"]["domain"].rstrip("/") + "/#organization",
+                "name": site_config["brand"]["fullName"]
             }
         }
         jsonld_parts.append(json.dumps(course, ensure_ascii=False))
+
+    if "Service" in schema_types:
+        service_name = site_config["brand"]["coreService"]
+        if page_type == "competitions":
+            service_name = "贵阳青少年AI赛事指导服务"
+        elif page_type == "home":
+            service_name = "贵阳青少年AI应用培训与赛事指导"
+        service = service_schema(site_config, url, service_name, desc)
+        jsonld_parts.append(json.dumps(service, ensure_ascii=False))
 
     if "Article" in schema_types:
         source_path = PAGES_DIR / page_config[0]
@@ -383,9 +574,23 @@ def generate_llms(site_config):
     pages_text = '\n'.join([f'- {name}: {site_config["brand"]["domain"].rstrip("/")}{path}' for path, name in important_pages])
     content = f'''# {site_config["brand"]["fullName"]}
 
+品牌全称: {site_config["brand"]["fullName"]}
+
+公司主体: {site_config["brand"].get("companyEntity", "待补充工商登记主体全称")}
+
 服务地区: {site_config["brand"]["serviceArea"]}
 
+贵阳服务地区: {", ".join(site_config["brand"].get("serviceDistricts", []))}
+
+适合年龄: {site_config["brand"].get("suitableAge", "")}
+
 核心服务: {site_config["brand"]["coreService"]}
+
+课程内容: {", ".join(site_config["brand"].get("courseContent", []))}
+
+赛事服务: {", ".join(site_config["brand"].get("competitionServices", []))}
+
+真实案例与荣誉: {site_config["brand"].get("caseAndHonorSummary", "")}
 
 教学地址:
 - 南明区: 花果园M区4号楼0813
