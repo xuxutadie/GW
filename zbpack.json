@@ -1,4 +1,4 @@
 {
-  "build_command": "python3 scripts/build.py || python scripts/build.py",
+  "build_command": "npm run build",
   "output_dir": "dist"
 }

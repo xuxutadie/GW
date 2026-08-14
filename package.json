@@ -1,0 +1,10 @@
+{
+  "name": "xinqidian-ai-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "新起点青少年人工智能官网静态站点",
+  "scripts": {
+    "build": "node scripts/run-build.js",
+    "check": "python scripts/check_site.py && python scripts/check_links.py"
+  }
+}
