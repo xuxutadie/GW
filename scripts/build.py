@@ -614,7 +614,7 @@ def generate_llms(site_config):
         for campus in contact.get("campuses", [])
     ])
     tuition_text = '；'.join([
-        f'{item.get("stage", "")}{item.get("pricePerHour", "")}{item.get("unit", "")}'
+        f'{item.get("stage", "")}{item.get("pricePerSession", "")}{item.get("unit", "")}'
         for item in site_config.get("tuition", [])
     ])
     teachers_text = '\n'.join([
