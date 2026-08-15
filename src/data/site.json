@@ -5,11 +5,21 @@
     "companyEntity": "贵州新起点人工智能有限公司",
     "serviceArea": "贵阳",
     "serviceDistricts": ["南明区", "云岩区", "观山湖区"],
-    "suitableAge": "7-18岁青少年，具体课程以试听评估和孩子实际基础为准",
+    "suitableAge": "8-18岁青少年，零基础可参加，不要求编程基础",
+    "companyFoundedDate": "2024-12-04",
+    "companyFoundedLabel": "2024年12月4日",
+    "brandFoundedDate": "2023-09",
+    "brandFoundedLabel": "2023年9月",
+    "teachingMode": "贵阳线下小班项目制课程",
+    "classDuration": "每次2小时",
+    "classFrequency": "每周1次",
+    "classSize": "每班不超过12人",
+    "equipmentRequirement": "学生需自备电脑",
+    "trialAvailable": true,
     "domain": "https://xqd.zeabur.app/",
     "coreService": "青少年人工智能应用培训及AI赛事相关培训与指导",
     "description": "新起点青少年人工智能面向贵阳青少年提供AI应用学习、创作实践和AI赛事相关培训服务，涵盖AI认知、AI绘本、AI视频、AI智能体、Vibe Coding、机器学习、强化学习、计算机视觉等方向，展示真实课堂、学生作品、赛事信息与家长常见问题。",
-    "courseContent": ["AI认知启蒙", "提示词基础", "AI绘本创作", "AI视频制作", "AI智能体", "Vibe Coding", "机器学习入门", "计算机视觉初探", "赛事项目实践"],
+    "courseContent": ["AI通识", "AI大模型认知", "AI绘本创作", "AI视频制作", "AI智能体搭建", "AI项目开发（APP、网站、小程序、游戏）", "AI算法（机器学习、强化学习、计算机视觉等）", "赛事项目实践"],
     "competitionServices": ["赛事信息整理与筛选", "赛事规则理解与解析", "选题方向指导", "作品制作辅导", "表达与展示训练"],
     "caseAndHonorSummary": "官网展示真实课堂过程、学生网页作品、AI创作作品与授权公开的赛事证书。案例与荣誉展示以家长授权和隐私处理为前提，不虚构姓名、奖项或学习结果。"
   },
@@ -17,13 +27,13 @@
     "phones": ["18685447407"],
     "wechatIds": [],
     "wechatQrCode": "/assets/images/contact/wechat-qr.jpg",
-    "address": "南明区-花果园M区4号楼0813；云岩区-未来方舟友邻路中天中学楼下；观山湖区-印象城负一楼",
+    "address": "南明区-花果园M区4号楼0813；云岩区-未来方舟G9组团（中天中学楼下）；观山湖区-印象城负一楼",
     "campuses": [
       { "area": "南明区", "address": "花果园M区4号楼0813" },
-      { "area": "云岩区", "address": "未来方舟友邻路中天中学楼下" },
+      { "area": "云岩区", "address": "未来方舟G9组团（中天中学楼下）" },
       { "area": "观山湖区", "address": "印象城负一楼" }
     ],
-    "consultingHours": "",
+    "consultingHours": "周三至周日全天提供咨询与预约，课程按预约排课",
     "douyinId": "189843886",
     "douyinUrl": "",
     "douyinQrCode": "/assets/images/contact/douyin-qr.jpg",
@@ -32,6 +42,88 @@
     "psbNumber": "",
     "mapCoordinates": null
   },
+  "teaching": {
+    "mode": "只提供高质量线下课程",
+    "duration": "每次2小时",
+    "frequency": "每周1次",
+    "classSize": "每班不超过12人",
+    "equipment": "学生需自备电脑",
+    "foundation": "零基础可参加，不要求编程基础",
+    "trial": "支持预约试听",
+    "competitionPath": "完成30次系统课程后，可根据学生能力和当期赛事规则进入全国性白名单赛事项目准备与参赛评估",
+    "feeNote": "学习期间只收取学费，不另收比赛报名费、器材费等费用"
+  },
+  "tuition": [
+    { "stage": "小学", "pricePerHour": 290, "unit": "元/小时" },
+    { "stage": "初中", "pricePerHour": 350, "unit": "元/小时" },
+    { "stage": "高中", "pricePerHour": 1500, "unit": "元/小时" }
+  ],
+  "teachers": [
+    {
+      "name": "徐徐老师",
+      "realName": "徐铭杞",
+      "qualification": "NOAI国际人工智能奥林匹克中国区中级教练员",
+      "honors": "AILD全国总决赛优秀指导教师，具有金牌指导记录",
+      "experience": "3年青少年人工智能教学经验",
+      "studentsServed": "已服务2000+名学员",
+      "specialty": "善于用通俗易懂的方式帮助学生理解人工智能，并学习如何有效、安全地使用人工智能",
+      "credentials": [
+        {
+          "name": "NOAI国际人工智能奥林匹克中国区中级教练员认证",
+          "issuer": "NOAI组委会",
+          "issuedDate": "2026-03-31",
+          "image": "/assets/images/teachers/xuxu/noai-intermediate-coach.jpg"
+        },
+        {
+          "name": "Google Gemini Certified Educator",
+          "issuer": "Google for Education",
+          "issuedDate": "2025-09-15",
+          "validUntil": "2028-09-14",
+          "image": "/assets/images/teachers/xuxu/gemini-certified-educator.png"
+        },
+        {
+          "name": "全国青少年劳动技能与智能设计大赛优秀指导教师",
+          "issuer": "全国青少年劳动技能与智能设计大赛",
+          "issuedDate": "2025-08",
+          "note": "指导选手在2024-2025学年全国总决赛中获得金牌",
+          "image": "/assets/images/teachers/xuxu/aild-excellent-instructor.jpg"
+        },
+        {
+          "name": "生成式AI教育者与教师专项课程结业",
+          "issuer": "Vanderbilt University / Coursera",
+          "issuedDate": "2024-09-16",
+          "note": "完成Generative AI for Educators & Teachers四门专项课程",
+          "image": "/assets/images/teachers/xuxu/vanderbilt-generative-ai.png"
+        },
+        {
+          "name": "AI and Digital Transformation in Government课程结业",
+          "issuer": "University of Oxford Saïd Business School开发",
+          "issuedDate": "2026-01-27",
+          "image": "/assets/images/teachers/xuxu/oxford-ai-digital-transformation.png"
+        },
+        {
+          "name": "人工智能工程师（高级）岗位能力适应评测证书",
+          "issuer": "工业和信息化部工业文化发展中心",
+          "issuedDate": "2024-09-29",
+          "note": "原图含身份证号码，仅保留文字核验信息，不在官网公开原图"
+        }
+      ]
+    },
+    {
+      "name": "小徐老师",
+      "qualification": "全球人工智能奥林匹克初级教练员",
+      "honors": "多项白名单赛事优秀指导教师、金牌导师",
+      "experience": "3年青少年人工智能教学经验",
+      "studentsServed": "已服务1000+名学员",
+      "specialty": "善于用通俗易懂的方式帮助学生理解人工智能，并学习如何有效、安全地使用人工智能"
+    }
+  ],
+  "achievementHighlights": [
+    { "year": "2024", "result": "AI大模型项目获得全国一等奖" },
+    { "year": "2025", "result": "希望颂赛事中26名学员获得全国一等奖" },
+    { "year": "2025", "result": "AI智能设计赛事获得4枚全国金牌" },
+    { "year": "2026", "result": "全国青少年人工智能大赛获得全国一等奖" }
+  ],
   "seo": {
     "homeTitle": "新起点青少年人工智能｜贵阳青少年AI应用培训与赛事指导",
     "homeDescription": "新起点青少年人工智能面向贵阳青少年提供AI应用学习、创作实践和AI赛事相关培训服务，涵盖AI认知、AI绘本、AI视频、AI智能体、Vibe Coding、机器学习等方向，展示真实课堂、学生作品、赛事信息与家长常见问题。"
@@ -83,7 +175,11 @@
     },
     {
       "question": "零基础能否开始学习？",
-      "answer": "完全可以。我们的课程体系从AI认知和趣味创作开始，不要求孩子有任何技术基础。老师会根据每个孩子的年龄和实际情况进行引导，从简单有趣的项目入手，让孩子在动手实践中逐步建立信心和能力。"
+      "answer": "可以。课程面向8-18岁青少年，不要求编程基础。老师会根据孩子的年龄和实际情况进行引导，从AI通识和趣味项目入手，让孩子在动手实践中逐步建立信心和能力。"
+    },
+    {
+      "question": "课程如何收费和安排？",
+      "answer": "课程均为贵阳线下小班课，每次2小时、每周1次，每班不超过12人。小学290元/小时，初中350元/小时，高中1500元/小时。学习期间只收取学费，不另收比赛报名费、器材费等费用；学生上课需自备电脑。"
     },
     {
       "question": "试听时家长应该观察什么？",
@@ -106,19 +202,19 @@
     {
       "title": "人群中平凡而不平凡的人",
       "category": "学生网页作品",
-      "summary": "吴简熙完成的个人网站作品，公开完成时间为2026-07-21。作品通过视频开场、板块切换和个人内容展示训练网页表达能力；学生年龄、学习周期和比赛结果未公开。",
+      "summary": "吴简熙完成的个人网站作品，公开完成时间为2026-07-21。作品通过视频开场、板块切换和个人内容展示，训练网页结构设计、视觉表达与内容组织能力。",
       "url": "/assets/student-works/public-20260814/work-003-site/portfolio-gallery.html"
     },
     {
       "title": "徐徐少彦的数字展馆",
       "category": "Vibe Coding",
-      "summary": "徐徐少彦完成的3D数字展馆网页，公开完成时间为2026-07-21。作品用于展示空间化表达、页面组织与交互体验；学生年龄、学习周期和比赛结果未公开。",
+      "summary": "徐徐少彦完成的3D数字展馆网页，公开完成时间为2026-07-21。作品重点训练空间化表达、页面组织、素材整理与交互体验设计。",
       "url": "/assets/student-works/public-20260814/work-006-site/%E5%BE%90%E5%BE%90%E5%B0%91%E5%BD%A6%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99/3D%E8%99%9A%E6%8B%9F%E5%8D%9A%E7%89%A9%E9%A6%86_%E5%88%A0%E9%99%A4%E9%97%A8%E5%8F%A3%E9%BB%84%E8%89%B2%E7%BA%BF%E7%89%88.html"
     },
     {
       "title": "多灾害应急科普系统",
       "category": "科技项目作品",
-      "summary": "蒋羽博完成的HTML科普工具应用，公开完成时间为2026-07-12。作品整合灾害知识、答题练习与应急清单模块；学生年龄、学习周期和比赛结果未公开。",
+      "summary": "蒋羽博完成的HTML科普工具应用，公开完成时间为2026-07-12。作品整合灾害知识、答题练习与应急清单模块，体现信息整理与功能设计能力。",
       "url": "/assets/student-works/public-20260814/work-016.html"
     }
   ],

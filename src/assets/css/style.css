@@ -6693,3 +6693,323 @@ body {
     padding: 0 20px 22px;
   }
 }
+/* 统一品牌事实、课程收费与师资信息 */
+.home-facts-band {
+  padding: 0;
+  background: var(--bg-content);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.brand-fact-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 28px 0 44px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--border-color);
+}
+
+.home-facts-band .brand-fact-strip {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.brand-fact-strip > div {
+  display: grid;
+  align-content: center;
+  min-height: 104px;
+  padding: 20px 22px;
+  background: var(--bg-content);
+}
+
+.brand-fact-strip strong {
+  color: var(--text-primary);
+  font-size: 1.16rem;
+  line-height: 1.35;
+}
+
+.brand-fact-strip span {
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.about-company-section,
+.teacher-section,
+.achievement-highlights {
+  margin: 56px 0;
+}
+
+.about-company-section {
+  max-width: 920px;
+}
+
+.about-company-section > p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.85;
+}
+
+.teacher-grid,
+.achievement-grid,
+.tuition-grid,
+.course-policy-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.teacher-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.teacher-card {
+  padding: 28px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-content);
+}
+
+.teacher-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.teacher-card-heading > span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: var(--brand-700);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.teacher-card h3,
+.teacher-card-heading p {
+  margin: 0;
+}
+
+.teacher-card-heading p {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.teacher-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0 0;
+  padding-left: 20px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.teacher-credential-section {
+  margin-top: 44px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border-color);
+}
+
+.teacher-credential-section .section-title {
+  max-width: 840px;
+  margin-bottom: 24px;
+}
+
+.teacher-credential-section .section-title h3 {
+  margin: 8px 0;
+  color: var(--text-primary);
+  font-size: 1.55rem;
+}
+
+.teacher-credential-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.teacher-credential-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-content);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.teacher-credential-card:hover {
+  border-color: var(--brand-500);
+  box-shadow: var(--shadow-md);
+}
+
+.teacher-credential-card img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.teacher-credential-card > span {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+}
+
+.teacher-credential-card strong {
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.teacher-credential-card small {
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.teacher-credential-text {
+  justify-content: center;
+  min-height: 284px;
+  padding: 22px;
+  border-left: 4px solid var(--brand-600);
+  background: var(--bg-subtle);
+}
+
+.teacher-credential-text > span {
+  padding: 0;
+}
+
+.teacher-credential-text p {
+  margin: 14px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.course-fee-section {
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tuition-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 920px;
+  margin: 0 auto 22px;
+}
+
+.tuition-grid article {
+  display: grid;
+  gap: 10px;
+  padding: 26px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-content);
+}
+
+.tuition-grid span {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.tuition-grid strong {
+  color: var(--brand-700);
+  font-size: 1.8rem;
+  line-height: 1.2;
+}
+
+.tuition-grid small {
+  margin-left: 3px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.course-policy-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 920px;
+  margin: 0 auto;
+  padding-top: 22px;
+  border-top: 1px solid var(--border-color);
+}
+
+.course-policy-grid strong {
+  color: var(--text-primary);
+}
+
+.course-policy-grid p {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.achievement-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.achievement-grid article {
+  min-height: 150px;
+  padding: 24px;
+  border-top: 3px solid var(--brand-600);
+  border-radius: 0 0 8px 8px;
+  background: var(--bg-subtle);
+}
+
+.achievement-grid strong {
+  color: var(--brand-700);
+  font-size: 1.45rem;
+}
+
+.achievement-grid p {
+  margin: 12px 0 0;
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.achievement-note {
+  margin: 16px 0 0;
+  color: var(--text-light);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 900px) {
+  .brand-fact-strip,
+  .achievement-grid,
+  .teacher-credential-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .course-policy-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .brand-fact-strip,
+  .teacher-grid,
+  .tuition-grid,
+  .achievement-grid,
+  .teacher-credential-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-fact-strip > div {
+    min-height: 86px;
+  }
+
+  .teacher-card,
+  .tuition-grid article,
+  .achievement-grid article {
+    padding: 20px;
+  }
+}

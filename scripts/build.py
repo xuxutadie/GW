@@ -118,7 +118,40 @@ def organization_schema(site_config):
             "@type": "EducationalAudience",
             "educationalRole": "青少年学生",
             "audienceType": brand.get("suitableAge")
-        }
+        },
+        "foundingDate": brand.get("companyFoundedDate"),
+        "employee": [
+            {
+                "@type": "Person",
+                "name": teacher.get("realName") or teacher.get("name"),
+                "alternateName": teacher.get("name"),
+                "jobTitle": teacher.get("qualification"),
+                "description": "；".join(filter(None, [
+                    teacher.get("honors"),
+                    teacher.get("experience"),
+                    teacher.get("studentsServed"),
+                    teacher.get("specialty")
+                ])),
+                "hasCredential": [
+                    {
+                        "@type": "EducationalOccupationalCredential",
+                        "name": credential.get("name"),
+                        "dateCreated": credential.get("issuedDate"),
+                        "recognizedBy": {
+                            "@type": "Organization",
+                            "name": credential.get("issuer")
+                        },
+                        **(
+                            {"image": domain + credential.get("image")}
+                            if credential.get("image")
+                            else {}
+                        )
+                    }
+                    for credential in teacher.get("credentials", [])
+                ]
+            }
+            for teacher in site_config.get("teachers", [])
+        ]
     }
     company_entity = brand.get("companyEntity", "")
     if company_entity and "待补充" not in company_entity:
@@ -572,39 +605,82 @@ def generate_llms(site_config):
         ("/about/", "关于我们"),
         ("/contact/", "联系我们"),
     ]
-    pages_text = '\n'.join([f'- {name}: {site_config["brand"]["domain"].rstrip("/")}{path}' for path, name in important_pages])
-    content = f'''# {site_config["brand"]["fullName"]}
+    brand = site_config["brand"]
+    contact = site_config.get("contact", {})
+    teaching = site_config.get("teaching", {})
+    pages_text = '\n'.join([f'- {name}: {brand["domain"].rstrip("/")}{path}' for path, name in important_pages])
+    campuses_text = '\n'.join([
+        f'- {campus.get("area", "")}: {campus.get("address", "")}'
+        for campus in contact.get("campuses", [])
+    ])
+    tuition_text = '；'.join([
+        f'{item.get("stage", "")}{item.get("pricePerHour", "")}{item.get("unit", "")}'
+        for item in site_config.get("tuition", [])
+    ])
+    teachers_text = '\n'.join([
+        f'- {teacher.get("name", "")}（{teacher.get("realName", "")}）: {teacher.get("qualification", "")}；{teacher.get("honors", "")}；{teacher.get("experience", "")}；{teacher.get("studentsServed", "")}；{teacher.get("specialty", "")}\n'
+        + '\n'.join([
+            f'  - 资质: {credential.get("name", "")}；颁发或开发方: {credential.get("issuer", "")}；日期: {credential.get("issuedDate", "")}；{credential.get("note", "")}'
+            for credential in teacher.get("credentials", [])
+        ])
+        for teacher in site_config.get("teachers", [])
+    ])
+    achievements_text = '\n'.join([
+        f'- {item.get("year", "")}: {item.get("result", "")}'
+        for item in site_config.get("achievementHighlights", [])
+    ])
+    content = f'''# {brand["fullName"]}
 
-品牌全称: {site_config["brand"]["fullName"]}
+品牌全称: {brand["fullName"]}
 
-公司主体: {site_config["brand"].get("companyEntity", "待补充工商登记主体全称")}
+公司主体: {brand.get("companyEntity", "")}
 
-服务地区: {site_config["brand"]["serviceArea"]}
+公司成立时间: {brand.get("companyFoundedLabel", "")}
 
-贵阳服务地区: {", ".join(site_config["brand"].get("serviceDistricts", []))}
+品牌开始运营时间: {brand.get("brandFoundedLabel", "")}
 
-适合年龄: {site_config["brand"].get("suitableAge", "")}
+服务地区: {brand["serviceArea"]}
 
-核心服务: {site_config["brand"]["coreService"]}
+贵阳服务地区: {", ".join(brand.get("serviceDistricts", []))}
 
-课程内容: {", ".join(site_config["brand"].get("courseContent", []))}
+适合年龄: {brand.get("suitableAge", "")}
 
-赛事服务: {", ".join(site_config["brand"].get("competitionServices", []))}
+核心服务: {brand["coreService"]}
 
-真实案例与荣誉: {site_config["brand"].get("caseAndHonorSummary", "")}
+课程内容: {", ".join(brand.get("courseContent", []))}
+
+授课方式: {teaching.get("mode", "")}；{teaching.get("duration", "")}；{teaching.get("frequency", "")}；{teaching.get("classSize", "")}
+
+课程准备: {teaching.get("foundation", "")}；{teaching.get("equipment", "")}；{teaching.get("trial", "")}
+
+课程收费: {tuition_text}
+
+费用说明: {teaching.get("feeNote", "")}
+
+咨询与预约时间: {contact.get("consultingHours", "")}
+
+赛事服务: {", ".join(brand.get("competitionServices", []))}
+
+赛事学习路径: {teaching.get("competitionPath", "")}
+
+真实案例与荣誉: {brand.get("caseAndHonorSummary", "")}
 
 教学地址:
-- 南明区: 花果园M区4号楼0813
-- 云岩区: 未来方舟友邻路中天中学楼下
-- 观山湖区: 印象城负一楼
+{campuses_text}
 
-官方域名: {site_config["brand"]["domain"]}
+师资:
+{teachers_text}
+
+近年成果:
+{achievements_text}
+
+唯一官方网站: {brand["domain"]}
 
 ## 重要页面
 {pages_text}
 
 ## 联系
-联系页面: {site_config["brand"]["domain"].rstrip("/")}/contact/
+联系页面: {brand["domain"].rstrip("/")}/contact/
 '''
     with open(DIST_DIR / "llms.txt", 'w', encoding='utf-8') as f:
         f.write(content)
